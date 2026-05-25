@@ -18,6 +18,7 @@ public enum PerfilAcesso {
             PermissaoAcesso.GERENCIAR_PRECIFICACAO,
             PermissaoAcesso.GERENCIAR_SPACES,
             PermissaoAcesso.GERENCIAR_DOCUMENTOS,
+            PermissaoAcesso.GERENCIAR_CHAMADOS,
             PermissaoAcesso.ACESSAR_VERTICAIS,
             PermissaoAcesso.ACESSAR_ADMIN_SAAS,
             PermissaoAcesso.ACESSAR_SUPORTE
@@ -26,7 +27,8 @@ public enum PerfilAcesso {
             PermissaoAcesso.LISTAR_EMPRESAS,
             PermissaoAcesso.VISUALIZAR_EMPRESA,
             PermissaoAcesso.ACESSAR_ADMIN_SAAS,
-            PermissaoAcesso.ACESSAR_SUPORTE
+            PermissaoAcesso.ACESSAR_SUPORTE,
+            PermissaoAcesso.GERENCIAR_CHAMADOS
     )),
     EMPRESA_ADMIN(Set.of(
             PermissaoAcesso.LISTAR_EMPRESAS,
@@ -42,6 +44,7 @@ public enum PerfilAcesso {
             PermissaoAcesso.GERENCIAR_PRECIFICACAO,
             PermissaoAcesso.GERENCIAR_SPACES,
             PermissaoAcesso.GERENCIAR_DOCUMENTOS,
+            PermissaoAcesso.GERENCIAR_CHAMADOS,
             PermissaoAcesso.ACESSAR_VERTICAIS
     )),
     PROFISSIONAL(Set.of(
@@ -55,6 +58,7 @@ public enum PerfilAcesso {
             PermissaoAcesso.GERENCIAR_PRECIFICACAO,
             PermissaoAcesso.GERENCIAR_SPACES,
             PermissaoAcesso.GERENCIAR_DOCUMENTOS,
+            PermissaoAcesso.GERENCIAR_CHAMADOS,
             PermissaoAcesso.ACESSAR_VERTICAIS
     )),
     RECEPCIONISTA(Set.of(
@@ -68,6 +72,7 @@ public enum PerfilAcesso {
             PermissaoAcesso.GERENCIAR_PRECIFICACAO,
             PermissaoAcesso.GERENCIAR_SPACES,
             PermissaoAcesso.GERENCIAR_DOCUMENTOS,
+            PermissaoAcesso.GERENCIAR_CHAMADOS,
             PermissaoAcesso.ACESSAR_VERTICAIS
     )),
     CLIENTE(Set.of()),

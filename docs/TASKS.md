@@ -136,7 +136,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
-| TASK-0901 | Módulo Chamados | Abertura e acompanhamento de suporte. | PENDENTE |
+| TASK-0901 | Módulo Chamados | Abertura e acompanhamento de suporte. | CONCLUIDA |
 | TASK-0902 | Painel Admin de Suporte | Caixa de entrada, prioridade e status. | PENDENTE |
 | TASK-0903 | Central de ajuda | Artigos, FAQ e tutoriais. | PENDENTE |
 | TASK-0904 | Feedback e roadmap | Pedidos de melhoria e priorização. | PENDENTE |

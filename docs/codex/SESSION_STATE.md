@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R8 — Fundação de experiência profissional do SaaS.
+R9 — Suporte, central de ajuda, comunicação e refinamentos de experiência.
 
 ## Última task concluída
-TASK-UX-001 — Redesenhar shell, navegação e experiência responsiva do AtendePro.
+TASK-0901 — Módulo Chamados.
 
 ## Próxima task recomendada
-TASK-0801 — Portal do cliente web.
+TASK-0902 — Painel Admin de Suporte.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0901 concluida em modo autopilot multiagente release R9.
+- Modulo backend `suporte` criado com arquitetura hexagonal para abertura, listagem, detalhamento e acompanhamento de chamados.
+- Endpoints locais validados: `POST /api/suporte/chamados`, `GET /api/suporte/chamados`, `GET /api/suporte/chamados/{id}` e `POST /api/suporte/chamados/{id}/mensagens`.
+- Liquibase aplicou `0029-create-chamados-suporte.yaml` criando chamados e mensagens de suporte com escopo por empresa/tenant.
+- Permissao `chamados:gerenciar` adicionada aos perfis autorizados; `suporte:acessar` permanece reservado ao painel/admin de suporte.
 - TASK-R9-001, TASK-R9-002 e TASK-R9-003 adicionadas oficialmente à R9 como refinamentos pendentes, sem implementação técnica nesta etapa.
 - TASK-R9-004 adicionada oficialmente à R9 como task pendente para popular o ambiente local/demo com empresas, usuários, planos, pacientes/clientes, procedimentos, simulações e dados fictícios por vertical.
 - A R9 foi renomeada no Harness para `R9 — Suporte, central de ajuda, comunicação e refinamentos de experiência`, alinhando as tasks de suporte, comunicação e refinamento visual.
