@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R3 — Núcleo operacional comum.
+R4 — Custo real, precificação e relatórios.
 
 ## Última task concluída
-TASK-0309 — Busca e filtros globais.
+TASK-0310 — UX premium operacional.
 
 ## Próxima task recomendada
-TASK-0310 — UX premium operacional.
+TASK-0401 — Insumos por procedimento.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,12 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0310 concluida em modo autopilot multiagente release R3.
+- `/app` recebeu shell operacional responsivo, sidebar desktop, seletor de empresa para super admin, cards de indicadores, alertas operacionais, busca global e manutencao do CRUD Admin SaaS.
+- A UX usa clients por feature em `features/operacional/api`, TanStack Query e dados reais de `/api/dashboard/empresa`, `/api/busca/global` e `/api/empresas`.
+- Warning de ref nos campos do CRUD de planos foi corrigido registrando inputs diretamente no React Hook Form.
+- Validacao web confirmou `pnpm lint`, `pnpm typecheck`, `pnpm build` e Browser em `/app` com dados reais e console sem warnings novos.
+- R3 concluida; proxima release recomendada e R4.
 - TASK-0309 concluida em modo autopilot multiagente release R3.
 - Modulo `busca` criado no backend com endpoint `/api/busca/global`, UseCase, Result, OutputPort, adapter JDBC e controller fino.
 - A busca global consulta clientes/pacientes, agenda, servicos, custos, estoque e equipamentos, com filtros por empresa, termo, categoria e status.

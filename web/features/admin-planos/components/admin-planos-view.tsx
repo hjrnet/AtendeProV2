@@ -1,9 +1,9 @@
 "use client";
 
 import type { InputHTMLAttributes } from "react";
-import { forwardRef, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
+import { useForm, type UseFormRegisterReturn } from "react-hook-form";
 import { CheckCircle2, ChevronLeft, ChevronRight, Edit3, LoaderCircle, PackageCheck, Plus, Search, XCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -241,19 +241,19 @@ export function AdminPlanosView() {
         </div>
 
         <form className="grid gap-3" onSubmit={salvar}>
-          <CampoTexto id="codigo" label="Codigo" erro={form.formState.errors.codigo?.message} {...form.register("codigo")} />
-          <CampoTexto id="nome" label="Nome" erro={form.formState.errors.nome?.message} {...form.register("nome")} />
-          <CampoTexto id="descricao" label="Descricao" erro={form.formState.errors.descricao?.message} {...form.register("descricao")} />
+          <CampoTexto id="codigo" label="Codigo" erro={form.formState.errors.codigo?.message} registro={form.register("codigo")} />
+          <CampoTexto id="nome" label="Nome" erro={form.formState.errors.nome?.message} registro={form.register("nome")} />
+          <CampoTexto id="descricao" label="Descricao" erro={form.formState.errors.descricao?.message} registro={form.register("descricao")} />
 
           <div className="grid grid-cols-2 gap-3">
-            <CampoNumero id="valorMensal" label="Mensal" erro={form.formState.errors.valorMensal?.message} {...form.register("valorMensal")} />
-            <CampoNumero id="limiteUsuarios" label="Usuarios" erro={form.formState.errors.limiteUsuarios?.message} {...form.register("limiteUsuarios")} />
-            <CampoNumero id="limiteClientes" label="Clientes" erro={form.formState.errors.limiteClientes?.message} {...form.register("limiteClientes")} />
-            <CampoNumero id="limiteProfissionais" label="Profissionais" erro={form.formState.errors.limiteProfissionais?.message} {...form.register("limiteProfissionais")} />
+            <CampoNumero id="valorMensal" label="Mensal" erro={form.formState.errors.valorMensal?.message} registro={form.register("valorMensal")} />
+            <CampoNumero id="limiteUsuarios" label="Usuarios" erro={form.formState.errors.limiteUsuarios?.message} registro={form.register("limiteUsuarios")} />
+            <CampoNumero id="limiteClientes" label="Clientes" erro={form.formState.errors.limiteClientes?.message} registro={form.register("limiteClientes")} />
+            <CampoNumero id="limiteProfissionais" label="Profissionais" erro={form.formState.errors.limiteProfissionais?.message} registro={form.register("limiteProfissionais")} />
           </div>
 
-          <CampoTexto id="modulosTexto" label="Modulos" erro={form.formState.errors.modulosTexto?.message} {...form.register("modulosTexto")} />
-          <CampoTexto id="marcaDaguaAcademica" label="Marca d'agua" erro={form.formState.errors.marcaDaguaAcademica?.message} {...form.register("marcaDaguaAcademica")} />
+          <CampoTexto id="modulosTexto" label="Modulos" erro={form.formState.errors.modulosTexto?.message} registro={form.register("modulosTexto")} />
+          <CampoTexto id="marcaDaguaAcademica" label="Marca d'agua" erro={form.formState.errors.marcaDaguaAcademica?.message} registro={form.register("marcaDaguaAcademica")} />
 
           <div className="grid grid-cols-2 gap-3">
             <label className="flex items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm font-medium text-card-foreground">
@@ -290,25 +290,26 @@ function MetricaPlano({ rotulo, valor }: { rotulo: string; valor: string }) {
 type CampoProps = InputHTMLAttributes<HTMLInputElement> & {
   label: string;
   erro?: string;
+  registro: UseFormRegisterReturn;
 };
 
-const CampoTexto = forwardRef<HTMLInputElement, CampoProps>(function CampoTexto({ label, erro, ...props }, ref) {
+function CampoTexto({ label, erro, registro, ...props }: CampoProps) {
   return (
     <label className="grid gap-1 text-sm font-medium text-card-foreground">
       {label}
       <input
-        ref={ref}
         className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+        {...registro}
         {...props}
       />
       {erro ? <span className="text-xs text-red-600">{erro}</span> : null}
     </label>
   );
-});
+}
 
-const CampoNumero = forwardRef<HTMLInputElement, CampoProps>(function CampoNumero(props, ref) {
-  return <CampoTexto ref={ref} type="number" min={0} step="0.01" {...props} />;
-});
+function CampoNumero(props: CampoProps) {
+  return <CampoTexto type="number" min={0} step="0.01" {...props} />;
+}
 
 function formatarMoeda(valor: number) {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(valor);
