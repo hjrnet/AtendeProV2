@@ -21,6 +21,7 @@ import br.com.atendepro.modules.spaces.application.port.in.DetalharPacoteSubloca
 import br.com.atendepro.modules.spaces.application.port.in.DetalharRecursoSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.ListarPacotesSublocacaoSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.ListarRecursosSpacesUseCase;
+import br.com.atendepro.modules.spaces.application.port.in.SimularParceiroSpacesUseCase;
 import br.com.atendepro.modules.spaces.domain.model.TipoPacoteSublocacaoSpaces;
 import br.com.atendepro.modules.spaces.domain.model.TipoRecursoSpaces;
 import br.com.atendepro.shared.application.pagination.Paginacao;
@@ -39,6 +40,7 @@ public class SpacesController {
     private final CadastrarPacoteSublocacaoSpacesUseCase cadastrarPacoteSublocacaoSpacesUseCase;
     private final DetalharPacoteSublocacaoSpacesUseCase detalharPacoteSublocacaoSpacesUseCase;
     private final ListarPacotesSublocacaoSpacesUseCase listarPacotesSublocacaoSpacesUseCase;
+    private final SimularParceiroSpacesUseCase simularParceiroSpacesUseCase;
 
     public SpacesController(
             ConsultarSpacesUseCase consultarSpacesUseCase,
@@ -48,7 +50,8 @@ public class SpacesController {
             ListarRecursosSpacesUseCase listarRecursosSpacesUseCase,
             CadastrarPacoteSublocacaoSpacesUseCase cadastrarPacoteSublocacaoSpacesUseCase,
             DetalharPacoteSublocacaoSpacesUseCase detalharPacoteSublocacaoSpacesUseCase,
-            ListarPacotesSublocacaoSpacesUseCase listarPacotesSublocacaoSpacesUseCase
+            ListarPacotesSublocacaoSpacesUseCase listarPacotesSublocacaoSpacesUseCase,
+            SimularParceiroSpacesUseCase simularParceiroSpacesUseCase
     ) {
         this.consultarSpacesUseCase = consultarSpacesUseCase;
         this.calcularCustoHoraSpacesUseCase = calcularCustoHoraSpacesUseCase;
@@ -58,6 +61,7 @@ public class SpacesController {
         this.cadastrarPacoteSublocacaoSpacesUseCase = cadastrarPacoteSublocacaoSpacesUseCase;
         this.detalharPacoteSublocacaoSpacesUseCase = detalharPacoteSublocacaoSpacesUseCase;
         this.listarPacotesSublocacaoSpacesUseCase = listarPacotesSublocacaoSpacesUseCase;
+        this.simularParceiroSpacesUseCase = simularParceiroSpacesUseCase;
     }
 
     @GetMapping("/status")
@@ -147,6 +151,15 @@ public class SpacesController {
                         tipo,
                         ativo
                 )
+        ));
+    }
+
+    @PostMapping("/simulacoes/parceiro")
+    public ResponseEntity<SimulacaoParceiroSpacesResponse> simularParceiro(
+            @Valid @RequestBody SimularParceiroSpacesRequest request
+    ) {
+        return ResponseEntity.ok(SimulacaoParceiroSpacesResponse.de(
+                simularParceiroSpacesUseCase.simularParceiro(request.paraCommand())
         ));
     }
 }
