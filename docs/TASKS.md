@@ -13,7 +13,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-0005 | Criar frontend Next.js base | Criar web com Next.js, Tailwind e shadcn/ui. | CONCLUIDA |
 | TASK-0006 | Criar padrões de ambiente | Configurar .env, profiles e documentação local. | CONCLUIDA |
 | TASK-0007 | Configurar Liquibase | Criar changelog master e primeira migration. | CONCLUIDA |
-| TASK-0008 | Configurar OpenAPI/Swagger | Expor documentação da API. | PENDENTE |
+| TASK-0008 | Configurar OpenAPI/Swagger | Expor documentação da API. | CONCLUIDA |
 | TASK-0009 | Criar shared kernel do backend | Money, Percentual, BaseId, datas, paginação. | PENDENTE |
 | TASK-0010 | Criar padrão global de erros | BusinessException, ValidationException e handler. | PENDENTE |
 | TASK-0011 | Criar padrão de testes backend | JUnit, Mockito, Testcontainers e smoke tests. | PENDENTE |

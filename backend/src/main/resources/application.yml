@@ -23,3 +23,11 @@ info:
   app:
     name: AtendePro Backend
     description: SaaS profissional multiempresa e multiárea
+
+springdoc:
+  api-docs:
+    path: /api/docs
+  swagger-ui:
+    path: /swagger-ui
+    operations-sorter: alpha
+    tags-sorter: alpha

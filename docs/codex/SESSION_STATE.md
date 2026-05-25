@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R0 — Fundação técnica profissional.
 
 ## Última task concluída
-TASK-0007 — Configurar Liquibase.
+TASK-0008 — Configurar OpenAPI/Swagger.
 
 ## Próxima task recomendada
-TASK-0008 — Configurar OpenAPI/Swagger.
+TASK-0009 — Criar shared kernel do backend.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,8 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0008 concluida em modo autopilot release R0.
+- OpenAPI/Swagger configurado com springdoc, JSON em `/api/docs` e Swagger UI em `/swagger-ui`.
 - TASK-0007 concluida em modo autopilot release R0.
 - Liquibase configurado com changelog master e primeira migration tecnica para extensao PostgreSQL `pgcrypto`.
 - TASK-0006 concluida em modo autopilot release R0.

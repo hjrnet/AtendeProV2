@@ -32,3 +32,8 @@ Para aplicar migrations diretamente:
 ```bash
 mvn -Dliquibase.url=jdbc:postgresql://localhost:5433/atendepro -Dliquibase.username=atendepro -Dliquibase.password=atendepro liquibase:update
 ```
+
+## OpenAPI
+
+- JSON: `GET /api/docs`
+- Swagger UI: `/swagger-ui`
