@@ -1,13 +1,7 @@
 package br.com.atendepro.modules.auth.adapter.out.security;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.Clock;
 import java.time.Instant;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
@@ -57,16 +51,6 @@ public class JwtAutenticacaoAdapter implements GerarTokenAutenticacaoPort {
     }
 
     private JwtEncoder jwtEncoder() {
-        return new NimbusJwtEncoder(new ImmutableSecret<>(chaveAssinatura()));
-    }
-
-    private SecretKey chaveAssinatura() {
-        try {
-            byte[] segredo = MessageDigest.getInstance("SHA-256")
-                    .digest(properties.segredo().getBytes(StandardCharsets.UTF_8));
-            return new SecretKeySpec(segredo, "HmacSHA256");
-        } catch (NoSuchAlgorithmException exception) {
-            throw new IllegalStateException("algoritmo de assinatura jwt indisponivel", exception);
-        }
+        return new NimbusJwtEncoder(new ImmutableSecret<>(JwtChaveAssinaturaFactory.criarChaveAssinatura(properties.segredo())));
     }
 }

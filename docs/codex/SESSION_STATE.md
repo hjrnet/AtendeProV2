@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R1 — Auth, tenant e segurança.
 
 ## Última task concluída
-TASK-0107 — Criar usuário administrador da empresa.
+TASK-0108 — Contexto de tenant.
 
 ## Próxima task recomendada
-TASK-0108 — Contexto de tenant.
+TASK-0109 — Isolamento por tenant_id.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0108 concluida em modo autopilot multiagente release R1.
+- Contexto de tenant criado com `TenantContextHolder` por request e filtro que resolve `empresaId` por JWT ou header `X-Empresa-Id`.
+- JWT de usuario tenant agora carrega claim `empresaId`; contexto e limpo ao final da request.
+- Validacao local confirmou chamada com Bearer JWT real passando pelo filtro.
 - TASK-0107 concluida em modo autopilot multiagente release R1.
 - Usuarios de autenticacao agora aceitam `empresaId` opcional; super admin SaaS permanece sem tenant e admin de empresa usa `EMPRESA_ADMIN`.
 - Cadastro de administrador da empresa criado em `/api/empresas/{empresaId}/usuarios/admin`, com email unico e senha forte.

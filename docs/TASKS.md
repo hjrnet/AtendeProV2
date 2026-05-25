@@ -30,7 +30,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-0105 | Recuperação de senha | Fluxo de reset com token. | CONCLUIDA |
 | TASK-0106 | Criar módulo Empresa/Tenant | Cadastro de empresas e isolamento base. | CONCLUIDA |
 | TASK-0107 | Criar usuário administrador da empresa | Admin vinculado ao tenant. | CONCLUIDA |
-| TASK-0108 | Contexto de tenant | Resolver tenant por token e request. | PENDENTE |
+| TASK-0108 | Contexto de tenant | Resolver tenant por token e request. | CONCLUIDA |
 | TASK-0109 | Isolamento por tenant_id | Aplicar filtros e validações de tenant. | PENDENTE |
 | TASK-0110 | Perfis e permissões | Roles e authorities base. | PENDENTE |
 | TASK-0111 | Tela de login web | Login, botão demo e armazenamento seguro de token. | PENDENTE |
