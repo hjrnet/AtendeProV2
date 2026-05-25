@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { BookOpenText, Building2, CreditCard, LifeBuoy, PackageCheck, TrendingUp } from "lucide-react";
+import { BookOpenText, Building2, CreditCard, LifeBuoy, PackageCheck, Route, TrendingUp } from "lucide-react";
 
 import { AdminPlanosView } from "@/features/admin-planos/components/admin-planos-view";
 import type { SessaoAutenticada } from "@/features/auth/lib/auth-storage";
 import { CentralAjudaView } from "@/features/suporte/components/central-ajuda-view";
+import { FeedbackRoadmapView } from "@/features/suporte/components/feedback-roadmap-view";
 import { PainelAdminSuporte } from "@/features/suporte/components/painel-admin-suporte";
 
 const secoesAdmin = [
@@ -14,10 +15,11 @@ const secoesAdmin = [
   { id: "assinaturas", label: "Assinaturas", icon: CreditCard, ativo: false },
   { id: "suporte", label: "Suporte", icon: LifeBuoy, ativo: true },
   { id: "ajuda", label: "Ajuda", icon: BookOpenText, ativo: true },
+  { id: "roadmap", label: "Roadmap", icon: Route, ativo: true },
   { id: "relatorios", label: "Relatórios", icon: TrendingUp, ativo: false }
 ];
 
-type SubsecaoAdmin = "planos" | "suporte" | "ajuda";
+type SubsecaoAdmin = "planos" | "suporte" | "ajuda" | "roadmap";
 
 type SecaoAdminSaasProps = {
   empresaId: string;
@@ -64,6 +66,9 @@ function renderizarSubsecaoAdmin(subsecao: SubsecaoAdmin, empresaId: string, ses
   }
   if (subsecao === "ajuda") {
     return <CentralAjudaView />;
+  }
+  if (subsecao === "roadmap") {
+    return <FeedbackRoadmapView />;
   }
   return <AdminPlanosView />;
 }

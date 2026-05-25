@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R9 — Suporte, central de ajuda, comunicação e refinamentos de experiência.
 
 ## Última task concluída
-TASK-0903 — Central de ajuda.
+TASK-0904 — Feedback e roadmap.
 
 ## Próxima task recomendada
-TASK-0904 — Feedback e roadmap.
+TASK-0905 — Notificações internas.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0904 concluida em modo autopilot multiagente release R9.
+- Admin SaaS ganhou subsecao `Roadmap` para pedidos de melhoria, votos locais, filtro por area, formulario de novo pedido e quadro por status.
+- A experiencia inicial de feedback/roadmap foi implementada no frontend sem persistencia, sem voting real multiusuario e sem backend fora do escopo.
+- Validacao confirmou `pnpm lint`, `pnpm typecheck`, `pnpm build`, Docker Compose saudavel, backend local `UP`, web local `/app` HTTP 200 e Browser registrando pedido sem erros de console.
 - TASK-0903 concluida em modo autopilot multiagente release R9.
 - Admin SaaS ganhou subsecao `Ajuda` com Central de Ajuda inicial contendo artigos, FAQ, tutoriais rapidos, busca e filtro por categoria.
 - A Central de Ajuda nasceu como conteudo estatico de produto no frontend, sem persistencia, sem CMS e sem backend fora do escopo.
