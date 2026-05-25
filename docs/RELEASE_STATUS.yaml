@@ -1,8 +1,8 @@
 project: AtendePro
 strategy: professional_complete
 current_release: R9
-last_completed_task: TASK-0904
-next_task: TASK-0905
+last_completed_task: TASK-0905
+next_task: TASK-R9-001
 releases:
   R0:
     name: "R0 — Fundação técnica profissional"
@@ -133,7 +133,7 @@ releases:
       TASK-0902: CONCLUIDA
       TASK-0903: CONCLUIDA
       TASK-0904: CONCLUIDA
-      TASK-0905: PENDENTE
+      TASK-0905: CONCLUIDA
       TASK-R9-001: PENDENTE
       TASK-R9-002: PENDENTE
       TASK-R9-003: PENDENTE

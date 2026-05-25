@@ -4,6 +4,7 @@ import { Building2, LogOut, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { SessaoAutenticada } from "@/features/auth/lib/auth-storage";
+import { CentralNotificacoesInternas } from "@/features/notificacoes/components/central-notificacoes-internas";
 import type { EmpresaResumo } from "@/features/operacional/api/operacional-client";
 import type { SecaoPrincipalConfig } from "@/features/shell/types";
 
@@ -77,6 +78,7 @@ export function BarraSuperiorContextual({
           ) : null}
 
           <div className="grid grid-cols-[1fr_auto] gap-2 sm:flex sm:items-center">
+            <CentralNotificacoesInternas />
             <div className="min-w-0 rounded-md border bg-card px-3 py-2 text-sm">
               <p className="truncate font-semibold text-card-foreground">{sessao.usuario.nome}</p>
               <p className="truncate text-xs text-muted-foreground">{sessao.usuario.email}</p>

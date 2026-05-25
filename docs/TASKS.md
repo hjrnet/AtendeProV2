@@ -140,7 +140,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-0902 | Painel Admin de Suporte | Caixa de entrada, prioridade e status. | CONCLUIDA |
 | TASK-0903 | Central de ajuda | Artigos, FAQ e tutoriais. | CONCLUIDA |
 | TASK-0904 | Feedback e roadmap | Pedidos de melhoria e priorização. | CONCLUIDA |
-| TASK-0905 | Notificações internas | Eventos, avisos e alertas. | PENDENTE |
+| TASK-0905 | Notificações internas | Eventos, avisos e alertas. | CONCLUIDA |
 | TASK-R9-001 | Destacar visualmente simulações em alerta na Precificação | Alertas visuais, badges, ícones e filtros para identificar simulações saudáveis, com margem baixa ou em prejuízo. | PENDENTE |
 | TASK-R9-002 | Criar menu rápido de ações principais do Nutri Pro | Especificar menu rápido no prontuário nutricional, priorizando gastos energéticos, exames laboratoriais e plano alimentar. | PENDENTE |
 | TASK-R9-003 | Corrigir acentuação e textos em português do sistema | Revisar textos visíveis, labels, botões, estados vazios e microcopy para português brasileiro correto. | PENDENTE |

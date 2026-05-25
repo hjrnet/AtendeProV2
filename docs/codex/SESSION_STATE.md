@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R9 — Suporte, central de ajuda, comunicação e refinamentos de experiência.
 
 ## Última task concluída
-TASK-0904 — Feedback e roadmap.
+TASK-0905 — Notificações internas.
 
 ## Próxima task recomendada
-TASK-0905 — Notificações internas.
+TASK-R9-001 — Destacar visualmente simulações em alerta na Precificação.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0905 concluida em modo autopilot multiagente release R9.
+- Shell do AtendePro ganhou central de notificacoes internas no topo, com contador, alertas, avisos, eventos, filtro de nao lidas e acao de marcar como lida.
+- A implementacao inicial usa estado local e dados internos de demonstracao, sem push notification, fila, websocket ou persistencia fora do escopo.
+- Validacao confirmou `pnpm lint`, `pnpm typecheck`, `pnpm build`, Docker Compose saudavel, backend local `UP`, web local `/app` HTTP 200 e Browser com painel de notificacoes sem erros de console.
 - TASK-0904 concluida em modo autopilot multiagente release R9.
 - Admin SaaS ganhou subsecao `Roadmap` para pedidos de melhoria, votos locais, filtro por area, formulario de novo pedido e quadro por status.
 - A experiencia inicial de feedback/roadmap foi implementada no frontend sem persistencia, sem voting real multiusuario e sem backend fora do escopo.
