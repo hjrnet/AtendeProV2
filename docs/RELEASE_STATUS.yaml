@@ -126,7 +126,7 @@ releases:
       TASK-0805: PENDENTE
       TASK-0806: PENDENTE
   R9:
-    name: "R9 — Suporte, central de ajuda e comunicação"
+    name: "R9 — Suporte, central de ajuda, comunicação e refinamentos de experiência"
     status: PENDENTE
     tasks:
       TASK-0901: PENDENTE
@@ -137,6 +137,7 @@ releases:
       TASK-R9-001: PENDENTE
       TASK-R9-002: PENDENTE
       TASK-R9-003: PENDENTE
+      TASK-R9-004: PENDENTE
   R10:
     name: "R10 — Landing page e comercial"
     status: PENDENTE

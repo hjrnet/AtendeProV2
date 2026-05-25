@@ -1,7 +1,7 @@
 # TASK-R9-003 — Corrigir acentuação e textos em português do sistema
 
 ## Release
-R9 — Suporte, central de ajuda e comunicação
+R9 — Suporte, central de ajuda, comunicação e refinamentos de experiência
 
 ## Complexidade
 MÉDIA

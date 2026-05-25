@@ -1,7 +1,7 @@
 # TASK-R9-001 — Destacar visualmente simulações em alerta na Precificação
 
 ## Release
-R9 — Suporte, central de ajuda e comunicação
+R9 — Suporte, central de ajuda, comunicação e refinamentos de experiência
 
 ## Complexidade
 MÉDIA

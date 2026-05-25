@@ -112,13 +112,17 @@
 - **TASK-0805 — Notificações push**: Lembretes e eventos.
 - **TASK-0806 — Experiência mobile premium**: Design app-like.
 
-## R9 — Suporte, central de ajuda e comunicação
+## R9 — Suporte, central de ajuda, comunicação e refinamentos de experiência
 
 - **TASK-0901 — Módulo Chamados**: Abertura e acompanhamento de suporte.
 - **TASK-0902 — Painel Admin de Suporte**: Caixa de entrada, prioridade e status.
 - **TASK-0903 — Central de ajuda**: Artigos, FAQ e tutoriais.
 - **TASK-0904 — Feedback e roadmap**: Pedidos de melhoria e priorização.
 - **TASK-0905 — Notificações internas**: Eventos, avisos e alertas.
+- **TASK-R9-001 — Destacar visualmente simulações em alerta na Precificação**: Alertas visuais, badges, ícones e filtros para cenários saudáveis, margem baixa e prejuízo.
+- **TASK-R9-002 — Criar menu rápido de ações principais do Nutri Pro**: Ações rápidas do paciente nutricional, priorizando gastos energéticos, exames laboratoriais e plano alimentar.
+- **TASK-R9-003 — Corrigir acentuação e textos em português do sistema**: Revisão de textos visíveis e microcopy para português brasileiro correto.
+- **TASK-R9-004 — Popular ambiente demo com usuários, planos e simulações realistas**: Seed local/demo com dados fictícios profissionais para apresentações, testes e validação visual.
 
 ## R10 — Landing page e comercial
 

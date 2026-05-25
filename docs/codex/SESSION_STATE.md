@@ -19,7 +19,9 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 
 ## Decisões recentes
 - TASK-R9-001, TASK-R9-002 e TASK-R9-003 adicionadas oficialmente à R9 como refinamentos pendentes, sem implementação técnica nesta etapa.
-- A R9 manteve o nome oficial já existente no projeto: `R9 — Suporte, central de ajuda e comunicação`.
+- TASK-R9-004 adicionada oficialmente à R9 como task pendente para popular o ambiente local/demo com empresas, usuários, planos, pacientes/clientes, procedimentos, simulações e dados fictícios por vertical.
+- A R9 foi renomeada no Harness para `R9 — Suporte, central de ajuda, comunicação e refinamentos de experiência`, alinhando as tasks de suporte, comunicação e refinamento visual.
+- TASK-R9-004 deve criar apenas dados fictícios, restritos a ambiente local/demo, com documentação de logins demo e validação de que não há dados pessoais reais.
 - TASK-R9-001 cobre destaque visual para simulações em alerta na Precificação.
 - TASK-R9-002 cobre o menu rápido de ações principais do Nutri Pro, priorizando gastos energéticos, exames laboratoriais e plano alimentar.
 - TASK-R9-003 cobre correção de acentuação e textos visíveis em português brasileiro.

@@ -1,7 +1,7 @@
 # TASK-R9-002 — Criar menu rápido de ações principais do Nutri Pro
 
 ## Release
-R9 — Suporte, central de ajuda e comunicação
+R9 — Suporte, central de ajuda, comunicação e refinamentos de experiência
 
 ## Complexidade
 MÉDIA
