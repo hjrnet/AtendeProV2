@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R1 — Auth, tenant e segurança.
 
 ## Última task concluída
-TASK-0103 — Login com JWT.
+TASK-0104 — Refresh token.
 
 ## Próxima task recomendada
-TASK-0104 — Refresh token.
+TASK-0105 — Recuperação de senha.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,9 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0104 concluida em modo autopilot multiagente release R1.
+- Refresh token criado com valor aleatorio, hash SHA-256 persistido em `auth_refresh_tokens`, expiracao configuravel e rotacao com revogacao do token anterior.
+- Validacao local confirmou login, `/api/auth/refresh`, migration Liquibase e 1 token revogado apos rotacao.
 - TASK-0103 concluida em modo autopilot multiagente release R1.
 - Login backend criado em `/api/auth/login` com Controller fino, Request/Response, UseCase, Command/Result, portas e adapter JWT.
 - Escopo da TASK-0103 limitado a access token; refresh token permanece para TASK-0104.

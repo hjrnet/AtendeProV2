@@ -15,6 +15,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import br.com.atendepro.modules.auth.application.port.out.CarregarUsuarioPorIdPort;
 import br.com.atendepro.modules.auth.application.port.out.CarregarUsuarioPorEmailPort;
 import br.com.atendepro.modules.auth.application.port.out.SalvarUsuarioAutenticacaoPort;
 import br.com.atendepro.modules.auth.domain.model.EmailUsuario;
@@ -23,7 +24,7 @@ import br.com.atendepro.modules.auth.domain.model.UsuarioAutenticacao;
 
 @Repository
 @Profile("!test")
-public class JdbcUsuarioAutenticacaoAdapter implements CarregarUsuarioPorEmailPort, SalvarUsuarioAutenticacaoPort {
+public class JdbcUsuarioAutenticacaoAdapter implements CarregarUsuarioPorEmailPort, CarregarUsuarioPorIdPort, SalvarUsuarioAutenticacaoPort {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -50,6 +51,32 @@ public class JdbcUsuarioAutenticacaoAdapter implements CarregarUsuarioPorEmailPo
                             rs.getTimestamp("criado_em").toInstant()
                     ),
                     email.valor()
+            );
+            return Optional.of(usuario);
+        } catch (EmptyResultDataAccessException ignored) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<UsuarioAutenticacao> carregarUsuarioPorId(UUID usuarioId) {
+        try {
+            UsuarioAutenticacao usuario = jdbcTemplate.queryForObject(
+                    """
+                    select id, nome, email, senha_hash, perfis, ativo, criado_em
+                    from auth_usuarios
+                    where id = ?
+                    """,
+                    (rs, rowNum) -> new UsuarioAutenticacao(
+                            rs.getObject("id", UUID.class),
+                            EmailUsuario.de(rs.getString("email")),
+                            rs.getString("nome"),
+                            rs.getString("senha_hash"),
+                            mapearPerfis(rs.getArray("perfis")),
+                            rs.getBoolean("ativo"),
+                            rs.getTimestamp("criado_em").toInstant()
+                    ),
+                    usuarioId
             );
             return Optional.of(usuario);
         } catch (EmptyResultDataAccessException ignored) {

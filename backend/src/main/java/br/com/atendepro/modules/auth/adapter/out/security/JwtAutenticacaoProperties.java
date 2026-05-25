@@ -6,7 +6,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record JwtAutenticacaoProperties(
         String jwtIssuer,
         String jwtSecret,
-        Integer jwtExpiracaoMinutos
+        Integer jwtExpiracaoMinutos,
+        Integer jwtRefreshExpiracaoDias
 ) {
 
     public String emissor() {
@@ -22,6 +23,13 @@ public record JwtAutenticacaoProperties(
             return 60;
         }
         return jwtExpiracaoMinutos;
+    }
+
+    public int refreshExpiracaoDias() {
+        if (jwtRefreshExpiracaoDias == null || jwtRefreshExpiracaoDias < 1) {
+            return 7;
+        }
+        return jwtRefreshExpiracaoDias;
     }
 
     private static String valorOuPadrao(String valor, String padrao) {

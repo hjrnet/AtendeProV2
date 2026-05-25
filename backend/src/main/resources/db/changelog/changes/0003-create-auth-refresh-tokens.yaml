@@ -1,0 +1,60 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0003-create-auth-refresh-tokens
+      author: codex
+      changes:
+        - createTable:
+            tableName: auth_refresh_tokens
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: usuario_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_auth_refresh_tokens_usuario
+                    references: auth_usuarios(id)
+              - column:
+                  name: token_hash
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: expira_em
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+              - column:
+                  name: revogado
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: revogado_em
+                  type: timestamptz
+        - createIndex:
+            tableName: auth_refresh_tokens
+            indexName: idx_auth_refresh_tokens_hash
+            columns:
+              - column:
+                  name: token_hash
+        - createIndex:
+            tableName: auth_refresh_tokens
+            indexName: idx_auth_refresh_tokens_usuario
+            columns:
+              - column:
+                  name: usuario_id

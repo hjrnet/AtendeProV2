@@ -14,19 +14,21 @@ import br.com.atendepro.modules.auth.domain.model.EmailUsuario;
 import br.com.atendepro.modules.auth.domain.model.PerfilAcesso;
 import br.com.atendepro.modules.auth.domain.model.UsuarioAutenticacao;
 
-class JwtAutenticacaoAdapterTest {
+class RefreshTokenSeguroAdapterTest {
 
     @Test
-    void deveGerarAccessTokenJwt() {
-        JwtAutenticacaoAdapter adapter = new JwtAutenticacaoAdapter(
+    void deveGerarRefreshTokenSeguroComHash() {
+        RefreshTokenSeguroAdapter adapter = new RefreshTokenSeguroAdapter(
                 new JwtAutenticacaoProperties("atendepro-test", "segredo-de-teste", 30, 7),
                 Clock.fixed(Instant.parse("2026-05-25T00:00:00Z"), ZoneOffset.UTC)
         );
 
-        var token = adapter.gerarAccessToken(usuario());
+        var token = adapter.gerarRefreshToken(usuario());
 
-        assertThat(token.valor()).contains(".");
-        assertThat(token.expiraEm()).isEqualTo(Instant.parse("2026-05-25T00:30:00Z"));
+        assertThat(token.valor()).hasSizeGreaterThan(40);
+        assertThat(token.tokenHash()).hasSize(64);
+        assertThat(token.tokenHash()).isEqualTo(adapter.gerarHashRefreshToken(token.valor()));
+        assertThat(token.expiraEm()).isEqualTo(Instant.parse("2026-06-01T00:00:00Z"));
     }
 
     private UsuarioAutenticacao usuario() {

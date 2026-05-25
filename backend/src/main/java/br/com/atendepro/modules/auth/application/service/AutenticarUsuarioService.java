@@ -3,14 +3,16 @@ package br.com.atendepro.modules.auth.application.service;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
+
 import br.com.atendepro.modules.auth.application.command.AutenticarUsuarioCommand;
 import br.com.atendepro.modules.auth.application.port.in.AutenticarUsuarioUseCase;
 import br.com.atendepro.modules.auth.application.port.out.CarregarUsuarioPorEmailPort;
+import br.com.atendepro.modules.auth.application.port.out.GerarRefreshTokenPort;
 import br.com.atendepro.modules.auth.application.port.out.GerarTokenAutenticacaoPort;
-import br.com.atendepro.modules.auth.application.port.out.TokenGerado;
+import br.com.atendepro.modules.auth.application.port.out.SalvarRefreshTokenPort;
 import br.com.atendepro.modules.auth.application.port.out.VerificarSenhaPort;
 import br.com.atendepro.modules.auth.application.result.AutenticacaoResult;
-import br.com.atendepro.modules.auth.application.result.UsuarioAutenticadoResult;
 import br.com.atendepro.modules.auth.domain.exception.AutenticacaoException;
 import br.com.atendepro.modules.auth.domain.model.UsuarioAutenticacao;
 
@@ -21,15 +23,24 @@ public class AutenticarUsuarioService implements AutenticarUsuarioUseCase {
     private final CarregarUsuarioPorEmailPort carregarUsuarioPorEmailPort;
     private final VerificarSenhaPort verificarSenhaPort;
     private final GerarTokenAutenticacaoPort gerarTokenAutenticacaoPort;
+    private final GerarRefreshTokenPort gerarRefreshTokenPort;
+    private final SalvarRefreshTokenPort salvarRefreshTokenPort;
+    private final Clock clock;
 
     public AutenticarUsuarioService(
             CarregarUsuarioPorEmailPort carregarUsuarioPorEmailPort,
             VerificarSenhaPort verificarSenhaPort,
-            GerarTokenAutenticacaoPort gerarTokenAutenticacaoPort
+            GerarTokenAutenticacaoPort gerarTokenAutenticacaoPort,
+            GerarRefreshTokenPort gerarRefreshTokenPort,
+            SalvarRefreshTokenPort salvarRefreshTokenPort,
+            Clock clock
     ) {
         this.carregarUsuarioPorEmailPort = carregarUsuarioPorEmailPort;
         this.verificarSenhaPort = verificarSenhaPort;
         this.gerarTokenAutenticacaoPort = gerarTokenAutenticacaoPort;
+        this.gerarRefreshTokenPort = gerarRefreshTokenPort;
+        this.salvarRefreshTokenPort = salvarRefreshTokenPort;
+        this.clock = clock;
     }
 
     @Override
@@ -44,17 +55,12 @@ public class AutenticarUsuarioService implements AutenticarUsuarioUseCase {
             throw credenciaisInvalidas();
         }
 
-        TokenGerado token = gerarTokenAutenticacaoPort.gerarAccessToken(usuario);
-        return new AutenticacaoResult(
-                token.valor(),
-                "Bearer",
-                token.expiraEm(),
-                new UsuarioAutenticadoResult(
-                        usuario.id(),
-                        usuario.nome(),
-                        usuario.email().valor(),
-                        usuario.perfis()
-                )
+        return RefreshTokenResultFactory.criarAutenticacaoComRefresh(
+                usuario,
+                gerarTokenAutenticacaoPort,
+                gerarRefreshTokenPort,
+                salvarRefreshTokenPort,
+                clock
         );
     }
 
