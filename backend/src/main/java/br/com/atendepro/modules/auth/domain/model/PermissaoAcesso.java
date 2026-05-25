@@ -14,6 +14,7 @@ public enum PermissaoAcesso {
     GERENCIAR_EQUIPAMENTOS("equipamentos:gerenciar"),
     GERENCIAR_PRECIFICACAO("precificacao:gerenciar"),
     GERENCIAR_SPACES("spaces:gerenciar"),
+    GERENCIAR_DOCUMENTOS("documentos:gerenciar"),
     ACESSAR_ADMIN_SAAS("admin-saas:acessar"),
     ACESSAR_SUPORTE("suporte:acessar");
 

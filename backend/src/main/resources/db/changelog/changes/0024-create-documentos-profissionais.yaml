@@ -1,0 +1,119 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0024-create-documentos-profissionais
+      author: codex
+      changes:
+        - createTable:
+            tableName: documentos_profissionais
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: empresa_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cliente_paciente_id
+                  type: uuid
+              - column:
+                  name: profissional_id
+                  type: uuid
+              - column:
+                  name: profissional_nome
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: titulo
+                  type: varchar(180)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tipo
+                  type: varchar(60)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: conteudo
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: versao
+                  type: int
+                  defaultValueNumeric: 1
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ativo
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: documentos_profissionais
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_documentos_profissionais_empresas
+        - addForeignKeyConstraint:
+            baseTableName: documentos_profissionais
+            baseColumnNames: cliente_paciente_id
+            referencedTableName: clientes_pacientes
+            referencedColumnNames: id
+            constraintName: fk_documentos_profissionais_clientes
+        - createIndex:
+            tableName: documentos_profissionais
+            indexName: idx_documentos_profissionais_empresa_tipo
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: tipo
+        - createIndex:
+            tableName: documentos_profissionais
+            indexName: idx_documentos_profissionais_empresa_status
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: status
+        - createIndex:
+            tableName: documentos_profissionais
+            indexName: idx_documentos_profissionais_empresa_cliente
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: cliente_paciente_id
+        - createIndex:
+            tableName: documentos_profissionais
+            indexName: idx_documentos_profissionais_empresa_atualizado
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: atualizado_em

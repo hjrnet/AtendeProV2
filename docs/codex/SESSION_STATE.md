@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R6 — Documentos profissionais e carimbo.
 
 ## Última task concluída
-TASK-0507 — Relatório de sublocação.
+TASK-0601 — Módulo Documento Profissional.
 
 ## Próxima task recomendada
-TASK-0601 — Módulo Documento Profissional.
+TASK-0602 — Carimbo profissional.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0601 concluida em modo autopilot multiagente release R6.
+- Modulo `documento` criado no backend com dominio `DocumentoProfissional`, tipos, status, Command/Result, UseCases, OutputPorts, adapter JDBC e controller fino em `/api/documentos-profissionais`.
+- Documentos profissionais sao tenant-scoped por `empresa_id`, podem vincular opcionalmente `cliente_paciente_id`, nascem com `versao=1`, `ativo=true` e status inicial `RASCUNHO` quando nao informado.
+- Permissao `GERENCIAR_DOCUMENTOS` adicionada aos perfis operacionais da empresa para proteger criacao, detalhe e listagem.
+- Validacao confirmou `mvn test` com 214 testes, Docker Compose saudavel, backend local `UP` e fluxo API real de criar/listar/detalhar documento profissional.
 - TASK-0507 concluida em modo autopilot multiagente release R5.
 - Indicadores de sublocacao criados em `/api/spaces/indicadores/sublocacao`, agregando recursos, pacotes ativos, ocupacoes por status, horas ocupadas no mes, receita fixa prevista e taxa de ocupacao estimada.
 - Relatorio PDF de sublocacao criado em `/api/spaces/relatorios/sublocacao.pdf`, gerado por adapter PDFBox isolado por porta de saida.

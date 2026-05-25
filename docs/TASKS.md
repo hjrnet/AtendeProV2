@@ -97,7 +97,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
-| TASK-0601 | Módulo Documento Profissional | Base de documentos com histórico. | PENDENTE |
+| TASK-0601 | Módulo Documento Profissional | Base de documentos com histórico. | CONCLUIDA |
 | TASK-0602 | Carimbo profissional | Conselho, UF, número, assinatura e clínica. | PENDENTE |
 | TASK-0603 | Geração de PDF | Templates e exportação. | PENDENTE |
 | TASK-0604 | QR Code de validação | Validação pública limitada. | PENDENTE |
