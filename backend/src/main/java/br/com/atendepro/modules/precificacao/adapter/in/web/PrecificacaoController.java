@@ -1,7 +1,9 @@
 package br.com.atendepro.modules.precificacao.adapter.in.web;
 
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,8 +24,10 @@ import br.com.atendepro.modules.precificacao.application.port.in.CalcularMargemL
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecoMinimoUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecoRecomendadoUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecificacaoBaseUseCase;
+import br.com.atendepro.modules.precificacao.application.port.in.GerarRelatorioPrecificacaoUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.ListarSimulacoesPrecificacaoUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.SalvarSimulacaoPrecificacaoUseCase;
+import br.com.atendepro.modules.precificacao.application.result.RelatorioPrecificacaoResult;
 import br.com.atendepro.shared.application.pagination.Paginacao;
 import jakarta.validation.Valid;
 
@@ -41,6 +45,7 @@ public class PrecificacaoController {
     private final AtualizarSimulacaoPrecificacaoUseCase atualizarSimulacaoPrecificacaoUseCase;
     private final BuscarSimulacaoPrecificacaoUseCase buscarSimulacaoPrecificacaoUseCase;
     private final ListarSimulacoesPrecificacaoUseCase listarSimulacoesPrecificacaoUseCase;
+    private final GerarRelatorioPrecificacaoUseCase gerarRelatorioPrecificacaoUseCase;
 
     public PrecificacaoController(
             CalcularPrecificacaoBaseUseCase calcularPrecificacaoBaseUseCase,
@@ -51,7 +56,8 @@ public class PrecificacaoController {
             SalvarSimulacaoPrecificacaoUseCase salvarSimulacaoPrecificacaoUseCase,
             AtualizarSimulacaoPrecificacaoUseCase atualizarSimulacaoPrecificacaoUseCase,
             BuscarSimulacaoPrecificacaoUseCase buscarSimulacaoPrecificacaoUseCase,
-            ListarSimulacoesPrecificacaoUseCase listarSimulacoesPrecificacaoUseCase
+            ListarSimulacoesPrecificacaoUseCase listarSimulacoesPrecificacaoUseCase,
+            GerarRelatorioPrecificacaoUseCase gerarRelatorioPrecificacaoUseCase
     ) {
         this.calcularPrecificacaoBaseUseCase = calcularPrecificacaoBaseUseCase;
         this.calcularCustoRealUseCase = calcularCustoRealUseCase;
@@ -62,6 +68,7 @@ public class PrecificacaoController {
         this.atualizarSimulacaoPrecificacaoUseCase = atualizarSimulacaoPrecificacaoUseCase;
         this.buscarSimulacaoPrecificacaoUseCase = buscarSimulacaoPrecificacaoUseCase;
         this.listarSimulacoesPrecificacaoUseCase = listarSimulacoesPrecificacaoUseCase;
+        this.gerarRelatorioPrecificacaoUseCase = gerarRelatorioPrecificacaoUseCase;
     }
 
     @PostMapping("/calculos/base")
@@ -138,6 +145,19 @@ public class PrecificacaoController {
                 .map(SimulacaoPrecificacaoResponse::de)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping(value = "/simulacoes/{simulacaoId}/relatorio.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> gerarRelatorio(@PathVariable UUID simulacaoId) {
+        RelatorioPrecificacaoResult relatorio = gerarRelatorioPrecificacaoUseCase.gerarRelatorio(simulacaoId);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(relatorio.contentType()))
+                .contentLength(relatorio.conteudo().length)
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline()
+                        .filename(relatorio.nomeArquivo())
+                        .build()
+                        .toString())
+                .body(relatorio.conteudo());
     }
 
     @GetMapping("/simulacoes")

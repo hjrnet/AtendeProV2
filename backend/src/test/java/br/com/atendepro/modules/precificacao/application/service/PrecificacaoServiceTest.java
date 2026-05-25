@@ -29,7 +29,9 @@ import br.com.atendepro.modules.precificacao.application.command.CalcularPrecifi
 import br.com.atendepro.modules.precificacao.application.command.ItemCustoPrecificacaoCommand;
 import br.com.atendepro.modules.precificacao.application.command.SalvarSimulacaoPrecificacaoCommand;
 import br.com.atendepro.modules.precificacao.application.port.out.CarregarServicoParaPrecificacaoPort;
+import br.com.atendepro.modules.precificacao.application.port.out.GerarRelatorioPrecificacaoPort;
 import br.com.atendepro.modules.precificacao.application.port.out.SalvarSimulacaoPrecificacaoPort;
+import br.com.atendepro.modules.precificacao.application.result.RelatorioPrecificacaoResult;
 import br.com.atendepro.modules.precificacao.application.result.ServicoPrecificacaoResult;
 import br.com.atendepro.modules.precificacao.domain.model.AnaliseMargemLucroPrecificacao;
 import br.com.atendepro.modules.precificacao.domain.model.CategoriaItemPrecificacao;
@@ -255,6 +257,7 @@ class PrecificacaoServiceTest {
                 atualizarFake::atualizarSimulacao,
                 id -> Optional.of(simulacaoAtual),
                 (empresaId, paginacao, busca) -> new ResultadoPaginado<>(List.of(simulacaoAtual), 1, paginacao.pagina(), paginacao.tamanho()),
+                simulacao -> new RelatorioPrecificacaoResult("precificacao.pdf", "application/pdf", "%PDF".getBytes()),
                 new TenantAccessService(),
                 new PermissaoAcessoService(),
                 CLOCK
@@ -266,6 +269,34 @@ class PrecificacaoServiceTest {
         assertThat(result.nomeProcedimento()).isEqualTo("Simulacao editada");
         assertThat(result.precoVenda()).isEqualByComparingTo("250.00");
         assertThat(atualizarFake.simulacaoAtualizada.id()).isEqualTo(simulacaoId);
+    }
+
+    @Test
+    void deveGerarRelatorioPrecificacaoDaSimulacao() {
+        TenantContextHolder.definir(new TenantContext(EMPRESA_ID, UUID.randomUUID(), Set.of(PerfilAcesso.EMPRESA_ADMIN)));
+        UUID simulacaoId = UUID.fromString("5ec445de-0947-4c97-99f3-03ff7bb368af");
+        SimulacaoPrecificacao simulacaoAtual = simulacao(simulacaoId, "Simulacao relatorio");
+        GerarRelatorioFake gerarRelatorioFake = new GerarRelatorioFake();
+        PrecificacaoService service = new PrecificacaoService(
+                (empresaId, servicoProcedimentoId) -> Optional.empty(),
+                simulacao -> {
+                },
+                simulacao -> {
+                },
+                id -> Optional.of(simulacaoAtual),
+                (empresaId, paginacao, busca) -> new ResultadoPaginado<>(List.of(simulacaoAtual), 1, paginacao.pagina(), paginacao.tamanho()),
+                gerarRelatorioFake,
+                new TenantAccessService(),
+                new PermissaoAcessoService(),
+                CLOCK
+        );
+
+        var result = service.gerarRelatorio(simulacaoId);
+
+        assertThat(result.nomeArquivo()).isEqualTo("precificacao.pdf");
+        assertThat(result.contentType()).isEqualTo("application/pdf");
+        assertThat(result.conteudo()).startsWith("%PDF".getBytes());
+        assertThat(gerarRelatorioFake.simulacaoRecebida.id()).isEqualTo(simulacaoId);
     }
 
     private PrecificacaoService service(CarregarServicoParaPrecificacaoPort carregarPort) {
@@ -284,6 +315,7 @@ class PrecificacaoServiceTest {
                 },
                 id -> Optional.empty(),
                 (empresaId, paginacao, busca) -> new ResultadoPaginado<>(List.of(), 0, paginacao.pagina(), paginacao.tamanho()),
+                simulacao -> new RelatorioPrecificacaoResult("precificacao.pdf", "application/pdf", "%PDF".getBytes()),
                 new TenantAccessService(),
                 new PermissaoAcessoService(),
                 CLOCK
@@ -392,6 +424,17 @@ class PrecificacaoServiceTest {
 
         private void atualizarSimulacao(SimulacaoPrecificacao simulacao) {
             this.simulacaoAtualizada = simulacao;
+        }
+    }
+
+    private static class GerarRelatorioFake implements GerarRelatorioPrecificacaoPort {
+
+        private SimulacaoPrecificacao simulacaoRecebida;
+
+        @Override
+        public RelatorioPrecificacaoResult gerarRelatorio(SimulacaoPrecificacao simulacao) {
+            this.simulacaoRecebida = simulacao;
+            return new RelatorioPrecificacaoResult("precificacao.pdf", "application/pdf", "%PDF".getBytes());
         }
     }
 }

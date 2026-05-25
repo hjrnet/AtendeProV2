@@ -26,11 +26,13 @@ import br.com.atendepro.modules.precificacao.application.port.in.CalcularMargemL
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecoMinimoUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecoRecomendadoUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecificacaoBaseUseCase;
+import br.com.atendepro.modules.precificacao.application.port.in.GerarRelatorioPrecificacaoUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.ListarSimulacoesPrecificacaoUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.SalvarSimulacaoPrecificacaoUseCase;
 import br.com.atendepro.modules.precificacao.application.port.out.AtualizarSimulacaoPrecificacaoPort;
 import br.com.atendepro.modules.precificacao.application.port.out.CarregarSimulacaoPrecificacaoPorIdPort;
 import br.com.atendepro.modules.precificacao.application.port.out.CarregarServicoParaPrecificacaoPort;
+import br.com.atendepro.modules.precificacao.application.port.out.GerarRelatorioPrecificacaoPort;
 import br.com.atendepro.modules.precificacao.application.port.out.ListarSimulacoesPrecificacaoPort;
 import br.com.atendepro.modules.precificacao.application.port.out.SalvarSimulacaoPrecificacaoPort;
 import br.com.atendepro.modules.precificacao.application.result.CalculoPrecificacaoBaseResult;
@@ -38,6 +40,7 @@ import br.com.atendepro.modules.precificacao.application.result.CustoRealPrecifi
 import br.com.atendepro.modules.precificacao.application.result.MargemLucroPrecificacaoResult;
 import br.com.atendepro.modules.precificacao.application.result.PrecoMinimoPrecificacaoResult;
 import br.com.atendepro.modules.precificacao.application.result.PrecoRecomendadoPrecificacaoResult;
+import br.com.atendepro.modules.precificacao.application.result.RelatorioPrecificacaoResult;
 import br.com.atendepro.modules.precificacao.application.result.ServicoPrecificacaoResult;
 import br.com.atendepro.modules.precificacao.application.result.SimulacaoPrecificacaoResult;
 import br.com.atendepro.modules.precificacao.domain.model.AnaliseMargemLucroPrecificacao;
@@ -62,13 +65,15 @@ public class PrecificacaoService implements
         SalvarSimulacaoPrecificacaoUseCase,
         AtualizarSimulacaoPrecificacaoUseCase,
         BuscarSimulacaoPrecificacaoUseCase,
-        ListarSimulacoesPrecificacaoUseCase {
+        ListarSimulacoesPrecificacaoUseCase,
+        GerarRelatorioPrecificacaoUseCase {
 
     private final CarregarServicoParaPrecificacaoPort carregarServicoParaPrecificacaoPort;
     private final SalvarSimulacaoPrecificacaoPort salvarSimulacaoPrecificacaoPort;
     private final AtualizarSimulacaoPrecificacaoPort atualizarSimulacaoPrecificacaoPort;
     private final CarregarSimulacaoPrecificacaoPorIdPort carregarSimulacaoPrecificacaoPorIdPort;
     private final ListarSimulacoesPrecificacaoPort listarSimulacoesPrecificacaoPort;
+    private final GerarRelatorioPrecificacaoPort gerarRelatorioPrecificacaoPort;
     private final TenantAccessService tenantAccessService;
     private final PermissaoAcessoService permissaoAcessoService;
     private final Clock clock;
@@ -79,6 +84,7 @@ public class PrecificacaoService implements
             AtualizarSimulacaoPrecificacaoPort atualizarSimulacaoPrecificacaoPort,
             CarregarSimulacaoPrecificacaoPorIdPort carregarSimulacaoPrecificacaoPorIdPort,
             ListarSimulacoesPrecificacaoPort listarSimulacoesPrecificacaoPort,
+            GerarRelatorioPrecificacaoPort gerarRelatorioPrecificacaoPort,
             TenantAccessService tenantAccessService,
             PermissaoAcessoService permissaoAcessoService,
             Clock clock
@@ -88,6 +94,7 @@ public class PrecificacaoService implements
         this.atualizarSimulacaoPrecificacaoPort = atualizarSimulacaoPrecificacaoPort;
         this.carregarSimulacaoPrecificacaoPorIdPort = carregarSimulacaoPrecificacaoPorIdPort;
         this.listarSimulacoesPrecificacaoPort = listarSimulacoesPrecificacaoPort;
+        this.gerarRelatorioPrecificacaoPort = gerarRelatorioPrecificacaoPort;
         this.tenantAccessService = tenantAccessService;
         this.permissaoAcessoService = permissaoAcessoService;
         this.clock = clock;
@@ -296,6 +303,18 @@ public class PrecificacaoService implements
                 simulacoes.pagina(),
                 simulacoes.tamanho()
         );
+    }
+
+    @Override
+    public RelatorioPrecificacaoResult gerarRelatorio(UUID simulacaoId) {
+        validarPermissao();
+        SimulacaoPrecificacao simulacao = carregarSimulacaoPrecificacaoPorIdPort.carregarSimulacaoPorId(simulacaoId)
+                .orElseThrow(() -> new BusinessException(
+                        "PRECIFICACAO_SIMULACAO_NAO_ENCONTRADA",
+                        "Simulacao de precificacao nao encontrada."
+        ));
+        tenantAccessService.validarAcessoEmpresa(simulacao.empresaId());
+        return gerarRelatorioPrecificacaoPort.gerarRelatorio(simulacao);
     }
 
     private SimulacaoPrecificacao montarSimulacao(

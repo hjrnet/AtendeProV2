@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Edit3,
+  FileText,
   History,
   LoaderCircle,
   Percent,
@@ -26,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import { ApiError } from "@/lib/api";
 import {
   atualizarSimulacaoPrecificacao,
+  baixarRelatorioPrecificacao,
   calcularMargemLucro,
   calcularPrecoRecomendado,
   listarSimulacoesPrecificacao,
@@ -71,6 +73,7 @@ export function SimuladorPrecificacaoView({ empresaId }: SimuladorPrecificacaoVi
   const [erro, setErro] = useState<string | null>(null);
   const [resultado, setResultado] = useState<ResultadoSimulacao | null>(null);
   const [simulacaoEditando, setSimulacaoEditando] = useState<SimulacaoPrecificacao | null>(null);
+  const [relatorioGerandoId, setRelatorioGerandoId] = useState<string | null>(null);
   const [buscaHistorico, setBuscaHistorico] = useState("");
   const [paginaHistorico, setPaginaHistorico] = useState(0);
   const form = useForm<PrecificacaoFormData>({ defaultValues: VALORES_INICIAIS });
@@ -182,6 +185,31 @@ export function SimuladorPrecificacaoView({ empresaId }: SimuladorPrecificacaoVi
     setResultado(null);
     setSimulacaoEditando(null);
     form.reset(VALORES_INICIAIS);
+  }
+
+  async function abrirRelatorio(simulacaoId: string) {
+    setErro(null);
+    setRelatorioGerandoId(simulacaoId);
+    const janela = window.open("about:blank", "_blank");
+    if (janela) {
+      janela.opener = null;
+    }
+
+    try {
+      const relatorio = await baixarRelatorioPrecificacao(simulacaoId);
+      const url = URL.createObjectURL(relatorio);
+      if (janela) {
+        janela.location.href = url;
+      } else {
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
+      window.setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (error) {
+      janela?.close();
+      setErro(error instanceof ApiError ? error.message : "Nao foi possivel abrir o relatorio.");
+    } finally {
+      setRelatorioGerandoId(null);
+    }
   }
 
   return (
@@ -321,6 +349,18 @@ export function SimuladorPrecificacaoView({ empresaId }: SimuladorPrecificacaoVi
                   </div>
                 )}
               </div>
+
+              {simulacaoEditando ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={relatorioGerandoId === simulacaoEditando.id}
+                  onClick={() => void abrirRelatorio(simulacaoEditando.id)}
+                >
+                  {relatorioGerandoId === simulacaoEditando.id ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+                  Relatorio PDF
+                </Button>
+              ) : null}
             </div>
           ) : (
             <div className="flex min-h-72 items-center justify-center rounded-lg border bg-background px-4 text-center text-sm font-medium text-muted-foreground">
@@ -399,9 +439,21 @@ export function SimuladorPrecificacaoView({ empresaId }: SimuladorPrecificacaoVi
                         {simulacao.duracaoMinutos} min · margem {formatarNumero(simulacao.margemRealPercentual)}%
                       </p>
                     </div>
-                    <Button type="button" variant="outline" size="icon" onClick={() => editarSimulacao(simulacao)} title="Editar simulacao">
-                      <Edit3 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex shrink-0 gap-2">
+                      <Button type="button" variant="outline" size="icon" onClick={() => editarSimulacao(simulacao)} title="Editar simulacao">
+                        <Edit3 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => void abrirRelatorio(simulacao.id)}
+                        disabled={relatorioGerandoId === simulacao.id}
+                        title="Abrir relatorio PDF"
+                      >
+                        {relatorioGerandoId === simulacao.id ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="mt-4 grid gap-2 sm:grid-cols-3">

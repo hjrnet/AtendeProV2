@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R4 — Custo real, precificação e relatórios.
 
 ## Última task concluída
-TASK-0407 — Histórico de simulações.
+TASK-0408 — Relatório imprimível/PDF.
 
 ## Próxima task recomendada
-TASK-0408 — Relatório imprimível/PDF.
+TASK-0409 — Dashboard de precificação.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0408 concluida em modo autopilot multiagente release R4.
+- Relatorio PDF real de precificacao criado com PDFBox no backend, via UseCase `GerarRelatorioPrecificacaoUseCase`, OutputPort dedicado e adapter isolado de PDF.
+- Endpoint `/api/precificacao/simulacoes/{simulacaoId}/relatorio.pdf` retorna `application/pdf` tenant-scoped, com arquivo inline e composicao de custos da simulacao salva.
+- Web `features/precificacao` ganhou botao de relatorio nas simulacoes salvas, baixando o PDF com Bearer JWT sem chamada direta na pagina.
+- Validacao confirmou `mvn test` com 170 testes, `pnpm lint`, `pnpm typecheck`, `pnpm build`, Docker Compose saudavel, PDF real com assinatura `%PDF` e Browser em `/app` com botoes de relatorio.
 - TASK-0407 concluida em modo autopilot multiagente release R4.
 - Historico de simulacoes de precificacao persistido em `precificacao_simulacoes`, com migration Liquibase, dominio `SimulacaoPrecificacao`, Command/Result, UseCases, OutputPorts e adapter JDBC.
 - API `/api/precificacao/simulacoes` permite salvar, listar, buscar e editar simulacoes tenant-scoped sem expor persistencia.

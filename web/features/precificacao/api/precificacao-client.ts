@@ -1,4 +1,4 @@
-import { criarApiClient } from "@/lib/api";
+import { ApiError, criarApiClient, type ApiErrorPayload } from "@/lib/api";
 import { carregarSessaoAutenticada, limparSessaoAutenticada } from "@/features/auth/lib/auth-storage";
 
 export type AlertaPrecificacao = {
@@ -104,6 +104,8 @@ const precificacaoApi = criarApiClient({
   onUnauthorized: () => limparSessaoAutenticada()
 });
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+
 export function calcularPrecoRecomendado(request: CalculoPrecoRecomendadoRequest) {
   return precificacaoApi.post<PrecoRecomendadoResponse>("/api/precificacao/calculos/preco-recomendado", request);
 }
@@ -129,4 +131,37 @@ export function salvarSimulacaoPrecificacao(request: SalvarSimulacaoPrecificacao
 
 export function atualizarSimulacaoPrecificacao(simulacaoId: string, request: SalvarSimulacaoPrecificacaoRequest) {
   return precificacaoApi.put<SimulacaoPrecificacao>(`/api/precificacao/simulacoes/${simulacaoId}`, request);
+}
+
+export async function baixarRelatorioPrecificacao(simulacaoId: string) {
+  const token = carregarSessaoAutenticada()?.accessToken;
+  const response = await fetch(new URL(`/api/precificacao/simulacoes/${simulacaoId}/relatorio.pdf`, API_BASE_URL), {
+    headers: {
+      Accept: "application/pdf",
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    }
+  });
+
+  if (response.status === 401) {
+    limparSessaoAutenticada();
+  }
+
+  if (!response.ok) {
+    throw await criarErroRelatorio(response);
+  }
+
+  return response.blob();
+}
+
+async function criarErroRelatorio(response: Response) {
+  const contentType = response.headers.get("Content-Type") ?? "";
+  if (contentType.includes("application/json")) {
+    try {
+      const payload = (await response.json()) as ApiErrorPayload;
+      return new ApiError(response.status, payload.mensagem ?? "Nao foi possivel gerar o relatorio.", payload);
+    } catch {
+      return new ApiError(response.status, "Nao foi possivel gerar o relatorio.");
+    }
+  }
+  return new ApiError(response.status, "Nao foi possivel gerar o relatorio.");
 }

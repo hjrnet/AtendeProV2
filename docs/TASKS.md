@@ -77,7 +77,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-0405 | Margem e lucro | Margem real, lucro estimado e alertas. | CONCLUIDA |
 | TASK-0406 | Simulador de preço web | Tela completa com resultado. | CONCLUIDA |
 | TASK-0407 | Histórico de simulações | Salvar e editar simulações. | CONCLUIDA |
-| TASK-0408 | Relatório imprimível/PDF | PDF de precificação e composição de custos. | PENDENTE |
+| TASK-0408 | Relatório imprimível/PDF | PDF de precificação e composição de custos. | CONCLUIDA |
 | TASK-0409 | Dashboard de precificação | Indicadores e gráficos. | PENDENTE |
 | TASK-0410 | Dados demo realistas | Procedimentos e simulações por área. | PENDENTE |
 
