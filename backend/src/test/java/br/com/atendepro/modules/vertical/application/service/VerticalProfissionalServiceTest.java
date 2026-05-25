@@ -24,6 +24,7 @@ class VerticalProfissionalServiceTest {
                 .containsExactly(
                         CodigoVerticalProfissional.BEAUTY_PRO,
                         CodigoVerticalProfissional.BIOMED_PRO,
+                        CodigoVerticalProfissional.FISIO_PRO,
                         CodigoVerticalProfissional.NUTRI_PRO
                 );
         assertThat(verticais.get(0).capacidades())
@@ -72,5 +73,20 @@ class VerticalProfissionalServiceTest {
         assertThat(vertical.get().conselhoProfissional()).isEqualTo("CRBM");
         assertThat(vertical.get().capacidades()).contains("cadastro de habilitacoes", "rastreabilidade de lote e produto");
         assertThat(vertical.get().entidades()).contains("Habilitacao profissional", "Lote utilizado");
+    }
+
+    @Test
+    void deveDetalharFisioProComCrefitoEPlanoTerapeutico() {
+        VerticalProfissionalService service = new VerticalProfissionalService(
+                new CatalogoVerticalProfissionalAdapter(),
+                new PermissaoAcessoService()
+        );
+
+        var vertical = service.detalharVertical(CodigoVerticalProfissional.FISIO_PRO);
+
+        assertThat(vertical).isPresent();
+        assertThat(vertical.get().conselhoProfissional()).isEqualTo("CREFITO");
+        assertThat(vertical.get().capacidades()).contains("avaliacao funcional", "plano terapeutico", "evolucao por sessao");
+        assertThat(vertical.get().documentos()).contains("Relatorio fisioterapeutico");
     }
 }

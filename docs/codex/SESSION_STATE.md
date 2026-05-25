@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R7 — Verticais profissionais.
 
 ## Última task concluída
-TASK-0703 — Biomed Pro.
+TASK-0704 — Fisio Pro.
 
 ## Próxima task recomendada
-TASK-0704 — Fisio Pro.
+TASK-0705 — Psico Pro futuro.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,9 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0704 concluida em modo autopilot multiagente release R7.
+- Fisio Pro adicionado ao catalogo backend de verticais profissionais e ao tipo web, com CREFITO, avaliacao funcional, plano terapeutico, evolucao por sessao e relatorios.
+- A task nao criou prontuario fisioterapeutico persistido nem escalas clinicas reais; isso fica para evolucao propria da vertical.
 - TASK-0703 concluida em modo autopilot multiagente release R7.
 - Biomed Pro adicionado ao catalogo backend de verticais profissionais e ao tipo web, com CRBM, habilitacoes, rastreabilidade, produtos/lotes e documentos biomedicos.
 - A task nao criou trilha persistida de rastreabilidade nem storage de evidencias; esses fluxos ficam para evolucao propria da vertical.

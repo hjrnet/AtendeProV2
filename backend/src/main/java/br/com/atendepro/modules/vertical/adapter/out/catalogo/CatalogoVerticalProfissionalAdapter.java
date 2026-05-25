@@ -170,6 +170,57 @@ public class CatalogoVerticalProfissionalAdapter implements CarregarCatalogoVert
                             "criar trilha de rastreabilidade",
                             "criar relatorios de seguranca"
                     )
+            ),
+            CodigoVerticalProfissional.FISIO_PRO,
+            new VerticalProfissional(
+                    CodigoVerticalProfissional.FISIO_PRO,
+                    "Fisio Pro",
+                    "R7",
+                    StatusVerticalProfissional.OPERACIONAL_BASE,
+                    "CREFITO",
+                    "Base profissional para fisioterapeutas registrarem avaliacao funcional, plano terapeutico, evolucao por sessao e documentos com CREFITO.",
+                    List.of("Fisioterapeutas", "Clinicas de fisioterapia", "Estudios de reabilitacao", "Atendimento domiciliar"),
+                    List.of(
+                            "avaliacao funcional",
+                            "plano terapeutico",
+                            "evolucao por sessao",
+                            "objetivos terapeuticos",
+                            "escalas e medidas",
+                            "agenda recorrente",
+                            "relatorios de evolucao",
+                            "documentos com CREFITO"
+                    ),
+                    List.of(
+                            "Paciente fisio",
+                            "Avaliacao funcional",
+                            "Plano terapeutico",
+                            "Sessao de fisioterapia",
+                            "Evolucao da sessao",
+                            "Objetivo terapeutico",
+                            "Escala funcional",
+                            "Documento CREFITO"
+                    ),
+                    List.of(
+                            "Relatorio fisioterapeutico",
+                            "Plano terapeutico",
+                            "Evolucao por sessao",
+                            "Orientacoes domiciliares"
+                    ),
+                    List.of(
+                            "clientes/pacientes",
+                            "agenda",
+                            "documentos profissionais",
+                            "carimbo profissional",
+                            "servicos/procedimentos",
+                            "relatorios",
+                            "app do paciente futuro"
+                    ),
+                    List.of(
+                            "criar avaliacao funcional estruturada",
+                            "criar plano terapeutico por paciente",
+                            "criar evolucao por sessao",
+                            "criar relatorio de acompanhamento"
+                    )
             )
     );
 
