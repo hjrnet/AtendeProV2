@@ -1,0 +1,115 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0032-create-beauty-fichas-esteticas
+      author: codex
+      changes:
+        - createTable:
+            tableName: beauty_fichas_esteticas
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: empresa_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    referencedTableName: empresas
+                    referencedColumnNames: id
+                    foreignKeyName: fk_beauty_fichas_empresas
+              - column:
+                  name: cliente_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    referencedTableName: clientes_pacientes
+                    referencedColumnNames: id
+                    foreignKeyName: fk_beauty_fichas_clientes
+              - column:
+                  name: objetivo
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: queixa_principal
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: historico_estetico
+                  type: text
+              - column:
+                  name: alergias
+                  type: text
+              - column:
+                  name: medicamentos
+                  type: text
+              - column:
+                  name: gestante
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: lactante
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: sensibilidade_pele
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: usa_acidos
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: exposicao_solar_intensa
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: procedimentos_recentes
+                  type: text
+              - column:
+                  name: contraindicacoes
+                  type: text
+              - column:
+                  name: observacoes
+                  type: text
+              - column:
+                  name: criado_em
+                  type: timestamp with time zone
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamp with time zone
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: beauty_fichas_esteticas
+            indexName: idx_beauty_fichas_empresa_cliente
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: cliente_id
+        - createIndex:
+            tableName: beauty_fichas_esteticas
+            indexName: idx_beauty_fichas_atualizado
+            columns:
+              - column:
+                  name: atualizado_em

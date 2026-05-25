@@ -41,3 +41,11 @@ Criar ficha estética operacional do cliente, com anamnese, objetivos, contraind
 ```bash
 git commit -m "feat(beauty): criar ficha estetica e anamnese (TASK-BEAUTY-002)"
 ```
+
+## Execução registrada
+
+- Status: CONCLUIDA.
+- Backend: criada tabela `beauty_fichas_esteticas`, dominio de ficha estetica, objetivo estetico, commands/results, UseCases/InputPorts, OutputPorts, adapter JDBC e endpoints tenant-scoped.
+- Frontend: Beauty Pro ganhou lista/busca de clientes, prontuario estetico, formulario de ficha/anamnese, alerta textual de contraindicações e historico de avaliacoes.
+- Validacao: `mvn test`, `corepack pnpm typecheck`, `corepack pnpm lint`, `corepack pnpm build`, `docker compose ps`, API local com Ana demo e Browser com cliente demo Beauty.
+- Proxima task: TASK-BEAUTY-003 — Criar protocolos, sessoes e evolucao Beauty Pro.

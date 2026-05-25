@@ -61,3 +61,5 @@ databaseChangeLog:
       file: db/changelog/changes/0030-create-nutri-avaliacoes-antropometricas.yaml
   - include:
       file: db/changelog/changes/0031-create-nutri-planos-alimentares.yaml
+  - include:
+      file: db/changelog/changes/0032-create-beauty-fichas-esteticas.yaml

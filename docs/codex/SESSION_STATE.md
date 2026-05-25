@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R10 — Nutri Pro, Beauty Pro e comercial.
 
 ## Última task concluída
-TASK-BEAUTY-001 — Criar módulo Beauty Pro operacional.
+TASK-BEAUTY-002 — Criar ficha estética, anamnese e avaliação.
 
 ## Próxima task recomendada
-TASK-BEAUTY-002 — Criar ficha estética, anamnese e avaliação.
+TASK-BEAUTY-003 — Criar protocolos, sessões e evolução Beauty Pro.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,12 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-BEAUTY-002 concluida em modo autopilot multiagente release R10.
+- Beauty Pro ganhou ficha estetica tenant-scoped por cliente em `beauty_fichas_esteticas`, com objetivo, queixa principal, historico estetico, alergias, medicamentos, alertas de seguranca, contraindicações e observacoes.
+- API operacional adicionou listagem de clientes Beauty, prontuario do cliente, criacao/edicao/listagem de fichas esteticas em `/api/beauty-pro/clientes/{clienteId}` sem expor persistencia.
+- Contraindicacoes e alertas sao apresentados como texto explicito, incluindo gestacao, lactacao, pele sensivel, uso de acidos, exposicao solar, alergias, medicamentos e observacoes profissionais.
+- Web Beauty Pro ganhou selecao de cliente, ficha/anamnese editavel, cards de resumo, alerta textual e historico de avaliacoes dentro da vertical.
+- Validacao confirmou `mvn test` com 287 testes, `pnpm typecheck`, `pnpm lint`, `pnpm build`, Docker Compose saudavel, backend/web locais ativos, API criando/editando/consultando ficha e Browser com cliente demo Beauty sem erros de console.
 - TASK-BEAUTY-001 concluida em modo autopilot multiagente release R10.
 - Modulo backend `beauty` criado com arquitetura hexagonal, `ConsultarVisaoBeautyProCommand`, UseCase/InputPort, OutputPort, service, adapter JDBC e controller fino em `/api/beauty-pro/visao`.
 - A visao operacional do Beauty Pro agrega dados reais do tenant a partir do nucleo comum: clientes Beauty, agenda, servicos, produtos/insumos, equipamentos, precificacao e alertas de margem.

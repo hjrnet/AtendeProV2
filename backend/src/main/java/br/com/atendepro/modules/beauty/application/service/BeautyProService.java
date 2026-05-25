@@ -12,33 +12,78 @@ import org.springframework.stereotype.Service;
 
 import br.com.atendepro.modules.auth.application.permission.PermissaoAcessoService;
 import br.com.atendepro.modules.auth.domain.model.PermissaoAcesso;
+import br.com.atendepro.modules.beauty.application.command.AtualizarFichaEsteticaBeautyProCommand;
+import br.com.atendepro.modules.beauty.application.command.ConsultarProntuarioBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.ConsultarVisaoBeautyProCommand;
+import br.com.atendepro.modules.beauty.application.command.CriarFichaEsteticaBeautyProCommand;
+import br.com.atendepro.modules.beauty.application.command.ListarClientesBeautyProCommand;
+import br.com.atendepro.modules.beauty.application.command.ListarFichasEsteticasBeautyProCommand;
+import br.com.atendepro.modules.beauty.application.port.in.AtualizarFichaEsteticaBeautyProUseCase;
+import br.com.atendepro.modules.beauty.application.port.in.ConsultarProntuarioBeautyProUseCase;
 import br.com.atendepro.modules.beauty.application.port.in.ConsultarVisaoBeautyProUseCase;
+import br.com.atendepro.modules.beauty.application.port.in.CriarFichaEsteticaBeautyProUseCase;
+import br.com.atendepro.modules.beauty.application.port.in.ListarClientesBeautyProUseCase;
+import br.com.atendepro.modules.beauty.application.port.in.ListarFichasEsteticasBeautyProUseCase;
+import br.com.atendepro.modules.beauty.application.port.out.AtualizarFichaEsteticaBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.CarregarClienteBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.CarregarFichaEsteticaBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarVisaoBeautyProPort;
 import br.com.atendepro.modules.beauty.application.result.AtalhoBeautyProResult;
+import br.com.atendepro.modules.beauty.application.result.ClienteBeautyResumoResult;
+import br.com.atendepro.modules.beauty.application.result.FichaEsteticaBeautyProResult;
 import br.com.atendepro.modules.beauty.application.result.IndicadorBeautyProResult;
 import br.com.atendepro.modules.beauty.application.result.MetricasBeautyProResult;
+import br.com.atendepro.modules.beauty.application.result.ProntuarioBeautyProResult;
+import br.com.atendepro.modules.beauty.application.result.ResumoProntuarioBeautyProResult;
 import br.com.atendepro.modules.beauty.application.result.VisaoBeautyProResult;
+import br.com.atendepro.modules.beauty.application.port.out.ListarClientesBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.ListarFichasEsteticasBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.SalvarFichaEsteticaBeautyProPort;
+import br.com.atendepro.modules.beauty.domain.model.FichaEsteticaBeautyPro;
 import br.com.atendepro.modules.beauty.domain.model.StatusOperacionalBeautyPro;
 import br.com.atendepro.modules.empresa.application.context.TenantAccessService;
 import br.com.atendepro.shared.domain.exception.BusinessException;
 
 @Service
 @Profile("!test")
-public class BeautyProService implements ConsultarVisaoBeautyProUseCase {
+public class BeautyProService implements
+        ConsultarVisaoBeautyProUseCase,
+        ListarClientesBeautyProUseCase,
+        ConsultarProntuarioBeautyProUseCase,
+        CriarFichaEsteticaBeautyProUseCase,
+        AtualizarFichaEsteticaBeautyProUseCase,
+        ListarFichasEsteticasBeautyProUseCase {
 
     private final CarregarVisaoBeautyProPort carregarVisaoBeautyProPort;
+    private final ListarClientesBeautyProPort listarClientesBeautyProPort;
+    private final CarregarClienteBeautyProPort carregarClienteBeautyProPort;
+    private final CarregarFichaEsteticaBeautyProPort carregarFichaEsteticaBeautyProPort;
+    private final SalvarFichaEsteticaBeautyProPort salvarFichaEsteticaBeautyProPort;
+    private final AtualizarFichaEsteticaBeautyProPort atualizarFichaEsteticaBeautyProPort;
+    private final ListarFichasEsteticasBeautyProPort listarFichasEsteticasBeautyProPort;
     private final TenantAccessService tenantAccessService;
     private final PermissaoAcessoService permissaoAcessoService;
     private final Clock clock;
 
     public BeautyProService(
             CarregarVisaoBeautyProPort carregarVisaoBeautyProPort,
+            ListarClientesBeautyProPort listarClientesBeautyProPort,
+            CarregarClienteBeautyProPort carregarClienteBeautyProPort,
+            CarregarFichaEsteticaBeautyProPort carregarFichaEsteticaBeautyProPort,
+            SalvarFichaEsteticaBeautyProPort salvarFichaEsteticaBeautyProPort,
+            AtualizarFichaEsteticaBeautyProPort atualizarFichaEsteticaBeautyProPort,
+            ListarFichasEsteticasBeautyProPort listarFichasEsteticasBeautyProPort,
             TenantAccessService tenantAccessService,
             PermissaoAcessoService permissaoAcessoService,
             Clock clock
     ) {
         this.carregarVisaoBeautyProPort = carregarVisaoBeautyProPort;
+        this.listarClientesBeautyProPort = listarClientesBeautyProPort;
+        this.carregarClienteBeautyProPort = carregarClienteBeautyProPort;
+        this.carregarFichaEsteticaBeautyProPort = carregarFichaEsteticaBeautyProPort;
+        this.salvarFichaEsteticaBeautyProPort = salvarFichaEsteticaBeautyProPort;
+        this.atualizarFichaEsteticaBeautyProPort = atualizarFichaEsteticaBeautyProPort;
+        this.listarFichasEsteticasBeautyProPort = listarFichasEsteticasBeautyProPort;
         this.tenantAccessService = tenantAccessService;
         this.permissaoAcessoService = permissaoAcessoService;
         this.clock = clock;
@@ -66,6 +111,107 @@ public class BeautyProService implements ConsultarVisaoBeautyProUseCase {
                 metricas.clientesRecentes(),
                 Instant.now(clock)
         );
+    }
+
+    @Override
+    public List<ClienteBeautyResumoResult> listarClientesBeautyPro(ListarClientesBeautyProCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        return listarClientesBeautyProPort.listarClientesBeautyPro(empresaId, command.busca());
+    }
+
+    @Override
+    public Optional<ProntuarioBeautyProResult> consultarProntuarioBeautyPro(ConsultarProntuarioBeautyProCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        return carregarClienteBeautyProPort
+                .carregarClienteBeautyPro(empresaId, command.clienteId(), LocalDate.now(clock))
+                .map(cliente -> {
+                    FichaEsteticaBeautyPro fichaAtual = carregarFichaEsteticaBeautyProPort
+                            .carregarFichaAtual(empresaId, command.clienteId())
+                            .orElse(null);
+                    long fichas = listarFichasEsteticasBeautyProPort.listarFichasEsteticas(empresaId, command.clienteId()).size();
+                    return new ProntuarioBeautyProResult(
+                            cliente,
+                            new ResumoProntuarioBeautyProResult(
+                                    fichas,
+                                    0,
+                                    0,
+                                    fichaAtual == null ? "PENDENTE" : "DISPONIVEL",
+                                    fichaAtual != null && fichaAtual.possuiAlertaContraindicacao() ? "ALERTA" : "SEM_ALERTA",
+                                    null
+                            ),
+                            fichaAtual == null ? null : FichaEsteticaBeautyProResult.de(fichaAtual)
+                    );
+                });
+    }
+
+    @Override
+    public FichaEsteticaBeautyProResult criarFichaEstetica(CriarFichaEsteticaBeautyProCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarClienteBeautyExiste(empresaId, command.clienteId());
+        FichaEsteticaBeautyPro ficha = FichaEsteticaBeautyPro.criar(
+                empresaId,
+                command.clienteId(),
+                command.objetivo(),
+                command.queixaPrincipal(),
+                command.historicoEstetico(),
+                command.alergias(),
+                command.medicamentos(),
+                command.gestante(),
+                command.lactante(),
+                command.sensibilidadePele(),
+                command.usaAcidos(),
+                command.exposicaoSolarIntensa(),
+                command.procedimentosRecentes(),
+                command.contraindicacoes(),
+                command.observacoes(),
+                Instant.now(clock)
+        );
+        salvarFichaEsteticaBeautyProPort.salvarFichaEstetica(ficha);
+        return FichaEsteticaBeautyProResult.de(ficha);
+    }
+
+    @Override
+    public Optional<FichaEsteticaBeautyProResult> atualizarFichaEstetica(AtualizarFichaEsteticaBeautyProCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarClienteBeautyExiste(empresaId, command.clienteId());
+        return carregarFichaEsteticaBeautyProPort
+                .carregarFichaEstetica(empresaId, command.clienteId(), command.fichaId())
+                .map(ficha -> ficha.atualizar(
+                        command.objetivo(),
+                        command.queixaPrincipal(),
+                        command.historicoEstetico(),
+                        command.alergias(),
+                        command.medicamentos(),
+                        command.gestante(),
+                        command.lactante(),
+                        command.sensibilidadePele(),
+                        command.usaAcidos(),
+                        command.exposicaoSolarIntensa(),
+                        command.procedimentosRecentes(),
+                        command.contraindicacoes(),
+                        command.observacoes(),
+                        Instant.now(clock)
+                ))
+                .map(fichaAtualizada -> {
+                    atualizarFichaEsteticaBeautyProPort.atualizarFichaEstetica(fichaAtualizada);
+                    return FichaEsteticaBeautyProResult.de(fichaAtualizada);
+                });
+    }
+
+    @Override
+    public List<FichaEsteticaBeautyProResult> listarFichasEsteticas(ListarFichasEsteticasBeautyProCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarClienteBeautyExiste(empresaId, command.clienteId());
+        return listarFichasEsteticasBeautyProPort
+                .listarFichasEsteticas(empresaId, command.clienteId())
+                .stream()
+                .map(FichaEsteticaBeautyProResult::de)
+                .toList();
     }
 
     private List<IndicadorBeautyProResult> indicadores(MetricasBeautyProResult metricas) {
@@ -117,6 +263,15 @@ public class BeautyProService implements ConsultarVisaoBeautyProUseCase {
             throw new BusinessException("BEAUTY_PRO_EMPRESA_OBRIGATORIA", "Empresa e obrigatoria para operar Beauty Pro.");
         }
         return empresaIdSolicitada;
+    }
+
+    private void validarClienteBeautyExiste(UUID empresaId, UUID clienteId) {
+        boolean existe = carregarClienteBeautyProPort
+                .carregarClienteBeautyPro(empresaId, clienteId, LocalDate.now(clock))
+                .isPresent();
+        if (!existe) {
+            throw new BusinessException("BEAUTY_PRO_CLIENTE_NAO_ENCONTRADO", "Cliente Beauty nao encontrado para esta empresa.");
+        }
     }
 
     private void validarPermissao() {

@@ -1,15 +1,17 @@
 "use client";
 
-import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
   CalendarDays,
+  CheckCircle2,
   ClipboardList,
   FileText,
   Gauge,
   LoaderCircle,
   PackageCheck,
+  Save,
   Scissors,
   Sparkles,
   UserRoundCheck,
@@ -17,14 +19,38 @@ import {
 } from "lucide-react";
 
 import {
+  atualizarFichaEsteticaBeautyPro,
+  consultarProntuarioBeautyPro,
   consultarVisaoBeautyPro,
+  criarFichaEsteticaBeautyPro,
+  listarClientesBeautyPro,
+  listarFichasEsteticasBeautyPro,
   type AtalhoBeautyPro,
   type ClienteBeautyResumo,
-  type IndicadorBeautyPro
+  type FichaEsteticaBeautyPro,
+  type IndicadorBeautyPro,
+  type ObjetivoEsteticoBeautyPro,
+  type SalvarFichaEsteticaBeautyProInput
 } from "@/features/beauty-pro/api/beauty-pro-client";
 import { cn } from "@/lib/utils";
 
 type Icone = typeof Scissors;
+
+type FormularioFichaBeauty = {
+  objetivo: ObjetivoEsteticoBeautyPro;
+  queixaPrincipal: string;
+  historicoEstetico: string;
+  alergias: string;
+  medicamentos: string;
+  gestante: boolean;
+  lactante: boolean;
+  sensibilidadePele: boolean;
+  usaAcidos: boolean;
+  exposicaoSolarIntensa: boolean;
+  procedimentosRecentes: string;
+  contraindicacoes: string;
+  observacoes: string;
+};
 
 const iconesIndicadores: Record<string, Icone> = {
   clientes: UserRoundCheck,
@@ -46,12 +72,61 @@ const iconesAtalhos: Record<string, Icone> = {
   dashboard: Gauge
 };
 
+const objetivosEsteticos: Array<{ value: ObjetivoEsteticoBeautyPro; label: string }> = [
+  { value: "ACNE", label: "Acne" },
+  { value: "MANCHAS", label: "Manchas" },
+  { value: "REJUVENESCIMENTO", label: "Rejuvenescimento" },
+  { value: "CORPORAL", label: "Corporal" },
+  { value: "RELAXAMENTO", label: "Relaxamento" },
+  { value: "CAPILAR", label: "Capilar" },
+  { value: "CILIOS_SOBRANCELHAS", label: "Cílios e sobrancelhas" },
+  { value: "SALAO", label: "Salão" }
+];
+
+const fichaVazia: FormularioFichaBeauty = {
+  objetivo: "ACNE",
+  queixaPrincipal: "",
+  historicoEstetico: "",
+  alergias: "",
+  medicamentos: "",
+  gestante: false,
+  lactante: false,
+  sensibilidadePele: false,
+  usaAcidos: false,
+  exposicaoSolarIntensa: false,
+  procedimentosRecentes: "",
+  contraindicacoes: "",
+  observacoes: ""
+};
+
 export function BeautyProOperacionalView({ empresaId }: { empresaId: string }) {
+  const [buscaCliente, setBuscaCliente] = useState("");
+  const [clienteSelecionadoId, setClienteSelecionadoId] = useState<string | null>(null);
+
   const visaoQuery = useQuery({
     queryKey: ["beauty-pro-visao", empresaId],
     queryFn: () => consultarVisaoBeautyPro(empresaId),
     enabled: Boolean(empresaId)
   });
+
+  const clientesQuery = useQuery({
+    queryKey: ["beauty-pro-clientes", empresaId, buscaCliente],
+    queryFn: () => listarClientesBeautyPro({ empresaId, busca: buscaCliente }),
+    enabled: Boolean(empresaId)
+  });
+
+  const clientes = clientesQuery.data?.itens ?? [];
+
+  useEffect(() => {
+    if (!clientes.length) {
+      setClienteSelecionadoId(null);
+      return;
+    }
+
+    if (!clienteSelecionadoId || !clientes.some((cliente) => cliente.id === clienteSelecionadoId)) {
+      setClienteSelecionadoId(clientes[0].id);
+    }
+  }, [clienteSelecionadoId, clientes]);
 
   const indicadoresPrincipais = useMemo(
     () => (visaoQuery.data?.indicadores ?? []).filter((indicador) => ["clientes", "agendaHoje", "agenda7Dias", "precificacao"].includes(indicador.codigo)),
@@ -106,11 +181,13 @@ export function BeautyProOperacionalView({ empresaId }: { empresaId: string }) {
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
         <section className="grid gap-4">
+          <FichaEsteticaBeautyPainel empresaId={empresaId} clienteId={clienteSelecionadoId} />
+
           <div className="rounded-lg border bg-white p-4 shadow-sm">
             <div className="flex flex-col gap-2 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-card-foreground">Contratos operacionais preparados</p>
-                <p className="text-sm leading-6 text-muted-foreground">A base da vertical já aponta os próximos fluxos reais: ficha, protocolos, sessões e termos.</p>
+                <p className="text-sm leading-6 text-muted-foreground">A base da vertical já aponta os próximos fluxos reais: protocolos, sessões, termos e rastreabilidade.</p>
               </div>
               <span className="w-fit rounded-md border bg-rose-50 px-2 py-1 text-xs font-semibold text-rose-900">R10 em construção</span>
             </div>
@@ -138,18 +215,243 @@ export function BeautyProOperacionalView({ empresaId }: { empresaId: string }) {
           <div className="flex items-center justify-between gap-3 border-b pb-4">
             <div>
               <p className="text-sm font-semibold text-card-foreground">Clientes Beauty</p>
-              <p className="text-xs font-medium text-muted-foreground">Base recente para protocolos e retornos</p>
+              <p className="text-xs font-medium text-muted-foreground">Selecione para abrir a ficha estética</p>
             </div>
             <UserRoundCheck className="h-5 w-5 text-rose-900" />
           </div>
-          <div className="mt-3 grid max-h-[420px] gap-2 overflow-y-auto pr-1">
-            {visao.clientesRecentes.length ? (
-              visao.clientesRecentes.map((cliente) => <LinhaClienteBeauty key={cliente.id} cliente={cliente} />)
+          <label className="mt-3 grid gap-1 text-sm font-medium text-card-foreground">
+            Busca
+            <input
+              value={buscaCliente}
+              onChange={(event) => setBuscaCliente(event.target.value)}
+              className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+              placeholder="Nome, email ou telefone"
+            />
+          </label>
+          <div className="mt-3 grid max-h-[480px] gap-2 overflow-y-auto pr-1">
+            {clientesQuery.isLoading ? (
+              <div className="flex min-h-24 items-center justify-center rounded-md border bg-background text-sm text-muted-foreground">
+                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                Carregando clientes
+              </div>
+            ) : clientes.length ? (
+              clientes.map((cliente) => (
+                <LinhaClienteBeauty
+                  key={cliente.id}
+                  cliente={cliente}
+                  selecionado={cliente.id === clienteSelecionadoId}
+                  onSelecionar={() => setClienteSelecionadoId(cliente.id)}
+                />
+              ))
             ) : (
               <div className="rounded-md border bg-background p-4 text-sm text-muted-foreground">Nenhum cliente Beauty encontrado nesta empresa.</div>
             )}
           </div>
         </section>
+      </div>
+    </section>
+  );
+}
+
+function FichaEsteticaBeautyPainel({ empresaId, clienteId }: { empresaId: string; clienteId: string | null }) {
+  const queryClient = useQueryClient();
+  const [formulario, setFormulario] = useState<FormularioFichaBeauty>(fichaVazia);
+  const [mensagem, setMensagem] = useState<string | null>(null);
+
+  const prontuarioQuery = useQuery({
+    queryKey: ["beauty-pro-prontuario", empresaId, clienteId],
+    queryFn: () => consultarProntuarioBeautyPro({ empresaId, clienteId: clienteId ?? "" }),
+    enabled: Boolean(empresaId && clienteId)
+  });
+
+  const fichasQuery = useQuery({
+    queryKey: ["beauty-pro-fichas", empresaId, clienteId],
+    queryFn: () => listarFichasEsteticasBeautyPro({ empresaId, clienteId: clienteId ?? "" }),
+    enabled: Boolean(empresaId && clienteId)
+  });
+
+  const fichaAtual = prontuarioQuery.data?.fichaAtual ?? null;
+
+  useEffect(() => {
+    setMensagem(null);
+    setFormulario(fichaAtual ? formularioDeFicha(fichaAtual) : fichaVazia);
+  }, [clienteId, fichaAtual]);
+
+  const salvarFichaMutation = useMutation({
+    mutationFn: (dados: SalvarFichaEsteticaBeautyProInput) => {
+      if (!clienteId) {
+        throw new Error("Selecione um cliente.");
+      }
+      if (fichaAtual) {
+        return atualizarFichaEsteticaBeautyPro({ empresaId, clienteId, fichaId: fichaAtual.id, dados });
+      }
+      return criarFichaEsteticaBeautyPro({ empresaId, clienteId, dados });
+    },
+    onSuccess: async () => {
+      setMensagem("Ficha estética salva com sucesso.");
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["beauty-pro-prontuario", empresaId, clienteId] }),
+        queryClient.invalidateQueries({ queryKey: ["beauty-pro-fichas", empresaId, clienteId] })
+      ]);
+    }
+  });
+
+  if (!clienteId) {
+    return <EstadoBeautyPro titulo="Selecione um cliente" descricao="Escolha um cliente Beauty para abrir ficha estética, anamnese e avaliação inicial." />;
+  }
+
+  if (prontuarioQuery.isLoading) {
+    return (
+      <section className="rounded-lg border bg-white p-4 shadow-sm">
+        <div className="flex min-h-44 items-center justify-center text-sm text-muted-foreground">
+          <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+          Carregando ficha estética
+        </div>
+      </section>
+    );
+  }
+
+  if (prontuarioQuery.isError || !prontuarioQuery.data) {
+    return <EstadoBeautyPro titulo="Não foi possível abrir o cliente" descricao="Confira se o cliente pertence à área Beauty desta empresa." alerta />;
+  }
+
+  const prontuario = prontuarioQuery.data;
+
+  function salvarFicha(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setMensagem(null);
+    salvarFichaMutation.mutate({
+      objetivo: formulario.objetivo,
+      queixaPrincipal: formulario.queixaPrincipal.trim(),
+      historicoEstetico: textoOuNull(formulario.historicoEstetico),
+      alergias: textoOuNull(formulario.alergias),
+      medicamentos: textoOuNull(formulario.medicamentos),
+      gestante: formulario.gestante,
+      lactante: formulario.lactante,
+      sensibilidadePele: formulario.sensibilidadePele,
+      usaAcidos: formulario.usaAcidos,
+      exposicaoSolarIntensa: formulario.exposicaoSolarIntensa,
+      procedimentosRecentes: textoOuNull(formulario.procedimentosRecentes),
+      contraindicacoes: textoOuNull(formulario.contraindicacoes),
+      observacoes: textoOuNull(formulario.observacoes)
+    });
+  }
+
+  return (
+    <section className="rounded-lg border bg-white p-4 shadow-sm">
+      <div className="flex flex-col gap-3 border-b pb-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-rose-900">Ficha estética e anamnese</p>
+          <h5 className="mt-1 text-lg font-semibold text-card-foreground">{prontuario.cliente.nome}</h5>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">
+            {prontuario.cliente.telefone ?? "Sem telefone"} {prontuario.cliente.idade ? `• ${prontuario.cliente.idade} anos` : ""}
+          </p>
+        </div>
+        <div className="grid grid-cols-3 gap-2 text-center text-xs">
+          <ResumoFichaBeauty rotulo="Fichas" valor={prontuario.resumo.fichasEsteticas} />
+          <ResumoFichaBeauty rotulo="Ficha" valor={rotuloStatusFicha(prontuario.resumo.statusFichaEstetica)} texto />
+          <ResumoFichaBeauty rotulo="Alertas" valor={rotuloStatusContraindicacao(prontuario.resumo.statusContraindicacoes)} texto destaque={prontuario.resumo.statusContraindicacoes === "ALERTA"} />
+        </div>
+      </div>
+
+      {fichaAtual?.possuiAlertaContraindicacao ? (
+        <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+            <div>
+              <p className="font-semibold">Contraindicações e alertas registrados</p>
+              <p className="mt-1 leading-6">{fichaAtual.alertaContraindicacoes}</p>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+          <div className="flex items-start gap-2">
+            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+            <p>Sem contraindicações ou alertas informados na ficha atual.</p>
+          </div>
+        </div>
+      )}
+
+      <form className="mt-4 grid gap-4" onSubmit={salvarFicha}>
+        <div className="grid gap-3 md:grid-cols-2">
+          <label className="grid gap-1 text-sm font-medium text-card-foreground">
+            Objetivo principal
+            <select
+              value={formulario.objetivo}
+              onChange={(event) => setFormulario((atual) => ({ ...atual, objetivo: event.target.value as ObjetivoEsteticoBeautyPro }))}
+              className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+            >
+              {objetivosEsteticos.map((objetivo) => (
+                <option key={objetivo.value} value={objetivo.value}>
+                  {objetivo.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="grid gap-1 text-sm font-medium text-card-foreground">
+            Queixa principal
+            <input
+              value={formulario.queixaPrincipal}
+              onChange={(event) => setFormulario((atual) => ({ ...atual, queixaPrincipal: event.target.value }))}
+              className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+              placeholder="Ex.: manchas, acne, flacidez, relaxamento"
+              required
+            />
+          </label>
+        </div>
+
+        <div className="grid gap-3 lg:grid-cols-2">
+          <CampoTextoBeauty label="Histórico estético" value={formulario.historicoEstetico} onChange={(value) => setFormulario((atual) => ({ ...atual, historicoEstetico: value }))} placeholder="Procedimentos já realizados, rotina de cuidados e resposta da pele." />
+          <CampoTextoBeauty label="Procedimentos recentes" value={formulario.procedimentosRecentes} onChange={(value) => setFormulario((atual) => ({ ...atual, procedimentosRecentes: value }))} placeholder="Peelings, laser, depilação, tratamentos capilares ou outros procedimentos." />
+          <CampoTextoBeauty label="Alergias" value={formulario.alergias} onChange={(value) => setFormulario((atual) => ({ ...atual, alergias: value }))} placeholder="Alergias conhecidas a cosméticos, ativos, alimentos ou medicamentos." />
+          <CampoTextoBeauty label="Medicamentos em uso" value={formulario.medicamentos} onChange={(value) => setFormulario((atual) => ({ ...atual, medicamentos: value }))} placeholder="Medicamentos, ácidos, isotretinoína, anticoagulantes ou outros pontos relevantes." />
+          <CampoTextoBeauty label="Contraindicações" value={formulario.contraindicacoes} onChange={(value) => setFormulario((atual) => ({ ...atual, contraindicacoes: value }))} placeholder="Registre contraindicações, restrições e cuidados obrigatórios." />
+          <CampoTextoBeauty label="Observações profissionais" value={formulario.observacoes} onChange={(value) => setFormulario((atual) => ({ ...atual, observacoes: value }))} placeholder="Observações de avaliação inicial e conduta profissional." />
+        </div>
+
+        <div className="rounded-lg border bg-background p-3">
+          <p className="text-sm font-semibold text-card-foreground">Alertas de segurança</p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">Use texto e marcações para que a equipe não dependa apenas de cor ao avaliar riscos.</p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            <CheckboxFichaBeauty label="Gestante" checked={formulario.gestante} onChange={(checked) => setFormulario((atual) => ({ ...atual, gestante: checked }))} />
+            <CheckboxFichaBeauty label="Lactante" checked={formulario.lactante} onChange={(checked) => setFormulario((atual) => ({ ...atual, lactante: checked }))} />
+            <CheckboxFichaBeauty label="Pele sensível" checked={formulario.sensibilidadePele} onChange={(checked) => setFormulario((atual) => ({ ...atual, sensibilidadePele: checked }))} />
+            <CheckboxFichaBeauty label="Usa ácidos" checked={formulario.usaAcidos} onChange={(checked) => setFormulario((atual) => ({ ...atual, usaAcidos: checked }))} />
+            <CheckboxFichaBeauty label="Exposição solar intensa" checked={formulario.exposicaoSolarIntensa} onChange={(checked) => setFormulario((atual) => ({ ...atual, exposicaoSolarIntensa: checked }))} />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-h-5 text-sm">
+            {mensagem ? <span className="font-medium text-emerald-700">{mensagem}</span> : null}
+            {salvarFichaMutation.isError ? <span className="font-medium text-destructive">Não foi possível salvar a ficha estética.</span> : null}
+          </div>
+          <button
+            type="submit"
+            disabled={salvarFichaMutation.isPending}
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-rose-900 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-950 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {salvarFichaMutation.isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            {fichaAtual ? "Atualizar ficha estética" : "Criar ficha estética"}
+          </button>
+        </div>
+      </form>
+
+      <div className="mt-4 rounded-lg border bg-background p-4">
+        <p className="text-sm font-semibold text-card-foreground">Histórico de avaliações</p>
+        <div className="mt-3 grid gap-2">
+          {fichasQuery.isLoading ? (
+            <div className="flex min-h-20 items-center justify-center text-sm text-muted-foreground">
+              <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+              Carregando histórico
+            </div>
+          ) : fichasQuery.data?.itens.length ? (
+            fichasQuery.data.itens.map((ficha) => <LinhaHistoricoFichaBeauty key={ficha.id} ficha={ficha} />)
+          ) : (
+            <div className="rounded-md border bg-white p-3 text-sm text-muted-foreground">Nenhuma ficha estética registrada para este cliente.</div>
+          )}
+        </div>
       </div>
     </section>
   );
@@ -217,9 +519,13 @@ function CardAtalhoBeauty({ atalho, principal = false }: { atalho: AtalhoBeautyP
   );
 }
 
-function LinhaClienteBeauty({ cliente }: { cliente: ClienteBeautyResumo }) {
+function LinhaClienteBeauty({ cliente, selecionado, onSelecionar }: { cliente: ClienteBeautyResumo; selecionado: boolean; onSelecionar: () => void }) {
   return (
-    <article className="rounded-md border bg-background p-3">
+    <button
+      type="button"
+      onClick={onSelecionar}
+      className={cn("rounded-md border bg-background p-3 text-left transition hover:border-rose-300 hover:bg-rose-50/50", selecionado ? "border-rose-500 bg-rose-50 shadow-sm" : "")}
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-card-foreground">{cliente.nome}</p>
@@ -230,7 +536,61 @@ function LinhaClienteBeauty({ cliente }: { cliente: ClienteBeautyResumo }) {
         </span>
       </div>
       {cliente.observacoes ? <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">{cliente.observacoes}</p> : null}
+    </button>
+  );
+}
+
+function CampoTextoBeauty({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (value: string) => void; placeholder: string }) {
+  return (
+    <label className="grid gap-1 text-sm font-medium text-card-foreground">
+      {label}
+      <textarea
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="min-h-24 rounded-md border bg-background px-3 py-2 text-sm leading-6 outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+        placeholder={placeholder}
+      />
+    </label>
+  );
+}
+
+function CheckboxFichaBeauty({ label, checked, onChange }: { label: string; checked: boolean; onChange: (checked: boolean) => void }) {
+  return (
+    <label className="flex min-h-11 items-center gap-2 rounded-md border bg-white px-3 text-sm font-medium text-card-foreground">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(event) => onChange(event.target.checked)}
+        className="h-4 w-4 rounded border-muted-foreground accent-rose-900"
+      />
+      {label}
+    </label>
+  );
+}
+
+function LinhaHistoricoFichaBeauty({ ficha }: { ficha: FichaEsteticaBeautyPro }) {
+  return (
+    <article className={cn("rounded-md border bg-white p-3", ficha.possuiAlertaContraindicacao ? "border-amber-300" : "")}>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-card-foreground">{ficha.objetivoRotulo}</p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">{ficha.queixaPrincipal}</p>
+        </div>
+        <span className={cn("w-fit rounded-md border px-2 py-1 text-xs font-semibold", ficha.possuiAlertaContraindicacao ? "bg-amber-50 text-amber-900" : "bg-emerald-50 text-emerald-800")}>
+          {ficha.possuiAlertaContraindicacao ? "Com alerta" : "Sem alerta"}
+        </span>
+      </div>
+      <p className="mt-2 text-xs font-medium text-muted-foreground">Atualizada em {formatarDataHora(ficha.atualizadoEm)}</p>
     </article>
+  );
+}
+
+function ResumoFichaBeauty({ rotulo, valor, texto = false, destaque = false }: { rotulo: string; valor: number | string; texto?: boolean; destaque?: boolean }) {
+  return (
+    <div className={cn("rounded-md border bg-background px-3 py-2", destaque ? "border-amber-300 bg-amber-50 text-amber-900" : "")}>
+      <p className="text-[11px] font-semibold uppercase text-muted-foreground">{rotulo}</p>
+      <p className={cn("mt-1 font-semibold text-card-foreground", texto ? "text-xs" : "text-lg")}>{valor}</p>
+    </div>
   );
 }
 
@@ -242,6 +602,29 @@ function EstadoBeautyPro({ titulo, descricao, alerta = false }: { titulo: string
       <p className="mt-1 max-w-md text-sm leading-6 text-muted-foreground">{descricao}</p>
     </section>
   );
+}
+
+function formularioDeFicha(ficha: FichaEsteticaBeautyPro): FormularioFichaBeauty {
+  return {
+    objetivo: ficha.objetivo,
+    queixaPrincipal: ficha.queixaPrincipal,
+    historicoEstetico: ficha.historicoEstetico ?? "",
+    alergias: ficha.alergias ?? "",
+    medicamentos: ficha.medicamentos ?? "",
+    gestante: ficha.gestante,
+    lactante: ficha.lactante,
+    sensibilidadePele: ficha.sensibilidadePele,
+    usaAcidos: ficha.usaAcidos,
+    exposicaoSolarIntensa: ficha.exposicaoSolarIntensa,
+    procedimentosRecentes: ficha.procedimentosRecentes ?? "",
+    contraindicacoes: ficha.contraindicacoes ?? "",
+    observacoes: ficha.observacoes ?? ""
+  };
+}
+
+function textoOuNull(valor: string) {
+  const texto = valor.trim();
+  return texto.length ? texto : null;
 }
 
 function classeStatusIndicador(status: string) {
@@ -274,6 +657,31 @@ function rotuloStatusAtalho(status: string) {
   return rotulos[status] ?? status;
 }
 
+function rotuloStatusFicha(status: string) {
+  const rotulos: Record<string, string> = {
+    DISPONIVEL: "Disponível",
+    PENDENTE: "Pendente"
+  };
+  return rotulos[status] ?? status;
+}
+
+function rotuloStatusContraindicacao(status: string) {
+  const rotulos: Record<string, string> = {
+    ALERTA: "Com alerta",
+    SEM_ALERTA: "Sem alerta"
+  };
+  return rotulos[status] ?? status;
+}
+
 function formatarNumero(valor: number) {
   return new Intl.NumberFormat("pt-BR").format(valor);
+}
+
+function formatarDataHora(valor: string) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(new Date(valor));
 }
