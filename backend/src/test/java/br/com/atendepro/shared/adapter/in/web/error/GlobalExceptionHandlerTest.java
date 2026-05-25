@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
+import br.com.atendepro.modules.empresa.domain.exception.AcessoTenantNegadoException;
 import br.com.atendepro.shared.domain.exception.BusinessException;
 import br.com.atendepro.shared.domain.exception.ValidationException;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,21 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().codigo()).isEqualTo("REGRA_NEGOCIO");
         assertThat(response.getBody().path()).isEqualTo("/api/teste");
+    }
+
+    @Test
+    void deveMapearAcessoTenantNegado() {
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/empresas/outra");
+
+        var response = handler.tratarAcessoTenantNegadoException(
+                new AcessoTenantNegadoException("TENANT_ACESSO_NEGADO", "Usuario nao possui acesso a esta empresa."),
+                request
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().codigo()).isEqualTo("TENANT_ACESSO_NEGADO");
+        assertThat(response.getBody().path()).isEqualTo("/api/empresas/outra");
     }
 
     @Test

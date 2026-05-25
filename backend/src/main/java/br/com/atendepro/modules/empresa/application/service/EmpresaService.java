@@ -2,6 +2,7 @@ package br.com.atendepro.modules.empresa.application.service;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -9,6 +10,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import br.com.atendepro.modules.empresa.application.command.CadastrarEmpresaCommand;
+import br.com.atendepro.modules.empresa.application.context.TenantAccessService;
 import br.com.atendepro.modules.empresa.application.port.in.BuscarEmpresaUseCase;
 import br.com.atendepro.modules.empresa.application.port.in.CadastrarEmpresaUseCase;
 import br.com.atendepro.modules.empresa.application.port.in.ListarEmpresasUseCase;
@@ -30,6 +32,7 @@ public class EmpresaService implements CadastrarEmpresaUseCase, BuscarEmpresaUse
     private final CarregarEmpresaPorIdPort carregarEmpresaPorIdPort;
     private final ListarEmpresasPort listarEmpresasPort;
     private final SalvarEmpresaPort salvarEmpresaPort;
+    private final TenantAccessService tenantAccessService;
     private final Clock clock;
 
     public EmpresaService(
@@ -37,17 +40,20 @@ public class EmpresaService implements CadastrarEmpresaUseCase, BuscarEmpresaUse
             CarregarEmpresaPorIdPort carregarEmpresaPorIdPort,
             ListarEmpresasPort listarEmpresasPort,
             SalvarEmpresaPort salvarEmpresaPort,
+            TenantAccessService tenantAccessService,
             Clock clock
     ) {
         this.carregarEmpresaPorDocumentoPort = carregarEmpresaPorDocumentoPort;
         this.carregarEmpresaPorIdPort = carregarEmpresaPorIdPort;
         this.listarEmpresasPort = listarEmpresasPort;
         this.salvarEmpresaPort = salvarEmpresaPort;
+        this.tenantAccessService = tenantAccessService;
         this.clock = clock;
     }
 
     @Override
     public EmpresaResult cadastrarEmpresa(CadastrarEmpresaCommand command) {
+        tenantAccessService.validarOperacaoGlobal();
         carregarEmpresaPorDocumentoPort.carregarEmpresaPorDocumento(command.documento())
                 .ifPresent(empresa -> {
                     throw new BusinessException("EMPRESA_DOCUMENTO_JA_CADASTRADO", "Documento de empresa ja cadastrado.");
@@ -69,18 +75,34 @@ public class EmpresaService implements CadastrarEmpresaUseCase, BuscarEmpresaUse
 
     @Override
     public Optional<EmpresaResult> buscarEmpresaPorId(UUID empresaId) {
+        tenantAccessService.validarAcessoEmpresa(empresaId);
         return carregarEmpresaPorIdPort.carregarEmpresaPorId(empresaId)
                 .map(EmpresaResult::de);
     }
 
     @Override
     public ResultadoPaginado<EmpresaResult> listarEmpresas(Paginacao paginacao) {
+        Optional<UUID> empresaRestrita = tenantAccessService.empresaRestrita();
+        if (empresaRestrita.isPresent()) {
+            return listarEmpresaRestrita(empresaRestrita.get(), paginacao);
+        }
         ResultadoPaginado<EmpresaTenant> empresas = listarEmpresasPort.listarEmpresas(paginacao);
         return new ResultadoPaginado<>(
                 empresas.itens().stream().map(EmpresaResult::de).toList(),
                 empresas.totalItens(),
                 empresas.pagina(),
                 empresas.tamanho()
+        );
+    }
+
+    private ResultadoPaginado<EmpresaResult> listarEmpresaRestrita(UUID empresaId, Paginacao paginacao) {
+        Optional<EmpresaTenant> empresa = carregarEmpresaPorIdPort.carregarEmpresaPorId(empresaId);
+        long total = empresa.isPresent() ? 1 : 0;
+        return new ResultadoPaginado<>(
+                paginacao.pagina() == 0 ? empresa.map(EmpresaResult::de).stream().toList() : List.of(),
+                total,
+                paginacao.pagina(),
+                paginacao.tamanho()
         );
     }
 }

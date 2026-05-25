@@ -8,11 +8,18 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import br.com.atendepro.modules.auth.domain.model.PerfilAcesso;
 import br.com.atendepro.modules.empresa.application.command.CadastrarEmpresaCommand;
+import br.com.atendepro.modules.empresa.application.context.TenantAccessService;
+import br.com.atendepro.modules.empresa.application.context.TenantContext;
+import br.com.atendepro.modules.empresa.application.context.TenantContextHolder;
+import br.com.atendepro.modules.empresa.application.result.EmpresaResult;
 import br.com.atendepro.modules.empresa.domain.model.DocumentoEmpresa;
 import br.com.atendepro.modules.empresa.domain.model.EmpresaTenant;
 import br.com.atendepro.shared.application.pagination.Paginacao;
@@ -23,6 +30,11 @@ class EmpresaServiceTest {
 
     private static final Clock CLOCK = Clock.fixed(Instant.parse("2026-05-25T00:00:00Z"), ZoneOffset.UTC);
 
+    @AfterEach
+    void limparContextoTenant() {
+        TenantContextHolder.limpar();
+    }
+
     @Test
     void deveCadastrarEmpresa() {
         SalvarEmpresaFake salvarEmpresaFake = new SalvarEmpresaFake();
@@ -31,6 +43,7 @@ class EmpresaServiceTest {
                 id -> Optional.empty(),
                 paginacao -> new ResultadoPaginado<>(List.of(), 0, paginacao.pagina(), paginacao.tamanho()),
                 salvarEmpresaFake,
+                new TenantAccessService(),
                 CLOCK
         );
 
@@ -49,6 +62,7 @@ class EmpresaServiceTest {
                 paginacao -> new ResultadoPaginado<>(List.of(), 0, paginacao.pagina(), paginacao.tamanho()),
                 empresa -> {
                 },
+                new TenantAccessService(),
                 CLOCK
         );
 
@@ -65,6 +79,7 @@ class EmpresaServiceTest {
                 paginacao -> new ResultadoPaginado<>(List.of(empresa()), 1, paginacao.pagina(), paginacao.tamanho()),
                 empresa -> {
                 },
+                new TenantAccessService(),
                 CLOCK
         );
 
@@ -72,6 +87,32 @@ class EmpresaServiceTest {
 
         assertThat(result.totalItens()).isEqualTo(1);
         assertThat(result.itens()).hasSize(1);
+    }
+
+    @Test
+    void deveListarSomenteEmpresaDoContextoRestrito() {
+        TenantContextHolder.definir(new TenantContext(
+                UUID.fromString("d6ff9cb4-8478-47ad-97f8-a45ea1047baf"),
+                UUID.randomUUID(),
+                Set.of(PerfilAcesso.EMPRESA_ADMIN)
+        ));
+        EmpresaService service = new EmpresaService(
+                documento -> Optional.empty(),
+                id -> Optional.of(empresa()),
+                paginacao -> {
+                    throw new AssertionError("Listagem global nao deve ser usada para tenant restrito.");
+                },
+                empresa -> {
+                },
+                new TenantAccessService(),
+                CLOCK
+        );
+
+        var result = service.listarEmpresas(new Paginacao(0, 20));
+
+        assertThat(result.totalItens()).isEqualTo(1);
+        assertThat(result.itens()).extracting(EmpresaResult::id)
+                .containsExactly(UUID.fromString("d6ff9cb4-8478-47ad-97f8-a45ea1047baf"));
     }
 
     private CadastrarEmpresaCommand command() {

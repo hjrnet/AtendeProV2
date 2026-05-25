@@ -16,6 +16,7 @@ import br.com.atendepro.modules.auth.application.port.out.SalvarUsuarioAutentica
 import br.com.atendepro.modules.auth.application.result.AdministradorEmpresaResult;
 import br.com.atendepro.modules.auth.domain.model.PerfilAcesso;
 import br.com.atendepro.modules.auth.domain.model.UsuarioAutenticacao;
+import br.com.atendepro.modules.empresa.application.context.TenantAccessService;
 import br.com.atendepro.modules.empresa.application.port.out.CarregarEmpresaPorIdPort;
 import br.com.atendepro.shared.domain.exception.BusinessException;
 
@@ -27,6 +28,7 @@ public class CadastrarAdministradorEmpresaService implements CadastrarAdministra
     private final CarregarUsuarioPorEmailPort carregarUsuarioPorEmailPort;
     private final CriptografarSenhaPort criptografarSenhaPort;
     private final SalvarUsuarioAutenticacaoPort salvarUsuarioAutenticacaoPort;
+    private final TenantAccessService tenantAccessService;
     private final Clock clock;
 
     public CadastrarAdministradorEmpresaService(
@@ -34,17 +36,20 @@ public class CadastrarAdministradorEmpresaService implements CadastrarAdministra
             CarregarUsuarioPorEmailPort carregarUsuarioPorEmailPort,
             CriptografarSenhaPort criptografarSenhaPort,
             SalvarUsuarioAutenticacaoPort salvarUsuarioAutenticacaoPort,
+            TenantAccessService tenantAccessService,
             Clock clock
     ) {
         this.carregarEmpresaPorIdPort = carregarEmpresaPorIdPort;
         this.carregarUsuarioPorEmailPort = carregarUsuarioPorEmailPort;
         this.criptografarSenhaPort = criptografarSenhaPort;
         this.salvarUsuarioAutenticacaoPort = salvarUsuarioAutenticacaoPort;
+        this.tenantAccessService = tenantAccessService;
         this.clock = clock;
     }
 
     @Override
     public AdministradorEmpresaResult cadastrarAdministradorEmpresa(CadastrarAdministradorEmpresaCommand command) {
+        tenantAccessService.validarAcessoEmpresa(command.empresaId());
         carregarEmpresaPorIdPort.carregarEmpresaPorId(command.empresaId())
                 .orElseThrow(() -> new BusinessException("EMPRESA_NAO_ENCONTRADA", "Empresa nao encontrada."));
         carregarUsuarioPorEmailPort.carregarUsuarioPorEmail(command.email())

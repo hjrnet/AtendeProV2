@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R1 — Auth, tenant e segurança.
 
 ## Última task concluída
-TASK-0108 — Contexto de tenant.
+TASK-0109 — Isolamento por tenant_id.
 
 ## Próxima task recomendada
-TASK-0109 — Isolamento por tenant_id.
+TASK-0110 — Perfis e permissões.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0109 concluida em modo autopilot multiagente release R1.
+- Isolamento por tenant criado com `TenantAccessService`, validando acesso a empresa do contexto e bloqueando operacoes globais para perfis restritos.
+- Endpoints de empresa agora retornam apenas a empresa do tenant restrito e negam acesso a outro tenant com `TENANT_ACESSO_NEGADO` HTTP 403.
+- Validacao local confirmou admin de uma empresa acessando a propria empresa com 200 e outra empresa com 403.
 - TASK-0108 concluida em modo autopilot multiagente release R1.
 - Contexto de tenant criado com `TenantContextHolder` por request e filtro que resolve `empresaId` por JWT ou header `X-Empresa-Id`.
 - JWT de usuario tenant agora carrega claim `empresaId`; contexto e limpo ao final da request.

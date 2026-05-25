@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 
 import br.com.atendepro.modules.auth.domain.exception.AutenticacaoException;
+import br.com.atendepro.modules.empresa.domain.exception.AcessoTenantNegadoException;
 import br.com.atendepro.shared.domain.exception.BusinessException;
 import br.com.atendepro.shared.domain.exception.ValidationException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,6 +34,15 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(criarErro(exception.codigo(), exception.getMessage(), request.getRequestURI(), List.of()));
+    }
+
+    @ExceptionHandler(AcessoTenantNegadoException.class)
+    public ResponseEntity<ErroApiResponse> tratarAcessoTenantNegadoException(
+            AcessoTenantNegadoException exception,
+            HttpServletRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(criarErro(exception.codigo(), exception.getMessage(), request.getRequestURI(), List.of()));
     }
 

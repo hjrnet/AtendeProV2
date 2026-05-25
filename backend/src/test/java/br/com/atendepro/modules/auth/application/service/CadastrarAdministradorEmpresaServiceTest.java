@@ -16,6 +16,7 @@ import br.com.atendepro.modules.auth.application.command.CadastrarAdministradorE
 import br.com.atendepro.modules.auth.domain.model.EmailUsuario;
 import br.com.atendepro.modules.auth.domain.model.PerfilAcesso;
 import br.com.atendepro.modules.auth.domain.model.UsuarioAutenticacao;
+import br.com.atendepro.modules.empresa.application.context.TenantAccessService;
 import br.com.atendepro.modules.empresa.domain.model.DocumentoEmpresa;
 import br.com.atendepro.modules.empresa.domain.model.EmpresaTenant;
 import br.com.atendepro.shared.domain.exception.BusinessException;
@@ -33,6 +34,7 @@ class CadastrarAdministradorEmpresaServiceTest {
                 email -> Optional.empty(),
                 senha -> "hash-" + senha,
                 salvarUsuarioFake,
+                new TenantAccessService(),
                 CLOCK
         );
 
@@ -52,6 +54,7 @@ class CadastrarAdministradorEmpresaServiceTest {
                 senha -> "hash-" + senha,
                 usuario -> {
                 },
+                new TenantAccessService(),
                 CLOCK
         );
 
@@ -68,6 +71,7 @@ class CadastrarAdministradorEmpresaServiceTest {
                 senha -> "hash-" + senha,
                 usuario -> {
                 },
+                new TenantAccessService(),
                 CLOCK
         );
 
