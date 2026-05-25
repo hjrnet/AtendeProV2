@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R10 — Nutri Pro, Beauty Pro e comercial.
 
 ## Última task concluída
-TASK-R9-004 — Popular ambiente demo com usuários, planos e simulações realistas.
+TASK-NUTRI-002 — Criar módulo Nutri Pro operacional.
 
 ## Próxima task recomendada
-TASK-NUTRI-002 — Criar módulo Nutri Pro operacional.
+TASK-NUTRI-003 — Criar prontuário nutricional e menu rápido funcional.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,12 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-NUTRI-002 concluida em modo autopilot multiagente release R10.
+- Modulo backend `nutri` criado com arquitetura hexagonal, `ConsultarVisaoNutriProCommand`, UseCase/InputPort, OutputPort, service, adapter JDBC e controller fino em `/api/nutri-pro/visao`.
+- A visao operacional do Nutri Pro agrega dados reais do tenant a partir do nucleo comum: pacientes NUTRI, agenda, servicos, documentos, precificacao e pacientes recentes, sem criar tabelas de plano alimentar fora de escopo.
+- Web ganhou feature `nutri-pro` com tela operacional mobile-first dentro de Verticais > Nutri Pro, exibindo indicadores, acoes prioritarias e pacientes recentes no `/app`.
+- A task preparou atalhos para gasto energetico, exames laboratoriais, plano alimentar, prontuario, avaliacao e documentos, mas esses fluxos permanecem para as tasks oficiais seguintes.
+- Validacao confirmou `mvn test` com 274 testes, `pnpm typecheck`, `pnpm lint`, `pnpm build`, Docker Compose saudavel, backend/web locais ativos, endpoint `/api/nutri-pro/visao` com Karol demo e Browser sem erros de console.
 - R10 foi reorganizada para incluir, antes da parte comercial, a implementação operacional completa do Nutri Pro e do Beauty Pro.
 - R10 agora começa por `TASK-NUTRI-002` a `TASK-NUTRI-006`, cobrindo base operacional, prontuário/menu rápido, avaliação/gasto energético, plano alimentar e documentos/dashboard.
 - R10 também inclui `TASK-BEAUTY-001` a `TASK-BEAUTY-005`, cobrindo base operacional, ficha/anamnese, protocolos/sessões/evolução, termos/produtos/dashboard e integração web com agenda/precificação.

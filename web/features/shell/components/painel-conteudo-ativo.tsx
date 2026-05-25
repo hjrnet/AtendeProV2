@@ -29,7 +29,7 @@ function renderizarSecaoAtiva(secaoAtiva: SecaoPrincipal, empresaId: string, ses
     case "operacao":
       return <SecaoOperacao empresaId={empresaId} sessao={sessao} />;
     case "verticais":
-      return <VerticaisProfissionaisView />;
+      return <VerticaisProfissionaisView empresaId={empresaId} />;
     case "precificacao":
       return <SecaoPrecificacao empresaId={empresaId} />;
     case "busca":

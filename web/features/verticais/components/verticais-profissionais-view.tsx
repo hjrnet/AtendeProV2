@@ -19,6 +19,7 @@ import {
   type VerticalProfissional
 } from "@/features/verticais/api/verticais-client";
 import { MenuRapidoNutriProPreview } from "@/features/verticais/components/menu-rapido-nutri-pro-preview";
+import { NutriProOperacionalView } from "@/features/nutri-pro/components/nutri-pro-operacional-view";
 import { cn } from "@/lib/utils";
 
 type AbaVertical = "visao" | "capacidades" | "documentos" | "roadmap";
@@ -30,7 +31,7 @@ const abasVerticais: Array<{ id: AbaVertical; label: string; icon: typeof Stetho
   { id: "roadmap", label: "Roadmap", icon: Route }
 ];
 
-export function VerticaisProfissionaisView() {
+export function VerticaisProfissionaisView({ empresaId }: { empresaId: string }) {
   const [busca, setBusca] = useState("");
   const [verticalSelecionadaCodigo, setVerticalSelecionadaCodigo] = useState<string | null>(null);
   const [abaAtiva, setAbaAtiva] = useState<AbaVertical>("visao");
@@ -128,7 +129,7 @@ export function VerticaisProfissionaisView() {
           </div>
 
           {verticalSelecionada ? (
-            <DetalheVertical vertical={verticalSelecionada} abaAtiva={abaAtiva} onAbaChange={setAbaAtiva} />
+            <DetalheVertical vertical={verticalSelecionada} abaAtiva={abaAtiva} onAbaChange={setAbaAtiva} empresaId={empresaId} />
           ) : null}
         </div>
       )}
@@ -183,11 +184,13 @@ function CardModulo({
 function DetalheVertical({
   vertical,
   abaAtiva,
-  onAbaChange
+  onAbaChange,
+  empresaId
 }: {
   vertical: VerticalProfissional;
   abaAtiva: AbaVertical;
   onAbaChange: (aba: AbaVertical) => void;
+  empresaId: string;
 }) {
   return (
     <article className="min-w-0 rounded-lg border bg-card p-4 shadow-sm">
@@ -234,7 +237,7 @@ function DetalheVertical({
       </div>
 
       <div className="mt-4">
-        {abaAtiva === "visao" ? <AbaVisao vertical={vertical} /> : null}
+        {abaAtiva === "visao" ? <AbaVisao vertical={vertical} empresaId={empresaId} /> : null}
         {abaAtiva === "capacidades" ? <ListaDetalhe titulo="Capacidades" itens={vertical.capacidades} /> : null}
         {abaAtiva === "documentos" ? <ListaDetalhe titulo="Documentos" itens={vertical.documentos} /> : null}
         {abaAtiva === "roadmap" ? <AbaRoadmap vertical={vertical} /> : null}
@@ -243,12 +246,12 @@ function DetalheVertical({
   );
 }
 
-function AbaVisao({ vertical }: { vertical: VerticalProfissional }) {
+function AbaVisao({ vertical, empresaId }: { vertical: VerticalProfissional; empresaId: string }) {
   return (
     <div className="grid gap-3 lg:grid-cols-2">
       {vertical.codigo === "NUTRI_PRO" ? (
         <div className="lg:col-span-2">
-          <MenuRapidoNutriProPreview />
+          {empresaId ? <NutriProOperacionalView empresaId={empresaId} /> : <MenuRapidoNutriProPreview />}
         </div>
       ) : null}
       <ListaDetalhe titulo="Públicos atendidos" itens={vertical.publicosAtendidos} />

@@ -59,3 +59,26 @@ git commit -m "feat(nutri): criar modulo operacional Nutri Pro (TASK-NUTRI-002)"
 Execute TASK-NUTRI-002 — Criar módulo Nutri Pro operacional seguindo o Harness Profissional.
 Implemente somente a base operacional da vertical, com backend hexagonal, tela web por feature, validações e commit local. Não implemente plano alimentar completo ainda.
 ```
+
+## Execução
+
+Status: CONCLUIDA.
+
+Resumo:
+- Criado módulo backend `nutri` com arquitetura hexagonal para visão operacional do Nutri Pro.
+- Criado endpoint `GET /api/nutri-pro/visao`, tenant-scoped por `empresaId`, usando `Command`, `Result`, `UseCase`, `InputPort`, `OutputPort` e adapter JDBC.
+- A visão operacional reaproveita núcleo comum: pacientes/clientes, agenda, serviços/procedimentos, documentos profissionais e precificação.
+- Criada feature web `nutri-pro` com tela operacional dentro de Verticais > Nutri Pro no `/app`.
+- Preparados atalhos para as próximas tasks sem implementar plano alimentar, avaliação, exames, PDF ou app mobile fora do escopo.
+
+Validação:
+- `mvn test` — passou com 274 testes.
+- `corepack pnpm typecheck` — passou.
+- `corepack pnpm lint` — passou.
+- `corepack pnpm build` — passou.
+- Docker/local — Postgres e Mailpit saudáveis; backend local reiniciado com Java 21; web local reiniciada em `127.0.0.1:3000`.
+- API local — login `karol.nutri@atendepro.local` e `GET /api/nutri-pro/visao` retornaram status `OPERACIONAL`, 8 indicadores e 5 pacientes recentes.
+- Browser — Verticais > Nutri Pro carregou área operacional sem erros de console.
+
+Commit:
+- `feat(nutri): criar modulo operacional Nutri Pro (TASK-NUTRI-002)`
