@@ -5,5 +5,6 @@ public enum CodigoVerticalProfissional {
     BEAUTY_PRO,
     BIOMED_PRO,
     FISIO_PRO,
-    PSICO_PRO
+    PSICO_PRO,
+    FONO_PRO
 }

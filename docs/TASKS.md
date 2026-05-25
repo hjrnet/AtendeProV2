@@ -116,7 +116,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-0703 | Biomed Pro | CRBM, habilitações, rastreabilidade e estética biomédica. | CONCLUIDA |
 | TASK-0704 | Fisio Pro | CREFITO, avaliação, plano terapêutico e evolução por sessão. | CONCLUIDA |
 | TASK-0705 | Psico Pro futuro | Documentos psicológicos e evolução, respeitando escopo futuro. | CONCLUIDA |
-| TASK-0706 | Fono Pro futuro | Relatórios, laudos e acompanhamento. | PENDENTE |
+| TASK-0706 | Fono Pro futuro | Relatórios, laudos e acompanhamento. | CONCLUIDA |
 | TASK-0707 | Farmácia Clínica futuro | Serviços clínicos e documentos CRF. | PENDENTE |
 | TASK-0708 | Odonto Pro futuro | Documentos odontológicos e CRO. | PENDENTE |
 

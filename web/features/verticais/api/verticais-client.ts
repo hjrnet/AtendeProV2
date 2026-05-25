@@ -1,7 +1,13 @@
 import { criarApiClient } from "@/lib/api";
 import { carregarSessaoAutenticada, limparSessaoAutenticada } from "@/features/auth/lib/auth-storage";
 
-export type CodigoVerticalProfissional = "NUTRI_PRO" | "BEAUTY_PRO" | "BIOMED_PRO" | "FISIO_PRO" | "PSICO_PRO";
+export type CodigoVerticalProfissional =
+  | "NUTRI_PRO"
+  | "BEAUTY_PRO"
+  | "BIOMED_PRO"
+  | "FISIO_PRO"
+  | "PSICO_PRO"
+  | "FONO_PRO";
 
 export type StatusVerticalProfissional = "OPERACIONAL_BASE" | "PREPARADO_FUTURO";
 

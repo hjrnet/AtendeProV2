@@ -25,6 +25,7 @@ class VerticalProfissionalServiceTest {
                         CodigoVerticalProfissional.BEAUTY_PRO,
                         CodigoVerticalProfissional.BIOMED_PRO,
                         CodigoVerticalProfissional.FISIO_PRO,
+                        CodigoVerticalProfissional.FONO_PRO,
                         CodigoVerticalProfissional.NUTRI_PRO,
                         CodigoVerticalProfissional.PSICO_PRO
                 );
@@ -104,5 +105,20 @@ class VerticalProfissionalServiceTest {
         assertThat(vertical.get().status().name()).isEqualTo("PREPARADO_FUTURO");
         assertThat(vertical.get().conselhoProfissional()).isEqualTo("CRP");
         assertThat(vertical.get().capacidades()).contains("documentos psicologicos", "controle de sigilo");
+    }
+
+    @Test
+    void deveDetalharFonoProComoFuturoComCrefonoELaudos() {
+        VerticalProfissionalService service = new VerticalProfissionalService(
+                new CatalogoVerticalProfissionalAdapter(),
+                new PermissaoAcessoService()
+        );
+
+        var vertical = service.detalharVertical(CodigoVerticalProfissional.FONO_PRO);
+
+        assertThat(vertical).isPresent();
+        assertThat(vertical.get().status().name()).isEqualTo("PREPARADO_FUTURO");
+        assertThat(vertical.get().conselhoProfissional()).isEqualTo("CREFONO");
+        assertThat(vertical.get().documentos()).contains("Relatorio fonoaudiologico", "Laudo fonoaudiologico futuro");
     }
 }

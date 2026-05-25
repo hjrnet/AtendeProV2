@@ -268,6 +268,54 @@ public class CatalogoVerticalProfissionalAdapter implements CarregarCatalogoVert
                             "criar evolucao por sessao",
                             "preparar atendimento online"
                     )
+            ),
+            CodigoVerticalProfissional.FONO_PRO,
+            new VerticalProfissional(
+                    CodigoVerticalProfissional.FONO_PRO,
+                    "Fono Pro",
+                    "R7",
+                    StatusVerticalProfissional.PREPARADO_FUTURO,
+                    "CREFONO",
+                    "Preparacao futura para fonoaudiologia, com acompanhamento, relatorios, laudos e documentos profissionais vinculados ao CREFONO.",
+                    List.of("Fonoaudiologos", "Clinicas de fonoaudiologia", "Atendimento infantil e adulto"),
+                    List.of(
+                            "acompanhamento fonoaudiologico",
+                            "relatorios profissionais",
+                            "laudos futuros",
+                            "evolucao por sessao",
+                            "metas terapeuticas",
+                            "materiais e orientacoes",
+                            "documentos com CREFONO"
+                    ),
+                    List.of(
+                            "Paciente fono",
+                            "Avaliacao fonoaudiologica",
+                            "Plano de acompanhamento",
+                            "Sessao fonoaudiologica",
+                            "Evolucao fono",
+                            "Relatorio fonoaudiologico",
+                            "Laudo fonoaudiologico"
+                    ),
+                    List.of(
+                            "Relatorio fonoaudiologico",
+                            "Laudo fonoaudiologico futuro",
+                            "Plano de acompanhamento",
+                            "Orientacoes ao responsavel"
+                    ),
+                    List.of(
+                            "clientes/pacientes",
+                            "agenda",
+                            "documentos profissionais",
+                            "carimbo profissional",
+                            "materiais educativos futuros",
+                            "app do paciente futuro"
+                    ),
+                    List.of(
+                            "validar regras de laudos fonoaudiologicos",
+                            "criar acompanhamento por metas",
+                            "criar evolucao por sessao",
+                            "preparar materiais para pacientes e responsaveis"
+                    )
             )
     );
 
