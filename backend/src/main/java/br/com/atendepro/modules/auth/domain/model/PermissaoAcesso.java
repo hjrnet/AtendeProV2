@@ -11,6 +11,7 @@ public enum PermissaoAcesso {
     GERENCIAR_SERVICOS("servicos:gerenciar"),
     GERENCIAR_CUSTOS("custos:gerenciar"),
     GERENCIAR_ESTOQUE("estoque:gerenciar"),
+    GERENCIAR_EQUIPAMENTOS("equipamentos:gerenciar"),
     ACESSAR_ADMIN_SAAS("admin-saas:acessar"),
     ACESSAR_SUPORTE("suporte:acessar");
 

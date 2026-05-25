@@ -87,3 +87,5 @@ Custos gerais ficam no modulo `custo`, tenant-scoped por `empresa_id` e expostos
 Alimentacao e transporte permanecem no modulo `custo`, mas em tabela e endpoint proprios: `custos_alimentacao_transporte` e `/api/custos/alimentacao-transporte`. A modelagem usa `TipoCustoPessoal` (`ALIMENTACAO`, `TRANSPORTE`) e `PeriodicidadeCustoPessoal` (`DIARIO`, `MENSAL`, `POR_ATENDIMENTO`), com profissional opcional para custos individualizados.
 
 Estoque base fica no modulo `estoque`, tenant-scoped por `empresa_id` e exposto em `/api/estoque/produtos`. A TASK-0306 cobre produto, categoria, lote, validade, unidade, quantidade atual, custo unitario e estoque minimo. Movimentacoes, baixas e rastreabilidade avancada permanecem fora do escopo e devem ser tratadas em task futura.
+
+Equipamentos base ficam no modulo `equipamento`, tenant-scoped por `empresa_id` e expostos em `/api/equipamentos`. A TASK-0307 cobre valor de aquisicao, data de aquisicao, vida util em meses e uma proxima manutencao simples com descricao. Historico de manutencoes, recorrencia automatica e depreciacao contabil ficam fora do escopo.

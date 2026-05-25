@@ -1,0 +1,104 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0018-create-equipamentos
+      author: codex
+      changes:
+        - createTable:
+            tableName: equipamentos
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: empresa_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: nome
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: categoria
+                  type: varchar(120)
+              - column:
+                  name: marca
+                  type: varchar(120)
+              - column:
+                  name: modelo
+                  type: varchar(120)
+              - column:
+                  name: numero_serie
+                  type: varchar(120)
+              - column:
+                  name: valor_aquisicao
+                  type: numeric(12,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: data_aquisicao
+                  type: date
+              - column:
+                  name: vida_util_meses
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: proxima_manutencao_em
+                  type: date
+              - column:
+                  name: descricao_manutencao
+                  type: varchar(1000)
+              - column:
+                  name: ativo
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: equipamentos
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_equipamentos_empresas
+        - createIndex:
+            tableName: equipamentos
+            indexName: idx_equipamentos_empresa_nome
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: nome
+        - createIndex:
+            tableName: equipamentos
+            indexName: idx_equipamentos_empresa_categoria
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: categoria
+        - createIndex:
+            tableName: equipamentos
+            indexName: idx_equipamentos_empresa_manutencao
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: proxima_manutencao_em

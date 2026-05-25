@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R3 — Núcleo operacional comum.
 
 ## Última task concluída
-TASK-0306 — Estoque base.
+TASK-0307 — Equipamentos base.
 
 ## Próxima task recomendada
-TASK-0307 — Equipamentos base.
+TASK-0308 — Dashboard da empresa.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0307 concluida em modo autopilot multiagente release R3.
+- Modulo `equipamento` criado no backend com dominio `Equipamento`, Command/Result, UseCases, OutputPorts, adapter JDBC e controller fino.
+- API `/api/equipamentos` permite cadastrar, detalhar e listar equipamentos por empresa, busca, categoria, ativo e proxima manutencao limite.
+- A base registra valor de aquisicao, data de aquisicao, vida util em meses e dados simples da proxima manutencao, sem historico ou recorrencia automatica.
+- Validacao local confirmou migration `equipamentos`, criacao/listagem real e `mvn test` com 139 testes.
 - TASK-0306 concluida em modo autopilot multiagente release R3.
 - Modulo `estoque` criado no backend com dominio `ProdutoEstoque`, Command/Result, UseCases, OutputPorts, adapter JDBC e controller fino.
 - API `/api/estoque/produtos` permite cadastrar, detalhar e listar produtos por empresa, busca, categoria, ativo e validade limite.
