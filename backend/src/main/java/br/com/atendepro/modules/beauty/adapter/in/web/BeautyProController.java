@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.atendepro.modules.beauty.application.command.AtualizarFichaEsteticaBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.ConsultarProntuarioBeautyProCommand;
+import br.com.atendepro.modules.beauty.application.command.ConsultarSegurancaOperacionalBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.ConsultarVisaoBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.CriarFichaEsteticaBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.ListarProtocolosBeautyProCommand;
@@ -23,14 +24,18 @@ import br.com.atendepro.modules.beauty.application.command.ListarClientesBeautyP
 import br.com.atendepro.modules.beauty.application.command.ListarFichasEsteticasBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.port.in.AtualizarFichaEsteticaBeautyProUseCase;
 import br.com.atendepro.modules.beauty.application.port.in.ConsultarProntuarioBeautyProUseCase;
+import br.com.atendepro.modules.beauty.application.port.in.ConsultarSegurancaOperacionalBeautyProUseCase;
 import br.com.atendepro.modules.beauty.application.port.in.ConsultarVisaoBeautyProUseCase;
+import br.com.atendepro.modules.beauty.application.port.in.CriarEvidenciaEvolucaoBeautyProUseCase;
 import br.com.atendepro.modules.beauty.application.port.in.CriarProtocoloBeautyProUseCase;
 import br.com.atendepro.modules.beauty.application.port.in.CriarFichaEsteticaBeautyProUseCase;
+import br.com.atendepro.modules.beauty.application.port.in.CriarTermoConsentimentoBeautyProUseCase;
 import br.com.atendepro.modules.beauty.application.port.in.DetalharProtocoloBeautyProUseCase;
 import br.com.atendepro.modules.beauty.application.port.in.ListarClientesBeautyProUseCase;
 import br.com.atendepro.modules.beauty.application.port.in.ListarFichasEsteticasBeautyProUseCase;
 import br.com.atendepro.modules.beauty.application.port.in.ListarProtocolosBeautyProUseCase;
 import br.com.atendepro.modules.beauty.application.port.in.RegistrarSessaoProtocoloBeautyProUseCase;
+import br.com.atendepro.modules.beauty.application.port.in.VincularProdutoBeautyProUseCase;
 import jakarta.validation.Valid;
 
 @RestController
@@ -48,6 +53,10 @@ public class BeautyProController {
     private final ListarProtocolosBeautyProUseCase listarProtocolosBeautyProUseCase;
     private final DetalharProtocoloBeautyProUseCase detalharProtocoloBeautyProUseCase;
     private final RegistrarSessaoProtocoloBeautyProUseCase registrarSessaoProtocoloBeautyProUseCase;
+    private final ConsultarSegurancaOperacionalBeautyProUseCase consultarSegurancaOperacionalBeautyProUseCase;
+    private final CriarTermoConsentimentoBeautyProUseCase criarTermoConsentimentoBeautyProUseCase;
+    private final CriarEvidenciaEvolucaoBeautyProUseCase criarEvidenciaEvolucaoBeautyProUseCase;
+    private final VincularProdutoBeautyProUseCase vincularProdutoBeautyProUseCase;
 
     public BeautyProController(
             ConsultarVisaoBeautyProUseCase consultarVisaoBeautyProUseCase,
@@ -59,7 +68,11 @@ public class BeautyProController {
             CriarProtocoloBeautyProUseCase criarProtocoloBeautyProUseCase,
             ListarProtocolosBeautyProUseCase listarProtocolosBeautyProUseCase,
             DetalharProtocoloBeautyProUseCase detalharProtocoloBeautyProUseCase,
-            RegistrarSessaoProtocoloBeautyProUseCase registrarSessaoProtocoloBeautyProUseCase
+            RegistrarSessaoProtocoloBeautyProUseCase registrarSessaoProtocoloBeautyProUseCase,
+            ConsultarSegurancaOperacionalBeautyProUseCase consultarSegurancaOperacionalBeautyProUseCase,
+            CriarTermoConsentimentoBeautyProUseCase criarTermoConsentimentoBeautyProUseCase,
+            CriarEvidenciaEvolucaoBeautyProUseCase criarEvidenciaEvolucaoBeautyProUseCase,
+            VincularProdutoBeautyProUseCase vincularProdutoBeautyProUseCase
     ) {
         this.consultarVisaoBeautyProUseCase = consultarVisaoBeautyProUseCase;
         this.listarClientesBeautyProUseCase = listarClientesBeautyProUseCase;
@@ -71,6 +84,10 @@ public class BeautyProController {
         this.listarProtocolosBeautyProUseCase = listarProtocolosBeautyProUseCase;
         this.detalharProtocoloBeautyProUseCase = detalharProtocoloBeautyProUseCase;
         this.registrarSessaoProtocoloBeautyProUseCase = registrarSessaoProtocoloBeautyProUseCase;
+        this.consultarSegurancaOperacionalBeautyProUseCase = consultarSegurancaOperacionalBeautyProUseCase;
+        this.criarTermoConsentimentoBeautyProUseCase = criarTermoConsentimentoBeautyProUseCase;
+        this.criarEvidenciaEvolucaoBeautyProUseCase = criarEvidenciaEvolucaoBeautyProUseCase;
+        this.vincularProdutoBeautyProUseCase = vincularProdutoBeautyProUseCase;
     }
 
     @GetMapping("/visao")
@@ -191,5 +208,56 @@ public class BeautyProController {
                 .map(response -> ResponseEntity.created(URI.create("/api/beauty-pro/clientes/" + clienteId + "/protocolos/" + protocoloId + "/sessoes/" + response.id()))
                         .body(SessaoProtocoloBeautyProResponse.de(response)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/clientes/{clienteId}/seguranca-operacional")
+    public ResponseEntity<SegurancaOperacionalBeautyProResponse> consultarSegurancaOperacional(
+            @PathVariable UUID clienteId,
+            @RequestParam(required = false) UUID empresaId
+    ) {
+        return ResponseEntity.ok(SegurancaOperacionalBeautyProResponse.de(
+                consultarSegurancaOperacionalBeautyProUseCase.consultarSegurancaOperacional(
+                        new ConsultarSegurancaOperacionalBeautyProCommand(empresaId, clienteId)
+                )
+        ));
+    }
+
+    @PostMapping("/clientes/{clienteId}/termos")
+    public ResponseEntity<TermoConsentimentoBeautyProResponse> criarTermoConsentimento(
+            @PathVariable UUID clienteId,
+            @RequestParam(required = false) UUID empresaId,
+            @Valid @RequestBody CriarTermoConsentimentoBeautyProRequest request
+    ) {
+        TermoConsentimentoBeautyProResponse response = TermoConsentimentoBeautyProResponse.de(
+                criarTermoConsentimentoBeautyProUseCase.criarTermoConsentimento(request.paraCommand(empresaId, clienteId))
+        );
+        return ResponseEntity.created(URI.create("/api/beauty-pro/clientes/" + clienteId + "/termos/" + response.id()))
+                .body(response);
+    }
+
+    @PostMapping("/clientes/{clienteId}/evidencias")
+    public ResponseEntity<EvidenciaEvolucaoBeautyProResponse> criarEvidenciaEvolucao(
+            @PathVariable UUID clienteId,
+            @RequestParam(required = false) UUID empresaId,
+            @Valid @RequestBody CriarEvidenciaEvolucaoBeautyProRequest request
+    ) {
+        EvidenciaEvolucaoBeautyProResponse response = EvidenciaEvolucaoBeautyProResponse.de(
+                criarEvidenciaEvolucaoBeautyProUseCase.criarEvidenciaEvolucao(request.paraCommand(empresaId, clienteId))
+        );
+        return ResponseEntity.created(URI.create("/api/beauty-pro/clientes/" + clienteId + "/evidencias/" + response.id()))
+                .body(response);
+    }
+
+    @PostMapping("/clientes/{clienteId}/produtos")
+    public ResponseEntity<ProdutoUtilizadoBeautyProResponse> vincularProduto(
+            @PathVariable UUID clienteId,
+            @RequestParam(required = false) UUID empresaId,
+            @Valid @RequestBody VincularProdutoBeautyProRequest request
+    ) {
+        ProdutoUtilizadoBeautyProResponse response = ProdutoUtilizadoBeautyProResponse.de(
+                vincularProdutoBeautyProUseCase.vincularProduto(request.paraCommand(empresaId, clienteId))
+        );
+        return ResponseEntity.created(URI.create("/api/beauty-pro/clientes/" + clienteId + "/produtos/" + response.id()))
+                .body(response);
     }
 }

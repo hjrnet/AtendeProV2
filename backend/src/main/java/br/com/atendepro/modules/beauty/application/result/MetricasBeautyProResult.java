@@ -12,6 +12,12 @@ public record MetricasBeautyProResult(
         long equipamentosAtivos,
         long simulacoesPrecificacao,
         long simulacoesEmAlerta,
+        long protocolosAtivos,
+        long sessoesRealizadas,
+        long termosConsentimento,
+        long evidenciasSeguras,
+        long produtosVinculados,
+        long alertasProdutos,
         List<ClienteBeautyResumoResult> clientesRecentes
 ) {
 }

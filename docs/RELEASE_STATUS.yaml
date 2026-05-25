@@ -1,8 +1,8 @@
 project: AtendePro
 strategy: professional_complete
 current_release: R10
-last_completed_task: TASK-BEAUTY-003
-next_task: TASK-BEAUTY-004
+last_completed_task: TASK-BEAUTY-004
+next_task: TASK-BEAUTY-005
 releases:
   R0:
     name: "R0 — Fundação técnica profissional"
@@ -150,7 +150,7 @@ releases:
       TASK-BEAUTY-001: CONCLUIDA
       TASK-BEAUTY-002: CONCLUIDA
       TASK-BEAUTY-003: CONCLUIDA
-      TASK-BEAUTY-004: PENDENTE
+      TASK-BEAUTY-004: CONCLUIDA
       TASK-BEAUTY-005: PENDENTE
       TASK-1001: PENDENTE
       TASK-1002: PENDENTE

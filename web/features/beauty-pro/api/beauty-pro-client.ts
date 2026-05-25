@@ -141,6 +141,78 @@ export type ProtocolosBeautyPro = {
   itens: ProtocoloBeautyPro[];
 };
 
+export type StatusTermoBeautyPro = "GERADO" | "ACEITO" | "CANCELADO";
+
+export type TipoPlaceholderEvolucaoBeautyPro = "FACE_NEUTRA" | "CORPORAL_NEUTRO" | "AREA_TRATADA" | "TEXTUAL";
+
+export type TermoConsentimentoBeautyPro = {
+  id: string;
+  empresaId: string;
+  clienteId: string;
+  protocoloId: string | null;
+  titulo: string;
+  conteudo: string;
+  status: StatusTermoBeautyPro;
+  statusRotulo: string;
+  aceiteProfissional: boolean;
+  criadoEm: string;
+  atualizadoEm: string;
+};
+
+export type EvidenciaEvolucaoBeautyPro = {
+  id: string;
+  empresaId: string;
+  clienteId: string;
+  protocoloId: string | null;
+  sessaoId: string | null;
+  tipoPlaceholder: TipoPlaceholderEvolucaoBeautyPro;
+  tipoPlaceholderRotulo: string;
+  titulo: string;
+  descricao: string;
+  observacoesPrivacidade: string | null;
+  avisoPrivacidade: string;
+  criadoEm: string;
+};
+
+export type ProdutoBeautyEstoque = {
+  id: string;
+  nome: string;
+  categoria: string | null;
+  lote: string | null;
+  validade: string | null;
+  unidade: string;
+  quantidadeAtual: number;
+  estoqueMinimo: number;
+  estoqueBaixo: boolean;
+  validadeEmAlerta: boolean;
+};
+
+export type ProdutoUtilizadoBeautyPro = {
+  id: string;
+  empresaId: string;
+  clienteId: string;
+  protocoloId: string | null;
+  sessaoId: string | null;
+  produtoEstoqueId: string | null;
+  nomeProduto: string;
+  lote: string | null;
+  validade: string | null;
+  quantidade: number;
+  unidade: string;
+  alertaValidade: boolean;
+  alertaEstoqueBaixo: boolean;
+  statusRotulo: string;
+  observacoes: string | null;
+  criadoEm: string;
+};
+
+export type SegurancaOperacionalBeautyPro = {
+  termos: TermoConsentimentoBeautyPro[];
+  evidencias: EvidenciaEvolucaoBeautyPro[];
+  produtosUtilizados: ProdutoUtilizadoBeautyPro[];
+  produtosEstoque: ProdutoBeautyEstoque[];
+};
+
 export type CriarProtocoloBeautyProInput = {
   servicoProcedimentoId?: string | null;
   nome: string;
@@ -157,6 +229,34 @@ export type RegistrarSessaoProtocoloBeautyProInput = {
   evolucaoCliente?: string | null;
   produtosUtilizados?: string | null;
   orientacoes?: string | null;
+};
+
+export type CriarTermoConsentimentoBeautyProInput = {
+  protocoloId?: string | null;
+  titulo: string;
+  conteudo: string;
+  aceiteProfissional: boolean;
+};
+
+export type CriarEvidenciaEvolucaoBeautyProInput = {
+  protocoloId?: string | null;
+  sessaoId?: string | null;
+  tipoPlaceholder: TipoPlaceholderEvolucaoBeautyPro;
+  titulo: string;
+  descricao: string;
+  observacoesPrivacidade?: string | null;
+};
+
+export type VincularProdutoBeautyProInput = {
+  protocoloId?: string | null;
+  sessaoId?: string | null;
+  produtoEstoqueId?: string | null;
+  nomeProduto?: string | null;
+  lote?: string | null;
+  validade?: string | null;
+  quantidade: number;
+  unidade: string;
+  observacoes?: string | null;
 };
 
 export type SalvarFichaEsteticaBeautyProInput = {
@@ -282,4 +382,40 @@ export function registrarSessaoProtocoloBeautyPro(params: {
       query: { empresaId: params.empresaId }
     }
   );
+}
+
+export function consultarSegurancaOperacionalBeautyPro(params: { empresaId: string; clienteId: string }) {
+  return beautyProApi.get<SegurancaOperacionalBeautyPro>(`/api/beauty-pro/clientes/${params.clienteId}/seguranca-operacional`, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export function criarTermoConsentimentoBeautyPro(params: {
+  empresaId: string;
+  clienteId: string;
+  dados: CriarTermoConsentimentoBeautyProInput;
+}) {
+  return beautyProApi.post<TermoConsentimentoBeautyPro>(`/api/beauty-pro/clientes/${params.clienteId}/termos`, params.dados, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export function criarEvidenciaEvolucaoBeautyPro(params: {
+  empresaId: string;
+  clienteId: string;
+  dados: CriarEvidenciaEvolucaoBeautyProInput;
+}) {
+  return beautyProApi.post<EvidenciaEvolucaoBeautyPro>(`/api/beauty-pro/clientes/${params.clienteId}/evidencias`, params.dados, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export function vincularProdutoBeautyPro(params: {
+  empresaId: string;
+  clienteId: string;
+  dados: VincularProdutoBeautyProInput;
+}) {
+  return beautyProApi.post<ProdutoUtilizadoBeautyPro>(`/api/beauty-pro/clientes/${params.clienteId}/produtos`, params.dados, {
+    query: { empresaId: params.empresaId }
+  });
 }

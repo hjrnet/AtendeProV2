@@ -65,3 +65,5 @@ databaseChangeLog:
       file: db/changelog/changes/0032-create-beauty-fichas-esteticas.yaml
   - include:
       file: db/changelog/changes/0033-create-beauty-protocolos-sessoes.yaml
+  - include:
+      file: db/changelog/changes/0034-create-beauty-seguranca-produtos.yaml

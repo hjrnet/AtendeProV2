@@ -3,6 +3,7 @@ package br.com.atendepro.modules.beauty.adapter.out.persistence;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
@@ -21,20 +22,33 @@ import br.com.atendepro.modules.beauty.application.port.out.CarregarFichaEstetic
 import br.com.atendepro.modules.beauty.application.port.out.CarregarProtocoloBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarVisaoBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.ListarClientesBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.ListarEvidenciasEvolucaoBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.ListarFichasEsteticasBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.ListarProdutosEstoqueBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.ListarProdutosUtilizadosBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.ListarProtocolosBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.ListarSessoesProtocoloBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.ListarTermosConsentimentoBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.SalvarEvidenciaEvolucaoBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.SalvarFichaEsteticaBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.SalvarProdutoUtilizadoBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.SalvarProtocoloBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.SalvarSessaoProtocoloBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.SalvarTermoConsentimentoBeautyProPort;
 import br.com.atendepro.modules.beauty.application.result.ClienteBeautyProntuarioResult;
 import br.com.atendepro.modules.beauty.application.result.ClienteBeautyResumoResult;
 import br.com.atendepro.modules.beauty.application.result.MetricasBeautyProResult;
+import br.com.atendepro.modules.beauty.application.result.ProdutoBeautyEstoqueResult;
+import br.com.atendepro.modules.beauty.domain.model.EvidenciaEvolucaoBeautyPro;
 import br.com.atendepro.modules.beauty.domain.model.FichaEsteticaBeautyPro;
 import br.com.atendepro.modules.beauty.domain.model.ObjetivoEsteticoBeautyPro;
+import br.com.atendepro.modules.beauty.domain.model.ProdutoUtilizadoBeautyPro;
 import br.com.atendepro.modules.beauty.domain.model.ProtocoloBeautyPro;
 import br.com.atendepro.modules.beauty.domain.model.SessaoProtocoloBeautyPro;
 import br.com.atendepro.modules.beauty.domain.model.StatusPacoteBeautyPro;
+import br.com.atendepro.modules.beauty.domain.model.StatusTermoBeautyPro;
+import br.com.atendepro.modules.beauty.domain.model.TermoConsentimentoBeautyPro;
+import br.com.atendepro.modules.beauty.domain.model.TipoPlaceholderEvolucaoBeautyPro;
 import br.com.atendepro.modules.beauty.domain.model.TipoProtocoloBeautyPro;
 
 @Repository
@@ -52,7 +66,14 @@ public class JdbcVisaoBeautyProAdapter implements
         CarregarProtocoloBeautyProPort,
         ListarProtocolosBeautyProPort,
         SalvarSessaoProtocoloBeautyProPort,
-        ListarSessoesProtocoloBeautyProPort {
+        ListarSessoesProtocoloBeautyProPort,
+        SalvarTermoConsentimentoBeautyProPort,
+        ListarTermosConsentimentoBeautyProPort,
+        SalvarEvidenciaEvolucaoBeautyProPort,
+        ListarEvidenciasEvolucaoBeautyProPort,
+        SalvarProdutoUtilizadoBeautyProPort,
+        ListarProdutosUtilizadosBeautyProPort,
+        ListarProdutosEstoqueBeautyProPort {
 
     private static final String AREA_BEAUTY = "BEAUTY";
 
@@ -75,6 +96,17 @@ public class JdbcVisaoBeautyProAdapter implements
                 contar("select count(*) from equipamentos where empresa_id = ? and ativo = true", empresaId),
                 contarSimulacoesBeauty(empresaId, false),
                 contarSimulacoesBeauty(empresaId, true),
+                contar("select count(*) from beauty_protocolos where empresa_id = ? and status = 'ATIVO'", empresaId),
+                contar("select count(*) from beauty_sessoes_protocolos where empresa_id = ?", empresaId),
+                contar("select count(*) from beauty_termos_consentimento where empresa_id = ?", empresaId),
+                contar("select count(*) from beauty_evidencias_evolucao where empresa_id = ?", empresaId),
+                contar("select count(*) from beauty_produtos_utilizados where empresa_id = ?", empresaId),
+                contar("""
+                        select count(*)
+                        from beauty_produtos_utilizados
+                        where empresa_id = ?
+                          and (alerta_validade = true or alerta_estoque_baixo = true)
+                        """, empresaId),
                 listarClientesRecentes(empresaId)
         );
     }
@@ -342,6 +374,130 @@ public class JdbcVisaoBeautyProAdapter implements
                 """, this::mapearSessao, empresaId, protocoloId);
     }
 
+    @Override
+    public void salvarTermoConsentimento(TermoConsentimentoBeautyPro termo) {
+        jdbcTemplate.update("""
+                insert into beauty_termos_consentimento (
+                    id, empresa_id, cliente_id, protocolo_id, titulo, conteudo, status,
+                    aceite_profissional, criado_em, atualizado_em
+                ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                termo.id(),
+                termo.empresaId(),
+                termo.clienteId(),
+                termo.protocoloId(),
+                termo.titulo(),
+                termo.conteudo(),
+                termo.status().name(),
+                termo.aceiteProfissional(),
+                Timestamp.from(termo.criadoEm()),
+                Timestamp.from(termo.atualizadoEm())
+        );
+    }
+
+    @Override
+    public List<TermoConsentimentoBeautyPro> listarTermosConsentimento(UUID empresaId, UUID clienteId) {
+        return jdbcTemplate.query("""
+                select *
+                from beauty_termos_consentimento
+                where empresa_id = ?
+                  and cliente_id = ?
+                order by criado_em desc
+                limit 20
+                """, this::mapearTermoConsentimento, empresaId, clienteId);
+    }
+
+    @Override
+    public void salvarEvidenciaEvolucao(EvidenciaEvolucaoBeautyPro evidencia) {
+        jdbcTemplate.update("""
+                insert into beauty_evidencias_evolucao (
+                    id, empresa_id, cliente_id, protocolo_id, sessao_id, tipo_placeholder,
+                    titulo, descricao, observacoes_privacidade, criado_em
+                ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                evidencia.id(),
+                evidencia.empresaId(),
+                evidencia.clienteId(),
+                evidencia.protocoloId(),
+                evidencia.sessaoId(),
+                evidencia.tipoPlaceholder().name(),
+                evidencia.titulo(),
+                evidencia.descricao(),
+                evidencia.observacoesPrivacidade(),
+                Timestamp.from(evidencia.criadoEm())
+        );
+    }
+
+    @Override
+    public List<EvidenciaEvolucaoBeautyPro> listarEvidenciasEvolucao(UUID empresaId, UUID clienteId) {
+        return jdbcTemplate.query("""
+                select *
+                from beauty_evidencias_evolucao
+                where empresa_id = ?
+                  and cliente_id = ?
+                order by criado_em desc
+                limit 20
+                """, this::mapearEvidenciaEvolucao, empresaId, clienteId);
+    }
+
+    @Override
+    public void salvarProdutoUtilizado(ProdutoUtilizadoBeautyPro produto) {
+        jdbcTemplate.update("""
+                insert into beauty_produtos_utilizados (
+                    id, empresa_id, cliente_id, protocolo_id, sessao_id, produto_estoque_id,
+                    nome_produto, lote, validade, quantidade, unidade, alerta_validade,
+                    alerta_estoque_baixo, observacoes, criado_em
+                ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                produto.id(),
+                produto.empresaId(),
+                produto.clienteId(),
+                produto.protocoloId(),
+                produto.sessaoId(),
+                produto.produtoEstoqueId(),
+                produto.nomeProduto(),
+                produto.lote(),
+                produto.validade(),
+                produto.quantidade(),
+                produto.unidade(),
+                produto.alertaValidade(),
+                produto.alertaEstoqueBaixo(),
+                produto.observacoes(),
+                Timestamp.from(produto.criadoEm())
+        );
+    }
+
+    @Override
+    public List<ProdutoUtilizadoBeautyPro> listarProdutosUtilizados(UUID empresaId, UUID clienteId) {
+        return jdbcTemplate.query("""
+                select *
+                from beauty_produtos_utilizados
+                where empresa_id = ?
+                  and cliente_id = ?
+                order by criado_em desc
+                limit 30
+                """, this::mapearProdutoUtilizado, empresaId, clienteId);
+    }
+
+    @Override
+    public List<ProdutoBeautyEstoqueResult> listarProdutosEstoqueBeauty(UUID empresaId, LocalDate hoje) {
+        return jdbcTemplate.query("""
+                select id, nome, categoria, lote, validade, unidade, quantidade_atual, estoque_minimo
+                from estoque_produtos
+                where empresa_id = ?
+                  and ativo = true
+                order by
+                  case
+                    when lower(coalesce(categoria, '')) like '%estet%' then 0
+                    when lower(coalesce(categoria, '')) like '%beleza%' then 1
+                    when lower(coalesce(categoria, '')) like '%cosmet%' then 2
+                    else 3
+                  end,
+                  nome
+                limit 50
+                """, (rs, rowNum) -> mapearProdutoEstoqueBeauty(rs, hoje), empresaId);
+    }
+
     private String carregarNomeEmpresa(UUID empresaId) {
         String nome = jdbcTemplate.queryForObject("select nome_fantasia from empresas where id = ?", String.class, empresaId);
         if (nome == null || nome.isBlank()) {
@@ -473,6 +629,74 @@ public class JdbcVisaoBeautyProAdapter implements
                 rs.getString("produtos_utilizados"),
                 rs.getString("orientacoes"),
                 rs.getTimestamp("criado_em").toInstant()
+        );
+    }
+
+    private TermoConsentimentoBeautyPro mapearTermoConsentimento(ResultSet rs, int rowNum) throws SQLException {
+        return new TermoConsentimentoBeautyPro(
+                rs.getObject("id", UUID.class),
+                rs.getObject("empresa_id", UUID.class),
+                rs.getObject("cliente_id", UUID.class),
+                rs.getObject("protocolo_id", UUID.class),
+                rs.getString("titulo"),
+                rs.getString("conteudo"),
+                StatusTermoBeautyPro.deCodigo(rs.getString("status")),
+                rs.getBoolean("aceite_profissional"),
+                rs.getTimestamp("criado_em").toInstant(),
+                rs.getTimestamp("atualizado_em").toInstant()
+        );
+    }
+
+    private EvidenciaEvolucaoBeautyPro mapearEvidenciaEvolucao(ResultSet rs, int rowNum) throws SQLException {
+        return new EvidenciaEvolucaoBeautyPro(
+                rs.getObject("id", UUID.class),
+                rs.getObject("empresa_id", UUID.class),
+                rs.getObject("cliente_id", UUID.class),
+                rs.getObject("protocolo_id", UUID.class),
+                rs.getObject("sessao_id", UUID.class),
+                TipoPlaceholderEvolucaoBeautyPro.deCodigo(rs.getString("tipo_placeholder")),
+                rs.getString("titulo"),
+                rs.getString("descricao"),
+                rs.getString("observacoes_privacidade"),
+                rs.getTimestamp("criado_em").toInstant()
+        );
+    }
+
+    private ProdutoUtilizadoBeautyPro mapearProdutoUtilizado(ResultSet rs, int rowNum) throws SQLException {
+        return new ProdutoUtilizadoBeautyPro(
+                rs.getObject("id", UUID.class),
+                rs.getObject("empresa_id", UUID.class),
+                rs.getObject("cliente_id", UUID.class),
+                rs.getObject("protocolo_id", UUID.class),
+                rs.getObject("sessao_id", UUID.class),
+                rs.getObject("produto_estoque_id", UUID.class),
+                rs.getString("nome_produto"),
+                rs.getString("lote"),
+                rs.getObject("validade", LocalDate.class),
+                rs.getBigDecimal("quantidade"),
+                rs.getString("unidade"),
+                rs.getBoolean("alerta_validade"),
+                rs.getBoolean("alerta_estoque_baixo"),
+                rs.getString("observacoes"),
+                rs.getTimestamp("criado_em").toInstant()
+        );
+    }
+
+    private ProdutoBeautyEstoqueResult mapearProdutoEstoqueBeauty(ResultSet rs, LocalDate hoje) throws SQLException {
+        LocalDate validade = rs.getObject("validade", LocalDate.class);
+        BigDecimal quantidadeAtual = rs.getBigDecimal("quantidade_atual");
+        BigDecimal estoqueMinimo = rs.getBigDecimal("estoque_minimo");
+        return new ProdutoBeautyEstoqueResult(
+                rs.getObject("id", UUID.class),
+                rs.getString("nome"),
+                rs.getString("categoria"),
+                rs.getString("lote"),
+                validade,
+                rs.getString("unidade"),
+                quantidadeAtual,
+                estoqueMinimo,
+                quantidadeAtual != null && estoqueMinimo != null && quantidadeAtual.compareTo(estoqueMinimo) <= 0,
+                validade != null && !validade.isAfter(hoje.plusDays(30))
         );
     }
 

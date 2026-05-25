@@ -7,6 +7,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -19,10 +20,14 @@ import org.junit.jupiter.api.Test;
 import br.com.atendepro.modules.auth.application.permission.PermissaoAcessoService;
 import br.com.atendepro.modules.auth.domain.exception.PermissaoNegadaException;
 import br.com.atendepro.modules.auth.domain.model.PerfilAcesso;
+import br.com.atendepro.modules.beauty.application.command.ConsultarSegurancaOperacionalBeautyProCommand;
+import br.com.atendepro.modules.beauty.application.command.CriarEvidenciaEvolucaoBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.CriarFichaEsteticaBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.CriarProtocoloBeautyProCommand;
+import br.com.atendepro.modules.beauty.application.command.CriarTermoConsentimentoBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.RegistrarSessaoProtocoloBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.ConsultarVisaoBeautyProCommand;
+import br.com.atendepro.modules.beauty.application.command.VincularProdutoBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.port.out.AtualizarFichaEsteticaBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.AtualizarProtocoloBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarClienteBeautyProPort;
@@ -30,21 +35,33 @@ import br.com.atendepro.modules.beauty.application.port.out.CarregarFichaEstetic
 import br.com.atendepro.modules.beauty.application.port.out.CarregarProtocoloBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarVisaoBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.ListarClientesBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.ListarEvidenciasEvolucaoBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.ListarFichasEsteticasBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.ListarProdutosEstoqueBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.ListarProdutosUtilizadosBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.ListarProtocolosBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.ListarSessoesProtocoloBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.ListarTermosConsentimentoBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.SalvarEvidenciaEvolucaoBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.SalvarFichaEsteticaBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.SalvarProdutoUtilizadoBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.SalvarProtocoloBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.SalvarSessaoProtocoloBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.SalvarTermoConsentimentoBeautyProPort;
 import br.com.atendepro.modules.beauty.application.result.ClienteBeautyProntuarioResult;
 import br.com.atendepro.modules.beauty.application.result.ClienteBeautyResumoResult;
 import br.com.atendepro.modules.beauty.application.result.MetricasBeautyProResult;
+import br.com.atendepro.modules.beauty.application.result.ProdutoBeautyEstoqueResult;
+import br.com.atendepro.modules.beauty.domain.model.EvidenciaEvolucaoBeautyPro;
 import br.com.atendepro.modules.beauty.domain.model.FichaEsteticaBeautyPro;
 import br.com.atendepro.modules.beauty.domain.model.ObjetivoEsteticoBeautyPro;
+import br.com.atendepro.modules.beauty.domain.model.ProdutoUtilizadoBeautyPro;
 import br.com.atendepro.modules.beauty.domain.model.ProtocoloBeautyPro;
 import br.com.atendepro.modules.beauty.domain.model.SessaoProtocoloBeautyPro;
 import br.com.atendepro.modules.beauty.domain.model.StatusPacoteBeautyPro;
 import br.com.atendepro.modules.beauty.domain.model.StatusOperacionalBeautyPro;
+import br.com.atendepro.modules.beauty.domain.model.TermoConsentimentoBeautyPro;
+import br.com.atendepro.modules.beauty.domain.model.TipoPlaceholderEvolucaoBeautyPro;
 import br.com.atendepro.modules.beauty.domain.model.TipoProtocoloBeautyPro;
 import br.com.atendepro.modules.empresa.application.context.TenantAccessService;
 import br.com.atendepro.modules.empresa.application.context.TenantContext;
@@ -204,12 +221,76 @@ class BeautyProServiceTest {
         assertThat(ports.sessoes).hasSize(1);
     }
 
+    @Test
+    void deveCriarTermoEvidenciaSeguraEProdutoRastreado() {
+        TenantContextHolder.definir(new TenantContext(EMPRESA_ID, UUID.randomUUID(), Set.of(PerfilAcesso.PROFISSIONAL)));
+        FakeBeautyPorts ports = new FakeBeautyPorts(metricasComDados());
+        BeautyProService service = service(ports);
+        var protocolo = service.criarProtocolo(new CriarProtocoloBeautyProCommand(
+                null,
+                CLIENTE_ID,
+                null,
+                "Protocolo calmante",
+                TipoProtocoloBeautyPro.FACIAL,
+                "Acalmar pele sensibilizada",
+                3,
+                null
+        ));
+
+        var termo = service.criarTermoConsentimento(new CriarTermoConsentimentoBeautyProCommand(
+                null,
+                CLIENTE_ID,
+                protocolo.id(),
+                "Termo de consentimento facial",
+                "Cliente orientada sobre cuidados e riscos do procedimento.",
+                true
+        ));
+        var evidencia = service.criarEvidenciaEvolucao(new CriarEvidenciaEvolucaoBeautyProCommand(
+                null,
+                CLIENTE_ID,
+                protocolo.id(),
+                null,
+                TipoPlaceholderEvolucaoBeautyPro.FACE_NEUTRA,
+                "Evolução inicial segura",
+                "Registro textual com mapa de área tratada, sem foto real.",
+                "Não armazenar imagem de pessoa nesta fase."
+        ));
+        var produto = service.vincularProduto(new VincularProdutoBeautyProCommand(
+                null,
+                CLIENTE_ID,
+                protocolo.id(),
+                null,
+                null,
+                "Máscara calmante",
+                "LT-2026",
+                LocalDate.parse("2026-06-10"),
+                new BigDecimal("1.000"),
+                "UN",
+                "Usada no protocolo calmante"
+        ));
+        var seguranca = service.consultarSegurancaOperacional(new ConsultarSegurancaOperacionalBeautyProCommand(null, CLIENTE_ID));
+
+        assertThat(termo.statusRotulo()).isEqualTo("Aceito");
+        assertThat(evidencia.avisoPrivacidade()).contains("nenhuma foto real");
+        assertThat(produto.alertaValidade()).isTrue();
+        assertThat(seguranca.termos()).hasSize(1);
+        assertThat(seguranca.evidencias()).hasSize(1);
+        assertThat(seguranca.produtosUtilizados()).hasSize(1);
+    }
+
     private BeautyProService service(MetricasBeautyProResult metricas) {
         return service(new FakeBeautyPorts(metricas));
     }
 
     private BeautyProService service(FakeBeautyPorts ports) {
         return new BeautyProService(
+                ports,
+                ports,
+                ports,
+                ports,
+                ports,
+                ports,
+                ports,
                 ports,
                 ports,
                 ports,
@@ -240,6 +321,12 @@ class BeautyProServiceTest {
                 2,
                 5,
                 1,
+                2,
+                6,
+                3,
+                4,
+                5,
+                1,
                 List.of(new ClienteBeautyResumoResult(
                         CLIENTE_ID,
                         "Juliana Beauty",
@@ -264,12 +351,22 @@ class BeautyProServiceTest {
             CarregarProtocoloBeautyProPort,
             ListarProtocolosBeautyProPort,
             SalvarSessaoProtocoloBeautyProPort,
-            ListarSessoesProtocoloBeautyProPort {
+            ListarSessoesProtocoloBeautyProPort,
+            SalvarTermoConsentimentoBeautyProPort,
+            ListarTermosConsentimentoBeautyProPort,
+            SalvarEvidenciaEvolucaoBeautyProPort,
+            ListarEvidenciasEvolucaoBeautyProPort,
+            SalvarProdutoUtilizadoBeautyProPort,
+            ListarProdutosUtilizadosBeautyProPort,
+            ListarProdutosEstoqueBeautyProPort {
 
         private final MetricasBeautyProResult metricas;
         private final List<FichaEsteticaBeautyPro> fichas = new ArrayList<>();
         private final List<ProtocoloBeautyPro> protocolos = new ArrayList<>();
         private final List<SessaoProtocoloBeautyPro> sessoes = new ArrayList<>();
+        private final List<TermoConsentimentoBeautyPro> termos = new ArrayList<>();
+        private final List<EvidenciaEvolucaoBeautyPro> evidencias = new ArrayList<>();
+        private final List<ProdutoUtilizadoBeautyPro> produtosUtilizados = new ArrayList<>();
 
         private FakeBeautyPorts(MetricasBeautyProResult metricas) {
             this.metricas = metricas;
@@ -372,6 +469,58 @@ class BeautyProServiceTest {
             return sessoes.stream()
                     .filter(sessao -> sessao.empresaId().equals(empresaId) && sessao.protocoloId().equals(protocoloId))
                     .toList();
+        }
+
+        @Override
+        public void salvarTermoConsentimento(TermoConsentimentoBeautyPro termo) {
+            termos.add(termo);
+        }
+
+        @Override
+        public List<TermoConsentimentoBeautyPro> listarTermosConsentimento(UUID empresaId, UUID clienteId) {
+            return termos.stream()
+                    .filter(termo -> termo.empresaId().equals(empresaId) && termo.clienteId().equals(clienteId))
+                    .toList();
+        }
+
+        @Override
+        public void salvarEvidenciaEvolucao(EvidenciaEvolucaoBeautyPro evidencia) {
+            evidencias.add(evidencia);
+        }
+
+        @Override
+        public List<EvidenciaEvolucaoBeautyPro> listarEvidenciasEvolucao(UUID empresaId, UUID clienteId) {
+            return evidencias.stream()
+                    .filter(evidencia -> evidencia.empresaId().equals(empresaId) && evidencia.clienteId().equals(clienteId))
+                    .toList();
+        }
+
+        @Override
+        public void salvarProdutoUtilizado(ProdutoUtilizadoBeautyPro produto) {
+            produtosUtilizados.add(produto);
+        }
+
+        @Override
+        public List<ProdutoUtilizadoBeautyPro> listarProdutosUtilizados(UUID empresaId, UUID clienteId) {
+            return produtosUtilizados.stream()
+                    .filter(produto -> produto.empresaId().equals(empresaId) && produto.clienteId().equals(clienteId))
+                    .toList();
+        }
+
+        @Override
+        public List<ProdutoBeautyEstoqueResult> listarProdutosEstoqueBeauty(UUID empresaId, LocalDate hoje) {
+            return List.of(new ProdutoBeautyEstoqueResult(
+                    UUID.fromString("1a8f23bb-95fd-4640-b2f5-bf45a10a9168"),
+                    "Máscara calmante",
+                    "Cosmético",
+                    "LT-2026",
+                    LocalDate.parse("2026-06-10"),
+                    "UN",
+                    new BigDecimal("3.000"),
+                    new BigDecimal("2.000"),
+                    false,
+                    true
+            ));
         }
     }
 }

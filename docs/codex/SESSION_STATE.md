@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R10 — Nutri Pro, Beauty Pro e comercial.
 
 ## Última task concluída
-TASK-BEAUTY-003 — Criar protocolos, sessões e evolução Beauty Pro.
+TASK-BEAUTY-004 — Criar termos, fotos placeholder, produtos/lotes e dashboard Beauty Pro.
 
 ## Próxima task recomendada
-TASK-BEAUTY-004 — Criar termos, fotos placeholder, produtos/lotes e dashboard Beauty Pro.
+TASK-BEAUTY-005 — Integrar Beauty Pro com agenda, precificação e experiência web.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,12 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-BEAUTY-004 concluida em modo autopilot multiagente release R10.
+- Beauty Pro ganhou tabelas `beauty_termos_consentimento`, `beauty_evidencias_evolucao` e `beauty_produtos_utilizados`, com vinculo tenant-scoped a cliente, protocolo, sessao e produto de estoque quando aplicavel.
+- API operacional adicionou consulta de seguranca operacional e criacao de termos, evidencias seguras sem foto real e produtos/lotes em `/api/beauty-pro/clientes/{clienteId}`.
+- Dashboard Beauty Pro passou a exibir protocolos ativos, sessoes realizadas, termos, evidencias seguras, produtos rastreados e alertas de validade/estoque, alem da precificacao.
+- Web Beauty Pro ganhou painel de termos, evidencias seguras e produtos/lotes, com historico do cliente, microcopy de privacidade e alertas visiveis sem depender apenas de cor.
+- Validacao confirmou `mvn test` com 289 testes, `pnpm typecheck`, `pnpm lint`, `pnpm build`, Docker Compose saudavel, backend/web locais ativos, API criando termo/evidencia/produto e Browser sem erros de console.
 - TASK-BEAUTY-003 concluida em modo autopilot multiagente release R10.
 - Beauty Pro ganhou protocolos e pacotes de sessoes em `beauty_protocolos`, com tipo facial/corporal/capilar/cilios/sobrancelhas/salao/personalizado, status Ativo, Concluido, Cancelado e Pausado.
 - Sessoes e evolucao foram registradas em `beauty_sessoes_protocolos`, com numero da sessao, execucao, evolucao do cliente, produtos utilizados, orientacoes e vinculo opcional com agenda.

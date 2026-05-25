@@ -1,0 +1,256 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0034-create-beauty-seguranca-produtos
+      author: codex
+      changes:
+        - createTable:
+            tableName: beauty_termos_consentimento
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: empresa_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    referencedTableName: empresas
+                    referencedColumnNames: id
+                    foreignKeyName: fk_beauty_termos_empresas
+              - column:
+                  name: cliente_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    referencedTableName: clientes_pacientes
+                    referencedColumnNames: id
+                    foreignKeyName: fk_beauty_termos_clientes
+              - column:
+                  name: protocolo_id
+                  type: uuid
+                  constraints:
+                    referencedTableName: beauty_protocolos
+                    referencedColumnNames: id
+                    foreignKeyName: fk_beauty_termos_protocolos
+              - column:
+                  name: titulo
+                  type: varchar(180)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: conteudo
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: aceite_profissional
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamp with time zone
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamp with time zone
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: beauty_evidencias_evolucao
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: empresa_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    referencedTableName: empresas
+                    referencedColumnNames: id
+                    foreignKeyName: fk_beauty_evidencias_empresas
+              - column:
+                  name: cliente_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    referencedTableName: clientes_pacientes
+                    referencedColumnNames: id
+                    foreignKeyName: fk_beauty_evidencias_clientes
+              - column:
+                  name: protocolo_id
+                  type: uuid
+                  constraints:
+                    referencedTableName: beauty_protocolos
+                    referencedColumnNames: id
+                    foreignKeyName: fk_beauty_evidencias_protocolos
+              - column:
+                  name: sessao_id
+                  type: uuid
+                  constraints:
+                    referencedTableName: beauty_sessoes_protocolos
+                    referencedColumnNames: id
+                    foreignKeyName: fk_beauty_evidencias_sessoes
+              - column:
+                  name: tipo_placeholder
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: titulo
+                  type: varchar(180)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: descricao
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: observacoes_privacidade
+                  type: text
+              - column:
+                  name: criado_em
+                  type: timestamp with time zone
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: beauty_produtos_utilizados
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: empresa_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    referencedTableName: empresas
+                    referencedColumnNames: id
+                    foreignKeyName: fk_beauty_produtos_empresas
+              - column:
+                  name: cliente_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    referencedTableName: clientes_pacientes
+                    referencedColumnNames: id
+                    foreignKeyName: fk_beauty_produtos_clientes
+              - column:
+                  name: protocolo_id
+                  type: uuid
+                  constraints:
+                    referencedTableName: beauty_protocolos
+                    referencedColumnNames: id
+                    foreignKeyName: fk_beauty_produtos_protocolos
+              - column:
+                  name: sessao_id
+                  type: uuid
+                  constraints:
+                    referencedTableName: beauty_sessoes_protocolos
+                    referencedColumnNames: id
+                    foreignKeyName: fk_beauty_produtos_sessoes
+              - column:
+                  name: produto_estoque_id
+                  type: uuid
+                  constraints:
+                    referencedTableName: estoque_produtos
+                    referencedColumnNames: id
+                    foreignKeyName: fk_beauty_produtos_estoque
+              - column:
+                  name: nome_produto
+                  type: varchar(180)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: lote
+                  type: varchar(120)
+              - column:
+                  name: validade
+                  type: date
+              - column:
+                  name: quantidade
+                  type: numeric(14,3)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: unidade
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: alerta_validade
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: alerta_estoque_baixo
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: observacoes
+                  type: text
+              - column:
+                  name: criado_em
+                  type: timestamp with time zone
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: beauty_termos_consentimento
+            indexName: idx_beauty_termos_empresa_cliente
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: cliente_id
+        - createIndex:
+            tableName: beauty_evidencias_evolucao
+            indexName: idx_beauty_evidencias_empresa_cliente
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: cliente_id
+        - createIndex:
+            tableName: beauty_produtos_utilizados
+            indexName: idx_beauty_produtos_empresa_cliente
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: cliente_id
+        - createIndex:
+            tableName: beauty_produtos_utilizados
+            indexName: idx_beauty_produtos_alertas
+            columns:
+              - column:
+                  name: alerta_validade
+              - column:
+                  name: alerta_estoque_baixo

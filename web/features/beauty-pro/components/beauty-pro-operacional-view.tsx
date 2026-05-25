@@ -20,24 +20,36 @@ import {
 
 import {
   atualizarFichaEsteticaBeautyPro,
+  consultarSegurancaOperacionalBeautyPro,
   consultarProntuarioBeautyPro,
   consultarVisaoBeautyPro,
+  criarEvidenciaEvolucaoBeautyPro,
   criarFichaEsteticaBeautyPro,
   criarProtocoloBeautyPro,
+  criarTermoConsentimentoBeautyPro,
   listarClientesBeautyPro,
   listarFichasEsteticasBeautyPro,
   listarProtocolosBeautyPro,
   registrarSessaoProtocoloBeautyPro,
+  vincularProdutoBeautyPro,
   type AtalhoBeautyPro,
   type ClienteBeautyResumo,
+  type CriarEvidenciaEvolucaoBeautyProInput,
   type CriarProtocoloBeautyProInput,
+  type CriarTermoConsentimentoBeautyProInput,
+  type EvidenciaEvolucaoBeautyPro,
   type FichaEsteticaBeautyPro,
   type IndicadorBeautyPro,
   type ObjetivoEsteticoBeautyPro,
+  type ProdutoBeautyEstoque,
+  type ProdutoUtilizadoBeautyPro,
   type ProtocoloBeautyPro,
   type RegistrarSessaoProtocoloBeautyProInput,
   type SalvarFichaEsteticaBeautyProInput,
-  type TipoProtocoloBeautyPro
+  type TermoConsentimentoBeautyPro,
+  type TipoPlaceholderEvolucaoBeautyPro,
+  type TipoProtocoloBeautyPro,
+  type VincularProdutoBeautyProInput
 } from "@/features/beauty-pro/api/beauty-pro-client";
 import { cn } from "@/lib/utils";
 
@@ -74,12 +86,44 @@ type FormularioSessaoBeauty = {
   orientacoes: string;
 };
 
+type FormularioTermoBeauty = {
+  protocoloId: string;
+  titulo: string;
+  conteudo: string;
+  aceiteProfissional: boolean;
+};
+
+type FormularioEvidenciaBeauty = {
+  protocoloId: string;
+  tipoPlaceholder: TipoPlaceholderEvolucaoBeautyPro;
+  titulo: string;
+  descricao: string;
+  observacoesPrivacidade: string;
+};
+
+type FormularioProdutoBeauty = {
+  protocoloId: string;
+  produtoEstoqueId: string;
+  nomeProduto: string;
+  lote: string;
+  validade: string;
+  quantidade: string;
+  unidade: string;
+  observacoes: string;
+};
+
 const iconesIndicadores: Record<string, Icone> = {
   clientes: UserRoundCheck,
   agendaHoje: CalendarDays,
   agenda7Dias: CalendarDays,
   servicos: Scissors,
+  protocolos: Sparkles,
+  sessoes: ClipboardList,
+  termos: FileText,
+  evidencias: UserRoundCheck,
   produtos: PackageCheck,
+  produtosVinculados: PackageCheck,
+  alertasProdutos: AlertTriangle,
   equipamentos: Wrench,
   precificacao: Gauge,
   alertas: AlertTriangle
@@ -136,6 +180,32 @@ const sessaoVazia: FormularioSessaoBeauty = {
   orientacoes: ""
 };
 
+const termoVazio: FormularioTermoBeauty = {
+  protocoloId: "",
+  titulo: "Termo de consentimento estético",
+  conteudo: "Cliente orientada sobre objetivo, cuidados, contraindicações, riscos esperados e necessidade de acompanhamento profissional.",
+  aceiteProfissional: true
+};
+
+const evidenciaVazia: FormularioEvidenciaBeauty = {
+  protocoloId: "",
+  tipoPlaceholder: "FACE_NEUTRA",
+  titulo: "Evolução segura do protocolo",
+  descricao: "Registro textual com área tratada, resposta observada e conduta, sem armazenar foto real de pessoa.",
+  observacoesPrivacidade: "Usar placeholder seguro até existir fluxo formal de upload e consentimento de imagem."
+};
+
+const produtoVazio: FormularioProdutoBeauty = {
+  protocoloId: "",
+  produtoEstoqueId: "",
+  nomeProduto: "",
+  lote: "",
+  validade: "",
+  quantidade: "1",
+  unidade: "UN",
+  observacoes: ""
+};
+
 const tiposProtocolo: Array<{ value: TipoProtocoloBeautyPro; label: string }> = [
   { value: "FACIAL", label: "Facial" },
   { value: "CORPORAL", label: "Corporal" },
@@ -143,6 +213,13 @@ const tiposProtocolo: Array<{ value: TipoProtocoloBeautyPro; label: string }> = 
   { value: "CILIOS_SOBRANCELHAS", label: "Cílios e sobrancelhas" },
   { value: "SALAO", label: "Salão" },
   { value: "PERSONALIZADO", label: "Personalizado" }
+];
+
+const tiposPlaceholder: Array<{ value: TipoPlaceholderEvolucaoBeautyPro; label: string }> = [
+  { value: "FACE_NEUTRA", label: "Face neutra" },
+  { value: "CORPORAL_NEUTRO", label: "Corporal neutro" },
+  { value: "AREA_TRATADA", label: "Área tratada" },
+  { value: "TEXTUAL", label: "Registro textual" }
 ];
 
 export function BeautyProOperacionalView({ empresaId }: { empresaId: string }) {
@@ -175,12 +252,18 @@ export function BeautyProOperacionalView({ empresaId }: { empresaId: string }) {
   }, [clienteSelecionadoId, clientes]);
 
   const indicadoresPrincipais = useMemo(
-    () => (visaoQuery.data?.indicadores ?? []).filter((indicador) => ["clientes", "agendaHoje", "agenda7Dias", "precificacao"].includes(indicador.codigo)),
+    () =>
+      (visaoQuery.data?.indicadores ?? []).filter((indicador) =>
+        ["clientes", "protocolos", "sessoes", "precificacao", "alertas", "alertasProdutos"].includes(indicador.codigo)
+      ),
     [visaoQuery.data]
   );
 
   const indicadoresApoio = useMemo(
-    () => (visaoQuery.data?.indicadores ?? []).filter((indicador) => !["clientes", "agendaHoje", "agenda7Dias", "precificacao"].includes(indicador.codigo)),
+    () =>
+      (visaoQuery.data?.indicadores ?? []).filter(
+        (indicador) => !["clientes", "protocolos", "sessoes", "precificacao", "alertas", "alertasProdutos"].includes(indicador.codigo)
+      ),
     [visaoQuery.data]
   );
 
@@ -229,6 +312,7 @@ export function BeautyProOperacionalView({ empresaId }: { empresaId: string }) {
         <section className="grid gap-4">
           <FichaEsteticaBeautyPainel empresaId={empresaId} clienteId={clienteSelecionadoId} />
           <ProtocolosBeautyPainel empresaId={empresaId} clienteId={clienteSelecionadoId} />
+          <SegurancaOperacionalBeautyPainel empresaId={empresaId} clienteId={clienteSelecionadoId} />
 
           <div className="rounded-lg border bg-white p-4 shadow-sm">
             <div className="flex flex-col gap-2 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
@@ -718,6 +802,381 @@ function ProtocolosBeautyPainel({ empresaId, clienteId }: { empresaId: string; c
   );
 }
 
+function SegurancaOperacionalBeautyPainel({ empresaId, clienteId }: { empresaId: string; clienteId: string | null }) {
+  const queryClient = useQueryClient();
+  const [formularioTermo, setFormularioTermo] = useState<FormularioTermoBeauty>(termoVazio);
+  const [formularioEvidencia, setFormularioEvidencia] = useState<FormularioEvidenciaBeauty>(evidenciaVazia);
+  const [formularioProduto, setFormularioProduto] = useState<FormularioProdutoBeauty>(produtoVazio);
+  const [mensagem, setMensagem] = useState<string | null>(null);
+
+  const protocolosQuery = useQuery({
+    queryKey: ["beauty-pro-protocolos", empresaId, clienteId],
+    queryFn: () => listarProtocolosBeautyPro({ empresaId, clienteId: clienteId ?? "" }),
+    enabled: Boolean(empresaId && clienteId)
+  });
+
+  const segurancaQuery = useQuery({
+    queryKey: ["beauty-pro-seguranca", empresaId, clienteId],
+    queryFn: () => consultarSegurancaOperacionalBeautyPro({ empresaId, clienteId: clienteId ?? "" }),
+    enabled: Boolean(empresaId && clienteId)
+  });
+
+  const protocolos = protocolosQuery.data?.itens ?? [];
+  const seguranca = segurancaQuery.data;
+
+  useEffect(() => {
+    setMensagem(null);
+    setFormularioTermo(termoVazio);
+    setFormularioEvidencia(evidenciaVazia);
+    setFormularioProduto(produtoVazio);
+  }, [clienteId]);
+
+  const criarTermoMutation = useMutation({
+    mutationFn: (dados: CriarTermoConsentimentoBeautyProInput) => {
+      if (!clienteId) {
+        throw new Error("Selecione um cliente.");
+      }
+      return criarTermoConsentimentoBeautyPro({ empresaId, clienteId, dados });
+    },
+    onSuccess: async () => {
+      setMensagem("Termo registrado no histórico do cliente.");
+      setFormularioTermo(termoVazio);
+      await invalidarSegurancaBeauty(queryClient, empresaId, clienteId);
+    }
+  });
+
+  const criarEvidenciaMutation = useMutation({
+    mutationFn: (dados: CriarEvidenciaEvolucaoBeautyProInput) => {
+      if (!clienteId) {
+        throw new Error("Selecione um cliente.");
+      }
+      return criarEvidenciaEvolucaoBeautyPro({ empresaId, clienteId, dados });
+    },
+    onSuccess: async () => {
+      setMensagem("Evidência segura registrada sem foto real.");
+      setFormularioEvidencia(evidenciaVazia);
+      await invalidarSegurancaBeauty(queryClient, empresaId, clienteId);
+    }
+  });
+
+  const vincularProdutoMutation = useMutation({
+    mutationFn: (dados: VincularProdutoBeautyProInput) => {
+      if (!clienteId) {
+        throw new Error("Selecione um cliente.");
+      }
+      return vincularProdutoBeautyPro({ empresaId, clienteId, dados });
+    },
+    onSuccess: async () => {
+      setMensagem("Produto e lote vinculados ao histórico Beauty.");
+      setFormularioProduto(produtoVazio);
+      await invalidarSegurancaBeauty(queryClient, empresaId, clienteId);
+    }
+  });
+
+  if (!clienteId) {
+    return <EstadoBeautyPro titulo="Termos, evidências e produtos" descricao="Selecione um cliente para registrar consentimentos, placeholders seguros e rastreabilidade de lotes." />;
+  }
+
+  function criarTermo(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setMensagem(null);
+    criarTermoMutation.mutate({
+      protocoloId: textoOuNull(formularioTermo.protocoloId),
+      titulo: formularioTermo.titulo.trim(),
+      conteudo: formularioTermo.conteudo.trim(),
+      aceiteProfissional: formularioTermo.aceiteProfissional
+    });
+  }
+
+  function criarEvidencia(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setMensagem(null);
+    criarEvidenciaMutation.mutate({
+      protocoloId: textoOuNull(formularioEvidencia.protocoloId),
+      tipoPlaceholder: formularioEvidencia.tipoPlaceholder,
+      titulo: formularioEvidencia.titulo.trim(),
+      descricao: formularioEvidencia.descricao.trim(),
+      observacoesPrivacidade: textoOuNull(formularioEvidencia.observacoesPrivacidade)
+    });
+  }
+
+  function selecionarProdutoEstoque(produtoId: string) {
+    const produto = seguranca?.produtosEstoque.find((item) => item.id === produtoId) ?? null;
+    setFormularioProduto((atual) => ({
+      ...atual,
+      produtoEstoqueId: produtoId,
+      nomeProduto: produto?.nome ?? "",
+      lote: produto?.lote ?? "",
+      validade: produto?.validade ?? "",
+      unidade: produto?.unidade ?? atual.unidade
+    }));
+  }
+
+  function vincularProduto(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setMensagem(null);
+    vincularProdutoMutation.mutate({
+      protocoloId: textoOuNull(formularioProduto.protocoloId),
+      produtoEstoqueId: textoOuNull(formularioProduto.produtoEstoqueId),
+      nomeProduto: textoOuNull(formularioProduto.nomeProduto),
+      lote: textoOuNull(formularioProduto.lote),
+      validade: textoOuNull(formularioProduto.validade),
+      quantidade: Number(formularioProduto.quantidade),
+      unidade: formularioProduto.unidade.trim(),
+      observacoes: textoOuNull(formularioProduto.observacoes)
+    });
+  }
+
+  return (
+    <section className="rounded-lg border bg-white p-4 shadow-sm">
+      <div className="flex flex-col gap-2 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-rose-900">Termos, evidências e produtos</p>
+          <p className="text-sm leading-6 text-muted-foreground">Registre consentimentos, evolução visual segura e produtos/lotes vinculados ao atendimento.</p>
+        </div>
+        <span className="w-fit rounded-md border bg-rose-50 px-2 py-1 text-xs font-semibold text-rose-900">Segurança operacional</span>
+      </div>
+
+      {segurancaQuery.isLoading ? (
+        <div className="mt-4 flex min-h-32 items-center justify-center rounded-lg border bg-background text-sm text-muted-foreground">
+          <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+          Carregando segurança operacional
+        </div>
+      ) : (
+        <div className="mt-4 grid gap-4">
+          <div className="grid gap-3 md:grid-cols-3">
+            <ResumoFichaBeauty rotulo="Termos" valor={seguranca?.termos.length ?? 0} />
+            <ResumoFichaBeauty rotulo="Evidências" valor={seguranca?.evidencias.length ?? 0} />
+            <ResumoFichaBeauty rotulo="Produtos" valor={seguranca?.produtosUtilizados.length ?? 0} destaque={(seguranca?.produtosUtilizados ?? []).some((produto) => produto.alertaValidade || produto.alertaEstoqueBaixo)} />
+          </div>
+
+          <div className="grid gap-4 xl:grid-cols-3">
+            <form className="grid gap-3 rounded-lg border bg-background p-3" onSubmit={criarTermo}>
+              <p className="text-sm font-semibold text-card-foreground">Novo termo</p>
+              <SelecaoProtocoloBeauty value={formularioTermo.protocoloId} protocolos={protocolos} onChange={(value) => setFormularioTermo((atual) => ({ ...atual, protocoloId: value }))} />
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Título
+                <input
+                  value={formularioTermo.titulo}
+                  onChange={(event) => setFormularioTermo((atual) => ({ ...atual, titulo: event.target.value }))}
+                  className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                  required
+                />
+              </label>
+              <CampoTextoBeauty label="Conteúdo" value={formularioTermo.conteudo} onChange={(value) => setFormularioTermo((atual) => ({ ...atual, conteudo: value }))} placeholder="Orientações, riscos, cuidados e ciência do cliente." />
+              <CheckboxFichaBeauty label="Aceite profissional registrado" checked={formularioTermo.aceiteProfissional} onChange={(checked) => setFormularioTermo((atual) => ({ ...atual, aceiteProfissional: checked }))} />
+              <button type="submit" disabled={criarTermoMutation.isPending} className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-rose-900 px-4 text-sm font-semibold text-white transition hover:bg-rose-950 disabled:opacity-70">
+                {criarTermoMutation.isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+                Registrar termo
+              </button>
+            </form>
+
+            <form className="grid gap-3 rounded-lg border bg-background p-3" onSubmit={criarEvidencia}>
+              <p className="text-sm font-semibold text-card-foreground">Evidência segura</p>
+              <SelecaoProtocoloBeauty value={formularioEvidencia.protocoloId} protocolos={protocolos} onChange={(value) => setFormularioEvidencia((atual) => ({ ...atual, protocoloId: value }))} />
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Tipo de placeholder
+                <select
+                  value={formularioEvidencia.tipoPlaceholder}
+                  onChange={(event) => setFormularioEvidencia((atual) => ({ ...atual, tipoPlaceholder: event.target.value as TipoPlaceholderEvolucaoBeautyPro }))}
+                  className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                >
+                  {tiposPlaceholder.map((tipo) => (
+                    <option key={tipo.value} value={tipo.value}>
+                      {tipo.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Título
+                <input
+                  value={formularioEvidencia.titulo}
+                  onChange={(event) => setFormularioEvidencia((atual) => ({ ...atual, titulo: event.target.value }))}
+                  className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                  required
+                />
+              </label>
+              <CampoTextoBeauty label="Descrição" value={formularioEvidencia.descricao} onChange={(value) => setFormularioEvidencia((atual) => ({ ...atual, descricao: value }))} placeholder="Evolução textual, mapa da área tratada e resposta observada." />
+              <CampoTextoBeauty label="Privacidade" value={formularioEvidencia.observacoesPrivacidade} onChange={(value) => setFormularioEvidencia((atual) => ({ ...atual, observacoesPrivacidade: value }))} placeholder="Observação de privacidade e autorização de imagem futura." />
+              <button type="submit" disabled={criarEvidenciaMutation.isPending} className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-rose-900 px-4 text-sm font-semibold text-white transition hover:bg-rose-950 disabled:opacity-70">
+                {criarEvidenciaMutation.isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <UserRoundCheck className="h-4 w-4" />}
+                Registrar evidência
+              </button>
+            </form>
+
+            <form className="grid gap-3 rounded-lg border bg-background p-3" onSubmit={vincularProduto}>
+              <p className="text-sm font-semibold text-card-foreground">Produto e lote</p>
+              <SelecaoProtocoloBeauty value={formularioProduto.protocoloId} protocolos={protocolos} onChange={(value) => setFormularioProduto((atual) => ({ ...atual, protocoloId: value }))} />
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Produto do estoque
+                <select
+                  value={formularioProduto.produtoEstoqueId}
+                  onChange={(event) => selecionarProdutoEstoque(event.target.value)}
+                  className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                >
+                  <option value="">Produto manual</option>
+                  {(seguranca?.produtosEstoque ?? []).map((produto) => (
+                    <option key={produto.id} value={produto.id}>
+                      {produto.nome} {produto.lote ? `• ${produto.lote}` : ""}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Nome do produto
+                <input
+                  value={formularioProduto.nomeProduto}
+                  onChange={(event) => setFormularioProduto((atual) => ({ ...atual, nomeProduto: event.target.value }))}
+                  className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                  placeholder="Ex.: sérum facial"
+                  required={!formularioProduto.produtoEstoqueId}
+                />
+              </label>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                  Lote
+                  <input value={formularioProduto.lote} onChange={(event) => setFormularioProduto((atual) => ({ ...atual, lote: event.target.value }))} className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" />
+                </label>
+                <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                  Validade
+                  <input type="date" value={formularioProduto.validade} onChange={(event) => setFormularioProduto((atual) => ({ ...atual, validade: event.target.value }))} className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" />
+                </label>
+                <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                  Qtd.
+                  <input type="number" min="0.001" step="0.001" value={formularioProduto.quantidade} onChange={(event) => setFormularioProduto((atual) => ({ ...atual, quantidade: event.target.value }))} className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" required />
+                </label>
+              </div>
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Unidade
+                <input value={formularioProduto.unidade} onChange={(event) => setFormularioProduto((atual) => ({ ...atual, unidade: event.target.value }))} className="h-10 rounded-md border bg-white px-3 text-sm uppercase outline-none focus:border-primary focus:ring-2 focus:ring-ring" required />
+              </label>
+              <CampoTextoBeauty label="Observações" value={formularioProduto.observacoes} onChange={(value) => setFormularioProduto((atual) => ({ ...atual, observacoes: value }))} placeholder="Uso no protocolo, lote, validade e cuidados." />
+              <button type="submit" disabled={vincularProdutoMutation.isPending} className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-rose-900 px-4 text-sm font-semibold text-white transition hover:bg-rose-950 disabled:opacity-70">
+                {vincularProdutoMutation.isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <PackageCheck className="h-4 w-4" />}
+                Vincular produto
+              </button>
+            </form>
+          </div>
+
+          <div className="grid gap-3 lg:grid-cols-3">
+            <HistoricoTermosBeauty termos={seguranca?.termos ?? []} />
+            <HistoricoEvidenciasBeauty evidencias={seguranca?.evidencias ?? []} />
+            <HistoricoProdutosBeauty produtos={seguranca?.produtosUtilizados ?? []} estoque={seguranca?.produtosEstoque ?? []} />
+          </div>
+
+          <div className="min-h-5 text-sm">
+            {mensagem ? <span className="font-medium text-emerald-700">{mensagem}</span> : null}
+            {criarTermoMutation.isError || criarEvidenciaMutation.isError || vincularProdutoMutation.isError ? <span className="font-medium text-destructive">Não foi possível registrar segurança operacional.</span> : null}
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
+async function invalidarSegurancaBeauty(queryClient: ReturnType<typeof useQueryClient>, empresaId: string, clienteId: string | null) {
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: ["beauty-pro-seguranca", empresaId, clienteId] }),
+    queryClient.invalidateQueries({ queryKey: ["beauty-pro-visao", empresaId] })
+  ]);
+}
+
+function SelecaoProtocoloBeauty({ value, protocolos, onChange }: { value: string; protocolos: ProtocoloBeautyPro[]; onChange: (value: string) => void }) {
+  return (
+    <label className="grid gap-1 text-sm font-medium text-card-foreground">
+      Protocolo vinculado
+      <select value={value} onChange={(event) => onChange(event.target.value)} className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring">
+        <option value="">Sem protocolo específico</option>
+        {protocolos.map((protocolo) => (
+          <option key={protocolo.id} value={protocolo.id}>
+            {protocolo.nome}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function HistoricoTermosBeauty({ termos }: { termos: TermoConsentimentoBeautyPro[] }) {
+  return (
+    <div className="rounded-lg border bg-background p-3">
+      <p className="text-sm font-semibold text-card-foreground">Histórico de termos</p>
+      <div className="mt-3 grid max-h-72 gap-2 overflow-y-auto pr-1">
+        {termos.length ? (
+          termos.map((termo) => (
+            <article key={termo.id} className="rounded-md border bg-white p-3">
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm font-semibold text-card-foreground">{termo.titulo}</p>
+                <span className={cn("shrink-0 rounded-md border px-2 py-1 text-xs font-semibold", termo.aceiteProfissional ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-900")}>{termo.statusRotulo}</span>
+              </div>
+              <p className="mt-2 line-clamp-3 text-xs leading-5 text-muted-foreground">{termo.conteudo}</p>
+              <p className="mt-2 text-xs font-medium text-muted-foreground">{formatarDataHora(termo.criadoEm)}</p>
+            </article>
+          ))
+        ) : (
+          <div className="rounded-md border bg-white p-3 text-sm text-muted-foreground">Nenhum termo registrado para este cliente.</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function HistoricoEvidenciasBeauty({ evidencias }: { evidencias: EvidenciaEvolucaoBeautyPro[] }) {
+  return (
+    <div className="rounded-lg border bg-background p-3">
+      <p className="text-sm font-semibold text-card-foreground">Evidências seguras</p>
+      <div className="mt-3 grid max-h-72 gap-2 overflow-y-auto pr-1">
+        {evidencias.length ? (
+          evidencias.map((evidencia) => (
+            <article key={evidencia.id} className="rounded-md border border-sky-200 bg-white p-3">
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm font-semibold text-card-foreground">{evidencia.titulo}</p>
+                <span className="shrink-0 rounded-md border bg-sky-50 px-2 py-1 text-xs font-semibold text-sky-800">{evidencia.tipoPlaceholderRotulo}</span>
+              </div>
+              <p className="mt-2 text-xs leading-5 text-muted-foreground">{evidencia.descricao}</p>
+              <p className="mt-2 rounded-md border bg-sky-50 px-2 py-1 text-xs font-medium text-sky-900">{evidencia.avisoPrivacidade}</p>
+            </article>
+          ))
+        ) : (
+          <div className="rounded-md border bg-white p-3 text-sm text-muted-foreground">Nenhuma evidência segura registrada.</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function HistoricoProdutosBeauty({ produtos, estoque }: { produtos: ProdutoUtilizadoBeautyPro[]; estoque: ProdutoBeautyEstoque[] }) {
+  return (
+    <div className="rounded-lg border bg-background p-3">
+      <p className="text-sm font-semibold text-card-foreground">Produtos e lotes</p>
+      <div className="mt-3 grid max-h-72 gap-2 overflow-y-auto pr-1">
+        {produtos.length ? (
+          produtos.map((produto) => (
+            <article key={produto.id} className={cn("rounded-md border bg-white p-3", produto.alertaValidade || produto.alertaEstoqueBaixo ? "border-amber-300 bg-amber-50/50" : "")}>
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm font-semibold text-card-foreground">{produto.nomeProduto}</p>
+                <span className={cn("shrink-0 rounded-md border px-2 py-1 text-xs font-semibold", produto.alertaValidade || produto.alertaEstoqueBaixo ? "bg-amber-50 text-amber-900" : "bg-emerald-50 text-emerald-800")}>{produto.statusRotulo}</span>
+              </div>
+              <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                {produto.quantidade} {produto.unidade} {produto.lote ? `• lote ${produto.lote}` : ""} {produto.validade ? `• validade ${formatarDataCurta(produto.validade)}` : ""}
+              </p>
+              {produto.observacoes ? <p className="mt-2 text-xs leading-5 text-muted-foreground">{produto.observacoes}</p> : null}
+            </article>
+          ))
+        ) : (
+          <div className="rounded-md border bg-white p-3 text-sm text-muted-foreground">Nenhum produto vinculado a protocolos ou sessões.</div>
+        )}
+      </div>
+      {estoque.some((produto) => produto.estoqueBaixo || produto.validadeEmAlerta) ? (
+        <div className="mt-3 rounded-md border border-amber-300 bg-amber-50 p-3 text-xs leading-5 text-amber-900">
+          Existem produtos do estoque com validade próxima ou estoque baixo. Vincule com atenção antes de registrar sessões.
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function CardIndicadorBeauty({ indicador }: { indicador: IndicadorBeautyPro }) {
   const Icon = iconesIndicadores[indicador.codigo] ?? Sparkles;
 
@@ -987,4 +1446,12 @@ function formatarDataHora(valor: string) {
     hour: "2-digit",
     minute: "2-digit"
   }).format(new Date(valor));
+}
+
+function formatarDataCurta(valor: string) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+  }).format(new Date(`${valor}T00:00:00`));
 }
