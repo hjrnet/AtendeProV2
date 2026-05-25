@@ -34,6 +34,7 @@ import {
 } from "@/features/operacional/api/operacional-client";
 import { DashboardPrecificacaoView } from "@/features/precificacao/components/dashboard-precificacao-view";
 import { SimuladorPrecificacaoView } from "@/features/precificacao/components/simulador-precificacao-view";
+import { VerticaisProfissionaisView } from "@/features/verticais/components/verticais-profissionais-view";
 
 type PainelProtegidoViewProps = {
   sessao: SessaoAutenticada;
@@ -110,6 +111,7 @@ export function PainelProtegidoView({ sessao }: PainelProtegidoViewProps) {
 
           <nav className="mt-8 grid gap-2">
             <LinkPainel href="#operacao" icon={LayoutDashboard} label="Operacao" />
+            <LinkPainel href="#verticais" icon={Stethoscope} label="Verticais" />
             <LinkPainel href="#precificacao" icon={BadgeDollarSign} label="Precificacao" />
             <LinkPainel href="#busca" icon={Search} label="Busca global" />
             <LinkPainel href="#admin" icon={PackageCheck} label="Admin SaaS" />
@@ -222,6 +224,10 @@ export function PainelProtegidoView({ sessao }: PainelProtegidoViewProps) {
                 </div>
               </section>
             </div>
+          </section>
+
+          <section id="verticais" className="border-t py-5">
+            <VerticaisProfissionaisView />
           </section>
 
           <section id="precificacao" className="border-t py-5">

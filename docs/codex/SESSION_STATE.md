@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R7 — Verticais profissionais.
 
 ## Última task concluída
-TASK-AGD-001 — Estruturar módulo Agenda do AtendePro.
+TASK-0701 — Nutri Pro.
 
 ## Próxima task recomendada
-TASK-0701 — Nutri Pro.
+TASK-0702 — Beauty Pro.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0701 concluida em modo autopilot multiagente release R7.
+- Modulo backend `vertical` criado com arquitetura hexagonal, catalogo inicial do Nutri Pro, permissionamento `verticais:acessar` e endpoints `/api/verticais-profissionais`.
+- Painel web `/app` ganhou secao mobile-first de verticais profissionais, com busca e cards baseados no catalogo da API.
+- A task entregou base operacional do Nutri Pro sem criar CRUD profundo de plano alimentar, banco de alimentos, PDF ou app mobile; esses pontos seguem no backlog `TASK-NUTRI-002` em diante.
+- Validacao confirmou `mvn test` com 252 testes, `pnpm lint`, `pnpm typecheck`, `pnpm build`, Docker Compose saudavel, backend local `UP`, endpoint de verticais com `NUTRI_PRO` e web `/app` HTTP 200.
 - TASK-AGD-001 concluida como task documental da R7, sem implementacao tecnica.
 - Especificacao oficial do modulo Agenda criada em `docs/product/modulos/`, cobrindo visao, regras de negocio, fluxos, telas/UX e backlog futuro.
 - Agenda foi posicionada como modulo comum e transversal, desacoplado de profissao especifica, para apoiar Nutri Pro, Beauty Pro, Biomed Pro, Fisio Pro, Spaces, terapias, saloes e atendimento domiciliar.

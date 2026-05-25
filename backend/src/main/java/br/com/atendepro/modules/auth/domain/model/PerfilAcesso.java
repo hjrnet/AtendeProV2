@@ -18,6 +18,7 @@ public enum PerfilAcesso {
             PermissaoAcesso.GERENCIAR_PRECIFICACAO,
             PermissaoAcesso.GERENCIAR_SPACES,
             PermissaoAcesso.GERENCIAR_DOCUMENTOS,
+            PermissaoAcesso.ACESSAR_VERTICAIS,
             PermissaoAcesso.ACESSAR_ADMIN_SAAS,
             PermissaoAcesso.ACESSAR_SUPORTE
     )),
@@ -40,7 +41,8 @@ public enum PerfilAcesso {
             PermissaoAcesso.GERENCIAR_EQUIPAMENTOS,
             PermissaoAcesso.GERENCIAR_PRECIFICACAO,
             PermissaoAcesso.GERENCIAR_SPACES,
-            PermissaoAcesso.GERENCIAR_DOCUMENTOS
+            PermissaoAcesso.GERENCIAR_DOCUMENTOS,
+            PermissaoAcesso.ACESSAR_VERTICAIS
     )),
     PROFISSIONAL(Set.of(
             PermissaoAcesso.VISUALIZAR_EMPRESA,
@@ -52,7 +54,8 @@ public enum PerfilAcesso {
             PermissaoAcesso.GERENCIAR_EQUIPAMENTOS,
             PermissaoAcesso.GERENCIAR_PRECIFICACAO,
             PermissaoAcesso.GERENCIAR_SPACES,
-            PermissaoAcesso.GERENCIAR_DOCUMENTOS
+            PermissaoAcesso.GERENCIAR_DOCUMENTOS,
+            PermissaoAcesso.ACESSAR_VERTICAIS
     )),
     RECEPCIONISTA(Set.of(
             PermissaoAcesso.VISUALIZAR_EMPRESA,
@@ -64,7 +67,8 @@ public enum PerfilAcesso {
             PermissaoAcesso.GERENCIAR_EQUIPAMENTOS,
             PermissaoAcesso.GERENCIAR_PRECIFICACAO,
             PermissaoAcesso.GERENCIAR_SPACES,
-            PermissaoAcesso.GERENCIAR_DOCUMENTOS
+            PermissaoAcesso.GERENCIAR_DOCUMENTOS,
+            PermissaoAcesso.ACESSAR_VERTICAIS
     )),
     CLIENTE(Set.of()),
     ESTUDANTE(Set.of());
