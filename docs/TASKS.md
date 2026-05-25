@@ -49,7 +49,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-0207 | Trial 30 dias | Trial com vencimento e conversão. | CONCLUIDA |
 | TASK-0208 | Assinaturas | Status, upgrade, downgrade, cancelamento e bloqueio. | CONCLUIDA |
 | TASK-0209 | Tela Admin de planos | CRUD e limites por plano. | CONCLUIDA |
-| TASK-0210 | Dashboard de vendas | MRR, conversão, churn e planos vendidos. | PENDENTE |
+| TASK-0210 | Dashboard de vendas | MRR, conversão, churn e planos vendidos. | CONCLUIDA |
 
 ## R3 — Núcleo operacional comum
 

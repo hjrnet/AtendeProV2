@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.atendepro.modules.adminsaas.application.port.in.AlterarBloqueioEmpresaAdminSaasUseCase;
 import br.com.atendepro.modules.adminsaas.application.port.in.ConsultarDashboardAdminSaasUseCase;
+import br.com.atendepro.modules.adminsaas.application.port.in.ConsultarDashboardVendasAdminSaasUseCase;
 import br.com.atendepro.modules.adminsaas.application.port.in.ConsultarAdminSaasUseCase;
 import br.com.atendepro.modules.adminsaas.application.port.in.DetalharEmpresaAdminSaasUseCase;
 import br.com.atendepro.modules.adminsaas.application.port.in.ListarEmpresasAdminSaasUseCase;
@@ -28,6 +29,7 @@ public class AdminSaasController {
 
     private final ConsultarAdminSaasUseCase consultarAdminSaasUseCase;
     private final ConsultarDashboardAdminSaasUseCase consultarDashboardAdminSaasUseCase;
+    private final ConsultarDashboardVendasAdminSaasUseCase consultarDashboardVendasAdminSaasUseCase;
     private final ListarEmpresasAdminSaasUseCase listarEmpresasAdminSaasUseCase;
     private final DetalharEmpresaAdminSaasUseCase detalharEmpresaAdminSaasUseCase;
     private final AlterarBloqueioEmpresaAdminSaasUseCase alterarBloqueioEmpresaAdminSaasUseCase;
@@ -36,6 +38,7 @@ public class AdminSaasController {
     public AdminSaasController(
             ConsultarAdminSaasUseCase consultarAdminSaasUseCase,
             ConsultarDashboardAdminSaasUseCase consultarDashboardAdminSaasUseCase,
+            ConsultarDashboardVendasAdminSaasUseCase consultarDashboardVendasAdminSaasUseCase,
             ListarEmpresasAdminSaasUseCase listarEmpresasAdminSaasUseCase,
             DetalharEmpresaAdminSaasUseCase detalharEmpresaAdminSaasUseCase,
             AlterarBloqueioEmpresaAdminSaasUseCase alterarBloqueioEmpresaAdminSaasUseCase,
@@ -43,6 +46,7 @@ public class AdminSaasController {
     ) {
         this.consultarAdminSaasUseCase = consultarAdminSaasUseCase;
         this.consultarDashboardAdminSaasUseCase = consultarDashboardAdminSaasUseCase;
+        this.consultarDashboardVendasAdminSaasUseCase = consultarDashboardVendasAdminSaasUseCase;
         this.listarEmpresasAdminSaasUseCase = listarEmpresasAdminSaasUseCase;
         this.detalharEmpresaAdminSaasUseCase = detalharEmpresaAdminSaasUseCase;
         this.alterarBloqueioEmpresaAdminSaasUseCase = alterarBloqueioEmpresaAdminSaasUseCase;
@@ -57,6 +61,13 @@ public class AdminSaasController {
     @GetMapping("/dashboard")
     public ResponseEntity<AdminSaasDashboardResponse> consultarDashboard() {
         return ResponseEntity.ok(AdminSaasDashboardResponse.de(consultarDashboardAdminSaasUseCase.consultarDashboard()));
+    }
+
+    @GetMapping("/dashboard/vendas")
+    public ResponseEntity<DashboardVendasAdminSaasResponse> consultarDashboardVendas() {
+        return ResponseEntity.ok(DashboardVendasAdminSaasResponse.de(
+                consultarDashboardVendasAdminSaasUseCase.consultarDashboardVendas()
+        ));
     }
 
     @GetMapping("/empresas")

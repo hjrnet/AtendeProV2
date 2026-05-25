@@ -73,3 +73,5 @@ Trials ficam no modulo `assinatura`, em `assinatura_trials`, com validade fixa d
 Assinaturas pagas ficam em `assinaturas`, com status `ATIVA`, `BLOQUEADA` e `CANCELADA`. Upgrade e downgrade usam a mesma operacao de troca de plano, preservando a assinatura e registrando o novo `plano_id`. Bloqueio e cancelamento sao status de assinatura; desbloqueio retorna uma assinatura bloqueada para ativa.
 
 A tela Admin de planos fica em `features/admin-planos`, com client dedicado para `/api/admin-saas/planos`, React Query para cache/invalidation e formulario validado por Zod. A pagina `/app` permanece fina e compoe a feature protegida; o CRUD web nao chama API diretamente dentro da pagina e preserva busca, paginacao e estados de carregamento/vazio.
+
+O dashboard de vendas Admin SaaS fica em `/api/admin-saas/dashboard/vendas`. A aplicacao calcula taxa de conversao de trials e churn a partir de metricas carregadas por porta de saida; o adapter JDBC apenas consulta `assinaturas`, `assinatura_trials` e `planos`. MRR considera assinaturas `ATIVA`, conversao usa trials `CONVERTIDO` sobre trials iniciados, e churn usa assinaturas `CANCELADA` sobre ativas + canceladas.

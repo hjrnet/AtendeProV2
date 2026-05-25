@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R2 — Admin SaaS, planos e assinaturas.
+R3 — Núcleo operacional comum.
 
 ## Última task concluída
-TASK-0209 — Tela Admin de planos.
+TASK-0210 — Dashboard de vendas.
 
 ## Próxima task recomendada
-TASK-0210 — Dashboard de vendas.
+TASK-0301 — Clientes/Pacientes.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,12 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0210 concluida em modo autopilot multiagente release R2.
+- Dashboard de vendas Admin SaaS criado em `/api/admin-saas/dashboard/vendas`, com UseCase, Result, OutputPort, adapter JDBC e Response sem exposicao de persistencia.
+- Metricas de vendas usam dados reais de `assinaturas`, `assinatura_trials` e `planos`: MRR ativo, conversao de trials, churn e planos vendidos.
+- O dashboard Admin SaaS geral passou a usar MRR ativo e trials ativos reais quando as tabelas da R2 existem.
+- Validacao local confirmou health `UP`, login do super admin, consulta real de `/api/admin-saas/dashboard/vendas`, Docker Compose saudavel e `mvn test` com 102 testes.
+- R2 concluida; proxima release recomendada e R3.
 - TASK-0209 concluida em modo autopilot multiagente release R2.
 - Tela web Admin de planos criada em `features/admin-planos`, usando client dedicado, React Query, formulario validado por Zod e arquitetura por feature.
 - `/app` passou a exibir o CRUD de planos com busca, paginacao, estados de carregamento/vazio, criacao, edicao e alternancia de ativo sem chamada direta de API na pagina.
