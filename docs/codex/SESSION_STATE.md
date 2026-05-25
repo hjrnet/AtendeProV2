@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R6 — Documentos profissionais e carimbo.
+R7 — Verticais profissionais.
 
 ## Última task concluída
-TASK-0606 — Modelos de documentos gerais.
+TASK-0607 — Histórico e versionamento.
 
 ## Próxima task recomendada
-TASK-0607 — Histórico e versionamento.
+TASK-0701 — Nutri Pro.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,13 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0607 concluida em modo autopilot multiagente release R6.
+- Historico e versionamento de documentos profissionais criados com snapshots de antes/depois em `documentos_profissionais_historico`.
+- A substituicao usa `/api/documentos-profissionais/{documentoId}/substituicoes`, incrementa `versao` e registra motivo, usuario quando houver contexto e dados anteriores/novos.
+- O cancelamento usa `/api/documentos-profissionais/{documentoId}/cancelamento`, incrementa `versao`, muda status para `CANCELADO`, desativa `ativo` e `validacaoPublicaAtiva`, e registra auditoria.
+- O historico privado fica em `/api/documentos-profissionais/{documentoId}/historico`, filtrado por tenant via documento carregado e sem expor persistencia.
+- Validacao confirmou `mvn test` com 248 testes, Docker Compose saudavel, backend local `UP`, substituicao real, cancelamento real, historico com 2 eventos e validacao publica indisponivel para documento cancelado.
+- R6 concluida; proxima release recomendada e R7.
 - TASK-0606 concluida em modo autopilot multiagente release R6.
 - Modelos gerais de documentos profissionais criados em `documentos_modelos_profissionais`, com seeds globais para declaracao, relatorio, termo, orientacao e recibo.
 - API privada `/api/documentos-profissionais/modelos` lista e detalha modelos globais/tenant-scoped, e `/api/documentos-profissionais/modelos/{modeloId}/documentos` cria documento profissional a partir do modelo.

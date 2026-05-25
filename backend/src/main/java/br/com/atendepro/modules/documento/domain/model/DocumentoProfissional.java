@@ -87,4 +87,52 @@ public record DocumentoProfissional(
                 agora
         );
     }
+
+    public DocumentoProfissional substituir(
+            String novoTitulo,
+            String novoConteudo,
+            StatusDocumentoProfissional novoStatus,
+            Instant agora
+    ) {
+        if (novoStatus == StatusDocumentoProfissional.CANCELADO) {
+            throw new IllegalArgumentException("use o cancelamento para cancelar documento profissional");
+        }
+        return new DocumentoProfissional(
+                id,
+                empresaId,
+                clientePacienteId,
+                profissionalId,
+                profissionalNome,
+                novoTitulo,
+                tipo,
+                novoConteudo,
+                novoStatus == null ? status : novoStatus,
+                versao + 1,
+                codigoValidacao,
+                validacaoPublicaAtiva,
+                true,
+                criadoEm,
+                agora
+        );
+    }
+
+    public DocumentoProfissional cancelar(Instant agora) {
+        return new DocumentoProfissional(
+                id,
+                empresaId,
+                clientePacienteId,
+                profissionalId,
+                profissionalNome,
+                titulo,
+                tipo,
+                conteudo,
+                StatusDocumentoProfissional.CANCELADO,
+                versao + 1,
+                codigoValidacao,
+                false,
+                false,
+                criadoEm,
+                agora
+        );
+    }
 }

@@ -55,4 +55,50 @@ class DocumentoProfissionalTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("conteudo do documento profissional e obrigatorio");
     }
+
+    @Test
+    void deveSubstituirDocumentoIncrementandoVersao() {
+        DocumentoProfissional documento = documento();
+
+        DocumentoProfissional substituido = documento.substituir(
+                "Relatorio atualizado",
+                "Conteudo atualizado.",
+                StatusDocumentoProfissional.EMITIDO,
+                AGORA.plusSeconds(60)
+        );
+
+        assertThat(substituido.id()).isEqualTo(documento.id());
+        assertThat(substituido.versao()).isEqualTo(2);
+        assertThat(substituido.titulo()).isEqualTo("Relatorio atualizado");
+        assertThat(substituido.conteudo()).isEqualTo("Conteudo atualizado.");
+        assertThat(substituido.codigoValidacao()).isEqualTo(documento.codigoValidacao());
+        assertThat(substituido.validacaoPublicaAtiva()).isTrue();
+        assertThat(substituido.ativo()).isTrue();
+    }
+
+    @Test
+    void deveCancelarDocumentoDesativandoValidacaoPublica() {
+        DocumentoProfissional documento = documento();
+
+        DocumentoProfissional cancelado = documento.cancelar(AGORA.plusSeconds(60));
+
+        assertThat(cancelado.versao()).isEqualTo(2);
+        assertThat(cancelado.status()).isEqualTo(StatusDocumentoProfissional.CANCELADO);
+        assertThat(cancelado.validacaoPublicaAtiva()).isFalse();
+        assertThat(cancelado.ativo()).isFalse();
+    }
+
+    private DocumentoProfissional documento() {
+        return DocumentoProfissional.criar(
+                EMPRESA_ID,
+                null,
+                UUID.randomUUID(),
+                "Dra. Marina",
+                "Declaracao de acompanhamento",
+                TipoDocumentoProfissional.DECLARACAO,
+                "Conteudo clinico orientativo.",
+                StatusDocumentoProfissional.RASCUNHO,
+                AGORA
+        );
+    }
 }

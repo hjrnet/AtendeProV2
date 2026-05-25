@@ -14,6 +14,7 @@ import br.com.atendepro.modules.documento.application.port.out.CarregarDocumento
 import br.com.atendepro.modules.documento.application.port.out.CarregarDocumentoProfissionalPorCodigoValidacaoPort;
 import br.com.atendepro.modules.documento.application.port.out.ListarDocumentosProfissionaisPort;
 import br.com.atendepro.modules.documento.application.port.out.SalvarDocumentoProfissionalPort;
+import br.com.atendepro.modules.documento.application.port.out.AtualizarDocumentoProfissionalPort;
 import br.com.atendepro.modules.documento.domain.model.DocumentoProfissional;
 import br.com.atendepro.modules.documento.domain.model.StatusDocumentoProfissional;
 import br.com.atendepro.modules.documento.domain.model.TipoDocumentoProfissional;
@@ -24,6 +25,7 @@ import br.com.atendepro.shared.application.pagination.ResultadoPaginado;
 @Profile("!test")
 public class JdbcDocumentoProfissionalAdapter implements
         SalvarDocumentoProfissionalPort,
+        AtualizarDocumentoProfissionalPort,
         CarregarDocumentoProfissionalPorCodigoValidacaoPort,
         CarregarDocumentoProfissionalPorIdPort,
         ListarDocumentosProfissionaisPort {
@@ -60,6 +62,33 @@ public class JdbcDocumentoProfissionalAdapter implements
                 documento.ativo(),
                 Timestamp.from(documento.criadoEm()),
                 Timestamp.from(documento.atualizadoEm())
+        );
+    }
+
+    @Override
+    public void atualizarDocumento(DocumentoProfissional documento) {
+        jdbcTemplate.update(
+                """
+                update documentos_profissionais
+                set titulo = ?,
+                    conteudo = ?,
+                    status = ?,
+                    versao = ?,
+                    codigo_validacao = ?,
+                    validacao_publica_ativa = ?,
+                    ativo = ?,
+                    atualizado_em = ?
+                where id = ?
+                """,
+                documento.titulo(),
+                documento.conteudo(),
+                documento.status().name(),
+                documento.versao(),
+                documento.codigoValidacao(),
+                documento.validacaoPublicaAtiva(),
+                documento.ativo(),
+                Timestamp.from(documento.atualizadoEm()),
+                documento.id()
         );
     }
 

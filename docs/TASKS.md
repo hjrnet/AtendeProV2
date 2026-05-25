@@ -103,7 +103,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-0604 | QR Code de validação | Validação pública limitada. | CONCLUIDA |
 | TASK-0605 | Marca d'água Plano Estudante | Documento acadêmico sem validade profissional. | CONCLUIDA |
 | TASK-0606 | Modelos de documentos gerais | Declaração, relatório, termo, orientação, recibo. | CONCLUIDA |
-| TASK-0607 | Histórico e versionamento | Substituição, cancelamento e auditoria. | PENDENTE |
+| TASK-0607 | Histórico e versionamento | Substituição, cancelamento e auditoria. | CONCLUIDA |
 
 ## R7 — Verticais profissionais
 

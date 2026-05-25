@@ -17,9 +17,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.atendepro.modules.documento.application.port.in.CriarDocumentoProfissionalUseCase;
+import br.com.atendepro.modules.documento.application.port.in.CancelarDocumentoProfissionalUseCase;
 import br.com.atendepro.modules.documento.application.port.in.DetalharDocumentoProfissionalUseCase;
 import br.com.atendepro.modules.documento.application.port.in.GerarPdfDocumentoProfissionalUseCase;
+import br.com.atendepro.modules.documento.application.port.in.ListarHistoricoDocumentoProfissionalUseCase;
 import br.com.atendepro.modules.documento.application.port.in.ListarDocumentosProfissionaisUseCase;
+import br.com.atendepro.modules.documento.application.port.in.SubstituirDocumentoProfissionalUseCase;
 import br.com.atendepro.modules.documento.application.result.DocumentoProfissionalPdfResult;
 import br.com.atendepro.modules.documento.domain.model.StatusDocumentoProfissional;
 import br.com.atendepro.modules.documento.domain.model.TipoDocumentoProfissional;
@@ -35,17 +38,26 @@ public class DocumentoProfissionalController {
     private final DetalharDocumentoProfissionalUseCase detalharDocumentoProfissionalUseCase;
     private final ListarDocumentosProfissionaisUseCase listarDocumentosProfissionaisUseCase;
     private final GerarPdfDocumentoProfissionalUseCase gerarPdfDocumentoProfissionalUseCase;
+    private final SubstituirDocumentoProfissionalUseCase substituirDocumentoProfissionalUseCase;
+    private final CancelarDocumentoProfissionalUseCase cancelarDocumentoProfissionalUseCase;
+    private final ListarHistoricoDocumentoProfissionalUseCase listarHistoricoDocumentoProfissionalUseCase;
 
     public DocumentoProfissionalController(
             CriarDocumentoProfissionalUseCase criarDocumentoProfissionalUseCase,
             DetalharDocumentoProfissionalUseCase detalharDocumentoProfissionalUseCase,
             ListarDocumentosProfissionaisUseCase listarDocumentosProfissionaisUseCase,
-            GerarPdfDocumentoProfissionalUseCase gerarPdfDocumentoProfissionalUseCase
+            GerarPdfDocumentoProfissionalUseCase gerarPdfDocumentoProfissionalUseCase,
+            SubstituirDocumentoProfissionalUseCase substituirDocumentoProfissionalUseCase,
+            CancelarDocumentoProfissionalUseCase cancelarDocumentoProfissionalUseCase,
+            ListarHistoricoDocumentoProfissionalUseCase listarHistoricoDocumentoProfissionalUseCase
     ) {
         this.criarDocumentoProfissionalUseCase = criarDocumentoProfissionalUseCase;
         this.detalharDocumentoProfissionalUseCase = detalharDocumentoProfissionalUseCase;
         this.listarDocumentosProfissionaisUseCase = listarDocumentosProfissionaisUseCase;
         this.gerarPdfDocumentoProfissionalUseCase = gerarPdfDocumentoProfissionalUseCase;
+        this.substituirDocumentoProfissionalUseCase = substituirDocumentoProfissionalUseCase;
+        this.cancelarDocumentoProfissionalUseCase = cancelarDocumentoProfissionalUseCase;
+        this.listarHistoricoDocumentoProfissionalUseCase = listarHistoricoDocumentoProfissionalUseCase;
     }
 
     @PostMapping
@@ -64,6 +76,40 @@ public class DocumentoProfissionalController {
                 .map(DocumentoProfissionalResponse::de)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/{documentoId}/substituicoes")
+    public ResponseEntity<DocumentoProfissionalResponse> substituirDocumento(
+            @PathVariable UUID documentoId,
+            @Valid @RequestBody SubstituirDocumentoProfissionalRequest request
+    ) {
+        return ResponseEntity.ok(DocumentoProfissionalResponse.de(
+                substituirDocumentoProfissionalUseCase.substituirDocumento(request.paraCommand(documentoId))
+        ));
+    }
+
+    @PostMapping("/{documentoId}/cancelamento")
+    public ResponseEntity<DocumentoProfissionalResponse> cancelarDocumento(
+            @PathVariable UUID documentoId,
+            @Valid @RequestBody CancelarDocumentoProfissionalRequest request
+    ) {
+        return ResponseEntity.ok(DocumentoProfissionalResponse.de(
+                cancelarDocumentoProfissionalUseCase.cancelarDocumento(request.paraCommand(documentoId))
+        ));
+    }
+
+    @GetMapping("/{documentoId}/historico")
+    public ResponseEntity<HistoricoDocumentoProfissionalPaginadoResponse> listarHistorico(
+            @PathVariable UUID documentoId,
+            @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "20") int tamanho
+    ) {
+        return ResponseEntity.ok(HistoricoDocumentoProfissionalPaginadoResponse.de(
+                listarHistoricoDocumentoProfissionalUseCase.listarHistorico(
+                        documentoId,
+                        new Paginacao(pagina, tamanho)
+                )
+        ));
     }
 
     @GetMapping(value = "/{documentoId}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
