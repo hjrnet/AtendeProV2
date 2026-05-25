@@ -12,19 +12,23 @@ import org.springframework.stereotype.Service;
 import br.com.atendepro.modules.auth.application.permission.PermissaoAcessoService;
 import br.com.atendepro.modules.auth.domain.model.PermissaoAcesso;
 import br.com.atendepro.modules.empresa.application.context.TenantAccessService;
+import br.com.atendepro.modules.precificacao.application.command.CalcularCustoRealCommand;
 import br.com.atendepro.modules.precificacao.application.command.CalcularPrecificacaoBaseCommand;
 import br.com.atendepro.modules.precificacao.application.command.ItemCustoPrecificacaoCommand;
+import br.com.atendepro.modules.precificacao.application.port.in.CalcularCustoRealUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecificacaoBaseUseCase;
 import br.com.atendepro.modules.precificacao.application.port.out.CarregarServicoParaPrecificacaoPort;
 import br.com.atendepro.modules.precificacao.application.result.CalculoPrecificacaoBaseResult;
+import br.com.atendepro.modules.precificacao.application.result.CustoRealPrecificacaoResult;
 import br.com.atendepro.modules.precificacao.application.result.ServicoPrecificacaoResult;
 import br.com.atendepro.modules.precificacao.domain.model.CalculoPrecificacao;
+import br.com.atendepro.modules.precificacao.domain.model.CustoRealPrecificacao;
 import br.com.atendepro.modules.precificacao.domain.model.ItemCustoPrecificacao;
 import br.com.atendepro.shared.domain.exception.BusinessException;
 
 @Service
 @Profile("!test")
-public class PrecificacaoService implements CalcularPrecificacaoBaseUseCase {
+public class PrecificacaoService implements CalcularPrecificacaoBaseUseCase, CalcularCustoRealUseCase {
 
     private final CarregarServicoParaPrecificacaoPort carregarServicoParaPrecificacaoPort;
     private final TenantAccessService tenantAccessService;
@@ -60,6 +64,29 @@ public class PrecificacaoService implements CalcularPrecificacaoBaseUseCase {
         return CalculoPrecificacaoBaseResult.de(calculo, servico);
     }
 
+    @Override
+    public CustoRealPrecificacaoResult calcularCustoReal(CalcularCustoRealCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        ServicoPrecificacaoResult servico = carregarServico(command.servicoProcedimentoId(), empresaId);
+        String nomeProcedimento = nomeProcedimento(command.nomeProcedimento(), servico);
+        int duracaoMinutos = duracaoMinutos(command.duracaoMinutos(), servico);
+        CustoRealPrecificacao custoReal = CustoRealPrecificacao.calcular(
+                empresaId,
+                command.servicoProcedimentoId(),
+                nomeProcedimento,
+                duracaoMinutos,
+                command.custoInsumos(),
+                command.custoSalaPorHora(),
+                command.valorHoraProfissional(),
+                command.custoDeslocamento(),
+                command.custoAlimentacao(),
+                command.taxas(),
+                Instant.now(clock)
+        );
+        return CustoRealPrecificacaoResult.de(custoReal, servico);
+    }
+
     private ServicoPrecificacaoResult carregarServico(UUID servicoProcedimentoId, UUID empresaId) {
         if (servicoProcedimentoId == null) {
             return null;
@@ -80,6 +107,19 @@ public class PrecificacaoService implements CalcularPrecificacaoBaseUseCase {
             return servico.nome();
         }
         return nomeSolicitado;
+    }
+
+    private int duracaoMinutos(Integer duracaoSolicitada, ServicoPrecificacaoResult servico) {
+        if (duracaoSolicitada != null) {
+            return duracaoSolicitada;
+        }
+        if (servico != null) {
+            return servico.duracaoMinutos();
+        }
+        throw new BusinessException(
+                "PRECIFICACAO_DURACAO_OBRIGATORIA",
+                "Duracao do procedimento e obrigatoria para calcular custo real."
+        );
     }
 
     private List<ItemCustoPrecificacao> itensCusto(List<ItemCustoPrecificacaoCommand> itensCusto) {

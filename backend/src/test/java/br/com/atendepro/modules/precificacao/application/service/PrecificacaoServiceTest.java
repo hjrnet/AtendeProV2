@@ -21,6 +21,7 @@ import br.com.atendepro.modules.auth.domain.model.PerfilAcesso;
 import br.com.atendepro.modules.empresa.application.context.TenantAccessService;
 import br.com.atendepro.modules.empresa.application.context.TenantContext;
 import br.com.atendepro.modules.empresa.application.context.TenantContextHolder;
+import br.com.atendepro.modules.precificacao.application.command.CalcularCustoRealCommand;
 import br.com.atendepro.modules.precificacao.application.command.CalcularPrecificacaoBaseCommand;
 import br.com.atendepro.modules.precificacao.application.command.ItemCustoPrecificacaoCommand;
 import br.com.atendepro.modules.precificacao.application.port.out.CarregarServicoParaPrecificacaoPort;
@@ -90,6 +91,57 @@ class PrecificacaoServiceTest {
         assertThatThrownBy(() -> service.calcularPrecificacaoBase(command(null, SERVICO_ID, null)))
                 .isInstanceOf(BusinessException.class)
                 .hasMessage("Servico ou procedimento nao encontrado para precificacao.");
+    }
+
+    @Test
+    void deveCalcularCustoRealUsandoDuracaoDoServico() {
+        TenantContextHolder.definir(new TenantContext(EMPRESA_ID, UUID.randomUUID(), Set.of(PerfilAcesso.PROFISSIONAL)));
+        PrecificacaoService service = service((empresaId, servicoProcedimentoId) -> Optional.of(new ServicoPrecificacaoResult(
+                SERVICO_ID,
+                EMPRESA_ID,
+                "Consulta Nutricional",
+                90,
+                new BigDecimal("350.00")
+        )));
+
+        var result = service.calcularCustoReal(new CalcularCustoRealCommand(
+                null,
+                SERVICO_ID,
+                null,
+                null,
+                new BigDecimal("45.00"),
+                new BigDecimal("60.00"),
+                new BigDecimal("120.00"),
+                new BigDecimal("25.00"),
+                new BigDecimal("15.00"),
+                new BigDecimal("10.00")
+        ));
+
+        assertThat(result.nomeProcedimento()).isEqualTo("Consulta Nutricional");
+        assertThat(result.duracaoMinutos()).isEqualTo(90);
+        assertThat(result.custoSala()).isEqualByComparingTo("90.00");
+        assertThat(result.custoTempoProfissional()).isEqualByComparingTo("180.00");
+        assertThat(result.custoTotal()).isEqualByComparingTo("365.00");
+    }
+
+    @Test
+    void deveExigirDuracaoParaCustoRealSemServico() {
+        TenantContextHolder.definir(new TenantContext(EMPRESA_ID, UUID.randomUUID(), Set.of(PerfilAcesso.EMPRESA_ADMIN)));
+        PrecificacaoService service = service((empresaId, servicoProcedimentoId) -> Optional.empty());
+
+        assertThatThrownBy(() -> service.calcularCustoReal(new CalcularCustoRealCommand(
+                null,
+                null,
+                "Consulta",
+                null,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO
+        ))).isInstanceOf(BusinessException.class)
+                .hasMessage("Duracao do procedimento e obrigatoria para calcular custo real.");
     }
 
     private PrecificacaoService service(CarregarServicoParaPrecificacaoPort carregarPort) {

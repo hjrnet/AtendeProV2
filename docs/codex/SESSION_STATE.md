@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R4 — Custo real, precificação e relatórios.
 
 ## Última task concluída
-TASK-0401 — Módulo Precificação.
+TASK-0402 — Calculadora de custo real.
 
 ## Próxima task recomendada
-TASK-0402 — Calculadora de custo real.
+TASK-0403 — Preço mínimo.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0402 concluida em modo autopilot multiagente release R4.
+- Calculadora de custo real criada em `/api/precificacao/calculos/custo-real`, usando insumos, sala por hora, tempo profissional por hora, deslocamento, alimentacao e taxas.
+- Custos de sala e tempo profissional sao rateados pela duracao em minutos; quando um servico/procedimento ativo e informado, sua duracao pode preencher a duracao do calculo.
+- A calculadora retorna composicao detalhada e itens categorizados, sem calcular preco minimo, preco recomendado, margem ou persistir historico.
+- Validacao local confirmou `custoSala=90.00`, `custoTempoProfissional=180.00`, `custoTotal=365.00` e `mvn test` com 155 testes.
 - TASK-0401 concluida em modo autopilot multiagente release R4.
 - Modulo `precificacao` criado no backend com dominio de calculo base, itens de custo categorizados, Command/Result, UseCase, OutputPort, service e controller fino.
 - API `/api/precificacao/calculos/base` calcula custo total por itens informados, opcionalmente enriquecendo a simulacao com servico/procedimento ativo existente via adapter JDBC.

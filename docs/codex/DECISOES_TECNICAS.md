@@ -101,3 +101,5 @@ A UX operacional da R3 usa `/app` como cockpit autenticado mobile-first. O shell
 O modulo `precificacao` nasce na TASK-0401 como motor hexagonal de calculo base, sem persistir historico. A API `/api/precificacao/calculos/base` recebe itens de custo categorizados e retorna o custo total normalizado em `BigDecimal`. Quando um `servicoProcedimentoId` ativo e informado, o modulo usa um OutputPort com adapter JDBC para carregar nome, duracao e preco base do servico, mantendo o calculo desacoplado da persistencia de servicos.
 
 Preco minimo, preco recomendado, margem, lucro, historico de simulacoes, PDF e dashboard ficam fora da TASK-0401 e devem evoluir nas tasks oficiais seguintes da R4.
+
+A TASK-0402 adiciona `/api/precificacao/calculos/custo-real`. O custo real soma insumos, custo de sala rateado por duracao, custo de tempo profissional rateado por duracao, deslocamento, alimentacao e taxas. A duracao pode vir da requisicao ou do servico/procedimento ativo informado. O resultado continua sem persistencia, servindo como base para preco minimo, margem e historico nas tasks seguintes.
