@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R9 — Suporte, central de ajuda, comunicação e refinamentos de experiência.
+R10 — Landing page e comercial.
 
 ## Última task concluída
-TASK-R9-003 — Corrigir acentuação e textos em português do sistema.
+TASK-R9-004 — Popular ambiente demo com usuários, planos e simulações realistas.
 
 ## Próxima task recomendada
-TASK-R9-004 — Popular ambiente demo com usuários, planos e simulações realistas.
+TASK-1001 — Landing page pública.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,13 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-R9-004 concluida em modo autopilot multiagente release R9.
+- Ambiente demo local passou a ser populado por `DadosDemoLocalRunner`, restrito ao profile `local`, com carga idempotente e dados ficticios.
+- Seed local cria empresas por vertical, usuarios demo, planos comerciais, assinaturas ativas, clientes/pacientes, agenda, procedimentos, custos, estoque, equipamentos, Spaces e 15 simulacoes de precificacao com 5 saudaveis, 5 em margem baixa e 5 em prejuizo.
+- Login demo padronizado para `AtendePro@123`, incluindo super admin, Nutri Pro, Beauty Pro, Biomed Pro, Fisio Pro, Spaces e Estudante.
+- Documentacao de demo local criada em `docs/product/demo-data.md` e logins adicionados ao `README.md` e ao runbook local.
+- Validacao confirmou `mvn test` com Java 21 e 270 testes, `pnpm typecheck`, `pnpm lint`, `pnpm build`, Docker Compose saudavel, backend local `UP`, web `/app` HTTP 200, sete logins demo OK, dashboards/procedimentos/planos/simulacoes populados e Browser sem erros de console no simulador de precificacao.
+- R9 concluida; proxima release recomendada e R10, embora R8 ainda tenha tasks futuras de portal/mobile pendentes para decisao posterior.
 - TASK-R9-003 concluida em modo autopilot multiagente release R9.
 - Textos visiveis do shell, operacao, verticais, precificacao, Admin SaaS/planos e login foram revisados para portugues brasileiro com acentuacao correta.
 - Mensagens de validacao e erro exibidas ao usuario em planos e precificacao foram ajustadas para microcopy profissional.

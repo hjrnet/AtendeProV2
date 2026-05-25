@@ -77,6 +77,12 @@ Para execução contínua controlada:
 autopilot 3 tasks
 ```
 
+Para executar tasks pendentes de uma release:
+
+```md
+autopilot release R9 até concluir
+```
+
 ## Comandos curtos
 
 - `status`: diagnostica projeto e próxima task.
@@ -87,6 +93,26 @@ autopilot 3 tasks
 - `multiagente`: executa com papéis de arquitetura, backend, frontend, QA, DevOps e revisão.
 - `autopilot 3 tasks`: executa até 3 tasks em sequência.
 - `autopilot multiagente 3 tasks`: executa até 3 tasks com revisão por papéis profissionais.
+- `autopilot release`: executa tasks pendentes da release atual, uma por vez.
+- `autopilot release R9 até concluir`: executa a release informada até concluir ou bloquear.
+
+## Ambiente demo local
+
+O perfil `local` popula dados fictícios para apresentação e validação visual: empresas, usuários, planos, assinaturas, clientes/pacientes, agenda, procedimentos, custos, estoque, equipamentos, Spaces e simulações de precificação com status saudável, margem baixa e prejuízo.
+
+Logins demo locais:
+
+| Perfil | E-mail | Senha |
+|---|---|---|
+| Super Admin | `admin@atendepro.local` | `AtendePro@123` |
+| Nutri Pro | `karol.nutri@atendepro.local` | `AtendePro@123` |
+| Beauty Pro | `ana.estetica@atendepro.local` | `AtendePro@123` |
+| Biomed Pro | `bianca.biomed@atendepro.local` | `AtendePro@123` |
+| Fisio Pro | `felipe.fisio@atendepro.local` | `AtendePro@123` |
+| Spaces | `paula.spaces@atendepro.local` | `AtendePro@123` |
+| Estudante | `estudante@atendepro.local` | `AtendePro@123` |
+
+Os dados são exclusivamente fictícios e locais. Detalhes: `docs/product/demo-data.md`.
 
 ## Regra principal
 

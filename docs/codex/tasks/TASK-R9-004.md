@@ -353,6 +353,32 @@ Documentar logins:
 git commit -m "feat(demo): popular ambiente com usuarios planos e simulacoes realistas"
 ```
 
+## Execução
+
+Status: CONCLUIDA.
+
+Resumo:
+- Backend ganhou `DadosDemoLocalRunner`, executado apenas no profile `local`, para popular dados fictícios de apresentação de forma idempotente.
+- Seed local cria empresas, usuários demo, planos comerciais, assinaturas, pacientes/clientes, agenda, serviços/procedimentos, custos, estoque, equipamentos, Spaces e simulações de precificação.
+- A senha demo local foi padronizada para `AtendePro@123`, incluindo o bootstrap do super admin.
+- Foram criadas 15 simulações demo: 5 saudáveis, 5 com margem baixa e 5 em prejuízo.
+- Dados específicos profundos do Nutri Pro foram documentados como mock planejado até existirem tabelas próprias da vertical.
+- Logins e regras de dados demo foram documentados em `README.md`, `docs/deploy/LOCAL_RUNBOOK.md` e `docs/product/demo-data.md`.
+
+Validação:
+- `mvn -q -DskipTests compile` com Java 21.
+- `mvn test` com Java 21: 270 testes passaram.
+- `corepack pnpm typecheck`.
+- `corepack pnpm lint`.
+- `corepack pnpm build`.
+- `docker compose up -d` e `docker compose ps`.
+- `GET http://127.0.0.1:8080/actuator/health`: `UP`.
+- `GET http://127.0.0.1:3000/app`: HTTP 200.
+- Banco local validado com 7 empresas demo, 7 usuários principais, serviços por vertical e simulações por status.
+- Login validado para os 7 usuários demo principais com `AtendePro@123`.
+- API validada para dashboard, planos, procedimentos e dashboard de precificação.
+- Browser validado em `/app` com Clínica Nutri Vida selecionada, simulador de precificação exibindo status e filtros, sem erros de console.
+
 ## Prompt recomendado
 
 ```md

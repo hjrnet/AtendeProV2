@@ -23,7 +23,7 @@ public record UsuarioBootstrapProperties(
     }
 
     public String senhaConfigurada() {
-        return valorOuPadrao(senha, "AtendePro@2026");
+        return valorOuPadrao(senha, "AtendePro@123");
     }
 
     private static String valorOuPadrao(String valor, String padrao) {
