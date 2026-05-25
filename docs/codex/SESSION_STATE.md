@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R3 — Núcleo operacional comum.
 
 ## Última task concluída
-TASK-0303 — Serviços/Procedimentos.
+TASK-0304 — Custos gerais.
 
 ## Próxima task recomendada
-TASK-0304 — Custos gerais.
+TASK-0305 — Alimentação e transporte.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0304 concluida em modo autopilot multiagente release R3.
+- Modulo `custo` iniciado com custos gerais fixos, variaveis e eventuais, usando `CustoGeral`, `TipoCustoGeral`, Command/Result, UseCases, OutputPorts, adapter JDBC e controller fino.
+- API `/api/custos/gerais` permite cadastrar, detalhar e listar custos por empresa, busca, tipo, categoria e ativo.
+- Alimentacao e transporte permaneceram fora do escopo e ficam para TASK-0305.
+- Validacao local confirmou migration `custos_gerais`, criacao/listagem real e `mvn test` com 125 testes.
 - TASK-0303 concluida em modo autopilot multiagente release R3.
 - Modulo `servico` criado no backend com dominio `ServicoProcedimento`, Command/Result, UseCases, OutputPorts, adapter JDBC e controller fino.
 - API `/api/servicos-procedimentos` permite cadastrar, detalhar e listar servicos por empresa, busca, area e ativo.
