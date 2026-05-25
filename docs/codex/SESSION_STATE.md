@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R10 — Nutri Pro, Beauty Pro e comercial.
 
 ## Última task concluída
-TASK-1003 — Página de planos.
+TASK-1004 — Calculadora gratuita.
 
 ## Próxima task recomendada
-TASK-1004 — Calculadora gratuita.
+TASK-1005 — Formulário de lead.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-1004 concluida em modo autopilot multiagente release R10.
+- Marketing público ganhou a rota `/calculadora-preco-ideal`, com calculadora gratuita de custo real, preço mínimo, preço recomendado, lucro estimado e alerta de margem, sem captura de lead.
+- A calculadora usa cálculo local no frontend, mantendo a task como lead magnet público e deixando formulário/captação para a TASK-1005.
+- Validação confirmou `pnpm typecheck`, `pnpm lint`, `pnpm build`, `/calculadora-preco-ideal` HTTP 200, Docker Compose saudável, web local ativo e Browser sem erros de console; a automação de digitação no input foi limitada pelo clipboard do Browser, mas a renderização, campos e resultado inicial foram verificados.
 - TASK-1003 concluida em modo autopilot multiagente release R10.
 - Marketing público ganhou página `/planos` com comparação de planos, trial 30 dias, cards para Estudante, Start, Care, verticais Pro, Business, Spaces e Premium, usando dados fictícios da demonstração local.
 - A página direciona para demonstração/login e não implementa checkout, pagamento, calculadora gratuita ou formulário de lead.

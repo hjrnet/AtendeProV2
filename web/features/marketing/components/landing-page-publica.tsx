@@ -247,6 +247,12 @@ function HeroSection() {
               Planos
             </Link>
             <Link
+              href="/calculadora-preco-ideal"
+              className="rounded-md px-3 py-2 text-sm font-medium text-[#34504c] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f766e]"
+            >
+              Calculadora
+            </Link>
+            <Link
               href="/login"
               className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#a8cbc4] bg-white px-4 text-sm font-semibold text-[#123c3a] shadow-sm hover:bg-[#f8fcfb] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f766e]"
             >
