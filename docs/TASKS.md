@@ -146,10 +146,20 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-R9-003 | Corrigir acentuação e textos em português do sistema | Revisar textos visíveis, labels, botões, estados vazios e microcopy para português brasileiro correto. | CONCLUIDA |
 | TASK-R9-004 | Popular ambiente demo com usuários, planos e simulações realistas | Seed local/demo com empresas, usuários, planos, pacientes, procedimentos, simulações e documentação de logins fictícios. | CONCLUIDA |
 
-## R10 — Landing page e comercial
+## R10 — Nutri Pro, Beauty Pro e comercial
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
+| TASK-NUTRI-002 | Criar módulo Nutri Pro operacional | Backend hexagonal, rotas web e base de domínio para Nutri Pro real. | PENDENTE |
+| TASK-NUTRI-003 | Criar prontuário nutricional e menu rápido funcional | Perfil nutricional do paciente com ações rápidas reais. | PENDENTE |
+| TASK-NUTRI-004 | Criar avaliação antropométrica e gasto energético | Registrar avaliação, IMC, TMB/GEB/GET e metas. | PENDENTE |
+| TASK-NUTRI-005 | Criar plano alimentar com refeições, alimentos e suplementos | Plano alimentar operacional com refeições, alimentos personalizados, suplementos e macros iniciais. | PENDENTE |
+| TASK-NUTRI-006 | Criar documentos, exames, prescrições e dashboard Nutri Pro | Solicitações, prescrições, PDF com CRN/carimbo e indicadores da vertical. | PENDENTE |
+| TASK-BEAUTY-001 | Criar módulo Beauty Pro operacional | Backend hexagonal, rotas web e base de domínio para estética/beleza real. | PENDENTE |
+| TASK-BEAUTY-002 | Criar ficha estética, anamnese e avaliação | Perfil estético do cliente com anamnese, objetivos, contraindicações e registros iniciais. | PENDENTE |
+| TASK-BEAUTY-003 | Criar protocolos, sessões e evolução Beauty Pro | Protocolos faciais/corporais, pacote de sessões, execução e evolução. | PENDENTE |
+| TASK-BEAUTY-004 | Criar termos, fotos placeholder, produtos/lotes e dashboard Beauty Pro | Termos, rastreabilidade simples, evidências seguras sem fotos reais e indicadores da vertical. | PENDENTE |
+| TASK-BEAUTY-005 | Integrar Beauty Pro com agenda, precificação e experiência web | Tela operacional completa, agenda, serviços, custos e precificação integrados. | PENDENTE |
 | TASK-1001 | Landing page pública | Produto, dor, solução e CTA. | PENDENTE |
 | TASK-1002 | Páginas por vertical | Nutri, Estética, Biomed, Fisio, Spaces. | PENDENTE |
 | TASK-1003 | Página de planos | Comparação e trial 30 dias. | PENDENTE |

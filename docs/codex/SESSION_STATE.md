@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R10 — Landing page e comercial.
+R10 — Nutri Pro, Beauty Pro e comercial.
 
 ## Última task concluída
 TASK-R9-004 — Popular ambiente demo com usuários, planos e simulações realistas.
 
 ## Próxima task recomendada
-TASK-1001 — Landing page pública.
+TASK-NUTRI-002 — Criar módulo Nutri Pro operacional.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- R10 foi reorganizada para incluir, antes da parte comercial, a implementação operacional completa do Nutri Pro e do Beauty Pro.
+- R10 agora começa por `TASK-NUTRI-002` a `TASK-NUTRI-006`, cobrindo base operacional, prontuário/menu rápido, avaliação/gasto energético, plano alimentar e documentos/dashboard.
+- R10 também inclui `TASK-BEAUTY-001` a `TASK-BEAUTY-005`, cobrindo base operacional, ficha/anamnese, protocolos/sessões/evolução, termos/produtos/dashboard e integração web com agenda/precificação.
+- As tasks comerciais `TASK-1001` a `TASK-1005` permanecem na R10, mas ficam depois das verticais operacionais para que a apresentação pública reflita funcionalidades reais.
 - TASK-R9-004 concluida em modo autopilot multiagente release R9.
 - Ambiente demo local passou a ser populado por `DadosDemoLocalRunner`, restrito ao profile `local`, com carga idempotente e dados ficticios.
 - Seed local cria empresas por vertical, usuarios demo, planos comerciais, assinaturas ativas, clientes/pacientes, agenda, procedimentos, custos, estoque, equipamentos, Spaces e 15 simulacoes de precificacao com 5 saudaveis, 5 em margem baixa e 5 em prejuizo.
