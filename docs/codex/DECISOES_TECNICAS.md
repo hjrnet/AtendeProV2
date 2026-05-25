@@ -61,3 +61,5 @@ O módulo Admin SaaS começa em backend hexagonal com permissão dedicada `ACESS
 O dashboard Admin SaaS inicial fica em `/api/admin-saas/dashboard`. As metricas de empresas ativas e bloqueadas sao carregadas por adapter JDBC a partir da tabela `empresas`; MRR, trials e chamados permanecem zerados ate existirem os modulos oficiais de planos, trial/assinatura e suporte, evitando tabelas ou regras futuras fora do escopo da TASK-0202.
 
 A gestao Admin SaaS de empresas fica sob `/api/admin-saas/empresas`, separada dos endpoints tenant de `/api/empresas`. A listagem aceita busca por nome, documento ou email; o detalhe nao expoe entidade de persistencia; o bloqueio administrativo altera `empresas.ativo`; e a observacao operacional usa dados reais ja existentes, incluindo usuarios vinculados em `auth_usuarios`.
+
+O modulo de planos usa a entidade de dominio `PlanoAssinatura` e o enum `ModuloPlano` para representar regras de acesso por modulo. A persistencia fica nas tabelas `planos` e `plano_modulos`, com API Admin SaaS em `/api/admin-saas/planos` para criar, listar, detalhar e atualizar. A TASK-0204 nao cadastra planos padrao; isso permanece reservado para a TASK-0205.

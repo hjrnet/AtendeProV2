@@ -1,0 +1,103 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0007-create-planos
+      author: codex
+      changes:
+        - createTable:
+            tableName: planos
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: codigo
+                  type: varchar(80)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: nome
+                  type: varchar(140)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: descricao
+                  type: varchar(500)
+              - column:
+                  name: valor_mensal
+                  type: numeric(12,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: limite_usuarios
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: limite_clientes
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: limite_profissionais
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ativo
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: plano_modulos
+            columns:
+              - column:
+                  name: plano_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: modulo
+                  type: varchar(80)
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: plano_modulos
+            columnNames: plano_id, modulo
+            constraintName: pk_plano_modulos
+        - addForeignKeyConstraint:
+            baseTableName: plano_modulos
+            baseColumnNames: plano_id
+            referencedTableName: planos
+            referencedColumnNames: id
+            constraintName: fk_plano_modulos_planos
+            onDelete: CASCADE
+        - createIndex:
+            tableName: planos
+            indexName: idx_planos_codigo
+            columns:
+              - column:
+                  name: codigo
+        - createIndex:
+            tableName: planos
+            indexName: idx_planos_ativo
+            columns:
+              - column:
+                  name: ativo

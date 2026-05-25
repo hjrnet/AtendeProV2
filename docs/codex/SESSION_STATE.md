@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R2 — Admin SaaS, planos e assinaturas.
 
 ## Última task concluída
-TASK-0203 — Gestão de empresas.
+TASK-0204 — Criar módulo de planos.
 
 ## Próxima task recomendada
-TASK-0204 — Criar módulo de planos.
+TASK-0205 — Planos padrão.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0204 concluida em modo autopilot multiagente release R2.
+- Modulo `plano` criado no backend com entidade `PlanoAssinatura`, enum `ModuloPlano`, Commands, Results, UseCases, OutputPorts, adapter JDBC e controller Admin SaaS.
+- Liquibase criou `planos` e `plano_modulos`; o endpoint `/api/admin-saas/planos` permite criar, listar, detalhar e atualizar planos sem expor persistencia.
+- Validacao local confirmou migration real e fluxo de criar/listar/detalhar/atualizar plano com Bearer JWT.
 - TASK-0203 concluida em modo autopilot multiagente release R2.
 - Gestao Admin SaaS de empresas criada em `/api/admin-saas/empresas`, com listar, detalhar, alterar bloqueio e observar empresa.
 - Bloqueio administrativo altera o campo `ativo` de `empresas` e a observacao operacional informa status `ATIVA`/`BLOQUEADA` e usuarios vinculados reais.
