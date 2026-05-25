@@ -7,7 +7,7 @@ AtendePro — SaaS profissional completo.
 R7 — Verticais profissionais.
 
 ## Última task concluída
-TASK-NUTRI-001 — Estruturar requisitos completos do Nutri Pro.
+TASK-AGD-001 — Estruturar módulo Agenda do AtendePro.
 
 ## Próxima task recomendada
 TASK-0701 — Nutri Pro.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-AGD-001 concluida como task documental da R7, sem implementacao tecnica.
+- Especificacao oficial do modulo Agenda criada em `docs/product/modulos/`, cobrindo visao, regras de negocio, fluxos, telas/UX e backlog futuro.
+- Agenda foi posicionada como modulo comum e transversal, desacoplado de profissao especifica, para apoiar Nutri Pro, Beauty Pro, Biomed Pro, Fisio Pro, Spaces, terapias, saloes e atendimento domiciliar.
+- R3 permanece concluida com a agenda base ja implementada; a TASK-AGD-001 documenta a evolucao profissional da agenda para as proximas fases.
+- Proxima task recomendada permanece `TASK-0701 — Nutri Pro`.
 - TASK-NUTRI-001 concluida como task documental da R7, sem implementacao tecnica.
 - Especificacao oficial do Nutri Pro criada em `docs/product/verticais/`, cobrindo visao, requisitos, fluxos, telas, regras de negocio e backlog detalhado.
 - Referencias visuais foram registradas apenas como inspiracao funcional/UX; ficou proibido copiar layout, marca, textos, identidade visual ou design de terceiros.

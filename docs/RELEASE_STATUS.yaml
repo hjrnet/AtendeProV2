@@ -1,7 +1,7 @@
 project: AtendePro
 strategy: professional_complete
 current_release: R7
-last_completed_task: TASK-NUTRI-001
+last_completed_task: TASK-AGD-001
 next_task: TASK-0701
 releases:
   R0:
@@ -105,6 +105,7 @@ releases:
     status: EM_ANDAMENTO
     tasks:
       TASK-NUTRI-001: CONCLUIDA
+      TASK-AGD-001: CONCLUIDA
       TASK-0701: PENDENTE
       TASK-0702: PENDENTE
       TASK-0703: PENDENTE

@@ -92,6 +92,7 @@
 ## R7 — Verticais profissionais
 
 - **TASK-NUTRI-001 — Estruturar requisitos completos do Nutri Pro**: Especificação oficial a partir da descrição e referências visuais, sem implementação técnica.
+- **TASK-AGD-001 — Estruturar módulo Agenda do AtendePro**: Especificação funcional, regras, UX, entidades e backlog da agenda comum.
 - **TASK-0701 — Nutri Pro**: Plano alimentar, diário, exames, suplementação e CRN.
 - **TASK-0702 — Beauty Pro**: Protocolos, fotos, termos, pacotes e salão.
 - **TASK-0703 — Biomed Pro**: CRBM, habilitações, rastreabilidade e estética biomédica.
