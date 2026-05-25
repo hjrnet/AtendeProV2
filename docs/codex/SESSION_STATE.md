@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R5 — Sublocação e Spaces.
+R6 — Documentos profissionais e carimbo.
 
 ## Última task concluída
-TASK-0506 — Agenda de ocupação.
+TASK-0507 — Relatório de sublocação.
 
 ## Próxima task recomendada
-TASK-0507 — Relatório de sublocação.
+TASK-0601 — Módulo Documento Profissional.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,12 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0507 concluida em modo autopilot multiagente release R5.
+- Indicadores de sublocacao criados em `/api/spaces/indicadores/sublocacao`, agregando recursos, pacotes ativos, ocupacoes por status, horas ocupadas no mes, receita fixa prevista e taxa de ocupacao estimada.
+- Relatorio PDF de sublocacao criado em `/api/spaces/relatorios/sublocacao.pdf`, gerado por adapter PDFBox isolado por porta de saida.
+- A taxa de ocupacao mensal inicial usa capacidade base de 176 horas por recurso ativo no mes; regras comerciais avancadas permanecem para evolucao futura.
+- Validacao confirmou `mvn test` com 206 testes, Docker Compose saudavel, endpoint de indicadores real e PDF com assinatura `%PDF`.
+- R5 concluida; proxima release recomendada e R6.
 - TASK-0506 concluida em modo autopilot multiagente release R5.
 - Agenda de ocupacao Spaces criada em `spaces_ocupacoes`, com status `RESERVADA`, `CONFIRMADA` e `CANCELADA`.
 - API `/api/spaces/ocupacoes` permite agendar, detalhar e listar ocupacoes por empresa, recurso, periodo e status; `/api/spaces/ocupacoes/disponibilidade` verifica disponibilidade do recurso.

@@ -5,6 +5,9 @@ import java.time.Instant;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,14 +22,17 @@ import br.com.atendepro.modules.spaces.application.port.in.CalcularCustoHoraSpac
 import br.com.atendepro.modules.spaces.application.port.in.CadastrarPacoteSublocacaoSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.AgendarOcupacaoSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.ConsultarDisponibilidadeSpacesUseCase;
+import br.com.atendepro.modules.spaces.application.port.in.ConsultarIndicadoresSublocacaoSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.ConsultarSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.DetalharPacoteSublocacaoSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.DetalharOcupacaoSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.DetalharRecursoSpacesUseCase;
+import br.com.atendepro.modules.spaces.application.port.in.GerarRelatorioSublocacaoSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.ListarOcupacoesSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.ListarPacotesSublocacaoSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.ListarRecursosSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.SimularParceiroSpacesUseCase;
+import br.com.atendepro.modules.spaces.application.result.RelatorioSublocacaoSpacesResult;
 import br.com.atendepro.modules.spaces.domain.model.StatusOcupacaoSpaces;
 import br.com.atendepro.modules.spaces.domain.model.TipoPacoteSublocacaoSpaces;
 import br.com.atendepro.modules.spaces.domain.model.TipoRecursoSpaces;
@@ -51,6 +57,8 @@ public class SpacesController {
     private final DetalharOcupacaoSpacesUseCase detalharOcupacaoSpacesUseCase;
     private final ListarOcupacoesSpacesUseCase listarOcupacoesSpacesUseCase;
     private final ConsultarDisponibilidadeSpacesUseCase consultarDisponibilidadeSpacesUseCase;
+    private final ConsultarIndicadoresSublocacaoSpacesUseCase consultarIndicadoresSublocacaoSpacesUseCase;
+    private final GerarRelatorioSublocacaoSpacesUseCase gerarRelatorioSublocacaoSpacesUseCase;
 
     public SpacesController(
             ConsultarSpacesUseCase consultarSpacesUseCase,
@@ -65,7 +73,9 @@ public class SpacesController {
             AgendarOcupacaoSpacesUseCase agendarOcupacaoSpacesUseCase,
             DetalharOcupacaoSpacesUseCase detalharOcupacaoSpacesUseCase,
             ListarOcupacoesSpacesUseCase listarOcupacoesSpacesUseCase,
-            ConsultarDisponibilidadeSpacesUseCase consultarDisponibilidadeSpacesUseCase
+            ConsultarDisponibilidadeSpacesUseCase consultarDisponibilidadeSpacesUseCase,
+            ConsultarIndicadoresSublocacaoSpacesUseCase consultarIndicadoresSublocacaoSpacesUseCase,
+            GerarRelatorioSublocacaoSpacesUseCase gerarRelatorioSublocacaoSpacesUseCase
     ) {
         this.consultarSpacesUseCase = consultarSpacesUseCase;
         this.calcularCustoHoraSpacesUseCase = calcularCustoHoraSpacesUseCase;
@@ -80,6 +90,8 @@ public class SpacesController {
         this.detalharOcupacaoSpacesUseCase = detalharOcupacaoSpacesUseCase;
         this.listarOcupacoesSpacesUseCase = listarOcupacoesSpacesUseCase;
         this.consultarDisponibilidadeSpacesUseCase = consultarDisponibilidadeSpacesUseCase;
+        this.consultarIndicadoresSublocacaoSpacesUseCase = consultarIndicadoresSublocacaoSpacesUseCase;
+        this.gerarRelatorioSublocacaoSpacesUseCase = gerarRelatorioSublocacaoSpacesUseCase;
     }
 
     @GetMapping("/status")
@@ -228,5 +240,27 @@ public class SpacesController {
         return ResponseEntity.ok(DisponibilidadeSpacesResponse.de(
                 consultarDisponibilidadeSpacesUseCase.consultarDisponibilidade(request.paraCommand())
         ));
+    }
+
+    @GetMapping("/indicadores/sublocacao")
+    public ResponseEntity<IndicadoresSublocacaoSpacesResponse> consultarIndicadoresSublocacao(
+            @RequestParam(required = false) UUID empresaId
+    ) {
+        return ResponseEntity.ok(IndicadoresSublocacaoSpacesResponse.de(
+                consultarIndicadoresSublocacaoSpacesUseCase.consultarIndicadores(empresaId)
+        ));
+    }
+
+    @GetMapping(value = "/relatorios/sublocacao.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> gerarRelatorioSublocacao(@RequestParam(required = false) UUID empresaId) {
+        RelatorioSublocacaoSpacesResult relatorio = gerarRelatorioSublocacaoSpacesUseCase.gerarRelatorio(empresaId);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(relatorio.contentType()))
+                .contentLength(relatorio.conteudo().length)
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline()
+                        .filename(relatorio.nomeArquivo())
+                        .build()
+                        .toString())
+                .body(relatorio.conteudo());
     }
 }
