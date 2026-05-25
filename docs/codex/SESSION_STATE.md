@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R4 — Custo real, precificação e relatórios.
 
 ## Última task concluída
-TASK-0405 — Margem e lucro.
+TASK-0406 — Simulador de preço web.
 
 ## Próxima task recomendada
-TASK-0406 — Simulador de preço web.
+TASK-0407 — Histórico de simulações.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0406 concluida em modo autopilot multiagente release R4.
+- Feature web `features/precificacao` criada com client dedicado, schema Zod e tela mobile-first de simulador no painel `/app`.
+- O simulador chama `/api/precificacao/calculos/preco-recomendado` e `/api/precificacao/calculos/margem-lucro`, exibindo custo real, preco minimo, preco recomendado, margem real, lucro estimado e alertas.
+- Validacao web confirmou `pnpm lint`, `pnpm typecheck`, `pnpm build` e Browser em `/app` com simulacao real (`custo=R$ 275,00`, `recomendado=R$ 392,86`).
 - TASK-0405 concluida em modo autopilot multiagente release R4.
 - Analise de margem e lucro criada em `/api/precificacao/calculos/margem-lucro`, recebendo preco de venda e retornando lucro estimado, margem real percentual, status e alertas.
 - Alertas iniciais: preco abaixo do minimo e critico; ponto de equilibrio e atencao; margem positiva abaixo de 20% e atencao.

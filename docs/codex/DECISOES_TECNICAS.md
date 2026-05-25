@@ -109,3 +109,5 @@ A TASK-0403 define preco minimo como ponto de equilibrio: `precoMinimo = custoRe
 A TASK-0404 calcula preco recomendado por margem desejada sobre o preco de venda: `precoRecomendado = custoTotal / (1 - margemDesejadaPercentual / 100)`. A margem deve ficar entre 0 e 99.99, e o arredondamento usa teto em centavos para evitar recomendar preco que fique abaixo da margem alvo.
 
 A TASK-0405 adiciona analise de margem e lucro em `/api/precificacao/calculos/margem-lucro`. A margem real e calculada como `lucroEstimado / precoVenda * 100`, com lucro estimado igual a `precoVenda - custoTotal`. Alertas iniciais usam regras explicitas: preco abaixo do minimo e critico, preco no ponto de equilibrio exige atencao e margem positiva abaixo de 20% tambem exige atencao.
+
+A TASK-0406 cria a feature web `features/precificacao`, acoplada ao painel operacional `/app`. A tela de simulador nao persiste dados: ela compoe chamadas aos endpoints de preco recomendado e margem/lucro, mantendo pagina fina, client de API por feature e validacao local com Zod/React Hook Form.

@@ -32,6 +32,7 @@ import {
   type DashboardEmpresa,
   type ResultadoBuscaGlobal
 } from "@/features/operacional/api/operacional-client";
+import { SimuladorPrecificacaoView } from "@/features/precificacao/components/simulador-precificacao-view";
 
 type PainelProtegidoViewProps = {
   sessao: SessaoAutenticada;
@@ -108,6 +109,7 @@ export function PainelProtegidoView({ sessao }: PainelProtegidoViewProps) {
 
           <nav className="mt-8 grid gap-2">
             <LinkPainel href="#operacao" icon={LayoutDashboard} label="Operacao" />
+            <LinkPainel href="#precificacao" icon={BadgeDollarSign} label="Precificacao" />
             <LinkPainel href="#busca" icon={Search} label="Busca global" />
             <LinkPainel href="#admin" icon={PackageCheck} label="Admin SaaS" />
           </nav>
@@ -219,6 +221,10 @@ export function PainelProtegidoView({ sessao }: PainelProtegidoViewProps) {
                 </div>
               </section>
             </div>
+          </section>
+
+          <section id="precificacao" className="border-t py-5">
+            <SimuladorPrecificacaoView empresaId={empresaAtivaId} />
           </section>
 
           <section id="busca" className="border-t py-5">
