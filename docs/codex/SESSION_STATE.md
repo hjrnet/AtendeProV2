@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R10 — Nutri Pro, Beauty Pro e comercial.
 
 ## Última task concluída
-TASK-BEAUTY-002 — Criar ficha estética, anamnese e avaliação.
+TASK-BEAUTY-003 — Criar protocolos, sessões e evolução Beauty Pro.
 
 ## Próxima task recomendada
-TASK-BEAUTY-003 — Criar protocolos, sessões e evolução Beauty Pro.
+TASK-BEAUTY-004 — Criar termos, fotos placeholder, produtos/lotes e dashboard Beauty Pro.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,12 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-BEAUTY-003 concluida em modo autopilot multiagente release R10.
+- Beauty Pro ganhou protocolos e pacotes de sessoes em `beauty_protocolos`, com tipo facial/corporal/capilar/cilios/sobrancelhas/salao/personalizado, status Ativo, Concluido, Cancelado e Pausado.
+- Sessoes e evolucao foram registradas em `beauty_sessoes_protocolos`, com numero da sessao, execucao, evolucao do cliente, produtos utilizados, orientacoes e vinculo opcional com agenda.
+- API operacional adicionou criacao/listagem/detalhe de protocolos e registro de sessoes em `/api/beauty-pro/clientes/{clienteId}/protocolos`, atualizando o status do pacote ao atingir a quantidade prevista.
+- Web Beauty Pro ganhou painel de protocolos, criacao de pacote, lista com status/sessoes previstas/realizadas/restantes e formulario de registro de sessao/evolucao.
+- Validacao confirmou `mvn test` com 288 testes, `pnpm typecheck`, `pnpm lint`, `pnpm build`, Docker Compose saudavel, API criando protocolo e duas sessoes com status Concluido e Browser sem erros de console.
 - TASK-BEAUTY-002 concluida em modo autopilot multiagente release R10.
 - Beauty Pro ganhou ficha estetica tenant-scoped por cliente em `beauty_fichas_esteticas`, com objetivo, queixa principal, historico estetico, alergias, medicamentos, alertas de seguranca, contraindicações e observacoes.
 - API operacional adicionou listagem de clientes Beauty, prontuario do cliente, criacao/edicao/listagem de fichas esteticas em `/api/beauty-pro/clientes/{clienteId}` sem expor persistencia.

@@ -16,30 +16,48 @@ import br.com.atendepro.modules.beauty.application.command.AtualizarFichaEstetic
 import br.com.atendepro.modules.beauty.application.command.ConsultarProntuarioBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.ConsultarVisaoBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.CriarFichaEsteticaBeautyProCommand;
+import br.com.atendepro.modules.beauty.application.command.CriarProtocoloBeautyProCommand;
+import br.com.atendepro.modules.beauty.application.command.DetalharProtocoloBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.ListarClientesBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.ListarFichasEsteticasBeautyProCommand;
+import br.com.atendepro.modules.beauty.application.command.ListarProtocolosBeautyProCommand;
+import br.com.atendepro.modules.beauty.application.command.RegistrarSessaoProtocoloBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.port.in.AtualizarFichaEsteticaBeautyProUseCase;
 import br.com.atendepro.modules.beauty.application.port.in.ConsultarProntuarioBeautyProUseCase;
 import br.com.atendepro.modules.beauty.application.port.in.ConsultarVisaoBeautyProUseCase;
 import br.com.atendepro.modules.beauty.application.port.in.CriarFichaEsteticaBeautyProUseCase;
+import br.com.atendepro.modules.beauty.application.port.in.CriarProtocoloBeautyProUseCase;
+import br.com.atendepro.modules.beauty.application.port.in.DetalharProtocoloBeautyProUseCase;
 import br.com.atendepro.modules.beauty.application.port.in.ListarClientesBeautyProUseCase;
 import br.com.atendepro.modules.beauty.application.port.in.ListarFichasEsteticasBeautyProUseCase;
+import br.com.atendepro.modules.beauty.application.port.in.ListarProtocolosBeautyProUseCase;
+import br.com.atendepro.modules.beauty.application.port.in.RegistrarSessaoProtocoloBeautyProUseCase;
 import br.com.atendepro.modules.beauty.application.port.out.AtualizarFichaEsteticaBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.AtualizarProtocoloBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarClienteBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarFichaEsteticaBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.CarregarProtocoloBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarVisaoBeautyProPort;
 import br.com.atendepro.modules.beauty.application.result.AtalhoBeautyProResult;
 import br.com.atendepro.modules.beauty.application.result.ClienteBeautyResumoResult;
 import br.com.atendepro.modules.beauty.application.result.FichaEsteticaBeautyProResult;
 import br.com.atendepro.modules.beauty.application.result.IndicadorBeautyProResult;
 import br.com.atendepro.modules.beauty.application.result.MetricasBeautyProResult;
+import br.com.atendepro.modules.beauty.application.result.ProtocoloBeautyProResult;
 import br.com.atendepro.modules.beauty.application.result.ProntuarioBeautyProResult;
 import br.com.atendepro.modules.beauty.application.result.ResumoProntuarioBeautyProResult;
+import br.com.atendepro.modules.beauty.application.result.SessaoProtocoloBeautyProResult;
 import br.com.atendepro.modules.beauty.application.result.VisaoBeautyProResult;
 import br.com.atendepro.modules.beauty.application.port.out.ListarClientesBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.ListarFichasEsteticasBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.ListarProtocolosBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.ListarSessoesProtocoloBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.SalvarFichaEsteticaBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.SalvarProtocoloBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.SalvarSessaoProtocoloBeautyProPort;
 import br.com.atendepro.modules.beauty.domain.model.FichaEsteticaBeautyPro;
+import br.com.atendepro.modules.beauty.domain.model.ProtocoloBeautyPro;
+import br.com.atendepro.modules.beauty.domain.model.SessaoProtocoloBeautyPro;
 import br.com.atendepro.modules.beauty.domain.model.StatusOperacionalBeautyPro;
 import br.com.atendepro.modules.empresa.application.context.TenantAccessService;
 import br.com.atendepro.shared.domain.exception.BusinessException;
@@ -52,7 +70,11 @@ public class BeautyProService implements
         ConsultarProntuarioBeautyProUseCase,
         CriarFichaEsteticaBeautyProUseCase,
         AtualizarFichaEsteticaBeautyProUseCase,
-        ListarFichasEsteticasBeautyProUseCase {
+        ListarFichasEsteticasBeautyProUseCase,
+        CriarProtocoloBeautyProUseCase,
+        ListarProtocolosBeautyProUseCase,
+        DetalharProtocoloBeautyProUseCase,
+        RegistrarSessaoProtocoloBeautyProUseCase {
 
     private final CarregarVisaoBeautyProPort carregarVisaoBeautyProPort;
     private final ListarClientesBeautyProPort listarClientesBeautyProPort;
@@ -61,6 +83,12 @@ public class BeautyProService implements
     private final SalvarFichaEsteticaBeautyProPort salvarFichaEsteticaBeautyProPort;
     private final AtualizarFichaEsteticaBeautyProPort atualizarFichaEsteticaBeautyProPort;
     private final ListarFichasEsteticasBeautyProPort listarFichasEsteticasBeautyProPort;
+    private final SalvarProtocoloBeautyProPort salvarProtocoloBeautyProPort;
+    private final AtualizarProtocoloBeautyProPort atualizarProtocoloBeautyProPort;
+    private final CarregarProtocoloBeautyProPort carregarProtocoloBeautyProPort;
+    private final ListarProtocolosBeautyProPort listarProtocolosBeautyProPort;
+    private final SalvarSessaoProtocoloBeautyProPort salvarSessaoProtocoloBeautyProPort;
+    private final ListarSessoesProtocoloBeautyProPort listarSessoesProtocoloBeautyProPort;
     private final TenantAccessService tenantAccessService;
     private final PermissaoAcessoService permissaoAcessoService;
     private final Clock clock;
@@ -73,6 +101,12 @@ public class BeautyProService implements
             SalvarFichaEsteticaBeautyProPort salvarFichaEsteticaBeautyProPort,
             AtualizarFichaEsteticaBeautyProPort atualizarFichaEsteticaBeautyProPort,
             ListarFichasEsteticasBeautyProPort listarFichasEsteticasBeautyProPort,
+            SalvarProtocoloBeautyProPort salvarProtocoloBeautyProPort,
+            AtualizarProtocoloBeautyProPort atualizarProtocoloBeautyProPort,
+            CarregarProtocoloBeautyProPort carregarProtocoloBeautyProPort,
+            ListarProtocolosBeautyProPort listarProtocolosBeautyProPort,
+            SalvarSessaoProtocoloBeautyProPort salvarSessaoProtocoloBeautyProPort,
+            ListarSessoesProtocoloBeautyProPort listarSessoesProtocoloBeautyProPort,
             TenantAccessService tenantAccessService,
             PermissaoAcessoService permissaoAcessoService,
             Clock clock
@@ -84,6 +118,12 @@ public class BeautyProService implements
         this.salvarFichaEsteticaBeautyProPort = salvarFichaEsteticaBeautyProPort;
         this.atualizarFichaEsteticaBeautyProPort = atualizarFichaEsteticaBeautyProPort;
         this.listarFichasEsteticasBeautyProPort = listarFichasEsteticasBeautyProPort;
+        this.salvarProtocoloBeautyProPort = salvarProtocoloBeautyProPort;
+        this.atualizarProtocoloBeautyProPort = atualizarProtocoloBeautyProPort;
+        this.carregarProtocoloBeautyProPort = carregarProtocoloBeautyProPort;
+        this.listarProtocolosBeautyProPort = listarProtocolosBeautyProPort;
+        this.salvarSessaoProtocoloBeautyProPort = salvarSessaoProtocoloBeautyProPort;
+        this.listarSessoesProtocoloBeautyProPort = listarSessoesProtocoloBeautyProPort;
         this.tenantAccessService = tenantAccessService;
         this.permissaoAcessoService = permissaoAcessoService;
         this.clock = clock;
@@ -212,6 +252,82 @@ public class BeautyProService implements
                 .stream()
                 .map(FichaEsteticaBeautyProResult::de)
                 .toList();
+    }
+
+    @Override
+    public ProtocoloBeautyProResult criarProtocolo(CriarProtocoloBeautyProCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarClienteBeautyExiste(empresaId, command.clienteId());
+        ProtocoloBeautyPro protocolo = ProtocoloBeautyPro.criar(
+                empresaId,
+                command.clienteId(),
+                command.servicoProcedimentoId(),
+                command.nome(),
+                command.tipo(),
+                command.objetivo(),
+                command.quantidadeSessoesPrevistas(),
+                command.observacoes(),
+                Instant.now(clock)
+        );
+        salvarProtocoloBeautyProPort.salvarProtocolo(protocolo);
+        return ProtocoloBeautyProResult.de(protocolo, List.of());
+    }
+
+    @Override
+    public List<ProtocoloBeautyProResult> listarProtocolos(ListarProtocolosBeautyProCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarClienteBeautyExiste(empresaId, command.clienteId());
+        return listarProtocolosBeautyProPort
+                .listarProtocolos(empresaId, command.clienteId())
+                .stream()
+                .map(protocolo -> ProtocoloBeautyProResult.de(
+                        protocolo,
+                        listarSessoesProtocoloBeautyProPort.listarSessoes(empresaId, protocolo.id())
+                ))
+                .toList();
+    }
+
+    @Override
+    public Optional<ProtocoloBeautyProResult> detalharProtocolo(DetalharProtocoloBeautyProCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarClienteBeautyExiste(empresaId, command.clienteId());
+        return carregarProtocoloBeautyProPort
+                .carregarProtocolo(empresaId, command.clienteId(), command.protocoloId())
+                .map(protocolo -> ProtocoloBeautyProResult.de(
+                        protocolo,
+                        listarSessoesProtocoloBeautyProPort.listarSessoes(empresaId, protocolo.id())
+                ));
+    }
+
+    @Override
+    public Optional<SessaoProtocoloBeautyProResult> registrarSessao(RegistrarSessaoProtocoloBeautyProCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarClienteBeautyExiste(empresaId, command.clienteId());
+        return carregarProtocoloBeautyProPort
+                .carregarProtocolo(empresaId, command.clienteId(), command.protocoloId())
+                .map(protocolo -> {
+                    ProtocoloBeautyPro protocoloAtualizado = protocolo.registrarSessao(Instant.now(clock));
+                    SessaoProtocoloBeautyPro sessao = SessaoProtocoloBeautyPro.criar(
+                            empresaId,
+                            protocolo.id(),
+                            command.clienteId(),
+                            command.agendaCompromissoId(),
+                            protocoloAtualizado.sessoesRealizadas(),
+                            command.realizadaEm() == null ? Instant.now(clock) : command.realizadaEm(),
+                            command.descricaoExecucao(),
+                            command.evolucaoCliente(),
+                            command.produtosUtilizados(),
+                            command.orientacoes(),
+                            Instant.now(clock)
+                    );
+                    salvarSessaoProtocoloBeautyProPort.salvarSessao(sessao);
+                    atualizarProtocoloBeautyProPort.atualizarProtocolo(protocoloAtualizado);
+                    return SessaoProtocoloBeautyProResult.de(sessao);
+                });
     }
 
     private List<IndicadorBeautyProResult> indicadores(MetricasBeautyProResult metricas) {

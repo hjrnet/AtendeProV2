@@ -1,0 +1,177 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0033-create-beauty-protocolos-sessoes
+      author: codex
+      changes:
+        - createTable:
+            tableName: beauty_protocolos
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: empresa_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    referencedTableName: empresas
+                    referencedColumnNames: id
+                    foreignKeyName: fk_beauty_protocolos_empresas
+              - column:
+                  name: cliente_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    referencedTableName: clientes_pacientes
+                    referencedColumnNames: id
+                    foreignKeyName: fk_beauty_protocolos_clientes
+              - column:
+                  name: servico_procedimento_id
+                  type: uuid
+                  constraints:
+                    referencedTableName: servicos_procedimentos
+                    referencedColumnNames: id
+                    foreignKeyName: fk_beauty_protocolos_servicos
+              - column:
+                  name: nome
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tipo
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: objetivo
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantidade_sessoes_previstas
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: sessoes_realizadas
+                  type: integer
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: observacoes
+                  type: text
+              - column:
+                  name: criado_em
+                  type: timestamp with time zone
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamp with time zone
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: beauty_sessoes_protocolos
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: empresa_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    referencedTableName: empresas
+                    referencedColumnNames: id
+                    foreignKeyName: fk_beauty_sessoes_empresas
+              - column:
+                  name: protocolo_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    referencedTableName: beauty_protocolos
+                    referencedColumnNames: id
+                    foreignKeyName: fk_beauty_sessoes_protocolos
+              - column:
+                  name: cliente_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    referencedTableName: clientes_pacientes
+                    referencedColumnNames: id
+                    foreignKeyName: fk_beauty_sessoes_clientes
+              - column:
+                  name: agenda_compromisso_id
+                  type: uuid
+                  constraints:
+                    referencedTableName: agenda_compromissos
+                    referencedColumnNames: id
+                    foreignKeyName: fk_beauty_sessoes_agenda
+              - column:
+                  name: numero_sessao
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: realizada_em
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+              - column:
+                  name: descricao_execucao
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: evolucao_cliente
+                  type: text
+              - column:
+                  name: produtos_utilizados
+                  type: text
+              - column:
+                  name: orientacoes
+                  type: text
+              - column:
+                  name: criado_em
+                  type: timestamp with time zone
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: beauty_protocolos
+            indexName: idx_beauty_protocolos_empresa_cliente
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: cliente_id
+        - createIndex:
+            tableName: beauty_protocolos
+            indexName: idx_beauty_protocolos_status
+            columns:
+              - column:
+                  name: status
+        - createIndex:
+            tableName: beauty_sessoes_protocolos
+            indexName: idx_beauty_sessoes_protocolo
+            columns:
+              - column:
+                  name: protocolo_id
+              - column:
+                  name: numero_sessao

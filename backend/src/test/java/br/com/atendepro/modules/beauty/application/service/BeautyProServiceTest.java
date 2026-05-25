@@ -20,20 +20,32 @@ import br.com.atendepro.modules.auth.application.permission.PermissaoAcessoServi
 import br.com.atendepro.modules.auth.domain.exception.PermissaoNegadaException;
 import br.com.atendepro.modules.auth.domain.model.PerfilAcesso;
 import br.com.atendepro.modules.beauty.application.command.CriarFichaEsteticaBeautyProCommand;
+import br.com.atendepro.modules.beauty.application.command.CriarProtocoloBeautyProCommand;
+import br.com.atendepro.modules.beauty.application.command.RegistrarSessaoProtocoloBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.ConsultarVisaoBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.port.out.AtualizarFichaEsteticaBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.AtualizarProtocoloBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarClienteBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarFichaEsteticaBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.CarregarProtocoloBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarVisaoBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.ListarClientesBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.ListarFichasEsteticasBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.ListarProtocolosBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.ListarSessoesProtocoloBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.SalvarFichaEsteticaBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.SalvarProtocoloBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.SalvarSessaoProtocoloBeautyProPort;
 import br.com.atendepro.modules.beauty.application.result.ClienteBeautyProntuarioResult;
 import br.com.atendepro.modules.beauty.application.result.ClienteBeautyResumoResult;
 import br.com.atendepro.modules.beauty.application.result.MetricasBeautyProResult;
 import br.com.atendepro.modules.beauty.domain.model.FichaEsteticaBeautyPro;
 import br.com.atendepro.modules.beauty.domain.model.ObjetivoEsteticoBeautyPro;
+import br.com.atendepro.modules.beauty.domain.model.ProtocoloBeautyPro;
+import br.com.atendepro.modules.beauty.domain.model.SessaoProtocoloBeautyPro;
+import br.com.atendepro.modules.beauty.domain.model.StatusPacoteBeautyPro;
 import br.com.atendepro.modules.beauty.domain.model.StatusOperacionalBeautyPro;
+import br.com.atendepro.modules.beauty.domain.model.TipoProtocoloBeautyPro;
 import br.com.atendepro.modules.empresa.application.context.TenantAccessService;
 import br.com.atendepro.modules.empresa.application.context.TenantContext;
 import br.com.atendepro.modules.empresa.application.context.TenantContextHolder;
@@ -158,12 +170,52 @@ class BeautyProServiceTest {
         assertThat(result.get().resumo().statusContraindicacoes()).isEqualTo("ALERTA");
     }
 
+    @Test
+    void deveCriarProtocoloERegistrarSessaoComConclusaoDoPacote() {
+        TenantContextHolder.definir(new TenantContext(EMPRESA_ID, UUID.randomUUID(), Set.of(PerfilAcesso.PROFISSIONAL)));
+        FakeBeautyPorts ports = new FakeBeautyPorts(metricasComDados());
+        BeautyProService service = service(ports);
+
+        var protocolo = service.criarProtocolo(new CriarProtocoloBeautyProCommand(
+                null,
+                CLIENTE_ID,
+                null,
+                "Protocolo facial clareador",
+                TipoProtocoloBeautyPro.FACIAL,
+                "Reduzir manchas com protocolo conservador",
+                1,
+                "Pacote inicial de uma sessão"
+        ));
+        var sessao = service.registrarSessao(new RegistrarSessaoProtocoloBeautyProCommand(
+                null,
+                CLIENTE_ID,
+                protocolo.id(),
+                null,
+                Instant.parse("2026-05-25T13:00:00Z"),
+                "Higienização, máscara calmante e fotoproteção",
+                "Pele com boa tolerância",
+                "Máscara calmante",
+                "Reforçar fotoproteção"
+        ));
+
+        assertThat(sessao).isPresent();
+        assertThat(sessao.get().numeroSessao()).isEqualTo(1);
+        assertThat(ports.protocolos).first().extracting(ProtocoloBeautyPro::status).isEqualTo(StatusPacoteBeautyPro.CONCLUIDO);
+        assertThat(ports.sessoes).hasSize(1);
+    }
+
     private BeautyProService service(MetricasBeautyProResult metricas) {
         return service(new FakeBeautyPorts(metricas));
     }
 
     private BeautyProService service(FakeBeautyPorts ports) {
         return new BeautyProService(
+                ports,
+                ports,
+                ports,
+                ports,
+                ports,
+                ports,
                 ports,
                 ports,
                 ports,
@@ -206,10 +258,18 @@ class BeautyProServiceTest {
             CarregarFichaEsteticaBeautyProPort,
             SalvarFichaEsteticaBeautyProPort,
             AtualizarFichaEsteticaBeautyProPort,
-            ListarFichasEsteticasBeautyProPort {
+            ListarFichasEsteticasBeautyProPort,
+            SalvarProtocoloBeautyProPort,
+            AtualizarProtocoloBeautyProPort,
+            CarregarProtocoloBeautyProPort,
+            ListarProtocolosBeautyProPort,
+            SalvarSessaoProtocoloBeautyProPort,
+            ListarSessoesProtocoloBeautyProPort {
 
         private final MetricasBeautyProResult metricas;
         private final List<FichaEsteticaBeautyPro> fichas = new ArrayList<>();
+        private final List<ProtocoloBeautyPro> protocolos = new ArrayList<>();
+        private final List<SessaoProtocoloBeautyPro> sessoes = new ArrayList<>();
 
         private FakeBeautyPorts(MetricasBeautyProResult metricas) {
             this.metricas = metricas;
@@ -274,6 +334,43 @@ class BeautyProServiceTest {
         public List<FichaEsteticaBeautyPro> listarFichasEsteticas(UUID empresaId, UUID clienteId) {
             return fichas.stream()
                     .filter(ficha -> ficha.empresaId().equals(empresaId) && ficha.clienteId().equals(clienteId))
+                    .toList();
+        }
+
+        @Override
+        public void salvarProtocolo(ProtocoloBeautyPro protocolo) {
+            protocolos.add(protocolo);
+        }
+
+        @Override
+        public void atualizarProtocolo(ProtocoloBeautyPro protocolo) {
+            protocolos.removeIf(item -> item.id().equals(protocolo.id()));
+            protocolos.add(protocolo);
+        }
+
+        @Override
+        public Optional<ProtocoloBeautyPro> carregarProtocolo(UUID empresaId, UUID clienteId, UUID protocoloId) {
+            return protocolos.stream()
+                    .filter(protocolo -> protocolo.empresaId().equals(empresaId) && protocolo.clienteId().equals(clienteId) && protocolo.id().equals(protocoloId))
+                    .findFirst();
+        }
+
+        @Override
+        public List<ProtocoloBeautyPro> listarProtocolos(UUID empresaId, UUID clienteId) {
+            return protocolos.stream()
+                    .filter(protocolo -> protocolo.empresaId().equals(empresaId) && protocolo.clienteId().equals(clienteId))
+                    .toList();
+        }
+
+        @Override
+        public void salvarSessao(SessaoProtocoloBeautyPro sessao) {
+            sessoes.add(sessao);
+        }
+
+        @Override
+        public List<SessaoProtocoloBeautyPro> listarSessoes(UUID empresaId, UUID protocoloId) {
+            return sessoes.stream()
+                    .filter(sessao -> sessao.empresaId().equals(empresaId) && sessao.protocoloId().equals(protocoloId))
                     .toList();
         }
     }

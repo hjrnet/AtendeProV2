@@ -23,14 +23,21 @@ import {
   consultarProntuarioBeautyPro,
   consultarVisaoBeautyPro,
   criarFichaEsteticaBeautyPro,
+  criarProtocoloBeautyPro,
   listarClientesBeautyPro,
   listarFichasEsteticasBeautyPro,
+  listarProtocolosBeautyPro,
+  registrarSessaoProtocoloBeautyPro,
   type AtalhoBeautyPro,
   type ClienteBeautyResumo,
+  type CriarProtocoloBeautyProInput,
   type FichaEsteticaBeautyPro,
   type IndicadorBeautyPro,
   type ObjetivoEsteticoBeautyPro,
-  type SalvarFichaEsteticaBeautyProInput
+  type ProtocoloBeautyPro,
+  type RegistrarSessaoProtocoloBeautyProInput,
+  type SalvarFichaEsteticaBeautyProInput,
+  type TipoProtocoloBeautyPro
 } from "@/features/beauty-pro/api/beauty-pro-client";
 import { cn } from "@/lib/utils";
 
@@ -50,6 +57,21 @@ type FormularioFichaBeauty = {
   procedimentosRecentes: string;
   contraindicacoes: string;
   observacoes: string;
+};
+
+type FormularioProtocoloBeauty = {
+  nome: string;
+  tipo: TipoProtocoloBeautyPro;
+  objetivo: string;
+  quantidadeSessoesPrevistas: string;
+  observacoes: string;
+};
+
+type FormularioSessaoBeauty = {
+  descricaoExecucao: string;
+  evolucaoCliente: string;
+  produtosUtilizados: string;
+  orientacoes: string;
 };
 
 const iconesIndicadores: Record<string, Icone> = {
@@ -98,6 +120,30 @@ const fichaVazia: FormularioFichaBeauty = {
   contraindicacoes: "",
   observacoes: ""
 };
+
+const protocoloVazio: FormularioProtocoloBeauty = {
+  nome: "",
+  tipo: "FACIAL",
+  objetivo: "",
+  quantidadeSessoesPrevistas: "4",
+  observacoes: ""
+};
+
+const sessaoVazia: FormularioSessaoBeauty = {
+  descricaoExecucao: "",
+  evolucaoCliente: "",
+  produtosUtilizados: "",
+  orientacoes: ""
+};
+
+const tiposProtocolo: Array<{ value: TipoProtocoloBeautyPro; label: string }> = [
+  { value: "FACIAL", label: "Facial" },
+  { value: "CORPORAL", label: "Corporal" },
+  { value: "CAPILAR", label: "Capilar" },
+  { value: "CILIOS_SOBRANCELHAS", label: "Cílios e sobrancelhas" },
+  { value: "SALAO", label: "Salão" },
+  { value: "PERSONALIZADO", label: "Personalizado" }
+];
 
 export function BeautyProOperacionalView({ empresaId }: { empresaId: string }) {
   const [buscaCliente, setBuscaCliente] = useState("");
@@ -182,6 +228,7 @@ export function BeautyProOperacionalView({ empresaId }: { empresaId: string }) {
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
         <section className="grid gap-4">
           <FichaEsteticaBeautyPainel empresaId={empresaId} clienteId={clienteSelecionadoId} />
+          <ProtocolosBeautyPainel empresaId={empresaId} clienteId={clienteSelecionadoId} />
 
           <div className="rounded-lg border bg-white p-4 shadow-sm">
             <div className="flex flex-col gap-2 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
@@ -457,6 +504,220 @@ function FichaEsteticaBeautyPainel({ empresaId, clienteId }: { empresaId: string
   );
 }
 
+function ProtocolosBeautyPainel({ empresaId, clienteId }: { empresaId: string; clienteId: string | null }) {
+  const queryClient = useQueryClient();
+  const [protocoloSelecionadoId, setProtocoloSelecionadoId] = useState<string | null>(null);
+  const [formularioProtocolo, setFormularioProtocolo] = useState<FormularioProtocoloBeauty>(protocoloVazio);
+  const [formularioSessao, setFormularioSessao] = useState<FormularioSessaoBeauty>(sessaoVazia);
+  const [mensagem, setMensagem] = useState<string | null>(null);
+
+  const protocolosQuery = useQuery({
+    queryKey: ["beauty-pro-protocolos", empresaId, clienteId],
+    queryFn: () => listarProtocolosBeautyPro({ empresaId, clienteId: clienteId ?? "" }),
+    enabled: Boolean(empresaId && clienteId)
+  });
+
+  const protocolos = protocolosQuery.data?.itens ?? [];
+
+  useEffect(() => {
+    setMensagem(null);
+    if (!protocolos.length) {
+      setProtocoloSelecionadoId(null);
+      return;
+    }
+    if (!protocoloSelecionadoId || !protocolos.some((protocolo) => protocolo.id === protocoloSelecionadoId)) {
+      setProtocoloSelecionadoId(protocolos[0].id);
+    }
+  }, [clienteId, protocoloSelecionadoId, protocolos]);
+
+  useEffect(() => {
+    setFormularioProtocolo(protocoloVazio);
+    setFormularioSessao(sessaoVazia);
+  }, [clienteId]);
+
+  const protocoloSelecionado = protocolos.find((protocolo) => protocolo.id === protocoloSelecionadoId) ?? null;
+
+  const criarProtocoloMutation = useMutation({
+    mutationFn: (dados: CriarProtocoloBeautyProInput) => {
+      if (!clienteId) {
+        throw new Error("Selecione um cliente.");
+      }
+      return criarProtocoloBeautyPro({ empresaId, clienteId, dados });
+    },
+    onSuccess: async (protocolo) => {
+      setMensagem("Protocolo criado com sucesso.");
+      setFormularioProtocolo(protocoloVazio);
+      setProtocoloSelecionadoId(protocolo.id);
+      await queryClient.invalidateQueries({ queryKey: ["beauty-pro-protocolos", empresaId, clienteId] });
+    }
+  });
+
+  const registrarSessaoMutation = useMutation({
+    mutationFn: (dados: RegistrarSessaoProtocoloBeautyProInput) => {
+      if (!clienteId || !protocoloSelecionadoId) {
+        throw new Error("Selecione um protocolo.");
+      }
+      return registrarSessaoProtocoloBeautyPro({ empresaId, clienteId, protocoloId: protocoloSelecionadoId, dados });
+    },
+    onSuccess: async () => {
+      setMensagem("Sessão registrada no histórico do protocolo.");
+      setFormularioSessao(sessaoVazia);
+      await queryClient.invalidateQueries({ queryKey: ["beauty-pro-protocolos", empresaId, clienteId] });
+    }
+  });
+
+  if (!clienteId) {
+    return <EstadoBeautyPro titulo="Protocolos Beauty" descricao="Selecione um cliente para criar protocolos, pacotes de sessões e evoluções." />;
+  }
+
+  function criarProtocolo(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setMensagem(null);
+    criarProtocoloMutation.mutate({
+      nome: formularioProtocolo.nome.trim(),
+      tipo: formularioProtocolo.tipo,
+      objetivo: formularioProtocolo.objetivo.trim(),
+      quantidadeSessoesPrevistas: Number(formularioProtocolo.quantidadeSessoesPrevistas),
+      observacoes: textoOuNull(formularioProtocolo.observacoes)
+    });
+  }
+
+  function registrarSessao(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setMensagem(null);
+    registrarSessaoMutation.mutate({
+      realizadaEm: new Date().toISOString(),
+      descricaoExecucao: formularioSessao.descricaoExecucao.trim(),
+      evolucaoCliente: textoOuNull(formularioSessao.evolucaoCliente),
+      produtosUtilizados: textoOuNull(formularioSessao.produtosUtilizados),
+      orientacoes: textoOuNull(formularioSessao.orientacoes)
+    });
+  }
+
+  return (
+    <section className="rounded-lg border bg-white p-4 shadow-sm">
+      <div className="flex flex-col gap-2 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-rose-900">Protocolos, sessões e evolução</p>
+          <p className="text-sm leading-6 text-muted-foreground">Crie pacotes por cliente, registre execução e acompanhe evolução por sessão.</p>
+        </div>
+        <span className="w-fit rounded-md border bg-rose-50 px-2 py-1 text-xs font-semibold text-rose-900">Operacional</span>
+      </div>
+
+      <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        <form className="grid gap-3 rounded-lg border bg-background p-3" onSubmit={criarProtocolo}>
+          <p className="text-sm font-semibold text-card-foreground">Novo protocolo</p>
+          <label className="grid gap-1 text-sm font-medium text-card-foreground">
+            Nome
+            <input
+              value={formularioProtocolo.nome}
+              onChange={(event) => setFormularioProtocolo((atual) => ({ ...atual, nome: event.target.value }))}
+              className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+              placeholder="Ex.: Protocolo facial clareador"
+              required
+            />
+          </label>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="grid gap-1 text-sm font-medium text-card-foreground">
+              Tipo
+              <select
+                value={formularioProtocolo.tipo}
+                onChange={(event) => setFormularioProtocolo((atual) => ({ ...atual, tipo: event.target.value as TipoProtocoloBeautyPro }))}
+                className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+              >
+                {tiposProtocolo.map((tipo) => (
+                  <option key={tipo.value} value={tipo.value}>
+                    {tipo.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="grid gap-1 text-sm font-medium text-card-foreground">
+              Sessões previstas
+              <input
+                type="number"
+                min={1}
+                max={60}
+                value={formularioProtocolo.quantidadeSessoesPrevistas}
+                onChange={(event) => setFormularioProtocolo((atual) => ({ ...atual, quantidadeSessoesPrevistas: event.target.value }))}
+                className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                required
+              />
+            </label>
+          </div>
+          <CampoTextoBeauty label="Objetivo do protocolo" value={formularioProtocolo.objetivo} onChange={(value) => setFormularioProtocolo((atual) => ({ ...atual, objetivo: value }))} placeholder="Objetivo, área tratada e resultado esperado." />
+          <CampoTextoBeauty label="Observações do pacote" value={formularioProtocolo.observacoes} onChange={(value) => setFormularioProtocolo((atual) => ({ ...atual, observacoes: value }))} placeholder="Cuidados, frequência e observações operacionais." />
+          <button
+            type="submit"
+            disabled={criarProtocoloMutation.isPending}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-rose-900 px-4 text-sm font-semibold text-white transition hover:bg-rose-950 disabled:opacity-70"
+          >
+            {criarProtocoloMutation.isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            Criar protocolo
+          </button>
+        </form>
+
+        <div className="grid gap-3">
+          <div className="grid max-h-[360px] gap-2 overflow-y-auto pr-1">
+            {protocolosQuery.isLoading ? (
+              <div className="flex min-h-24 items-center justify-center rounded-md border bg-background text-sm text-muted-foreground">
+                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                Carregando protocolos
+              </div>
+            ) : protocolos.length ? (
+              protocolos.map((protocolo) => (
+                <LinhaProtocoloBeauty
+                  key={protocolo.id}
+                  protocolo={protocolo}
+                  selecionado={protocolo.id === protocoloSelecionadoId}
+                  onSelecionar={() => setProtocoloSelecionadoId(protocolo.id)}
+                />
+              ))
+            ) : (
+              <div className="rounded-md border bg-background p-4 text-sm text-muted-foreground">Nenhum protocolo criado para este cliente.</div>
+            )}
+          </div>
+
+          {protocoloSelecionado ? (
+            <form className="grid gap-3 rounded-lg border bg-background p-3" onSubmit={registrarSessao}>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-card-foreground">Registrar sessão</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {protocoloSelecionado.status === "CONCLUIDO"
+                      ? "Pacote concluído. Histórico de sessões preservado."
+                      : `Próxima sessão: ${protocoloSelecionado.sessoesRealizadas + 1} de ${protocoloSelecionado.quantidadeSessoesPrevistas}`}
+                  </p>
+                </div>
+                <span className={cn("rounded-md border px-2 py-1 text-xs font-semibold", classeStatusPacote(protocoloSelecionado.status))}>
+                  {protocoloSelecionado.statusRotulo}
+                </span>
+              </div>
+              <CampoTextoBeauty label="Execução da sessão" value={formularioSessao.descricaoExecucao} onChange={(value) => setFormularioSessao((atual) => ({ ...atual, descricaoExecucao: value }))} placeholder="Descreva o que foi executado na sessão." />
+              <CampoTextoBeauty label="Evolução do cliente" value={formularioSessao.evolucaoCliente} onChange={(value) => setFormularioSessao((atual) => ({ ...atual, evolucaoCliente: value }))} placeholder="Resposta observada, tolerância, percepção e evolução." />
+              <CampoTextoBeauty label="Produtos utilizados" value={formularioSessao.produtosUtilizados} onChange={(value) => setFormularioSessao((atual) => ({ ...atual, produtosUtilizados: value }))} placeholder="Produtos, insumos ou equipamentos usados." />
+              <CampoTextoBeauty label="Orientações" value={formularioSessao.orientacoes} onChange={(value) => setFormularioSessao((atual) => ({ ...atual, orientacoes: value }))} placeholder="Cuidados pós sessão e recomendações de acompanhamento." />
+              <button
+                type="submit"
+                disabled={registrarSessaoMutation.isPending || protocoloSelecionado.status === "CONCLUIDO" || protocoloSelecionado.status === "CANCELADO"}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-rose-900 px-4 text-sm font-semibold text-white transition hover:bg-rose-950 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {registrarSessaoMutation.isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                Registrar sessão
+              </button>
+            </form>
+          ) : null}
+
+          <div className="min-h-5 text-sm">
+            {mensagem ? <span className="font-medium text-emerald-700">{mensagem}</span> : null}
+            {criarProtocoloMutation.isError || registrarSessaoMutation.isError ? <span className="font-medium text-destructive">Não foi possível salvar protocolo ou sessão.</span> : null}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function CardIndicadorBeauty({ indicador }: { indicador: IndicadorBeautyPro }) {
   const Icon = iconesIndicadores[indicador.codigo] ?? Sparkles;
 
@@ -585,6 +846,38 @@ function LinhaHistoricoFichaBeauty({ ficha }: { ficha: FichaEsteticaBeautyPro })
   );
 }
 
+function LinhaProtocoloBeauty({ protocolo, selecionado, onSelecionar }: { protocolo: ProtocoloBeautyPro; selecionado: boolean; onSelecionar: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onSelecionar}
+      className={cn("rounded-md border bg-background p-3 text-left transition hover:border-rose-300 hover:bg-rose-50/50", selecionado ? "border-rose-500 bg-rose-50 shadow-sm" : "")}
+    >
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold text-card-foreground">{protocolo.nome}</p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">{protocolo.tipoRotulo} • {protocolo.objetivo}</p>
+        </div>
+        <span className={cn("w-fit rounded-md border px-2 py-1 text-xs font-semibold", classeStatusPacote(protocolo.status))}>{protocolo.statusRotulo}</span>
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-3">
+        <ResumoFichaBeauty rotulo="Previstas" valor={protocolo.quantidadeSessoesPrevistas} />
+        <ResumoFichaBeauty rotulo="Realizadas" valor={protocolo.sessoesRealizadas} />
+        <ResumoFichaBeauty rotulo="Restantes" valor={protocolo.sessoesRestantes} />
+      </div>
+      {protocolo.sessoes.length ? (
+        <div className="mt-3 grid gap-2">
+          {protocolo.sessoes.slice(0, 2).map((sessao) => (
+            <div key={sessao.id} className="rounded-md border bg-white p-2 text-xs leading-5 text-muted-foreground">
+              <span className="font-semibold text-card-foreground">Sessão {sessao.numeroSessao}:</span> {sessao.descricaoExecucao}
+            </div>
+          ))}
+        </div>
+      ) : null}
+    </button>
+  );
+}
+
 function ResumoFichaBeauty({ rotulo, valor, texto = false, destaque = false }: { rotulo: string; valor: number | string; texto?: boolean; destaque?: boolean }) {
   return (
     <div className={cn("rounded-md border bg-background px-3 py-2", destaque ? "border-amber-300 bg-amber-50 text-amber-900" : "")}>
@@ -635,6 +928,16 @@ function classeStatusIndicador(status: string) {
     return "border-rose-200 bg-rose-50";
   }
   return "border bg-background";
+}
+
+function classeStatusPacote(status: string) {
+  const classes: Record<string, string> = {
+    ATIVO: "border-emerald-200 bg-emerald-50 text-emerald-800",
+    CONCLUIDO: "border-sky-200 bg-sky-50 text-sky-800",
+    PAUSADO: "border-amber-200 bg-amber-50 text-amber-900",
+    CANCELADO: "border-slate-200 bg-slate-50 text-slate-700"
+  };
+  return classes[status] ?? "border bg-background text-muted-foreground";
 }
 
 function rotuloStatus(status: string) {

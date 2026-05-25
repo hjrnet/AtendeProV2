@@ -15,17 +15,27 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import br.com.atendepro.modules.beauty.application.port.out.AtualizarFichaEsteticaBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.AtualizarProtocoloBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarClienteBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarFichaEsteticaBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.CarregarProtocoloBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarVisaoBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.ListarClientesBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.ListarFichasEsteticasBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.ListarProtocolosBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.ListarSessoesProtocoloBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.SalvarFichaEsteticaBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.SalvarProtocoloBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.SalvarSessaoProtocoloBeautyProPort;
 import br.com.atendepro.modules.beauty.application.result.ClienteBeautyProntuarioResult;
 import br.com.atendepro.modules.beauty.application.result.ClienteBeautyResumoResult;
 import br.com.atendepro.modules.beauty.application.result.MetricasBeautyProResult;
 import br.com.atendepro.modules.beauty.domain.model.FichaEsteticaBeautyPro;
 import br.com.atendepro.modules.beauty.domain.model.ObjetivoEsteticoBeautyPro;
+import br.com.atendepro.modules.beauty.domain.model.ProtocoloBeautyPro;
+import br.com.atendepro.modules.beauty.domain.model.SessaoProtocoloBeautyPro;
+import br.com.atendepro.modules.beauty.domain.model.StatusPacoteBeautyPro;
+import br.com.atendepro.modules.beauty.domain.model.TipoProtocoloBeautyPro;
 
 @Repository
 @Profile("!test")
@@ -36,7 +46,13 @@ public class JdbcVisaoBeautyProAdapter implements
         CarregarFichaEsteticaBeautyProPort,
         SalvarFichaEsteticaBeautyProPort,
         AtualizarFichaEsteticaBeautyProPort,
-        ListarFichasEsteticasBeautyProPort {
+        ListarFichasEsteticasBeautyProPort,
+        SalvarProtocoloBeautyProPort,
+        AtualizarProtocoloBeautyProPort,
+        CarregarProtocoloBeautyProPort,
+        ListarProtocolosBeautyProPort,
+        SalvarSessaoProtocoloBeautyProPort,
+        ListarSessoesProtocoloBeautyProPort {
 
     private static final String AREA_BEAUTY = "BEAUTY";
 
@@ -218,6 +234,114 @@ public class JdbcVisaoBeautyProAdapter implements
                 """, this::mapearFichaEstetica, empresaId, clienteId);
     }
 
+    @Override
+    public void salvarProtocolo(ProtocoloBeautyPro protocolo) {
+        jdbcTemplate.update("""
+                insert into beauty_protocolos (
+                    id, empresa_id, cliente_id, servico_procedimento_id, nome, tipo, objetivo,
+                    quantidade_sessoes_previstas, sessoes_realizadas, status, observacoes,
+                    criado_em, atualizado_em
+                ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                protocolo.id(),
+                protocolo.empresaId(),
+                protocolo.clienteId(),
+                protocolo.servicoProcedimentoId(),
+                protocolo.nome(),
+                protocolo.tipo().name(),
+                protocolo.objetivo(),
+                protocolo.quantidadeSessoesPrevistas(),
+                protocolo.sessoesRealizadas(),
+                protocolo.status().name(),
+                protocolo.observacoes(),
+                Timestamp.from(protocolo.criadoEm()),
+                Timestamp.from(protocolo.atualizadoEm())
+        );
+    }
+
+    @Override
+    public void atualizarProtocolo(ProtocoloBeautyPro protocolo) {
+        jdbcTemplate.update("""
+                update beauty_protocolos
+                set sessoes_realizadas = ?,
+                    status = ?,
+                    atualizado_em = ?
+                where id = ?
+                  and empresa_id = ?
+                  and cliente_id = ?
+                """,
+                protocolo.sessoesRealizadas(),
+                protocolo.status().name(),
+                Timestamp.from(protocolo.atualizadoEm()),
+                protocolo.id(),
+                protocolo.empresaId(),
+                protocolo.clienteId()
+        );
+    }
+
+    @Override
+    public Optional<ProtocoloBeautyPro> carregarProtocolo(UUID empresaId, UUID clienteId, UUID protocoloId) {
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject("""
+                    select *
+                    from beauty_protocolos
+                    where id = ?
+                      and empresa_id = ?
+                      and cliente_id = ?
+                    """, this::mapearProtocolo, protocoloId, empresaId, clienteId));
+        } catch (EmptyResultDataAccessException exception) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public List<ProtocoloBeautyPro> listarProtocolos(UUID empresaId, UUID clienteId) {
+        return jdbcTemplate.query("""
+                select *
+                from beauty_protocolos
+                where empresa_id = ?
+                  and cliente_id = ?
+                order by atualizado_em desc
+                limit 20
+                """, this::mapearProtocolo, empresaId, clienteId);
+    }
+
+    @Override
+    public void salvarSessao(SessaoProtocoloBeautyPro sessao) {
+        jdbcTemplate.update("""
+                insert into beauty_sessoes_protocolos (
+                    id, empresa_id, protocolo_id, cliente_id, agenda_compromisso_id, numero_sessao,
+                    realizada_em, descricao_execucao, evolucao_cliente, produtos_utilizados,
+                    orientacoes, criado_em
+                ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                sessao.id(),
+                sessao.empresaId(),
+                sessao.protocoloId(),
+                sessao.clienteId(),
+                sessao.agendaCompromissoId(),
+                sessao.numeroSessao(),
+                Timestamp.from(sessao.realizadaEm()),
+                sessao.descricaoExecucao(),
+                sessao.evolucaoCliente(),
+                sessao.produtosUtilizados(),
+                sessao.orientacoes(),
+                Timestamp.from(sessao.criadoEm())
+        );
+    }
+
+    @Override
+    public List<SessaoProtocoloBeautyPro> listarSessoes(UUID empresaId, UUID protocoloId) {
+        return jdbcTemplate.query("""
+                select *
+                from beauty_sessoes_protocolos
+                where empresa_id = ?
+                  and protocolo_id = ?
+                order by numero_sessao desc
+                limit 50
+                """, this::mapearSessao, empresaId, protocoloId);
+    }
+
     private String carregarNomeEmpresa(UUID empresaId) {
         String nome = jdbcTemplate.queryForObject("select nome_fantasia from empresas where id = ?", String.class, empresaId);
         if (nome == null || nome.isBlank()) {
@@ -314,6 +438,41 @@ public class JdbcVisaoBeautyProAdapter implements
                 rs.getString("observacoes"),
                 rs.getTimestamp("criado_em").toInstant(),
                 rs.getTimestamp("atualizado_em").toInstant()
+        );
+    }
+
+    private ProtocoloBeautyPro mapearProtocolo(ResultSet rs, int rowNum) throws SQLException {
+        return new ProtocoloBeautyPro(
+                rs.getObject("id", UUID.class),
+                rs.getObject("empresa_id", UUID.class),
+                rs.getObject("cliente_id", UUID.class),
+                rs.getObject("servico_procedimento_id", UUID.class),
+                rs.getString("nome"),
+                TipoProtocoloBeautyPro.deCodigo(rs.getString("tipo")),
+                rs.getString("objetivo"),
+                rs.getInt("quantidade_sessoes_previstas"),
+                rs.getInt("sessoes_realizadas"),
+                StatusPacoteBeautyPro.deCodigo(rs.getString("status")),
+                rs.getString("observacoes"),
+                rs.getTimestamp("criado_em").toInstant(),
+                rs.getTimestamp("atualizado_em").toInstant()
+        );
+    }
+
+    private SessaoProtocoloBeautyPro mapearSessao(ResultSet rs, int rowNum) throws SQLException {
+        return new SessaoProtocoloBeautyPro(
+                rs.getObject("id", UUID.class),
+                rs.getObject("empresa_id", UUID.class),
+                rs.getObject("protocolo_id", UUID.class),
+                rs.getObject("cliente_id", UUID.class),
+                rs.getObject("agenda_compromisso_id", UUID.class),
+                rs.getInt("numero_sessao"),
+                rs.getTimestamp("realizada_em").toInstant(),
+                rs.getString("descricao_execucao"),
+                rs.getString("evolucao_cliente"),
+                rs.getString("produtos_utilizados"),
+                rs.getString("orientacoes"),
+                rs.getTimestamp("criado_em").toInstant()
         );
     }
 

@@ -41,3 +41,11 @@ Criar protocolos estéticos e de beleza, pacotes de sessões, execução de sess
 ```bash
 git commit -m "feat(beauty): criar protocolos sessoes e evolucao (TASK-BEAUTY-003)"
 ```
+
+## Execução registrada
+
+- Status: CONCLUIDA.
+- Backend: criadas tabelas `beauty_protocolos` e `beauty_sessoes_protocolos`, dominio de protocolo/pacote/sessao, commands/results, UseCases/InputPorts, OutputPorts, adapter JDBC e endpoints tenant-scoped.
+- Frontend: Beauty Pro ganhou painel de protocolos com criacao de pacote, lista de status, historico de sessoes e registro de execucao/evolucao.
+- Validacao: `mvn test`, `corepack pnpm typecheck`, `corepack pnpm lint`, `corepack pnpm build`, `docker compose ps`, API local com Ana demo e Browser com cliente demo Beauty.
+- Proxima task: TASK-BEAUTY-004 — Criar termos, fotos placeholder, produtos/lotes e dashboard Beauty Pro.

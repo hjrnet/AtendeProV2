@@ -98,6 +98,67 @@ export type FichasEsteticasBeautyPro = {
   itens: FichaEsteticaBeautyPro[];
 };
 
+export type TipoProtocoloBeautyPro = "FACIAL" | "CORPORAL" | "CAPILAR" | "CILIOS_SOBRANCELHAS" | "SALAO" | "PERSONALIZADO";
+
+export type StatusPacoteBeautyPro = "ATIVO" | "CONCLUIDO" | "CANCELADO" | "PAUSADO";
+
+export type SessaoProtocoloBeautyPro = {
+  id: string;
+  empresaId: string;
+  protocoloId: string;
+  clienteId: string;
+  agendaCompromissoId: string | null;
+  numeroSessao: number;
+  realizadaEm: string;
+  descricaoExecucao: string;
+  evolucaoCliente: string | null;
+  produtosUtilizados: string | null;
+  orientacoes: string | null;
+  criadoEm: string;
+};
+
+export type ProtocoloBeautyPro = {
+  id: string;
+  empresaId: string;
+  clienteId: string;
+  servicoProcedimentoId: string | null;
+  nome: string;
+  tipo: TipoProtocoloBeautyPro;
+  tipoRotulo: string;
+  objetivo: string;
+  quantidadeSessoesPrevistas: number;
+  sessoesRealizadas: number;
+  sessoesRestantes: number;
+  status: StatusPacoteBeautyPro;
+  statusRotulo: string;
+  observacoes: string | null;
+  sessoes: SessaoProtocoloBeautyPro[];
+  criadoEm: string;
+  atualizadoEm: string;
+};
+
+export type ProtocolosBeautyPro = {
+  itens: ProtocoloBeautyPro[];
+};
+
+export type CriarProtocoloBeautyProInput = {
+  servicoProcedimentoId?: string | null;
+  nome: string;
+  tipo: TipoProtocoloBeautyPro;
+  objetivo: string;
+  quantidadeSessoesPrevistas: number;
+  observacoes?: string | null;
+};
+
+export type RegistrarSessaoProtocoloBeautyProInput = {
+  agendaCompromissoId?: string | null;
+  realizadaEm?: string | null;
+  descricaoExecucao: string;
+  evolucaoCliente?: string | null;
+  produtosUtilizados?: string | null;
+  orientacoes?: string | null;
+};
+
 export type SalvarFichaEsteticaBeautyProInput = {
   objetivo: ObjetivoEsteticoBeautyPro;
   queixaPrincipal: string;
@@ -181,6 +242,41 @@ export function atualizarFichaEsteticaBeautyPro(params: {
 }) {
   return beautyProApi.put<FichaEsteticaBeautyPro>(
     `/api/beauty-pro/clientes/${params.clienteId}/fichas-esteticas/${params.fichaId}`,
+    params.dados,
+    {
+      query: { empresaId: params.empresaId }
+    }
+  );
+}
+
+export function listarProtocolosBeautyPro(params: { empresaId: string; clienteId: string }) {
+  return beautyProApi.get<ProtocolosBeautyPro>(`/api/beauty-pro/clientes/${params.clienteId}/protocolos`, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export function criarProtocoloBeautyPro(params: {
+  empresaId: string;
+  clienteId: string;
+  dados: CriarProtocoloBeautyProInput;
+}) {
+  return beautyProApi.post<ProtocoloBeautyPro>(
+    `/api/beauty-pro/clientes/${params.clienteId}/protocolos`,
+    params.dados,
+    {
+      query: { empresaId: params.empresaId }
+    }
+  );
+}
+
+export function registrarSessaoProtocoloBeautyPro(params: {
+  empresaId: string;
+  clienteId: string;
+  protocoloId: string;
+  dados: RegistrarSessaoProtocoloBeautyProInput;
+}) {
+  return beautyProApi.post<SessaoProtocoloBeautyPro>(
+    `/api/beauty-pro/clientes/${params.clienteId}/protocolos/${params.protocoloId}/sessoes`,
     params.dados,
     {
       query: { empresaId: params.empresaId }
