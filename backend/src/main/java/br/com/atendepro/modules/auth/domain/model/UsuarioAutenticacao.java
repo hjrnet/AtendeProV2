@@ -3,6 +3,7 @@ package br.com.atendepro.modules.auth.domain.model;
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public record UsuarioAutenticacao(
         UUID id,
@@ -42,5 +43,21 @@ public record UsuarioAutenticacao(
 
     public boolean possuiPerfil(PerfilAcesso perfil) {
         return perfis.contains(perfil);
+    }
+
+    public Set<PermissaoAcesso> permissoes() {
+        return perfis.stream()
+                .flatMap(perfil -> perfil.permissoes().stream())
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
+    public Set<String> authorities() {
+        return permissoes().stream()
+                .map(PermissaoAcesso::authority)
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
+    public boolean possuiPermissao(PermissaoAcesso permissao) {
+        return permissoes().contains(permissao);
     }
 }

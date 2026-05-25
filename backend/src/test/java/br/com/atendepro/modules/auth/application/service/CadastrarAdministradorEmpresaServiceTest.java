@@ -10,13 +10,18 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import br.com.atendepro.modules.auth.application.command.CadastrarAdministradorEmpresaCommand;
+import br.com.atendepro.modules.auth.application.permission.PermissaoAcessoService;
+import br.com.atendepro.modules.auth.domain.exception.PermissaoNegadaException;
 import br.com.atendepro.modules.auth.domain.model.EmailUsuario;
 import br.com.atendepro.modules.auth.domain.model.PerfilAcesso;
 import br.com.atendepro.modules.auth.domain.model.UsuarioAutenticacao;
 import br.com.atendepro.modules.empresa.application.context.TenantAccessService;
+import br.com.atendepro.modules.empresa.application.context.TenantContext;
+import br.com.atendepro.modules.empresa.application.context.TenantContextHolder;
 import br.com.atendepro.modules.empresa.domain.model.DocumentoEmpresa;
 import br.com.atendepro.modules.empresa.domain.model.EmpresaTenant;
 import br.com.atendepro.shared.domain.exception.BusinessException;
@@ -25,6 +30,11 @@ class CadastrarAdministradorEmpresaServiceTest {
 
     private static final UUID EMPRESA_ID = UUID.fromString("d6ff9cb4-8478-47ad-97f8-a45ea1047baf");
     private static final Clock CLOCK = Clock.fixed(Instant.parse("2026-05-25T00:00:00Z"), ZoneOffset.UTC);
+
+    @AfterEach
+    void limparContextoTenant() {
+        TenantContextHolder.limpar();
+    }
 
     @Test
     void deveCadastrarAdministradorVinculadoEmpresa() {
@@ -35,6 +45,7 @@ class CadastrarAdministradorEmpresaServiceTest {
                 senha -> "hash-" + senha,
                 salvarUsuarioFake,
                 new TenantAccessService(),
+                new PermissaoAcessoService(),
                 CLOCK
         );
 
@@ -55,6 +66,7 @@ class CadastrarAdministradorEmpresaServiceTest {
                 usuario -> {
                 },
                 new TenantAccessService(),
+                new PermissaoAcessoService(),
                 CLOCK
         );
 
@@ -72,12 +84,36 @@ class CadastrarAdministradorEmpresaServiceTest {
                 usuario -> {
                 },
                 new TenantAccessService(),
+                new PermissaoAcessoService(),
                 CLOCK
         );
 
         assertThatThrownBy(() -> service.cadastrarAdministradorEmpresa(command()))
                 .isInstanceOf(BusinessException.class)
                 .hasMessage("Email de usuario ja cadastrado.");
+    }
+
+    @Test
+    void naoDeveCadastrarAdministradorComPerfilSemPermissao() {
+        TenantContextHolder.definir(new TenantContext(
+                EMPRESA_ID,
+                UUID.randomUUID(),
+                Set.of(PerfilAcesso.PROFISSIONAL)
+        ));
+        CadastrarAdministradorEmpresaService service = new CadastrarAdministradorEmpresaService(
+                id -> Optional.of(empresa()),
+                email -> Optional.empty(),
+                senha -> "hash-" + senha,
+                usuario -> {
+                },
+                new TenantAccessService(),
+                new PermissaoAcessoService(),
+                CLOCK
+        );
+
+        assertThatThrownBy(() -> service.cadastrarAdministradorEmpresa(command()))
+                .isInstanceOf(PermissaoNegadaException.class)
+                .hasMessage("Usuario nao possui permissao para executar esta acao.");
     }
 
     private CadastrarAdministradorEmpresaCommand command() {

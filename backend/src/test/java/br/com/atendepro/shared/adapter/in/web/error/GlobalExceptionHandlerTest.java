@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
+import br.com.atendepro.modules.auth.domain.exception.PermissaoNegadaException;
 import br.com.atendepro.modules.empresa.domain.exception.AcessoTenantNegadoException;
 import br.com.atendepro.shared.domain.exception.BusinessException;
 import br.com.atendepro.shared.domain.exception.ValidationException;
@@ -43,6 +44,21 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().codigo()).isEqualTo("TENANT_ACESSO_NEGADO");
         assertThat(response.getBody().path()).isEqualTo("/api/empresas/outra");
+    }
+
+    @Test
+    void deveMapearPermissaoNegada() {
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/empresas");
+
+        var response = handler.tratarPermissaoNegadaException(
+                new PermissaoNegadaException("PERMISSAO_NEGADA", "Usuario nao possui permissao para executar esta acao."),
+                request
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().codigo()).isEqualTo("PERMISSAO_NEGADA");
+        assertThat(response.getBody().path()).isEqualTo("/api/empresas");
     }
 
     @Test

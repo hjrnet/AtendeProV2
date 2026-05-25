@@ -39,7 +39,8 @@ public class JwtAutenticacaoAdapter implements GerarTokenAutenticacaoPort {
                 .subject(usuario.id().toString())
                 .claim("email", usuario.email().valor())
                 .claim("nome", usuario.nome())
-                .claim("perfis", usuario.perfis().stream().map(Enum::name).toList());
+                .claim("perfis", usuario.perfis().stream().map(Enum::name).toList())
+                .claim("authorities", usuario.authorities().stream().sorted().toList());
         if (usuario.empresaId() != null) {
             claimsBuilder.claim("empresaId", usuario.empresaId().toString());
         }

@@ -10,10 +10,12 @@ public record UsuarioLoginResponse(
         UUID empresaId,
         String nome,
         String email,
-        Set<PerfilAcesso> perfis
+        Set<PerfilAcesso> perfis,
+        Set<String> authorities
 ) {
 
     public UsuarioLoginResponse {
         perfis = Set.copyOf(perfis);
+        authorities = Set.copyOf(authorities);
     }
 }

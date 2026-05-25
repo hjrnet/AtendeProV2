@@ -23,7 +23,8 @@ public record LoginResponse(
                         result.usuario().empresaId(),
                         result.usuario().nome(),
                         result.usuario().email(),
-                        result.usuario().perfis()
+                        result.usuario().perfis(),
+                        result.usuario().authorities()
                 )
         );
     }

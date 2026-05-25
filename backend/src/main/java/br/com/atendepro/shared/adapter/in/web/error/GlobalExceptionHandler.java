@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 
 import br.com.atendepro.modules.auth.domain.exception.AutenticacaoException;
+import br.com.atendepro.modules.auth.domain.exception.PermissaoNegadaException;
 import br.com.atendepro.modules.empresa.domain.exception.AcessoTenantNegadoException;
 import br.com.atendepro.shared.domain.exception.BusinessException;
 import br.com.atendepro.shared.domain.exception.ValidationException;
@@ -40,6 +41,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AcessoTenantNegadoException.class)
     public ResponseEntity<ErroApiResponse> tratarAcessoTenantNegadoException(
             AcessoTenantNegadoException exception,
+            HttpServletRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(criarErro(exception.codigo(), exception.getMessage(), request.getRequestURI(), List.of()));
+    }
+
+    @ExceptionHandler(PermissaoNegadaException.class)
+    public ResponseEntity<ErroApiResponse> tratarPermissaoNegadaException(
+            PermissaoNegadaException exception,
             HttpServletRequest request
     ) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)

@@ -14,6 +14,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import br.com.atendepro.modules.auth.application.permission.PermissaoAcessoService;
+import br.com.atendepro.modules.auth.domain.exception.PermissaoNegadaException;
 import br.com.atendepro.modules.auth.domain.model.PerfilAcesso;
 import br.com.atendepro.modules.empresa.application.command.CadastrarEmpresaCommand;
 import br.com.atendepro.modules.empresa.application.context.TenantAccessService;
@@ -44,6 +46,7 @@ class EmpresaServiceTest {
                 paginacao -> new ResultadoPaginado<>(List.of(), 0, paginacao.pagina(), paginacao.tamanho()),
                 salvarEmpresaFake,
                 new TenantAccessService(),
+                new PermissaoAcessoService(),
                 CLOCK
         );
 
@@ -63,6 +66,7 @@ class EmpresaServiceTest {
                 empresa -> {
                 },
                 new TenantAccessService(),
+                new PermissaoAcessoService(),
                 CLOCK
         );
 
@@ -80,6 +84,7 @@ class EmpresaServiceTest {
                 empresa -> {
                 },
                 new TenantAccessService(),
+                new PermissaoAcessoService(),
                 CLOCK
         );
 
@@ -105,6 +110,7 @@ class EmpresaServiceTest {
                 empresa -> {
                 },
                 new TenantAccessService(),
+                new PermissaoAcessoService(),
                 CLOCK
         );
 
@@ -113,6 +119,29 @@ class EmpresaServiceTest {
         assertThat(result.totalItens()).isEqualTo(1);
         assertThat(result.itens()).extracting(EmpresaResult::id)
                 .containsExactly(UUID.fromString("d6ff9cb4-8478-47ad-97f8-a45ea1047baf"));
+    }
+
+    @Test
+    void naoDeveCadastrarEmpresaComPerfilSemPermissaoGlobal() {
+        TenantContextHolder.definir(new TenantContext(
+                UUID.fromString("d6ff9cb4-8478-47ad-97f8-a45ea1047baf"),
+                UUID.randomUUID(),
+                Set.of(PerfilAcesso.PROFISSIONAL)
+        ));
+        EmpresaService service = new EmpresaService(
+                documento -> Optional.empty(),
+                id -> Optional.empty(),
+                paginacao -> new ResultadoPaginado<>(List.of(), 0, paginacao.pagina(), paginacao.tamanho()),
+                empresa -> {
+                },
+                new TenantAccessService(),
+                new PermissaoAcessoService(),
+                CLOCK
+        );
+
+        assertThatThrownBy(() -> service.cadastrarEmpresa(command()))
+                .isInstanceOf(PermissaoNegadaException.class)
+                .hasMessage("Usuario nao possui permissao para executar esta acao.");
     }
 
     private CadastrarEmpresaCommand command() {

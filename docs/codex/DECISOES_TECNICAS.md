@@ -41,3 +41,7 @@ O limite padrão de `autopilot release` é de 3 tasks da release atual. Cada tas
 ## Isolamento por tenant
 
 A regra de isolamento por `tenant_id` fica na camada de aplicação por `TenantAccessService`, usando o contexto resolvido por request. Usuários sem contexto de tenant ou com perfis globais (`SUPER_ADMIN`, `SUPORTE`) podem executar operações globais; usuários restritos só podem acessar a própria empresa. Violações retornam `TENANT_ACESSO_NEGADO` com HTTP 403.
+
+## Perfis e permissões
+
+Perfis de acesso mapeiam permissões de negócio em `PermissaoAcesso`, com strings de authority publicadas no JWT e na resposta de login. A validação backend inicial acontece por `PermissaoAcessoService` quando existe contexto de tenant; chamadas sem contexto seguem permitidas temporariamente para bootstrap e validação local até a proteção de rotas web/backend avançar.

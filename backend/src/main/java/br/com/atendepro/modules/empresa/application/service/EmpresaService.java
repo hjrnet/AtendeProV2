@@ -9,6 +9,8 @@ import java.util.UUID;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+import br.com.atendepro.modules.auth.application.permission.PermissaoAcessoService;
+import br.com.atendepro.modules.auth.domain.model.PermissaoAcesso;
 import br.com.atendepro.modules.empresa.application.command.CadastrarEmpresaCommand;
 import br.com.atendepro.modules.empresa.application.context.TenantAccessService;
 import br.com.atendepro.modules.empresa.application.port.in.BuscarEmpresaUseCase;
@@ -33,6 +35,7 @@ public class EmpresaService implements CadastrarEmpresaUseCase, BuscarEmpresaUse
     private final ListarEmpresasPort listarEmpresasPort;
     private final SalvarEmpresaPort salvarEmpresaPort;
     private final TenantAccessService tenantAccessService;
+    private final PermissaoAcessoService permissaoAcessoService;
     private final Clock clock;
 
     public EmpresaService(
@@ -41,6 +44,7 @@ public class EmpresaService implements CadastrarEmpresaUseCase, BuscarEmpresaUse
             ListarEmpresasPort listarEmpresasPort,
             SalvarEmpresaPort salvarEmpresaPort,
             TenantAccessService tenantAccessService,
+            PermissaoAcessoService permissaoAcessoService,
             Clock clock
     ) {
         this.carregarEmpresaPorDocumentoPort = carregarEmpresaPorDocumentoPort;
@@ -48,11 +52,13 @@ public class EmpresaService implements CadastrarEmpresaUseCase, BuscarEmpresaUse
         this.listarEmpresasPort = listarEmpresasPort;
         this.salvarEmpresaPort = salvarEmpresaPort;
         this.tenantAccessService = tenantAccessService;
+        this.permissaoAcessoService = permissaoAcessoService;
         this.clock = clock;
     }
 
     @Override
     public EmpresaResult cadastrarEmpresa(CadastrarEmpresaCommand command) {
+        permissaoAcessoService.validarPermissao(PermissaoAcesso.CADASTRAR_EMPRESA);
         tenantAccessService.validarOperacaoGlobal();
         carregarEmpresaPorDocumentoPort.carregarEmpresaPorDocumento(command.documento())
                 .ifPresent(empresa -> {
@@ -75,6 +81,7 @@ public class EmpresaService implements CadastrarEmpresaUseCase, BuscarEmpresaUse
 
     @Override
     public Optional<EmpresaResult> buscarEmpresaPorId(UUID empresaId) {
+        permissaoAcessoService.validarPermissao(PermissaoAcesso.VISUALIZAR_EMPRESA);
         tenantAccessService.validarAcessoEmpresa(empresaId);
         return carregarEmpresaPorIdPort.carregarEmpresaPorId(empresaId)
                 .map(EmpresaResult::de);
@@ -82,6 +89,7 @@ public class EmpresaService implements CadastrarEmpresaUseCase, BuscarEmpresaUse
 
     @Override
     public ResultadoPaginado<EmpresaResult> listarEmpresas(Paginacao paginacao) {
+        permissaoAcessoService.validarPermissao(PermissaoAcesso.LISTAR_EMPRESAS);
         Optional<UUID> empresaRestrita = tenantAccessService.empresaRestrita();
         if (empresaRestrita.isPresent()) {
             return listarEmpresaRestrita(empresaRestrita.get(), paginacao);
