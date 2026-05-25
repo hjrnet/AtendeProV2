@@ -1,0 +1,79 @@
+package br.com.atendepro.modules.auth.application.service;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import java.time.Instant;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import org.junit.jupiter.api.Test;
+
+import br.com.atendepro.modules.auth.application.command.AutenticarUsuarioCommand;
+import br.com.atendepro.modules.auth.application.port.out.TokenGerado;
+import br.com.atendepro.modules.auth.domain.exception.AutenticacaoException;
+import br.com.atendepro.modules.auth.domain.model.EmailUsuario;
+import br.com.atendepro.modules.auth.domain.model.PerfilAcesso;
+import br.com.atendepro.modules.auth.domain.model.UsuarioAutenticacao;
+
+class AutenticarUsuarioServiceTest {
+
+    @Test
+    void deveAutenticarUsuarioAtivoComSenhaCorreta() {
+        UsuarioAutenticacao usuario = usuario(true);
+        AutenticarUsuarioService service = new AutenticarUsuarioService(
+                email -> Optional.of(usuario),
+                (senha, hash) -> senha.equals("AtendePro@2026") && hash.equals("hash"),
+                usuarioAutenticacao -> new TokenGerado("jwt-token", Instant.parse("2026-05-25T01:00:00Z"))
+        );
+
+        var result = service.autenticarUsuario(command());
+
+        assertThat(result.accessToken()).isEqualTo("jwt-token");
+        assertThat(result.tipoToken()).isEqualTo("Bearer");
+        assertThat(result.usuario().email()).isEqualTo("admin@atendepro.local");
+    }
+
+    @Test
+    void naoDeveAutenticarSenhaIncorreta() {
+        AutenticarUsuarioService service = new AutenticarUsuarioService(
+                email -> Optional.of(usuario(true)),
+                (senha, hash) -> false,
+                usuarioAutenticacao -> new TokenGerado("jwt-token", Instant.parse("2026-05-25T01:00:00Z"))
+        );
+
+        assertThatThrownBy(() -> service.autenticarUsuario(command()))
+                .isInstanceOf(AutenticacaoException.class)
+                .hasMessage("Email ou senha invalidos.");
+    }
+
+    @Test
+    void naoDeveAutenticarUsuarioInativo() {
+        AutenticarUsuarioService service = new AutenticarUsuarioService(
+                email -> Optional.of(usuario(false)),
+                (senha, hash) -> true,
+                usuarioAutenticacao -> new TokenGerado("jwt-token", Instant.parse("2026-05-25T01:00:00Z"))
+        );
+
+        assertThatThrownBy(() -> service.autenticarUsuario(command()))
+                .isInstanceOf(AutenticacaoException.class)
+                .hasMessage("Usuario inativo.");
+    }
+
+    private AutenticarUsuarioCommand command() {
+        return new AutenticarUsuarioCommand(EmailUsuario.de("admin@atendepro.local"), "AtendePro@2026");
+    }
+
+    private UsuarioAutenticacao usuario(boolean ativo) {
+        return new UsuarioAutenticacao(
+                UUID.randomUUID(),
+                EmailUsuario.de("admin@atendepro.local"),
+                "Admin",
+                "hash",
+                Set.of(PerfilAcesso.SUPER_ADMIN),
+                ativo,
+                Instant.parse("2026-05-25T00:00:00Z")
+        );
+    }
+}

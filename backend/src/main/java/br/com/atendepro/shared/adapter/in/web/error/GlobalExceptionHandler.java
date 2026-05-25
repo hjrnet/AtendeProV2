@@ -3,6 +3,7 @@ package br.com.atendepro.shared.adapter.in.web.error;
 import java.time.Instant;
 import java.util.List;
 
+import br.com.atendepro.modules.auth.domain.exception.AutenticacaoException;
 import br.com.atendepro.shared.domain.exception.BusinessException;
 import br.com.atendepro.shared.domain.exception.ValidationException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,6 +24,15 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(criarErro(exception.codigo(), exception.getMessage(), request.getRequestURI(), List.of()));
+    }
+
+    @ExceptionHandler(AutenticacaoException.class)
+    public ResponseEntity<ErroApiResponse> tratarAutenticacaoException(
+            AutenticacaoException exception,
+            HttpServletRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(criarErro(exception.codigo(), exception.getMessage(), request.getRequestURI(), List.of()));
     }
 
