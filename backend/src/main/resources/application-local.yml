@@ -3,6 +3,8 @@ spring:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:${POSTGRES_PORT:5433}/${POSTGRES_DB:atendepro}}
     username: ${SPRING_DATASOURCE_USERNAME:${POSTGRES_USER:atendepro}}
     password: ${SPRING_DATASOURCE_PASSWORD:${POSTGRES_PASSWORD:atendepro}}
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
 
 app:
   cors:

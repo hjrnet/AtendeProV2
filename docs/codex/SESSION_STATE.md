@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R0 — Fundação técnica profissional.
 
 ## Última task concluída
-TASK-0006 — Criar padrões de ambiente.
+TASK-0007 — Configurar Liquibase.
 
 ## Próxima task recomendada
-TASK-0007 — Configurar Liquibase.
+TASK-0008 — Configurar OpenAPI/Swagger.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,8 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0007 concluida em modo autopilot release R0.
+- Liquibase configurado com changelog master e primeira migration tecnica para extensao PostgreSQL `pgcrypto`.
 - TASK-0006 concluida em modo autopilot release R0.
 - Padroes de ambiente criados com profiles `local` e `test`, exemplos `.env` e documentacao em `docs/deploy/ENVIRONMENT.md`.
 - TASK-0005 concluida em modo autopilot release R0.

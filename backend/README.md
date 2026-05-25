@@ -18,3 +18,17 @@ Endpoint inicial de status:
 ```text
 GET /api/status
 ```
+
+## Banco e migrations
+
+O profile `local` usa PostgreSQL local e executa Liquibase automaticamente.
+
+```bash
+mvn spring-boot:run
+```
+
+Para aplicar migrations diretamente:
+
+```bash
+mvn -Dliquibase.url=jdbc:postgresql://localhost:5433/atendepro -Dliquibase.username=atendepro -Dliquibase.password=atendepro liquibase:update
+```
