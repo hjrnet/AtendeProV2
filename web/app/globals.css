@@ -3,19 +3,23 @@
 @tailwind utilities;
 
 :root {
-  --background: 192 33% 97%;
+  --background: 174 36% 97%;
   --foreground: 218 28% 15%;
   --card: 0 0% 100%;
   --card-foreground: 218 28% 15%;
-  --primary: 173 63% 28%;
+  --primary: 174 67% 26%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 31 77% 58%;
+  --secondary: 38 84% 58%;
   --secondary-foreground: 218 28% 15%;
-  --muted: 190 23% 91%;
+  --muted: 184 24% 91%;
   --muted-foreground: 218 13% 42%;
-  --border: 190 18% 83%;
-  --input: 190 18% 83%;
-  --ring: 173 63% 28%;
+  --border: 184 18% 82%;
+  --input: 184 18% 82%;
+  --ring: 174 67% 26%;
+}
+
+html {
+  scroll-behavior: auto;
 }
 
 * {
@@ -24,6 +28,15 @@
 
 body {
   min-height: 100vh;
-  background: hsl(var(--background));
+  background:
+    radial-gradient(circle at top left, hsl(174 63% 90% / 0.72), transparent 32rem),
+    linear-gradient(135deg, hsl(var(--background)), hsl(202 38% 96%));
   color: hsl(var(--foreground));
+}
+
+button,
+input,
+select,
+textarea {
+  letter-spacing: 0;
 }

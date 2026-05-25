@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R8 — Fundação de experiência profissional do SaaS.
 
 ## Última task concluída
-TASK-0708 — Odonto Pro futuro.
+TASK-UX-001 — Redesenhar shell, navegação e experiência responsiva do AtendePro.
 
 ## Próxima task recomendada
-TASK-UX-001 — Redesenhar shell, navegação e experiência responsiva do AtendePro.
+TASK-0801 — Portal do cliente web.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,12 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-UX-001 concluida em modo autopilot multiagente release R8.
+- `/app` deixou de ser uma pagina longa com navegacao por ancora e passou a usar `ShellAtendePro`, `MenuPrincipal`, `NavegacaoMobile`, `BarraSuperiorContextual` e `PainelConteudoAtivo`.
+- O menu principal agora controla `secaoAtiva` e renderiza somente Operacao, Verticais, Precificacao, Busca global ou Admin SaaS no painel central.
+- Verticais profissionais passaram a usar lista compacta com detalhe sob demanda e abas internas, evitando todos os detalhes abertos em sequencia.
+- A validacao visual confirmou 320px, 375px, 430px, 768px, 1024px e desktop sem overflow horizontal, com bottom navigation no mobile e rail/sidebar em tablet/desktop.
+- Validacao confirmou `corepack pnpm lint`, `corepack pnpm typecheck`, `corepack pnpm build`, `mvn test` em `backend` com 259 testes, Docker Compose saudavel, backend local `UP`, web local `/app` HTTP 200 e console do navegador sem erros.
 - TASK-UX-001 criada como primeira task pendente da R8 para redesenhar shell, navegacao e experiencia responsiva do AtendePro, sem implementacao nesta etapa.
 - R8 foi reposicionada como `Fundação de experiência profissional do SaaS`, mantendo portal/app/mobile como evolucoes posteriores da mesma release.
 - A implementacao futura deve trocar navegacao por scroll/ancora por conteudo ativo em painel central, com shell responsivo, progressive disclosure, mobile/tablet/desktop e validacao visual nas larguras obrigatorias.

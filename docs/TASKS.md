@@ -124,7 +124,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
-| TASK-UX-001 | Redesenhar shell, navegação e experiência responsiva do AtendePro | Shell profissional responsivo, navegação real por área, progressive disclosure e acabamento premium. | PENDENTE |
+| TASK-UX-001 | Redesenhar shell, navegação e experiência responsiva do AtendePro | Shell profissional responsivo, navegação real por área, progressive disclosure e acabamento premium. | CONCLUIDA |
 | TASK-0801 | Portal do cliente web | Agenda, documentos e evolução. | PENDENTE |
 | TASK-0802 | App Expo base | Estrutura mobile. | PENDENTE |
 | TASK-0803 | App do cliente/paciente | Agenda, documentos, diário, fotos e mensagens. | PENDENTE |

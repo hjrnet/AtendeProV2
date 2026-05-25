@@ -242,6 +242,20 @@ docker compose ps
 git commit -m "feat(ux): redesenhar shell e navegacao profissional do AtendePro"
 ```
 
+## Execucao
+
+Status: CONCLUIDA.
+
+Validacao realizada:
+- `corepack pnpm lint`
+- `corepack pnpm typecheck`
+- `corepack pnpm build`
+- `mvn test` em `backend`
+- `docker compose ps`
+- backend local `/actuator/health`
+- web local `/app`
+- navegador em 320px, 375px, 430px, 768px, 1024px e desktop.
+
 ## Prompt Recomendado
 
 ```md
