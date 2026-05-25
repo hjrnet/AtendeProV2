@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R6 — Documentos profissionais e carimbo.
 
 ## Última task concluída
-TASK-0605 — Marca d'água Plano Estudante.
+TASK-0606 — Modelos de documentos gerais.
 
 ## Próxima task recomendada
-TASK-0606 — Modelos de documentos gerais.
+TASK-0607 — Histórico e versionamento.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0606 concluida em modo autopilot multiagente release R6.
+- Modelos gerais de documentos profissionais criados em `documentos_modelos_profissionais`, com seeds globais para declaracao, relatorio, termo, orientacao e recibo.
+- API privada `/api/documentos-profissionais/modelos` lista e detalha modelos globais/tenant-scoped, e `/api/documentos-profissionais/modelos/{modeloId}/documentos` cria documento profissional a partir do modelo.
+- A task nao criou edicao, cancelamento, versionamento ou auditoria de modelos/documentos; esses fluxos permanecem reservados para TASK-0607.
+- Validacao confirmou `mvn test` com 238 testes, Docker Compose saudavel, backend local `UP`, listagem de 5 modelos e criacao real de documento a partir de modelo.
 - TASK-0605 concluida em modo autopilot multiagente release R6.
 - A geracao de PDF profissional agora consulta `CarregarMarcaDaguaAcademicaPlanoPort` para empresas com assinatura ativa em plano estudante.
 - O adapter JDBC aplica a regra com `assinaturas` ativas e `planos.estudante=true`, reutilizando a marca d'agua academica configurada no plano sem alterar regras de assinatura.

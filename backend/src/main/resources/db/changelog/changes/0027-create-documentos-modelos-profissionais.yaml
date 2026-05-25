@@ -1,0 +1,149 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0027-create-documentos-modelos-profissionais
+      author: codex
+      changes:
+        - createTable:
+            tableName: documentos_modelos_profissionais
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: empresa_id
+                  type: uuid
+              - column:
+                  name: nome
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: descricao
+                  type: varchar(240)
+              - column:
+                  name: tipo
+                  type: varchar(60)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: titulo_padrao
+                  type: varchar(180)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: conteudo_padrao
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ativo
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: documentos_modelos_profissionais
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_documentos_modelos_profissionais_empresas
+        - createIndex:
+            tableName: documentos_modelos_profissionais
+            indexName: idx_documentos_modelos_empresa_tipo
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: tipo
+        - createIndex:
+            tableName: documentos_modelos_profissionais
+            indexName: idx_documentos_modelos_ativo
+            columns:
+              - column:
+                  name: ativo
+        - sql:
+            splitStatements: true
+            stripComments: true
+            sql: |
+              insert into documentos_modelos_profissionais (
+                  id, empresa_id, nome, descricao, tipo, titulo_padrao,
+                  conteudo_padrao, ativo, criado_em, atualizado_em
+              )
+              values
+                  (
+                      '00000000-0000-0000-0000-000000006061',
+                      null,
+                      'Declaracao profissional',
+                      'Modelo geral para declaracoes de comparecimento, acompanhamento ou orientacao.',
+                      'DECLARACAO',
+                      'Declaracao profissional',
+                      'Declaramos para os devidos fins que o(a) cliente/paciente encontra-se em acompanhamento profissional nesta unidade. Informacoes complementares devem ser preenchidas pelo profissional responsavel antes da emissao.',
+                      true,
+                      now(),
+                      now()
+                  ),
+                  (
+                      '00000000-0000-0000-0000-000000006062',
+                      null,
+                      'Relatorio profissional',
+                      'Modelo geral para relato tecnico, evolucao ou acompanhamento multiprofissional.',
+                      'RELATORIO',
+                      'Relatorio profissional',
+                      'Relatorio elaborado a partir das informacoes registradas em atendimento profissional, contendo objetivo, contexto, conduta adotada, evolucao observada e recomendacoes gerais quando aplicavel.',
+                      true,
+                      now(),
+                      now()
+                  ),
+                  (
+                      '00000000-0000-0000-0000-000000006063',
+                      null,
+                      'Termo profissional',
+                      'Modelo geral para consentimento, ciencia e autorizacao simples.',
+                      'TERMO',
+                      'Termo profissional',
+                      'O(a) cliente/paciente declara estar ciente das informacoes apresentadas pelo profissional responsavel, compreendendo objetivos, limites, orientacoes e responsabilidades relacionadas ao atendimento descrito.',
+                      true,
+                      now(),
+                      now()
+                  ),
+                  (
+                      '00000000-0000-0000-0000-000000006064',
+                      null,
+                      'Orientacao profissional',
+                      'Modelo geral para orientacoes pos-atendimento e cuidados domiciliares.',
+                      'ORIENTACAO',
+                      'Orientacao profissional',
+                      'Seguem orientacoes profissionais gerais para continuidade do cuidado. O(a) cliente/paciente deve observar as recomendacoes, sinais de alerta e prazos de retorno definidos pelo profissional responsavel.',
+                      true,
+                      now(),
+                      now()
+                  ),
+                  (
+                      '00000000-0000-0000-0000-000000006065',
+                      null,
+                      'Recibo profissional',
+                      'Modelo geral para recibo simples de servicos profissionais.',
+                      'RECIBO',
+                      'Recibo profissional',
+                      'Recebemos do(a) cliente/paciente o valor referente aos servicos profissionais descritos neste documento, prestados pela unidade/profissional responsavel, conforme informacoes complementares registradas.',
+                      true,
+                      now(),
+                      now()
+                  )
+              on conflict (id) do nothing;

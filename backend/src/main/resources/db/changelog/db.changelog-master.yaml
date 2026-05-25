@@ -51,3 +51,5 @@ databaseChangeLog:
       file: db/changelog/changes/0025-create-documentos-carimbos-profissionais.yaml
   - include:
       file: db/changelog/changes/0026-add-validacao-documentos-profissionais.yaml
+  - include:
+      file: db/changelog/changes/0027-create-documentos-modelos-profissionais.yaml
