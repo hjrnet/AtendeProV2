@@ -1,8 +1,8 @@
 project: AtendePro
 strategy: professional_complete
 current_release: R1
-last_completed_task: TASK-0012
-next_task: TASK-0101
+last_completed_task: TASK-0101
+next_task: TASK-0102
 releases:
   R0:
     name: "R0 — Fundação técnica profissional"
@@ -24,7 +24,7 @@ releases:
     name: "R1 — Auth, tenant e segurança"
     status: PENDENTE
     tasks:
-      TASK-0101: PENDENTE
+      TASK-0101: CONCLUIDA
       TASK-0102: PENDENTE
       TASK-0103: PENDENTE
       TASK-0104: PENDENTE

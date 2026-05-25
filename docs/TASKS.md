@@ -23,7 +23,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
-| TASK-0101 | Criar módulo Auth | Estrutura hexagonal do módulo de autenticação. | PENDENTE |
+| TASK-0101 | Criar módulo Auth | Estrutura hexagonal do módulo de autenticação. | CONCLUIDA |
 | TASK-0102 | Cadastro de usuário bootstrap | Usuário inicial e senha segura para ambiente local. | PENDENTE |
 | TASK-0103 | Login com JWT | Autenticação e emissão de access token. | PENDENTE |
 | TASK-0104 | Refresh token | Renovação de sessão segura. | PENDENTE |
