@@ -62,7 +62,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-0305 | Alimentação e transporte | Custos operacionais pessoais/profissionais. | CONCLUIDA |
 | TASK-0306 | Estoque base | Produtos, lotes e validade. | CONCLUIDA |
 | TASK-0307 | Equipamentos base | Valor, vida útil e manutenção. | CONCLUIDA |
-| TASK-0308 | Dashboard da empresa | Indicadores operacionais iniciais. | PENDENTE |
+| TASK-0308 | Dashboard da empresa | Indicadores operacionais iniciais. | CONCLUIDA |
 | TASK-0309 | Busca e filtros globais | Busca em listas e filtros por categoria/status. | PENDENTE |
 | TASK-0310 | UX premium operacional | Layout web moderno e responsivo. | PENDENTE |
 

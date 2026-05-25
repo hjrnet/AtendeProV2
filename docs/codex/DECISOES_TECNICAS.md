@@ -89,3 +89,5 @@ Alimentacao e transporte permanecem no modulo `custo`, mas em tabela e endpoint 
 Estoque base fica no modulo `estoque`, tenant-scoped por `empresa_id` e exposto em `/api/estoque/produtos`. A TASK-0306 cobre produto, categoria, lote, validade, unidade, quantidade atual, custo unitario e estoque minimo. Movimentacoes, baixas e rastreabilidade avancada permanecem fora do escopo e devem ser tratadas em task futura.
 
 Equipamentos base ficam no modulo `equipamento`, tenant-scoped por `empresa_id` e expostos em `/api/equipamentos`. A TASK-0307 cobre valor de aquisicao, data de aquisicao, vida util em meses e uma proxima manutencao simples com descricao. Historico de manutencoes, recorrencia automatica e depreciacao contabil ficam fora do escopo.
+
+O dashboard operacional da empresa fica no modulo `dashboard` e exposto em `/api/dashboard/empresa`. A TASK-0308 agrega indicadores iniciais a partir das tabelas ja existentes da R3: clientes ativos, agenda, servicos, estoque, equipamentos e custos operacionais. Nao ha tabela propria de dashboard nesta fase; precificacao, margem e relatorios avancados permanecem para R4.

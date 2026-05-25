@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R3 — Núcleo operacional comum.
 
 ## Última task concluída
-TASK-0307 — Equipamentos base.
+TASK-0308 — Dashboard da empresa.
 
 ## Próxima task recomendada
-TASK-0308 — Dashboard da empresa.
+TASK-0309 — Busca e filtros globais.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0308 concluida em modo autopilot multiagente release R3.
+- Modulo `dashboard` criado no backend para `/api/dashboard/empresa`, com UseCase, Result, OutputPort, adapter JDBC e controller fino.
+- Indicadores iniciais usam dados reais de clientes, agenda, servicos, estoque, equipamentos e custos operacionais ja existentes.
+- Metricas financeiras avancadas, precificacao e relatorios permanecem reservados para R4.
+- Validacao local confirmou consulta real do dashboard da empresa e `mvn test` com 141 testes.
 - TASK-0307 concluida em modo autopilot multiagente release R3.
 - Modulo `equipamento` criado no backend com dominio `Equipamento`, Command/Result, UseCases, OutputPorts, adapter JDBC e controller fino.
 - API `/api/equipamentos` permite cadastrar, detalhar e listar equipamentos por empresa, busca, categoria, ativo e proxima manutencao limite.
