@@ -1,0 +1,97 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0022-create-spaces-pacotes-sublocacao
+      author: codex
+      changes:
+        - createTable:
+            tableName: spaces_pacotes_sublocacao
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: empresa_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: recurso_id
+                  type: uuid
+              - column:
+                  name: nome
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tipo
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: descricao
+                  type: varchar(1000)
+              - column:
+                  name: duracao_horas
+                  type: numeric(8,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: valor_fixo
+                  type: numeric(12,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: percentual_receita
+                  type: numeric(6,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ativo
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: spaces_pacotes_sublocacao
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_spaces_pacotes_empresas
+        - addForeignKeyConstraint:
+            baseTableName: spaces_pacotes_sublocacao
+            baseColumnNames: recurso_id
+            referencedTableName: spaces_recursos
+            referencedColumnNames: id
+            constraintName: fk_spaces_pacotes_recursos
+        - createIndex:
+            tableName: spaces_pacotes_sublocacao
+            indexName: idx_spaces_pacotes_empresa_nome
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: nome
+        - createIndex:
+            tableName: spaces_pacotes_sublocacao
+            indexName: idx_spaces_pacotes_empresa_tipo
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: tipo

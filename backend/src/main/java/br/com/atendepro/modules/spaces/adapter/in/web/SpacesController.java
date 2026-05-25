@@ -15,9 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.atendepro.modules.spaces.application.port.in.CadastrarRecursoSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.CalcularCustoHoraSpacesUseCase;
+import br.com.atendepro.modules.spaces.application.port.in.CadastrarPacoteSublocacaoSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.ConsultarSpacesUseCase;
+import br.com.atendepro.modules.spaces.application.port.in.DetalharPacoteSublocacaoSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.DetalharRecursoSpacesUseCase;
+import br.com.atendepro.modules.spaces.application.port.in.ListarPacotesSublocacaoSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.ListarRecursosSpacesUseCase;
+import br.com.atendepro.modules.spaces.domain.model.TipoPacoteSublocacaoSpaces;
 import br.com.atendepro.modules.spaces.domain.model.TipoRecursoSpaces;
 import br.com.atendepro.shared.application.pagination.Paginacao;
 import jakarta.validation.Valid;
@@ -32,19 +36,28 @@ public class SpacesController {
     private final CadastrarRecursoSpacesUseCase cadastrarRecursoSpacesUseCase;
     private final DetalharRecursoSpacesUseCase detalharRecursoSpacesUseCase;
     private final ListarRecursosSpacesUseCase listarRecursosSpacesUseCase;
+    private final CadastrarPacoteSublocacaoSpacesUseCase cadastrarPacoteSublocacaoSpacesUseCase;
+    private final DetalharPacoteSublocacaoSpacesUseCase detalharPacoteSublocacaoSpacesUseCase;
+    private final ListarPacotesSublocacaoSpacesUseCase listarPacotesSublocacaoSpacesUseCase;
 
     public SpacesController(
             ConsultarSpacesUseCase consultarSpacesUseCase,
             CalcularCustoHoraSpacesUseCase calcularCustoHoraSpacesUseCase,
             CadastrarRecursoSpacesUseCase cadastrarRecursoSpacesUseCase,
             DetalharRecursoSpacesUseCase detalharRecursoSpacesUseCase,
-            ListarRecursosSpacesUseCase listarRecursosSpacesUseCase
+            ListarRecursosSpacesUseCase listarRecursosSpacesUseCase,
+            CadastrarPacoteSublocacaoSpacesUseCase cadastrarPacoteSublocacaoSpacesUseCase,
+            DetalharPacoteSublocacaoSpacesUseCase detalharPacoteSublocacaoSpacesUseCase,
+            ListarPacotesSublocacaoSpacesUseCase listarPacotesSublocacaoSpacesUseCase
     ) {
         this.consultarSpacesUseCase = consultarSpacesUseCase;
         this.calcularCustoHoraSpacesUseCase = calcularCustoHoraSpacesUseCase;
         this.cadastrarRecursoSpacesUseCase = cadastrarRecursoSpacesUseCase;
         this.detalharRecursoSpacesUseCase = detalharRecursoSpacesUseCase;
         this.listarRecursosSpacesUseCase = listarRecursosSpacesUseCase;
+        this.cadastrarPacoteSublocacaoSpacesUseCase = cadastrarPacoteSublocacaoSpacesUseCase;
+        this.detalharPacoteSublocacaoSpacesUseCase = detalharPacoteSublocacaoSpacesUseCase;
+        this.listarPacotesSublocacaoSpacesUseCase = listarPacotesSublocacaoSpacesUseCase;
     }
 
     @GetMapping("/status")
@@ -91,6 +104,46 @@ public class SpacesController {
                         empresaId,
                         new Paginacao(pagina, tamanho),
                         busca,
+                        tipo,
+                        ativo
+                )
+        ));
+    }
+
+    @PostMapping("/pacotes")
+    public ResponseEntity<PacoteSublocacaoSpacesResponse> cadastrarPacote(
+            @Valid @RequestBody CadastrarPacoteSublocacaoSpacesRequest request
+    ) {
+        PacoteSublocacaoSpacesResponse response = PacoteSublocacaoSpacesResponse.de(
+                cadastrarPacoteSublocacaoSpacesUseCase.cadastrarPacote(request.paraCommand())
+        );
+        return ResponseEntity.created(URI.create("/api/spaces/pacotes/" + response.id())).body(response);
+    }
+
+    @GetMapping("/pacotes/{pacoteId}")
+    public ResponseEntity<PacoteSublocacaoSpacesResponse> detalharPacote(@PathVariable UUID pacoteId) {
+        return detalharPacoteSublocacaoSpacesUseCase.detalharPacote(pacoteId)
+                .map(PacoteSublocacaoSpacesResponse::de)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/pacotes")
+    public ResponseEntity<PacotesSublocacaoSpacesPaginadosResponse> listarPacotes(
+            @RequestParam(required = false) UUID empresaId,
+            @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "20") int tamanho,
+            @RequestParam(required = false) String busca,
+            @RequestParam(required = false) UUID recursoId,
+            @RequestParam(required = false) TipoPacoteSublocacaoSpaces tipo,
+            @RequestParam(required = false) Boolean ativo
+    ) {
+        return ResponseEntity.ok(PacotesSublocacaoSpacesPaginadosResponse.de(
+                listarPacotesSublocacaoSpacesUseCase.listarPacotes(
+                        empresaId,
+                        new Paginacao(pagina, tamanho),
+                        busca,
+                        recursoId,
                         tipo,
                         ativo
                 )
