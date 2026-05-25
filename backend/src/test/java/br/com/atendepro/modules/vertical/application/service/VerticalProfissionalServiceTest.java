@@ -21,7 +21,11 @@ class VerticalProfissionalServiceTest {
 
         assertThat(verticais)
                 .extracting("codigo")
-                .containsExactly(CodigoVerticalProfissional.BEAUTY_PRO, CodigoVerticalProfissional.NUTRI_PRO);
+                .containsExactly(
+                        CodigoVerticalProfissional.BEAUTY_PRO,
+                        CodigoVerticalProfissional.BIOMED_PRO,
+                        CodigoVerticalProfissional.NUTRI_PRO
+                );
         assertThat(verticais.get(0).capacidades())
                 .contains("protocolos de atendimento", "termos de consentimento");
     }
@@ -53,5 +57,20 @@ class VerticalProfissionalServiceTest {
         assertThat(vertical.get().conselhoProfissional()).isNull();
         assertThat(vertical.get().capacidades()).contains("protocolos de atendimento", "registro de fotos de evolucao");
         assertThat(vertical.get().documentos()).contains("Termo de consentimento");
+    }
+
+    @Test
+    void deveDetalharBiomedProComCrbmERastreabilidade() {
+        VerticalProfissionalService service = new VerticalProfissionalService(
+                new CatalogoVerticalProfissionalAdapter(),
+                new PermissaoAcessoService()
+        );
+
+        var vertical = service.detalharVertical(CodigoVerticalProfissional.BIOMED_PRO);
+
+        assertThat(vertical).isPresent();
+        assertThat(vertical.get().conselhoProfissional()).isEqualTo("CRBM");
+        assertThat(vertical.get().capacidades()).contains("cadastro de habilitacoes", "rastreabilidade de lote e produto");
+        assertThat(vertical.get().entidades()).contains("Habilitacao profissional", "Lote utilizado");
     }
 }

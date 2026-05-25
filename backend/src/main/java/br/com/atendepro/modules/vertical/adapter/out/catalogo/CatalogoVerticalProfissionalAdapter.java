@@ -119,6 +119,57 @@ public class CatalogoVerticalProfissionalAdapter implements CarregarCatalogoVert
                             "criar pacotes e retornos",
                             "preparar experiencia de salao multiagenda"
                     )
+            ),
+            CodigoVerticalProfissional.BIOMED_PRO,
+            new VerticalProfissional(
+                    CodigoVerticalProfissional.BIOMED_PRO,
+                    "Biomed Pro",
+                    "R7",
+                    StatusVerticalProfissional.OPERACIONAL_BASE,
+                    "CRBM",
+                    "Base profissional para biomedicina estetica, com habilitacoes, rastreabilidade de procedimentos, produtos, lotes e documentos vinculados ao CRBM.",
+                    List.of("Biomedicos", "Clinicas de estetica biomedica", "Consultorios integrados"),
+                    List.of(
+                            "cadastro de habilitacoes",
+                            "rastreabilidade de lote e produto",
+                            "protocolos de estetica biomedica",
+                            "evolucao por sessao",
+                            "termos e consentimentos",
+                            "registro de intercorrencias",
+                            "documentos com CRBM",
+                            "controle de materiais aplicados"
+                    ),
+                    List.of(
+                            "Profissional biomedico",
+                            "Habilitacao profissional",
+                            "Protocolo biomedico",
+                            "Procedimento rastreavel",
+                            "Produto aplicado",
+                            "Lote utilizado",
+                            "Intercorrencia",
+                            "Documento CRBM"
+                    ),
+                    List.of(
+                            "Termo de consentimento biomedico",
+                            "Ficha de procedimento estetico",
+                            "Registro de intercorrencia",
+                            "Orientacoes pos-procedimento"
+                    ),
+                    List.of(
+                            "clientes/pacientes",
+                            "agenda",
+                            "servicos/procedimentos",
+                            "estoque",
+                            "documentos profissionais",
+                            "carimbo profissional",
+                            "relatorios"
+                    ),
+                    List.of(
+                            "criar habilitacoes CRBM por profissional",
+                            "vincular lote e produto ao procedimento",
+                            "criar trilha de rastreabilidade",
+                            "criar relatorios de seguranca"
+                    )
             )
     );
 

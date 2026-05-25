@@ -113,7 +113,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-AGD-001 | Estruturar módulo Agenda do AtendePro | Especificação funcional, regras, UX, entidades e backlog da agenda comum. | CONCLUIDA |
 | TASK-0701 | Nutri Pro | Plano alimentar, diário, exames, suplementação e CRN. | CONCLUIDA |
 | TASK-0702 | Beauty Pro | Protocolos, fotos, termos, pacotes e salão. | CONCLUIDA |
-| TASK-0703 | Biomed Pro | CRBM, habilitações, rastreabilidade e estética biomédica. | PENDENTE |
+| TASK-0703 | Biomed Pro | CRBM, habilitações, rastreabilidade e estética biomédica. | CONCLUIDA |
 | TASK-0704 | Fisio Pro | CREFITO, avaliação, plano terapêutico e evolução por sessão. | PENDENTE |
 | TASK-0705 | Psico Pro futuro | Documentos psicológicos e evolução, respeitando escopo futuro. | PENDENTE |
 | TASK-0706 | Fono Pro futuro | Relatórios, laudos e acompanhamento. | PENDENTE |
