@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-R9-001, TASK-R9-002 e TASK-R9-003 adicionadas oficialmente à R9 como refinamentos pendentes, sem implementação técnica nesta etapa.
+- A R9 manteve o nome oficial já existente no projeto: `R9 — Suporte, central de ajuda e comunicação`.
+- TASK-R9-001 cobre destaque visual para simulações em alerta na Precificação.
+- TASK-R9-002 cobre o menu rápido de ações principais do Nutri Pro, priorizando gastos energéticos, exames laboratoriais e plano alimentar.
+- TASK-R9-003 cobre correção de acentuação e textos visíveis em português brasileiro.
 - TASK-UX-001 concluida em modo autopilot multiagente release R8.
 - `/app` deixou de ser uma pagina longa com navegacao por ancora e passou a usar `ShellAtendePro`, `MenuPrincipal`, `NavegacaoMobile`, `BarraSuperiorContextual` e `PainelConteudoAtivo`.
 - O menu principal agora controla `secaoAtiva` e renderiza somente Operacao, Verticais, Precificacao, Busca global ou Admin SaaS no painel central.
