@@ -94,6 +94,27 @@ public record ChamadoSuporte(
         );
     }
 
+    public ChamadoSuporte alterarTriagem(
+            StatusChamadoSuporte novoStatus,
+            PrioridadeChamadoSuporte novaPrioridade,
+            Instant agora
+    ) {
+        return new ChamadoSuporte(
+                id,
+                empresaId,
+                solicitanteUsuarioId,
+                solicitanteNome,
+                solicitanteEmail,
+                titulo,
+                descricao,
+                novaPrioridade == null ? prioridade : novaPrioridade,
+                novoStatus == null ? status : novoStatus,
+                categoria,
+                criadoEm,
+                agora
+        );
+    }
+
     private static String normalizarTextoOpcional(String valor) {
         if (valor == null || valor.isBlank()) {
             return null;

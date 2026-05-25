@@ -35,7 +35,7 @@ function renderizarSecaoAtiva(secaoAtiva: SecaoPrincipal, empresaId: string, ses
     case "busca":
       return <SecaoBuscaGlobal empresaId={empresaId} />;
     case "admin":
-      return <SecaoAdminSaas />;
+      return <SecaoAdminSaas empresaId={empresaId} sessao={sessao} />;
     default:
       return (
         <div className="flex min-h-72 flex-col items-center justify-center rounded-lg border bg-card p-8 text-center shadow-sm">

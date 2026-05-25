@@ -71,9 +71,13 @@ public class JdbcChamadoSuporteAdapter implements
         jdbcTemplate.update(
                 """
                 update chamados_suporte
-                set atualizado_em = ?
+                set prioridade = ?,
+                    status = ?,
+                    atualizado_em = ?
                 where id = ?
                 """,
+                chamado.prioridade().name(),
+                chamado.status().name(),
                 Timestamp.from(chamado.atualizadoEm()),
                 chamado.id()
         );

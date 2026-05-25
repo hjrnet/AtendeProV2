@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R9 — Suporte, central de ajuda, comunicação e refinamentos de experiência.
 
 ## Última task concluída
-TASK-0901 — Módulo Chamados.
+TASK-0902 — Painel Admin de Suporte.
 
 ## Próxima task recomendada
-TASK-0902 — Painel Admin de Suporte.
+TASK-0903 — Central de ajuda.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0902 concluida em modo autopilot multiagente release R9.
+- Painel Admin SaaS ganhou subsecao `Suporte` com caixa de entrada, busca, filtros por status/prioridade, detalhe do chamado, historico de mensagens e resposta do suporte.
+- Backend ganhou triagem de chamados em `PATCH /api/suporte/chamados/{chamadoId}/triagem`, preservando DTOs, Command, UseCase/InputPort e service hexagonal.
+- Validacao confirmou `mvn test` com 270 testes, `pnpm lint`, `pnpm typecheck`, `pnpm build`, backend local `UP`, web local `/app` HTTP 200 e painel Admin SaaS > Suporte sem erros de console.
 - TASK-0901 concluida em modo autopilot multiagente release R9.
 - Modulo backend `suporte` criado com arquitetura hexagonal para abertura, listagem, detalhamento e acompanhamento de chamados.
 - Endpoints locais validados: `POST /api/suporte/chamados`, `GET /api/suporte/chamados`, `GET /api/suporte/chamados/{id}` e `POST /api/suporte/chamados/{id}/mensagens`.

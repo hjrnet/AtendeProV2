@@ -22,10 +22,12 @@ import br.com.atendepro.modules.empresa.application.context.TenantAccessService;
 import br.com.atendepro.modules.empresa.application.context.TenantContext;
 import br.com.atendepro.modules.empresa.application.context.TenantContextHolder;
 import br.com.atendepro.modules.suporte.application.command.AbrirChamadoSuporteCommand;
+import br.com.atendepro.modules.suporte.application.command.AtualizarTriagemChamadoSuporteCommand;
 import br.com.atendepro.modules.suporte.application.command.RegistrarMensagemChamadoSuporteCommand;
 import br.com.atendepro.modules.suporte.domain.model.ChamadoSuporte;
 import br.com.atendepro.modules.suporte.domain.model.OrigemMensagemChamadoSuporte;
 import br.com.atendepro.modules.suporte.domain.model.PrioridadeChamadoSuporte;
+import br.com.atendepro.modules.suporte.domain.model.StatusChamadoSuporte;
 import br.com.atendepro.shared.application.pagination.Paginacao;
 import br.com.atendepro.shared.application.pagination.ResultadoPaginado;
 
@@ -125,6 +127,35 @@ class ChamadoSuporteServiceTest {
         assertThat(result.mensagens()).hasSize(1);
         assertThat(result.mensagens().get(0).mensagem()).isEqualTo("Inclui mais detalhes.");
         assertThat(fake.atualizacoes).hasSize(1);
+    }
+
+    @Test
+    void deveAtualizarStatusEPrioridadeDoChamado() {
+        TenantContextHolder.definir(new TenantContext(EMPRESA_ID, USUARIO_ID, Set.of(PerfilAcesso.SUPORTE)));
+        ChamadoSuporte chamado = ChamadoSuporte.abrir(
+                EMPRESA_ID,
+                USUARIO_ID,
+                "Ana",
+                "ana@atendepro.local",
+                "Dúvida",
+                "Preciso de ajuda",
+                PrioridadeChamadoSuporte.MEDIA,
+                null,
+                Instant.now(CLOCK)
+        );
+        ChamadoSuporteFake fake = new ChamadoSuporteFake(List.of(chamado));
+        ChamadoSuporteService service = service(fake);
+
+        var result = service.atualizarTriagem(new AtualizarTriagemChamadoSuporteCommand(
+                chamado.id(),
+                StatusChamadoSuporte.EM_ATENDIMENTO,
+                PrioridadeChamadoSuporte.CRITICA
+        ));
+
+        assertThat(result.chamado().status()).isEqualTo(StatusChamadoSuporte.EM_ATENDIMENTO);
+        assertThat(result.chamado().prioridade()).isEqualTo(PrioridadeChamadoSuporte.CRITICA);
+        assertThat(fake.atualizacoes).hasSize(1);
+        assertThat(fake.atualizacoes.get(0).status()).isEqualTo(StatusChamadoSuporte.EM_ATENDIMENTO);
     }
 
     @Test

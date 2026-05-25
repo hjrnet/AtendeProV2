@@ -1,33 +1,49 @@
 "use client";
 
+import { useState } from "react";
 import { Building2, CreditCard, LifeBuoy, PackageCheck, TrendingUp } from "lucide-react";
 
 import { AdminPlanosView } from "@/features/admin-planos/components/admin-planos-view";
+import type { SessaoAutenticada } from "@/features/auth/lib/auth-storage";
+import { PainelAdminSuporte } from "@/features/suporte/components/painel-admin-suporte";
 
 const secoesAdmin = [
-  { label: "Planos", icon: PackageCheck, ativo: true },
-  { label: "Empresas", icon: Building2, ativo: false },
-  { label: "Assinaturas", icon: CreditCard, ativo: false },
-  { label: "Suporte", icon: LifeBuoy, ativo: false },
-  { label: "Relatorios", icon: TrendingUp, ativo: false }
+  { id: "planos", label: "Planos", icon: PackageCheck, ativo: true },
+  { id: "empresas", label: "Empresas", icon: Building2, ativo: false },
+  { id: "assinaturas", label: "Assinaturas", icon: CreditCard, ativo: false },
+  { id: "suporte", label: "Suporte", icon: LifeBuoy, ativo: true },
+  { id: "relatorios", label: "Relatórios", icon: TrendingUp, ativo: false }
 ];
 
-export function SecaoAdminSaas() {
+type SubsecaoAdmin = "planos" | "suporte";
+
+type SecaoAdminSaasProps = {
+  empresaId: string;
+  sessao: SessaoAutenticada;
+};
+
+export function SecaoAdminSaas({ empresaId, sessao }: SecaoAdminSaasProps) {
+  const [subsecaoAtiva, setSubsecaoAtiva] = useState<SubsecaoAdmin>("planos");
+
   return (
     <section className="grid gap-4">
       <div className="rounded-lg border bg-card p-4 shadow-sm">
         <div className="flex gap-2 overflow-x-auto pb-1" aria-label="Subsecoes Admin SaaS">
           {secoesAdmin.map((secao) => {
             const Icon = secao.icon;
+            const ativo = subsecaoAtiva === secao.id;
 
             return (
               <button
-                key={secao.label}
+                key={secao.id}
                 type="button"
                 disabled={!secao.ativo}
-                className="inline-flex h-10 shrink-0 items-center gap-2 rounded-md border bg-background px-3 text-sm font-semibold text-card-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-55"
+                onClick={() => secao.ativo && setSubsecaoAtiva(secao.id as SubsecaoAdmin)}
+                className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-md border px-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-55 ${
+                  ativo ? "border-primary bg-primary text-primary-foreground" : "bg-background text-card-foreground"
+                }`}
               >
-                <Icon className="h-4 w-4 text-primary" />
+                <Icon className={`h-4 w-4 ${ativo ? "text-primary-foreground" : "text-primary"}`} />
                 {secao.label}
               </button>
             );
@@ -35,7 +51,7 @@ export function SecaoAdminSaas() {
         </div>
       </div>
 
-      <AdminPlanosView />
+      {subsecaoAtiva === "planos" ? <AdminPlanosView /> : <PainelAdminSuporte empresaId={empresaId} sessao={sessao} />}
     </section>
   );
 }

@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.atendepro.modules.suporte.application.port.in.AbrirChamadoSuporteUseCase;
+import br.com.atendepro.modules.suporte.application.port.in.AtualizarTriagemChamadoSuporteUseCase;
 import br.com.atendepro.modules.suporte.application.port.in.DetalharChamadoSuporteUseCase;
 import br.com.atendepro.modules.suporte.application.port.in.ListarChamadosSuporteUseCase;
 import br.com.atendepro.modules.suporte.application.port.in.RegistrarMensagemChamadoSuporteUseCase;
@@ -28,17 +30,20 @@ import jakarta.validation.Valid;
 public class ChamadoSuporteController {
 
     private final AbrirChamadoSuporteUseCase abrirChamadoSuporteUseCase;
+    private final AtualizarTriagemChamadoSuporteUseCase atualizarTriagemChamadoSuporteUseCase;
     private final DetalharChamadoSuporteUseCase detalharChamadoSuporteUseCase;
     private final ListarChamadosSuporteUseCase listarChamadosSuporteUseCase;
     private final RegistrarMensagemChamadoSuporteUseCase registrarMensagemChamadoSuporteUseCase;
 
     public ChamadoSuporteController(
             AbrirChamadoSuporteUseCase abrirChamadoSuporteUseCase,
+            AtualizarTriagemChamadoSuporteUseCase atualizarTriagemChamadoSuporteUseCase,
             DetalharChamadoSuporteUseCase detalharChamadoSuporteUseCase,
             ListarChamadosSuporteUseCase listarChamadosSuporteUseCase,
             RegistrarMensagemChamadoSuporteUseCase registrarMensagemChamadoSuporteUseCase
     ) {
         this.abrirChamadoSuporteUseCase = abrirChamadoSuporteUseCase;
+        this.atualizarTriagemChamadoSuporteUseCase = atualizarTriagemChamadoSuporteUseCase;
         this.detalharChamadoSuporteUseCase = detalharChamadoSuporteUseCase;
         this.listarChamadosSuporteUseCase = listarChamadosSuporteUseCase;
         this.registrarMensagemChamadoSuporteUseCase = registrarMensagemChamadoSuporteUseCase;
@@ -89,6 +94,16 @@ public class ChamadoSuporteController {
     ) {
         return ResponseEntity.ok(DetalheChamadoSuporteResponse.de(
                 registrarMensagemChamadoSuporteUseCase.registrarMensagem(request.paraCommand(chamadoId))
+        ));
+    }
+
+    @PatchMapping("/{chamadoId}/triagem")
+    public ResponseEntity<DetalheChamadoSuporteResponse> atualizarTriagem(
+            @PathVariable UUID chamadoId,
+            @RequestBody AtualizarTriagemChamadoSuporteRequest request
+    ) {
+        return ResponseEntity.ok(DetalheChamadoSuporteResponse.de(
+                atualizarTriagemChamadoSuporteUseCase.atualizarTriagem(request.paraCommand(chamadoId))
         ));
     }
 }

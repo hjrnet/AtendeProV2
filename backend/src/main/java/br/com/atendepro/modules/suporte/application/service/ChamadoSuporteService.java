@@ -12,8 +12,10 @@ import br.com.atendepro.modules.auth.application.permission.PermissaoAcessoServi
 import br.com.atendepro.modules.auth.domain.model.PermissaoAcesso;
 import br.com.atendepro.modules.empresa.application.context.TenantAccessService;
 import br.com.atendepro.modules.suporte.application.command.AbrirChamadoSuporteCommand;
+import br.com.atendepro.modules.suporte.application.command.AtualizarTriagemChamadoSuporteCommand;
 import br.com.atendepro.modules.suporte.application.command.RegistrarMensagemChamadoSuporteCommand;
 import br.com.atendepro.modules.suporte.application.port.in.AbrirChamadoSuporteUseCase;
+import br.com.atendepro.modules.suporte.application.port.in.AtualizarTriagemChamadoSuporteUseCase;
 import br.com.atendepro.modules.suporte.application.port.in.DetalharChamadoSuporteUseCase;
 import br.com.atendepro.modules.suporte.application.port.in.ListarChamadosSuporteUseCase;
 import br.com.atendepro.modules.suporte.application.port.in.RegistrarMensagemChamadoSuporteUseCase;
@@ -38,6 +40,7 @@ import br.com.atendepro.shared.domain.exception.BusinessException;
 @Profile("!test")
 public class ChamadoSuporteService implements
         AbrirChamadoSuporteUseCase,
+        AtualizarTriagemChamadoSuporteUseCase,
         DetalharChamadoSuporteUseCase,
         ListarChamadosSuporteUseCase,
         RegistrarMensagemChamadoSuporteUseCase {
@@ -151,6 +154,20 @@ public class ChamadoSuporteService implements
         salvarMensagemChamadoSuportePort.salvarMensagem(mensagem);
         atualizarChamadoSuportePort.atualizarChamado(chamado.marcarAtualizado(agora));
         return DetalheChamadoSuporteResult.de(chamado.marcarAtualizado(agora), listarMensagensChamadoSuportePort.listarMensagens(chamado.id()));
+    }
+
+    @Override
+    public DetalheChamadoSuporteResult atualizarTriagem(AtualizarTriagemChamadoSuporteCommand command) {
+        validarPermissao();
+        ChamadoSuporte chamado = carregarChamadoSuportePorIdPort.carregarChamadoPorId(command.chamadoId())
+                .orElseThrow(() -> new BusinessException("SUPORTE_CHAMADO_NAO_ENCONTRADO", "Chamado de suporte nao encontrado."));
+        tenantAccessService.validarAcessoEmpresa(chamado.empresaId());
+        ChamadoSuporte chamadoAtualizado = chamado.alterarTriagem(command.status(), command.prioridade(), Instant.now(clock));
+        atualizarChamadoSuportePort.atualizarChamado(chamadoAtualizado);
+        return DetalheChamadoSuporteResult.de(
+                chamadoAtualizado,
+                listarMensagensChamadoSuportePort.listarMensagens(chamado.id())
+        );
     }
 
     private UUID resolverEmpresaId(UUID empresaIdSolicitada) {

@@ -34,6 +34,33 @@ class ChamadoSuporteTest {
     }
 
     @Test
+    void deveAlterarStatusEPrioridadeDaTriagem() {
+        Instant atualizadoEm = Instant.parse("2026-05-25T13:00:00Z");
+        ChamadoSuporte chamado = ChamadoSuporte.abrir(
+                EMPRESA_ID,
+                null,
+                "Karol",
+                "karol@atendepro.local",
+                "Duvida",
+                "Preciso de ajuda.",
+                PrioridadeChamadoSuporte.MEDIA,
+                null,
+                AGORA
+        );
+
+        ChamadoSuporte atualizado = chamado.alterarTriagem(
+                StatusChamadoSuporte.EM_ATENDIMENTO,
+                PrioridadeChamadoSuporte.CRITICA,
+                atualizadoEm
+        );
+
+        assertThat(atualizado.status()).isEqualTo(StatusChamadoSuporte.EM_ATENDIMENTO);
+        assertThat(atualizado.prioridade()).isEqualTo(PrioridadeChamadoSuporte.CRITICA);
+        assertThat(atualizado.atualizadoEm()).isEqualTo(atualizadoEm);
+        assertThat(atualizado.criadoEm()).isEqualTo(AGORA);
+    }
+
+    @Test
     void naoDeveAbrirChamadoSemTitulo() {
         assertThatThrownBy(() -> ChamadoSuporte.abrir(
                 EMPRESA_ID,
