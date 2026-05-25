@@ -7,16 +7,18 @@ AtendePro — SaaS profissional completo.
 R0 — Fundação técnica profissional.
 
 ## Última task concluída
-TASK-0001 — Configurar estrutura inicial do repositório.
+TASK-0002 — Validar Harness Profissional.
 
 ## Próxima task recomendada
-TASK-0002 — Validar Harness Profissional.
+TASK-0003 — Configurar Docker Compose com PostgreSQL.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
 economico para ajustes simples.
 
 ## Decisões recentes
+- TASK-0002 concluída em modo autopilot multiagente.
+- Harness Profissional validado em `docs/codex/HARNESS_VALIDATION.md`.
 - TASK-0001 concluída em modo autopilot multiagente.
 - `.gitignore` inicial criado para proteger ambientes locais, builds e dependências.
 - Projeto completo, não MVP-first.
