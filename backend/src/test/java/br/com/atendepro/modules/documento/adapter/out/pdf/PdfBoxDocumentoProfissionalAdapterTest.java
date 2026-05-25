@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.junit.jupiter.api.Test;
 
 import br.com.atendepro.modules.documento.domain.model.CarimboProfissional;
@@ -21,12 +23,24 @@ class PdfBoxDocumentoProfissionalAdapterTest {
     void deveGerarPdfDoDocumentoProfissionalComCarimbo() {
         PdfBoxDocumentoProfissionalAdapter adapter = new PdfBoxDocumentoProfissionalAdapter();
 
-        var result = adapter.gerarPdf(documento(), carimbo());
+        var result = adapter.gerarPdf(documento(), carimbo(), null);
 
         assertThat(result.nomeArquivo()).isEqualTo("documento-profissional-declaracao-task-0603-202605250900.pdf");
         assertThat(result.contentType()).isEqualTo("application/pdf");
         assertThat(new String(result.conteudo(), 0, 4)).isEqualTo("%PDF");
         assertThat(result.conteudo().length).isGreaterThan(900);
+    }
+
+    @Test
+    void deveAplicarMarcaDaguaAcademicaNoPdf() throws Exception {
+        PdfBoxDocumentoProfissionalAdapter adapter = new PdfBoxDocumentoProfissionalAdapter();
+
+        var result = adapter.gerarPdf(documento(), carimbo(), "Uso academico - Plano Estudante AtendePro");
+
+        try (PDDocument pdf = PDDocument.load(result.conteudo())) {
+            String texto = new PDFTextStripper().getText(pdf);
+            assertThat(texto).contains("Uso academico - Plano Estudante AtendePro");
+        }
     }
 
     private DocumentoProfissional documento() {

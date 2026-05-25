@@ -45,9 +45,11 @@ class DocumentoProfissionalPdfServiceTest {
         DocumentoProfissionalPdfService service = new DocumentoProfissionalPdfService(
                 id -> Optional.of(documento),
                 id -> Optional.of(carimbo),
-                (documentoCarregado, carimboCarregado) -> {
+                empresaId -> Optional.of("Uso academico - Plano Estudante AtendePro"),
+                (documentoCarregado, carimboCarregado, marcaDaguaAcademica) -> {
                     assertThat(documentoCarregado.id()).isEqualTo(DOCUMENTO_ID);
                     assertThat(carimboCarregado.id()).isEqualTo(CARIMBO_ID);
+                    assertThat(marcaDaguaAcademica).isEqualTo("Uso academico - Plano Estudante AtendePro");
                     return new DocumentoProfissionalPdfResult("documento.pdf", "application/pdf", "%PDF".getBytes());
                 },
                 new TenantAccessService(),
@@ -65,7 +67,8 @@ class DocumentoProfissionalPdfServiceTest {
         DocumentoProfissionalPdfService service = new DocumentoProfissionalPdfService(
                 id -> Optional.of(documento(EMPRESA_ID)),
                 id -> Optional.of(carimbo(OUTRA_EMPRESA_ID)),
-                (documento, carimbo) -> new DocumentoProfissionalPdfResult("documento.pdf", "application/pdf", "%PDF".getBytes()),
+                empresaId -> Optional.empty(),
+                (documento, carimbo, marcaDaguaAcademica) -> new DocumentoProfissionalPdfResult("documento.pdf", "application/pdf", "%PDF".getBytes()),
                 new TenantAccessService(),
                 new PermissaoAcessoService()
         );
@@ -80,7 +83,8 @@ class DocumentoProfissionalPdfServiceTest {
         DocumentoProfissionalPdfService service = new DocumentoProfissionalPdfService(
                 id -> Optional.of(documento(EMPRESA_ID)),
                 id -> Optional.empty(),
-                (documento, carimbo) -> new DocumentoProfissionalPdfResult("documento.pdf", "application/pdf", "%PDF".getBytes()),
+                empresaId -> Optional.empty(),
+                (documento, carimbo, marcaDaguaAcademica) -> new DocumentoProfissionalPdfResult("documento.pdf", "application/pdf", "%PDF".getBytes()),
                 new TenantAccessService(),
                 new PermissaoAcessoService()
         );
@@ -95,7 +99,8 @@ class DocumentoProfissionalPdfServiceTest {
         DocumentoProfissionalPdfService service = new DocumentoProfissionalPdfService(
                 id -> Optional.empty(),
                 id -> Optional.empty(),
-                (documento, carimbo) -> new DocumentoProfissionalPdfResult("documento.pdf", "application/pdf", "%PDF".getBytes()),
+                empresaId -> Optional.empty(),
+                (documento, carimbo, marcaDaguaAcademica) -> new DocumentoProfissionalPdfResult("documento.pdf", "application/pdf", "%PDF".getBytes()),
                 new TenantAccessService(),
                 new PermissaoAcessoService()
         );

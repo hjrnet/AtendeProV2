@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R6 — Documentos profissionais e carimbo.
 
 ## Última task concluída
-TASK-0604 — QR Code de validação.
+TASK-0605 — Marca d'água Plano Estudante.
 
 ## Próxima task recomendada
-TASK-0605 — Marca d'água Plano Estudante.
+TASK-0606 — Modelos de documentos gerais.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0605 concluida em modo autopilot multiagente release R6.
+- A geracao de PDF profissional agora consulta `CarregarMarcaDaguaAcademicaPlanoPort` para empresas com assinatura ativa em plano estudante.
+- O adapter JDBC aplica a regra com `assinaturas` ativas e `planos.estudante=true`, reutilizando a marca d'agua academica configurada no plano sem alterar regras de assinatura.
+- O adapter PDFBox aplica a marca d'agua academica no documento e mantem o conteudo normal do PDF isolado por porta de saida.
+- Validacao confirmou `mvn test` com 230 testes, Docker Compose saudavel, backend local `UP` e PDF real para empresa em Plano Estudante com assinatura ativa.
 - TASK-0604 concluida em modo autopilot multiagente release R6.
 - Documentos profissionais receberam `codigoValidacao` opaco e `validacaoPublicaAtiva`, com caminho de validacao retornado no response privado para uso como payload de QR.
 - Endpoint publico `/api/documentos-profissionais/validacao/{codigoValidacao}` retorna apenas dados limitados: validade, titulo, tipo, status, profissional, versao e data; nao expoe conteudo, cliente/paciente ou empresa.

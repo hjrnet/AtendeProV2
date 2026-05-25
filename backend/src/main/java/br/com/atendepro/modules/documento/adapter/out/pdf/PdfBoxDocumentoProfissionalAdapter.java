@@ -14,6 +14,7 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.util.Matrix;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -32,10 +33,14 @@ public class PdfBoxDocumentoProfissionalAdapter implements GerarPdfDocumentoProf
     private static final DateTimeFormatter DATA_ARQUIVO = DateTimeFormatter.ofPattern("yyyyMMddHHmm").withZone(ZONE_ID);
 
     @Override
-    public DocumentoProfissionalPdfResult gerarPdf(DocumentoProfissional documento, CarimboProfissional carimbo) {
+    public DocumentoProfissionalPdfResult gerarPdf(
+            DocumentoProfissional documento,
+            CarimboProfissional carimbo,
+            String marcaDaguaAcademica
+    ) {
         try (PDDocument pdf = new PDDocument(); ByteArrayOutputStream saida = new ByteArrayOutputStream()) {
-            try (EscritorPdf escritor = new EscritorPdf(pdf)) {
-                escreverDocumento(escritor, documento, carimbo);
+            try (EscritorPdf escritor = new EscritorPdf(pdf, marcaDaguaAcademica)) {
+                escreverDocumento(escritor, documento, carimbo, marcaDaguaAcademica);
             }
             pdf.save(saida);
             return new DocumentoProfissionalPdfResult(nomeArquivo(documento), CONTENT_TYPE_PDF, saida.toByteArray());
@@ -47,11 +52,15 @@ public class PdfBoxDocumentoProfissionalAdapter implements GerarPdfDocumentoProf
     private void escreverDocumento(
             EscritorPdf escritor,
             DocumentoProfissional documento,
-            CarimboProfissional carimbo
+            CarimboProfissional carimbo,
+            String marcaDaguaAcademica
     ) throws IOException {
         escritor.texto("AtendePro", 18, PDType1Font.HELVETICA_BOLD);
         escritor.texto("Documento profissional", 14, PDType1Font.HELVETICA_BOLD);
         escritor.texto("Gerado em " + DATA_HORA.format(documento.atualizadoEm()), 9, PDType1Font.HELVETICA);
+        if (marcaDaguaAcademica != null && !marcaDaguaAcademica.isBlank()) {
+            escritor.texto(marcaDaguaAcademica, 11, PDType1Font.HELVETICA_BOLD);
+        }
         escritor.linha();
 
         escritor.secao(documento.titulo());
@@ -132,11 +141,13 @@ public class PdfBoxDocumentoProfissionalAdapter implements GerarPdfDocumentoProf
     private static final class EscritorPdf implements AutoCloseable {
 
         private final PDDocument documento;
+        private final String marcaDaguaAcademica;
         private PDPageContentStream conteudo;
         private float y;
 
-        private EscritorPdf(PDDocument documento) throws IOException {
+        private EscritorPdf(PDDocument documento, String marcaDaguaAcademica) throws IOException {
             this.documento = documento;
+            this.marcaDaguaAcademica = marcaDaguaAcademica;
             novaPagina();
         }
 
@@ -203,6 +214,22 @@ public class PdfBoxDocumentoProfissionalAdapter implements GerarPdfDocumentoProf
             documento.addPage(pagina);
             conteudo = new PDPageContentStream(documento, pagina);
             y = 790;
+            escreverMarcaDagua();
+        }
+
+        private void escreverMarcaDagua() throws IOException {
+            if (marcaDaguaAcademica == null || marcaDaguaAcademica.isBlank()) {
+                return;
+            }
+            conteudo.saveGraphicsState();
+            conteudo.setNonStrokingColor(220, 220, 220);
+            conteudo.beginText();
+            conteudo.setFont(PDType1Font.HELVETICA_BOLD, 32);
+            conteudo.setTextMatrix(Matrix.getRotateInstance(Math.toRadians(35), 96, 290));
+            conteudo.showText(textoPdf(marcaDaguaAcademica));
+            conteudo.endText();
+            conteudo.restoreGraphicsState();
+            conteudo.setNonStrokingColor(0, 0, 0);
         }
 
         @Override

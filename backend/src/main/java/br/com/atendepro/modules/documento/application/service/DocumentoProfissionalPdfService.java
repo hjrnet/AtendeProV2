@@ -10,6 +10,7 @@ import br.com.atendepro.modules.auth.domain.model.PermissaoAcesso;
 import br.com.atendepro.modules.documento.application.port.in.GerarPdfDocumentoProfissionalUseCase;
 import br.com.atendepro.modules.documento.application.port.out.CarregarCarimboProfissionalPorIdPort;
 import br.com.atendepro.modules.documento.application.port.out.CarregarDocumentoProfissionalPorIdPort;
+import br.com.atendepro.modules.documento.application.port.out.CarregarMarcaDaguaAcademicaPlanoPort;
 import br.com.atendepro.modules.documento.application.port.out.GerarPdfDocumentoProfissionalPort;
 import br.com.atendepro.modules.documento.application.result.DocumentoProfissionalPdfResult;
 import br.com.atendepro.modules.documento.domain.model.CarimboProfissional;
@@ -23,6 +24,7 @@ public class DocumentoProfissionalPdfService implements GerarPdfDocumentoProfiss
 
     private final CarregarDocumentoProfissionalPorIdPort carregarDocumentoProfissionalPorIdPort;
     private final CarregarCarimboProfissionalPorIdPort carregarCarimboProfissionalPorIdPort;
+    private final CarregarMarcaDaguaAcademicaPlanoPort carregarMarcaDaguaAcademicaPlanoPort;
     private final GerarPdfDocumentoProfissionalPort gerarPdfDocumentoProfissionalPort;
     private final TenantAccessService tenantAccessService;
     private final PermissaoAcessoService permissaoAcessoService;
@@ -30,12 +32,14 @@ public class DocumentoProfissionalPdfService implements GerarPdfDocumentoProfiss
     public DocumentoProfissionalPdfService(
             CarregarDocumentoProfissionalPorIdPort carregarDocumentoProfissionalPorIdPort,
             CarregarCarimboProfissionalPorIdPort carregarCarimboProfissionalPorIdPort,
+            CarregarMarcaDaguaAcademicaPlanoPort carregarMarcaDaguaAcademicaPlanoPort,
             GerarPdfDocumentoProfissionalPort gerarPdfDocumentoProfissionalPort,
             TenantAccessService tenantAccessService,
             PermissaoAcessoService permissaoAcessoService
     ) {
         this.carregarDocumentoProfissionalPorIdPort = carregarDocumentoProfissionalPorIdPort;
         this.carregarCarimboProfissionalPorIdPort = carregarCarimboProfissionalPorIdPort;
+        this.carregarMarcaDaguaAcademicaPlanoPort = carregarMarcaDaguaAcademicaPlanoPort;
         this.gerarPdfDocumentoProfissionalPort = gerarPdfDocumentoProfissionalPort;
         this.tenantAccessService = tenantAccessService;
         this.permissaoAcessoService = permissaoAcessoService;
@@ -51,7 +55,10 @@ public class DocumentoProfissionalPdfService implements GerarPdfDocumentoProfiss
                 ));
         tenantAccessService.validarAcessoEmpresa(documento.empresaId());
         CarimboProfissional carimbo = carregarCarimbo(carimboId, documento.empresaId());
-        return gerarPdfDocumentoProfissionalPort.gerarPdf(documento, carimbo);
+        String marcaDaguaAcademica = carregarMarcaDaguaAcademicaPlanoPort
+                .carregarMarcaDaguaAcademica(documento.empresaId())
+                .orElse(null);
+        return gerarPdfDocumentoProfissionalPort.gerarPdf(documento, carimbo, marcaDaguaAcademica);
     }
 
     private CarimboProfissional carregarCarimbo(UUID carimboId, UUID empresaId) {
