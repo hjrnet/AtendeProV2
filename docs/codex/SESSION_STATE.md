@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R10 — Nutri Pro, Beauty Pro e comercial.
 
 ## Última task concluída
-TASK-NUTRI-006 — Criar documentos, exames, prescrições e dashboard Nutri Pro.
+TASK-BEAUTY-001 — Criar módulo Beauty Pro operacional.
 
 ## Próxima task recomendada
-TASK-BEAUTY-001 — Criar módulo Beauty Pro operacional.
+TASK-BEAUTY-002 — Criar ficha estética, anamnese e avaliação.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,12 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-BEAUTY-001 concluida em modo autopilot multiagente release R10.
+- Modulo backend `beauty` criado com arquitetura hexagonal, `ConsultarVisaoBeautyProCommand`, UseCase/InputPort, OutputPort, service, adapter JDBC e controller fino em `/api/beauty-pro/visao`.
+- A visao operacional do Beauty Pro agrega dados reais do tenant a partir do nucleo comum: clientes Beauty, agenda, servicos, produtos/insumos, equipamentos, precificacao e alertas de margem.
+- Web ganhou feature `beauty-pro` com tela operacional mobile-first dentro de Verticais > Beauty Pro, exibindo indicadores, contratos operacionais preparados, proximas evolucoes e clientes recentes.
+- A task preparou atalhos para ficha estetica, protocolos/sessoes, termos/documentos, produtos/lotes, evolucao visual segura e dashboard, mas esses fluxos permanecem para as tasks oficiais seguintes.
+- Validacao confirmou `mvn test` com 285 testes, `pnpm typecheck`, `pnpm lint`, `pnpm build`, backend/web locais ativos, endpoint `/api/beauty-pro/visao` com Ana demo e Browser sem erros de console.
 - TASK-NUTRI-006 concluida em modo autopilot multiagente release R10.
 - Nutri Pro passou a reaproveitar o modulo de documentos profissionais para solicitacoes de exames, prescricoes e documento/PDF de plano alimentar, sem criar um motor documental paralelo.
 - O backend adicionou tipos documentais `SOLICITACAO_EXAMES`, `PRESCRICAO` e `PLANO_ALIMENTAR`, mantendo PDF, validacao publica, carimbo profissional e marca d'agua academica no modulo de documentos.

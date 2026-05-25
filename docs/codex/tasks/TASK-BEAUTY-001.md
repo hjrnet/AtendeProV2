@@ -44,3 +44,11 @@ R7 apresentou Beauty Pro no catálogo de verticais. A R10 deve transformar Beaut
 ```bash
 git commit -m "feat(beauty): criar modulo operacional Beauty Pro (TASK-BEAUTY-001)"
 ```
+
+## Execução registrada
+
+- Status: CONCLUIDA.
+- Backend: criado modulo `beauty` com command, use case, output port, service, adapter JDBC, controller e response para `/api/beauty-pro/visao`.
+- Frontend: criada feature `beauty-pro` e integrada ao detalhe da vertical Beauty Pro no shell profissional.
+- Validacao: `mvn test`, `corepack pnpm typecheck`, `corepack pnpm lint`, `corepack pnpm build`, backend/web locais e Browser com Ana Esteticista Demo.
+- Proxima task: TASK-BEAUTY-002 — Criar ficha estetica, anamnese e avaliacao.

@@ -18,6 +18,7 @@ import {
   listarVerticaisProfissionais,
   type VerticalProfissional
 } from "@/features/verticais/api/verticais-client";
+import { BeautyProOperacionalView } from "@/features/beauty-pro/components/beauty-pro-operacional-view";
 import { MenuRapidoNutriProPreview } from "@/features/verticais/components/menu-rapido-nutri-pro-preview";
 import { NutriProOperacionalView } from "@/features/nutri-pro/components/nutri-pro-operacional-view";
 import { cn } from "@/lib/utils";
@@ -252,6 +253,11 @@ function AbaVisao({ vertical, empresaId }: { vertical: VerticalProfissional; emp
       {vertical.codigo === "NUTRI_PRO" ? (
         <div className="lg:col-span-2">
           {empresaId ? <NutriProOperacionalView empresaId={empresaId} /> : <MenuRapidoNutriProPreview />}
+        </div>
+      ) : null}
+      {vertical.codigo === "BEAUTY_PRO" ? (
+        <div className="lg:col-span-2">
+          {empresaId ? <BeautyProOperacionalView empresaId={empresaId} /> : null}
         </div>
       ) : null}
       <ListaDetalhe titulo="Públicos atendidos" itens={vertical.publicosAtendidos} />
