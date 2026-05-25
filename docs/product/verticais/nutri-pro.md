@@ -32,6 +32,7 @@ O módulo deve funcionar como uma vertical profissional sobre o núcleo comum do
 
 - Perfil nutricional do paciente.
 - Prontuário nutricional centralizado.
+- Menu rápido de ações do paciente.
 - Plano alimentar por paciente.
 - Refeições, horários, alimentos, suplementos e substituições.
 - Banco de alimentos padrão e personalizado.
@@ -94,4 +95,5 @@ Esses conceitos devem ser refinados em Commands, Results, UseCases, InputPorts, 
 - `docs/product/verticais/nutri-pro-fluxos.md`
 - `docs/product/verticais/nutri-pro-telas.md`
 - `docs/product/verticais/nutri-pro-regras-negocio.md`
+- `docs/product/verticais/nutri-pro-menu-rapido.md`
 - `docs/product/verticais/nutri-pro-backlog.md`

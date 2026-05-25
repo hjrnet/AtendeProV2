@@ -130,6 +130,26 @@ Criar especificação e futura implementação de um menu rápido de ações do 
 git commit -m "feat(nutri): criar menu rapido de acoes principais"
 ```
 
+## Execução
+
+Status: CONCLUIDA.
+
+Resumo:
+- Documentação oficial do Menu Rápido Nutri Pro criada em `docs/product/verticais/nutri-pro-menu-rapido.md`.
+- Requisitos, telas, fluxos, regras de negócio e backlog do Nutri Pro foram atualizados para incluir o menu rápido no prontuário nutricional.
+- Backlog futuro ganhou `TASK-NUTRI-026 — Implementar menu rápido no prontuário nutricional`.
+- Web recebeu uma prévia responsiva do Menu Rápido Nutri Pro no detalhe da vertical Nutri Pro, com as três ações prioritárias: gastos energéticos, exames laboratoriais e plano alimentar.
+- A implementação é apenas prévia de experiência no catálogo de verticais, pois o perfil/prontuário Nutri Pro real ainda depende de tasks futuras.
+
+Validação:
+- `corepack pnpm typecheck`
+- `corepack pnpm lint`
+- `corepack pnpm build`
+- `docker compose ps`
+- `GET http://127.0.0.1:8080/actuator/health`
+- `GET http://127.0.0.1:3000/app`
+- Browser em `/app`: seção Verticais > Nutri Pro exibiu Menu Rápido Nutri Pro, ações prioritárias, microcopy e estados sem erros de console.
+
 ## Prompt recomendado
 
 ```md

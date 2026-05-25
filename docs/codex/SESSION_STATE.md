@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R9 — Suporte, central de ajuda, comunicação e refinamentos de experiência.
 
 ## Última task concluída
-TASK-R9-001 — Destacar visualmente simulações em alerta na Precificação.
+TASK-R9-002 — Criar menu rápido de ações principais do Nutri Pro.
 
 ## Próxima task recomendada
-TASK-R9-002 — Criar menu rápido de ações principais do Nutri Pro.
+TASK-R9-003 — Corrigir acentuação e textos em português do sistema.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-R9-002 concluida em modo autopilot multiagente release R9.
+- Menu Rapido Nutri Pro foi documentado oficialmente em `docs/product/verticais/nutri-pro-menu-rapido.md`, com acoes, fluxos, estados, UX responsiva e regras de Plano Estudante.
+- Docs oficiais do Nutri Pro foram atualizados para incluir o menu rapido em requisitos, telas, fluxos, regras de negocio e backlog futuro `TASK-NUTRI-026`.
+- Web ganhou uma previa responsiva do Menu Rapido Nutri Pro no detalhe da vertical Nutri Pro, destacando gastos energeticos, exames laboratoriais e plano alimentar sem criar backend nem prontuario real fora do escopo.
+- Validacao confirmou `pnpm lint`, `pnpm typecheck`, `pnpm build`, Docker Compose saudavel, backend local `UP`, web local `/app` HTTP 200 e Browser com menu Nutri Pro sem erros de console.
 - TASK-R9-001 concluida em modo autopilot multiagente release R9.
 - Precificacao recebeu badges, bordas, icones e microcopy por status no historico: Saudavel, Margem baixa e Em prejuizo.
 - A lista ganhou filtros rapidos `Todas`, `Saudaveis`, `Em alerta` e `Em prejuizo`, sem depender apenas de cor para indicar risco.

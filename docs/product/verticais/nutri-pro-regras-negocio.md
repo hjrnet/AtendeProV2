@@ -24,6 +24,9 @@
 - O paciente deve ter status ativo/inativo.
 - O prontuário nutricional deve centralizar histórico de planos, avaliações, documentos, exames, prescrições e diário.
 - Dados clínicos e nutricionais devem ser tratados como sensíveis.
+- O Menu Rápido Nutri Pro deve apenas iniciar fluxos oficiais ou indicar recursos planejados; ele não deve criar registro incompleto nem pular validações do fluxo final.
+- Ações prioritárias do menu devem destacar gastos energéticos, exames laboratoriais e plano alimentar.
+- Ações futuras devem aparecer como `Em breve` ou `Planejada`, sem copiar experiência visual de terceiros nem prometer execução indisponível.
 
 ## Plano Alimentar
 

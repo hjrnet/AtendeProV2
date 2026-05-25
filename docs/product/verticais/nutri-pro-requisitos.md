@@ -49,6 +49,29 @@ Deve exibir:
 - histórico de prescrições;
 - links para agenda, financeiro, diário, chat e materiais.
 
+### Menu Rápido do Prontuário
+
+O prontuário nutricional deve exibir um menu rápido de ações do paciente para reduzir cliques durante a consulta.
+
+Ações prioritárias:
+
+- adicionar gastos energéticos;
+- adicionar exames laboratoriais;
+- adicionar plano alimentar.
+
+Outras ações previstas:
+
+- adicionar questionário pré-consulta;
+- adicionar anamnese;
+- adicionar avaliação antropométrica;
+- adicionar recordatório alimentar;
+- adicionar prescrições;
+- adicionar metas;
+- adicionar lista de compras;
+- adicionar diário alimentar.
+
+Cada ação deve ter ícone, título, descrição curta, status e destino de fluxo. Ações indisponíveis devem aparecer como `Em breve`, sem prometer funcionalidade ainda inexistente.
+
 ## RF-NUTRI-003 — Plano Alimentar
 
 O nutricionista deve poder criar um ou mais planos alimentares por paciente.

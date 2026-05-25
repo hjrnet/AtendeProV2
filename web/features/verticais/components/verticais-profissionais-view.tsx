@@ -18,6 +18,7 @@ import {
   listarVerticaisProfissionais,
   type VerticalProfissional
 } from "@/features/verticais/api/verticais-client";
+import { MenuRapidoNutriProPreview } from "@/features/verticais/components/menu-rapido-nutri-pro-preview";
 import { cn } from "@/lib/utils";
 
 type AbaVertical = "visao" | "capacidades" | "documentos" | "roadmap";
@@ -245,6 +246,11 @@ function DetalheVertical({
 function AbaVisao({ vertical }: { vertical: VerticalProfissional }) {
   return (
     <div className="grid gap-3 lg:grid-cols-2">
+      {vertical.codigo === "NUTRI_PRO" ? (
+        <div className="lg:col-span-2">
+          <MenuRapidoNutriProPreview />
+        </div>
+      ) : null}
       <ListaDetalhe titulo="Publicos atendidos" itens={vertical.publicosAtendidos} />
       <ListaDetalhe titulo="Integracoes do nucleo" itens={vertical.integracoesNucleo} />
       <ListaDetalhe titulo="Entidades previstas" itens={vertical.entidades} />

@@ -34,6 +34,7 @@
 | TASK-NUTRI-023 | Criar relatórios nutricionais | Relatórios de pacientes, planos, evolução e perfil. | TASK-NUTRI-022 |
 | TASK-NUTRI-024 | Criar assistente de refeições | Apoiar montagem de refeições com filtros e sugestões sem decisão automática. | TASK-NUTRI-005, TASK-NUTRI-006 |
 | TASK-NUTRI-025 | Criar materiais e receitas | Biblioteca de receitas, materiais e orientações. | TASK-NUTRI-002 |
+| TASK-NUTRI-026 | Implementar menu rápido no prontuário nutricional | Criar ações rápidas reais no perfil do paciente, priorizando gastos energéticos, exames laboratoriais e plano alimentar. | TASK-NUTRI-003, TASK-R9-002 |
 
 ## Observações de Planejamento
 

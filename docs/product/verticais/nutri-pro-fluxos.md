@@ -1,5 +1,14 @@
 # Nutri Pro — Fluxos Principais
 
+## Fluxo 0 — Usar Menu Rápido no Prontuário
+
+1. Nutricionista abre o perfil/prontuário nutricional do paciente.
+2. Sistema exibe o Menu Rápido Nutri Pro com ações prioritárias e secundárias.
+3. Nutricionista escolhe uma ação.
+4. Se a ação estiver disponível, o sistema abre painel, drawer, modal ou rota do fluxo.
+5. Se a ação estiver planejada ou futura, o sistema exibe indicação `Em breve`.
+6. Ao salvar o registro, o sistema retorna ao prontuário e atualiza o histórico do paciente.
+
 ## Fluxo 1 — Criar Plano Alimentar
 
 1. Selecionar paciente.

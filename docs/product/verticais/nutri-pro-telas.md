@@ -16,6 +16,13 @@ Fluxo em etapas ou painel organizado com dados pessoais, contato, sexo, nascimen
 
 Central do paciente com resumo nutricional, plano ativo, IMC, avaliações, gastos energéticos, documentos, exames, prescrições, agenda, diário, chat, materiais e histórico.
 
+Deve conter o Menu Rápido Nutri Pro com duas áreas:
+
+- Avaliação: questionário pré-consulta, anamnese, avaliação antropométrica, gastos energéticos, exames laboratoriais e recordatório alimentar.
+- Prescrição e acompanhamento: plano alimentar, prescrições, metas, lista de compras e diário alimentar.
+
+As ações `Adicionar gastos energéticos`, `Adicionar exames laboratoriais` e `Adicionar plano alimentar` devem aparecer como cards principais, com destaque visual maior e uso confortável em celular, tablet e desktop.
+
 ## Plano Alimentar
 
 Visão do plano por paciente, objetivo, dias da semana, status, resumo energético, refeições, macros e ações de duplicar, arquivar, imprimir, gerar PDF e visualizar como paciente.
