@@ -20,7 +20,7 @@ class PerfilAcessoTest {
     @Test
     void deveMapearPermissoesRestritasDoProfissional() {
         assertThat(PerfilAcesso.PROFISSIONAL.permissoes())
-                .containsExactly(PermissaoAcesso.VISUALIZAR_EMPRESA);
+                .containsExactlyInAnyOrder(PermissaoAcesso.VISUALIZAR_EMPRESA, PermissaoAcesso.GERENCIAR_CLIENTES);
         assertThat(PerfilAcesso.PROFISSIONAL.possuiPermissao(PermissaoAcesso.CADASTRAR_EMPRESA)).isFalse();
     }
 }

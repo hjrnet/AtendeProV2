@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R3 — Núcleo operacional comum.
 
 ## Última task concluída
-TASK-0210 — Dashboard de vendas.
+TASK-0301 — Clientes/Pacientes.
 
 ## Próxima task recomendada
-TASK-0301 — Clientes/Pacientes.
+TASK-0302 — Agenda base.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0301 concluida em modo autopilot multiagente release R3.
+- Modulo `cliente` criado no backend com dominio `ClientePaciente`, areas multiárea, Command/Result, UseCases, OutputPorts, adapter JDBC e controller fino.
+- API tenant-scoped `/api/clientes-pacientes` permite cadastrar, detalhar e listar clientes/pacientes por empresa, busca, area e ativo sem expor persistencia.
+- Permissao `GERENCIAR_CLIENTES` adicionada para perfis operacionais da empresa.
+- Validacao local confirmou migration `clientes_pacientes`, criacao e listagem com Bearer JWT real; `mvn test` passou com 109 testes.
 - TASK-0210 concluida em modo autopilot multiagente release R2.
 - Dashboard de vendas Admin SaaS criado em `/api/admin-saas/dashboard/vendas`, com UseCase, Result, OutputPort, adapter JDBC e Response sem exposicao de persistencia.
 - Metricas de vendas usam dados reais de `assinaturas`, `assinatura_trials` e `planos`: MRR ativo, conversao de trials, churn e planos vendidos.

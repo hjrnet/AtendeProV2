@@ -55,7 +55,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
-| TASK-0301 | Clientes/Pacientes | Cadastro e listagem multiárea. | PENDENTE |
+| TASK-0301 | Clientes/Pacientes | Cadastro e listagem multiárea. | CONCLUIDA |
 | TASK-0302 | Agenda base | Agenda por profissional e sala. | PENDENTE |
 | TASK-0303 | Serviços/Procedimentos | Cadastro genérico de serviços. | PENDENTE |
 | TASK-0304 | Custos gerais | Custos fixos, variáveis e eventuais. | PENDENTE |

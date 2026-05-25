@@ -21,3 +21,5 @@ databaseChangeLog:
       file: db/changelog/changes/0010-create-assinatura-trials.yaml
   - include:
       file: db/changelog/changes/0011-create-assinaturas.yaml
+  - include:
+      file: db/changelog/changes/0012-create-clientes-pacientes.yaml
