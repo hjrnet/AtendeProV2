@@ -37,3 +37,7 @@ mvn -Dliquibase.url=jdbc:postgresql://localhost:5433/atendepro -Dliquibase.usern
 
 - JSON: `GET /api/docs`
 - Swagger UI: `/swagger-ui`
+
+## Shared kernel
+
+Value objects e utilitarios compartilhados ficam em `br.com.atendepro.shared`, incluindo `Money`, `Percentual`, `BaseId`, `Periodo`, `Paginacao` e `ResultadoPaginado`.
