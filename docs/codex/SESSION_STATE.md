@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R3 — Núcleo operacional comum.
 
 ## Última task concluída
-TASK-0302 — Agenda base.
+TASK-0303 — Serviços/Procedimentos.
 
 ## Próxima task recomendada
-TASK-0303 — Serviços/Procedimentos.
+TASK-0304 — Custos gerais.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0303 concluida em modo autopilot multiagente release R3.
+- Modulo `servico` criado no backend com dominio `ServicoProcedimento`, Command/Result, UseCases, OutputPorts, adapter JDBC e controller fino.
+- API `/api/servicos-procedimentos` permite cadastrar, detalhar e listar servicos por empresa, busca, area e ativo.
+- O cadastro de servicos usa `BigDecimal` para preco base e duracao em minutos, sem antecipar calculos avancados de precificacao da R4.
+- Validacao local confirmou migration `servicos_procedimentos`, criacao/listagem real e `mvn test` com 120 testes.
 - TASK-0302 concluida em modo autopilot multiagente release R3.
 - Modulo `agenda` criado no backend com dominio `CompromissoAgenda`, status, tipo, Command/Result, UseCases, OutputPorts, adapter JDBC e controller fino.
 - API `/api/agenda/compromissos` permite agendar, detalhar e listar compromissos por empresa, periodo, profissional, sala e status.

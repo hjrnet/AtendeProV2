@@ -23,7 +23,8 @@ class PerfilAcessoTest {
                 .containsExactlyInAnyOrder(
                         PermissaoAcesso.VISUALIZAR_EMPRESA,
                         PermissaoAcesso.GERENCIAR_CLIENTES,
-                        PermissaoAcesso.GERENCIAR_AGENDA
+                        PermissaoAcesso.GERENCIAR_AGENDA,
+                        PermissaoAcesso.GERENCIAR_SERVICOS
                 );
         assertThat(PerfilAcesso.PROFISSIONAL.possuiPermissao(PermissaoAcesso.CADASTRAR_EMPRESA)).isFalse();
     }

@@ -1,0 +1,83 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0014-create-servicos-procedimentos
+      author: codex
+      changes:
+        - createTable:
+            tableName: servicos_procedimentos
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: empresa_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: nome
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: descricao
+                  type: varchar(1000)
+              - column:
+                  name: area
+                  type: varchar(80)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: duracao_minutos
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: preco_base
+                  type: numeric(12,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ativo
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: servicos_procedimentos
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_servicos_procedimentos_empresas
+        - createIndex:
+            tableName: servicos_procedimentos
+            indexName: idx_servicos_empresa_nome
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: nome
+        - createIndex:
+            tableName: servicos_procedimentos
+            indexName: idx_servicos_empresa_area
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: area

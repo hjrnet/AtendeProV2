@@ -8,6 +8,7 @@ public enum PermissaoAcesso {
     GERENCIAR_USUARIOS("usuarios:gerenciar"),
     GERENCIAR_CLIENTES("clientes:gerenciar"),
     GERENCIAR_AGENDA("agenda:gerenciar"),
+    GERENCIAR_SERVICOS("servicos:gerenciar"),
     ACESSAR_ADMIN_SAAS("admin-saas:acessar"),
     ACESSAR_SUPORTE("suporte:acessar");
 
