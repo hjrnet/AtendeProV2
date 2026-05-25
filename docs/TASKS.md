@@ -138,7 +138,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 |---|---|---|---|
 | TASK-0901 | Módulo Chamados | Abertura e acompanhamento de suporte. | CONCLUIDA |
 | TASK-0902 | Painel Admin de Suporte | Caixa de entrada, prioridade e status. | CONCLUIDA |
-| TASK-0903 | Central de ajuda | Artigos, FAQ e tutoriais. | PENDENTE |
+| TASK-0903 | Central de ajuda | Artigos, FAQ e tutoriais. | CONCLUIDA |
 | TASK-0904 | Feedback e roadmap | Pedidos de melhoria e priorização. | PENDENTE |
 | TASK-0905 | Notificações internas | Eventos, avisos e alertas. | PENDENTE |
 | TASK-R9-001 | Destacar visualmente simulações em alerta na Precificação | Alertas visuais, badges, ícones e filtros para identificar simulações saudáveis, com margem baixa ou em prejuízo. | PENDENTE |
