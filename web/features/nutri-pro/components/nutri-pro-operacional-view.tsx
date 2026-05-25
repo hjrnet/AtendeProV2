@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
   Apple,
@@ -19,12 +19,18 @@ import {
 import {
   consultarProntuarioNutriPro,
   consultarVisaoNutriPro,
+  criarAvaliacaoAntropometricaNutriPro,
+  listarAvaliacoesAntropometricasNutriPro,
   listarPacientesNutriPro,
   type AcaoProntuarioNutriPro,
   type AtalhoNutriPro,
+  type AvaliacaoAntropometricaNutriPro,
+  type CriarAvaliacaoAntropometricaNutriProInput,
   type IndicadorNutriPro,
+  type ObjetivoNutricionalNutriPro,
   type PacienteNutriResumo,
-  type ProntuarioNutriPro
+  type ProntuarioNutriPro,
+  type SexoBiologicoNutriPro
 } from "@/features/nutri-pro/api/nutri-pro-client";
 import { cn } from "@/lib/utils";
 
@@ -33,6 +39,16 @@ type NutriProOperacionalViewProps = {
 };
 
 type Icone = typeof Apple;
+
+type FormularioAvaliacaoNutri = {
+  pesoKg: string;
+  alturaCm: string;
+  idade: string;
+  sexo: SexoBiologicoNutriPro;
+  objetivo: ObjetivoNutricionalNutriPro;
+  fatorAtividade: string;
+  observacoes: string;
+};
 
 const iconesIndicadores: Record<string, Icone> = {
   pacientes: Users,
@@ -277,7 +293,7 @@ function ProntuarioNutriProPainel({ empresaId, pacienteId }: { empresaId: string
         ))}
       </div>
 
-      <PainelAcaoProntuario prontuario={prontuario} acao={acaoSelecionada} />
+      <PainelAcaoProntuario empresaId={empresaId} prontuario={prontuario} acao={acaoSelecionada} />
     </section>
   );
 }
@@ -391,7 +407,7 @@ function CardAcaoProntuario({
   );
 }
 
-function PainelAcaoProntuario({ prontuario, acao }: { prontuario: ProntuarioNutriPro; acao: AcaoProntuarioNutriPro | null }) {
+function PainelAcaoProntuario({ empresaId, prontuario, acao }: { empresaId: string; prontuario: ProntuarioNutriPro; acao: AcaoProntuarioNutriPro | null }) {
   if (!acao) {
     return (
       <div className="mt-4 rounded-lg border bg-emerald-50/70 p-4 text-sm leading-6 text-muted-foreground">
@@ -410,10 +426,10 @@ function PainelAcaoProntuario({ prontuario, acao }: { prontuario: ProntuarioNutr
         <span className="w-fit rounded-md border bg-white px-2 py-1 text-xs font-semibold text-emerald-800">{acao.statusRotulo}</span>
       </div>
       <div className="mt-3">
-        {acao.codigo === "gasto-energetico" ? <FluxoGastoEnergetico pacienteNome={prontuario.paciente.nome} /> : null}
+        {acao.codigo === "gasto-energetico" ? <FluxoAvaliacaoEGastoEnergetico empresaId={empresaId} prontuario={prontuario} /> : null}
         {acao.codigo === "exames-laboratoriais" ? <FluxoExamesLaboratoriais /> : null}
         {acao.codigo === "plano-alimentar" ? <FluxoPlanoAlimentar /> : null}
-        {acao.codigo === "avaliacao-antropometrica" ? <FluxoAvaliacaoAntropometrica /> : null}
+        {acao.codigo === "avaliacao-antropometrica" ? <FluxoAvaliacaoEGastoEnergetico empresaId={empresaId} prontuario={prontuario} /> : null}
         {acao.codigo === "anamnese" ? <FluxoAnamnese /> : null}
         {acao.codigo === "metas" ? <FluxoMetas /> : null}
       </div>
@@ -421,13 +437,217 @@ function PainelAcaoProntuario({ prontuario, acao }: { prontuario: ProntuarioNutr
   );
 }
 
-function FluxoGastoEnergetico({ pacienteNome }: { pacienteNome: string }) {
+function FluxoAvaliacaoEGastoEnergetico({ empresaId, prontuario }: { empresaId: string; prontuario: ProntuarioNutriPro }) {
+  const queryClient = useQueryClient();
+  const idadeInicial = prontuario.paciente.idade ?? 30;
+  const [formulario, setFormulario] = useState<FormularioAvaliacaoNutri>({
+    pesoKg: "70",
+    alturaCm: "168",
+    idade: String(idadeInicial),
+    sexo: "FEMININO",
+    objetivo: "MANUTENCAO",
+    fatorAtividade: "1.40",
+    observacoes: ""
+  });
+
+  useEffect(() => {
+    setFormulario((estadoAtual) => ({ ...estadoAtual, idade: String(idadeInicial) }));
+  }, [idadeInicial, prontuario.paciente.id]);
+
+  const avaliacoesQuery = useQuery({
+    queryKey: ["nutri-pro-avaliacoes-antropometricas", empresaId, prontuario.paciente.id],
+    queryFn: () => listarAvaliacoesAntropometricasNutriPro({ empresaId, pacienteId: prontuario.paciente.id }),
+    enabled: Boolean(empresaId && prontuario.paciente.id)
+  });
+
+  const criarAvaliacaoMutation = useMutation({
+    mutationFn: (dados: CriarAvaliacaoAntropometricaNutriProInput) =>
+      criarAvaliacaoAntropometricaNutriPro({
+        empresaId,
+        pacienteId: prontuario.paciente.id,
+        dados
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-avaliacoes-antropometricas", empresaId, prontuario.paciente.id] });
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-prontuario", empresaId, prontuario.paciente.id] });
+    }
+  });
+
+  const avaliacoes = avaliacoesQuery.data?.itens ?? [];
+  const avaliacaoMaisRecente = criarAvaliacaoMutation.data ?? avaliacoes[0] ?? null;
+
+  function atualizarCampo(campo: keyof FormularioAvaliacaoNutri, valor: string) {
+    setFormulario((estadoAtual) => ({ ...estadoAtual, [campo]: valor }));
+  }
+
+  function registrarAvaliacao(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    criarAvaliacaoMutation.mutate({
+      pesoKg: Number(formulario.pesoKg),
+      alturaCm: Number(formulario.alturaCm),
+      idade: Number(formulario.idade),
+      sexo: formulario.sexo,
+      objetivo: formulario.objetivo,
+      fatorAtividade: Number(formulario.fatorAtividade),
+      observacoes: formulario.observacoes.trim() || null
+    });
+  }
+
   return (
-    <div className="grid gap-3 md:grid-cols-3">
-      <CampoPreparado label="Paciente" value={pacienteNome} />
-      <CampoPreparado label="Objetivo" value="Definir na avaliação" />
-      <CampoPreparado label="Status" value="Cálculo completo na próxima task" />
+    <div className="grid gap-4">
+      <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-900">
+        Cálculos estimativos. O AtendePro apoia a avaliação, mas a conduta final deve ser validada pela nutricionista.
+      </div>
+
+      <form onSubmit={registrarAvaliacao} className="grid gap-3 rounded-lg border bg-white p-4">
+        <div className="grid gap-3 md:grid-cols-3">
+          <CampoFormularioAvaliacao label="Peso (kg)" value={formulario.pesoKg} min="1" max="500" step="0.01" onChange={(valor) => atualizarCampo("pesoKg", valor)} />
+          <CampoFormularioAvaliacao label="Altura (cm)" value={formulario.alturaCm} min="30" max="250" step="0.01" onChange={(valor) => atualizarCampo("alturaCm", valor)} />
+          <CampoFormularioAvaliacao label="Idade" value={formulario.idade} min="1" max="120" step="1" onChange={(valor) => atualizarCampo("idade", valor)} />
+        </div>
+        <div className="grid gap-3 md:grid-cols-3">
+          <label className="grid gap-1 text-sm font-medium text-card-foreground">
+            Sexo biológico
+            <select
+              value={formulario.sexo}
+              onChange={(event) => atualizarCampo("sexo", event.target.value as SexoBiologicoNutriPro)}
+              className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+            >
+              <option value="FEMININO">Feminino</option>
+              <option value="MASCULINO">Masculino</option>
+              <option value="NAO_INFORMADO">Não informado</option>
+            </select>
+          </label>
+          <label className="grid gap-1 text-sm font-medium text-card-foreground">
+            Objetivo
+            <select
+              value={formulario.objetivo}
+              onChange={(event) => atualizarCampo("objetivo", event.target.value as ObjetivoNutricionalNutriPro)}
+              className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+            >
+              <option value="PERDA_DE_PESO">Perda de peso</option>
+              <option value="GANHO_DE_MASSA">Ganho de massa</option>
+              <option value="MANUTENCAO">Manutenção</option>
+              <option value="PERFORMANCE">Performance</option>
+              <option value="SAUDE">Saúde</option>
+            </select>
+          </label>
+          <CampoFormularioAvaliacao label="Fator de atividade" value={formulario.fatorAtividade} min="1" max="3" step="0.01" onChange={(valor) => atualizarCampo("fatorAtividade", valor)} />
+        </div>
+        <label className="grid gap-1 text-sm font-medium text-card-foreground">
+          Observações
+          <textarea
+            value={formulario.observacoes}
+            onChange={(event) => atualizarCampo("observacoes", event.target.value)}
+            className="min-h-24 rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+            placeholder="Contexto clínico, rotina, objetivo ou observações técnicas"
+          />
+        </label>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs leading-5 text-muted-foreground">Fórmula inicial: Mifflin-St Jeor. Fórmulas configuráveis ficam para evolução futura.</p>
+          <button
+            type="submit"
+            disabled={criarAvaliacaoMutation.isPending}
+            className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {criarAvaliacaoMutation.isPending ? "Salvando avaliação" : "Salvar avaliação"}
+          </button>
+        </div>
+        {criarAvaliacaoMutation.isError ? <p className="text-sm font-medium text-destructive">Não foi possível salvar a avaliação. Confira os dados e tente novamente.</p> : null}
+      </form>
+
+      {avaliacaoMaisRecente ? <ResumoAvaliacaoNutri avaliacao={avaliacaoMaisRecente} /> : null}
+
+      <section className="rounded-lg border bg-white p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-card-foreground">Histórico de avaliações</p>
+            <p className="text-xs text-muted-foreground">Registros mais recentes do paciente.</p>
+          </div>
+          {avaliacoesQuery.isLoading ? <LoaderCircle className="h-4 w-4 animate-spin text-muted-foreground" /> : null}
+        </div>
+        <div className="mt-3 grid gap-2">
+          {avaliacoes.length ? (
+            avaliacoes.map((avaliacao) => <LinhaAvaliacaoNutri key={avaliacao.id} avaliacao={avaliacao} />)
+          ) : (
+            <div className="rounded-md border bg-background p-3 text-sm text-muted-foreground">Nenhuma avaliação antropométrica registrada ainda.</div>
+          )}
+        </div>
+      </section>
     </div>
+  );
+}
+
+function CampoFormularioAvaliacao({
+  label,
+  value,
+  min,
+  max,
+  step,
+  onChange
+}: {
+  label: string;
+  value: string;
+  min: string;
+  max: string;
+  step: string;
+  onChange: (valor: string) => void;
+}) {
+  return (
+    <label className="grid gap-1 text-sm font-medium text-card-foreground">
+      {label}
+      <input
+        type="number"
+        min={min}
+        max={max}
+        step={step}
+        required
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+      />
+    </label>
+  );
+}
+
+function ResumoAvaliacaoNutri({ avaliacao }: { avaliacao: AvaliacaoAntropometricaNutriPro }) {
+  return (
+    <section className="rounded-lg border border-emerald-200 bg-emerald-50/70 p-4">
+      <div className="flex flex-col gap-2 border-b border-emerald-200 pb-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-emerald-900">Resultado estimado</p>
+          <p className="text-xs text-emerald-900/75">{avaliacao.formula}</p>
+        </div>
+        <span className="w-fit rounded-md border border-emerald-300 bg-white px-2 py-1 text-xs font-semibold text-emerald-800">
+          {avaliacao.objetivoRotulo}
+        </span>
+      </div>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <CampoPreparado label="IMC" value={formatarDecimal(avaliacao.imc)} />
+        <CampoPreparado label="TMB" value={formatarKcal(avaliacao.tmbKcal)} />
+        <CampoPreparado label="GEB" value={formatarKcal(avaliacao.gebKcal)} />
+        <CampoPreparado label="GET" value={formatarKcal(avaliacao.getKcal)} />
+        <CampoPreparado label="Meta energética" value={formatarKcal(avaliacao.metaEnergeticaKcal)} />
+      </div>
+      <p className="mt-3 text-xs leading-5 text-emerald-950/80">{avaliacao.aviso}</p>
+    </section>
+  );
+}
+
+function LinhaAvaliacaoNutri({ avaliacao }: { avaliacao: AvaliacaoAntropometricaNutriPro }) {
+  return (
+    <article className="grid gap-2 rounded-md border bg-background p-3 text-sm sm:grid-cols-[minmax(0,1fr)_auto]">
+      <div>
+        <p className="font-semibold text-card-foreground">{formatarDataHora(avaliacao.criadoEm)}</p>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+          {formatarDecimal(avaliacao.pesoKg)} kg · {formatarDecimal(avaliacao.alturaCm)} cm · IMC {formatarDecimal(avaliacao.imc)} · {avaliacao.sexoRotulo}
+        </p>
+      </div>
+      <div className="flex flex-wrap gap-2 sm:justify-end">
+        <span className="rounded-md border bg-white px-2 py-1 text-xs font-semibold text-muted-foreground">{avaliacao.objetivoRotulo}</span>
+        <span className="rounded-md border bg-white px-2 py-1 text-xs font-semibold text-emerald-800">GET {formatarKcal(avaliacao.getKcal)}</span>
+      </div>
+    </article>
   );
 }
 
@@ -447,16 +667,6 @@ function FluxoPlanoAlimentar() {
       <CampoPreparado label="Objetivo do plano" value="Emagrecimento, performance ou saúde" />
       <CampoPreparado label="Refeições" value="Café, almoço, lanches e jantar" />
       <CampoPreparado label="PDF" value="Preparado para task futura" />
-    </div>
-  );
-}
-
-function FluxoAvaliacaoAntropometrica() {
-  return (
-    <div className="grid gap-3 md:grid-cols-3">
-      <CampoPreparado label="Peso" value="Entrada preparada" />
-      <CampoPreparado label="Altura" value="Entrada preparada" />
-      <CampoPreparado label="IMC" value="Cálculo na próxima task" />
     </div>
   );
 }
@@ -553,6 +763,7 @@ function rotuloStatus(status: string) {
 
 function rotuloStatusAtalho(status: string) {
   const rotulos: Record<string, string> = {
+    DISPONIVEL: "Disponível",
     PLANEJADO_R10: "Planejado na R10",
     PROXIMA_TASK: "Próxima task"
   };
@@ -561,6 +772,27 @@ function rotuloStatusAtalho(status: string) {
 
 function formatarNumero(valor: number) {
   return new Intl.NumberFormat("pt-BR").format(valor);
+}
+
+function formatarDecimal(valor: number) {
+  return new Intl.NumberFormat("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(valor);
+}
+
+function formatarKcal(valor: number) {
+  return `${formatarDecimal(valor)} kcal`;
+}
+
+function formatarDataHora(valor: string) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(new Date(valor));
 }
 
 function textoPaciente(prontuario: ProntuarioNutriPro) {

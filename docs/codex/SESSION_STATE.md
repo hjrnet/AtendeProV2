@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R10 — Nutri Pro, Beauty Pro e comercial.
 
 ## Última task concluída
-TASK-NUTRI-003 — Criar prontuário nutricional e menu rápido funcional.
+TASK-NUTRI-004 — Criar avaliação antropométrica e gasto energético.
 
 ## Próxima task recomendada
-TASK-NUTRI-004 — Criar avaliação antropométrica e gasto energético.
+TASK-NUTRI-005 — Criar plano alimentar com refeições, alimentos e suplementos.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,13 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-NUTRI-004 concluida em modo autopilot multiagente release R10.
+- Nutri Pro ganhou tabela `nutri_avaliacoes_antropometricas` para histórico tenant-scoped por paciente, com migration `0030-create-nutri-avaliacoes-antropometricas.yaml`.
+- Backend criou dominio `AvaliacaoAntropometricaNutriPro`, sexo biologico, objetivo nutricional, calculo de IMC e estimativa inicial de TMB/GEB/GET pela formula Mifflin-St Jeor.
+- API operacional adicionou `POST`, `GET` lista e `GET` detalhe em `/api/nutri-pro/pacientes/{pacienteId}/avaliacoes-antropometricas`, sem expor persistencia e com Request/Response dedicados.
+- Web do prontuario Nutri Pro ganhou formulario responsivo para peso, altura, idade, sexo, objetivo, fator de atividade e observacoes, exibindo resultado estimado e historico.
+- O sistema exibe aviso de que os calculos sao estimativos e a conduta deve ser validada pela nutricionista; dobras, bioimpedancia, fotos e PDF ficaram fora do escopo.
+- Validacao confirmou `mvn test` com 279 testes, `pnpm typecheck`, `pnpm lint`, `pnpm build`, Docker Compose saudavel, API local criando/listando/detalhando avaliacao e Browser em Verticais > Nutri Pro sem erros de console.
 - TASK-NUTRI-003 concluida em modo autopilot multiagente release R10.
 - Backend Nutri Pro ganhou listagem de pacientes tenant-scoped em `/api/nutri-pro/pacientes` e prontuario nutricional em `/api/nutri-pro/pacientes/{pacienteId}/prontuario`, mantendo controller fino, DTOs dedicados, Commands, Results, UseCases/InputPorts e OutputPorts.
 - O prontuario agrega dados do nucleo comum para paciente, resumo, consultas futuras, documentos, simulacoes e plano ativo sem criar tabelas profundas fora do escopo.

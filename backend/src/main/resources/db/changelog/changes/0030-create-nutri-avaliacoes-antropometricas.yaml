@@ -1,0 +1,132 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0030-create-nutri-avaliacoes-antropometricas
+      author: codex
+      changes:
+        - createTable:
+            tableName: nutri_avaliacoes_antropometricas
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: empresa_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: paciente_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: peso_kg
+                  type: numeric(8,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: altura_cm
+                  type: numeric(6,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: idade
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: sexo
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: imc
+                  type: numeric(6,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: objetivo
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: fator_atividade
+                  type: numeric(4,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: geb_kcal
+                  type: numeric(8,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tmb_kcal
+                  type: numeric(8,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: get_kcal
+                  type: numeric(8,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: meta_energetica_kcal
+                  type: numeric(8,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: formula
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: aviso
+                  type: varchar(500)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: observacoes
+                  type: varchar(1000)
+              - column:
+                  name: criado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: nutri_avaliacoes_antropometricas
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_nutri_avaliacoes_empresas
+        - addForeignKeyConstraint:
+            baseTableName: nutri_avaliacoes_antropometricas
+            baseColumnNames: paciente_id
+            referencedTableName: clientes_pacientes
+            referencedColumnNames: id
+            constraintName: fk_nutri_avaliacoes_pacientes
+        - createIndex:
+            tableName: nutri_avaliacoes_antropometricas
+            indexName: idx_nutri_avaliacoes_empresa_paciente
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: paciente_id
+              - column:
+                  name: criado_em
+        - createIndex:
+            tableName: nutri_avaliacoes_antropometricas
+            indexName: idx_nutri_avaliacoes_paciente
+            columns:
+              - column:
+                  name: paciente_id

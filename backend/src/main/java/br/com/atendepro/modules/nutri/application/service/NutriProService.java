@@ -13,23 +13,35 @@ import org.springframework.stereotype.Service;
 import br.com.atendepro.modules.auth.application.permission.PermissaoAcessoService;
 import br.com.atendepro.modules.auth.domain.model.PermissaoAcesso;
 import br.com.atendepro.modules.empresa.application.context.TenantAccessService;
+import br.com.atendepro.modules.nutri.application.command.CriarAvaliacaoAntropometricaNutriProCommand;
+import br.com.atendepro.modules.nutri.application.command.DetalharAvaliacaoAntropometricaNutriProCommand;
+import br.com.atendepro.modules.nutri.application.command.ListarAvaliacoesAntropometricasNutriProCommand;
 import br.com.atendepro.modules.nutri.application.command.ConsultarVisaoNutriProCommand;
 import br.com.atendepro.modules.nutri.application.command.ConsultarProntuarioNutriProCommand;
 import br.com.atendepro.modules.nutri.application.command.ListarPacientesNutriProCommand;
+import br.com.atendepro.modules.nutri.application.port.in.CriarAvaliacaoAntropometricaNutriProUseCase;
+import br.com.atendepro.modules.nutri.application.port.in.DetalharAvaliacaoAntropometricaNutriProUseCase;
 import br.com.atendepro.modules.nutri.application.port.in.ConsultarProntuarioNutriProUseCase;
 import br.com.atendepro.modules.nutri.application.port.in.ConsultarVisaoNutriProUseCase;
+import br.com.atendepro.modules.nutri.application.port.in.ListarAvaliacoesAntropometricasNutriProUseCase;
 import br.com.atendepro.modules.nutri.application.port.in.ListarPacientesNutriProUseCase;
+import br.com.atendepro.modules.nutri.application.port.out.CarregarAvaliacaoAntropometricaNutriProPort;
 import br.com.atendepro.modules.nutri.application.port.out.CarregarProntuarioNutriProPort;
 import br.com.atendepro.modules.nutri.application.port.out.CarregarVisaoNutriProPort;
+import br.com.atendepro.modules.nutri.application.port.out.ListarAvaliacoesAntropometricasNutriProPort;
 import br.com.atendepro.modules.nutri.application.port.out.ListarPacientesNutriProPort;
+import br.com.atendepro.modules.nutri.application.port.out.SalvarAvaliacaoAntropometricaNutriProPort;
+import br.com.atendepro.modules.nutri.application.port.out.VerificarPacienteNutriProPort;
 import br.com.atendepro.modules.nutri.application.result.AcaoProntuarioNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.AtalhoNutriProResult;
+import br.com.atendepro.modules.nutri.application.result.AvaliacaoAntropometricaNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.DadosProntuarioNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.IndicadorNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.MetricasNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.PacienteNutriResumoResult;
 import br.com.atendepro.modules.nutri.application.result.ProntuarioNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.VisaoNutriProResult;
+import br.com.atendepro.modules.nutri.domain.model.AvaliacaoAntropometricaNutriPro;
 import br.com.atendepro.modules.nutri.domain.model.StatusAcaoNutriPro;
 import br.com.atendepro.modules.nutri.domain.model.StatusOperacionalNutriPro;
 import br.com.atendepro.shared.domain.exception.BusinessException;
@@ -39,11 +51,18 @@ import br.com.atendepro.shared.domain.exception.BusinessException;
 public class NutriProService implements
         ConsultarVisaoNutriProUseCase,
         ListarPacientesNutriProUseCase,
-        ConsultarProntuarioNutriProUseCase {
+        ConsultarProntuarioNutriProUseCase,
+        CriarAvaliacaoAntropometricaNutriProUseCase,
+        ListarAvaliacoesAntropometricasNutriProUseCase,
+        DetalharAvaliacaoAntropometricaNutriProUseCase {
 
     private final CarregarVisaoNutriProPort carregarVisaoNutriProPort;
     private final ListarPacientesNutriProPort listarPacientesNutriProPort;
     private final CarregarProntuarioNutriProPort carregarProntuarioNutriProPort;
+    private final VerificarPacienteNutriProPort verificarPacienteNutriProPort;
+    private final SalvarAvaliacaoAntropometricaNutriProPort salvarAvaliacaoAntropometricaNutriProPort;
+    private final ListarAvaliacoesAntropometricasNutriProPort listarAvaliacoesAntropometricasNutriProPort;
+    private final CarregarAvaliacaoAntropometricaNutriProPort carregarAvaliacaoAntropometricaNutriProPort;
     private final TenantAccessService tenantAccessService;
     private final PermissaoAcessoService permissaoAcessoService;
     private final Clock clock;
@@ -52,6 +71,10 @@ public class NutriProService implements
             CarregarVisaoNutriProPort carregarVisaoNutriProPort,
             ListarPacientesNutriProPort listarPacientesNutriProPort,
             CarregarProntuarioNutriProPort carregarProntuarioNutriProPort,
+            VerificarPacienteNutriProPort verificarPacienteNutriProPort,
+            SalvarAvaliacaoAntropometricaNutriProPort salvarAvaliacaoAntropometricaNutriProPort,
+            ListarAvaliacoesAntropometricasNutriProPort listarAvaliacoesAntropometricasNutriProPort,
+            CarregarAvaliacaoAntropometricaNutriProPort carregarAvaliacaoAntropometricaNutriProPort,
             TenantAccessService tenantAccessService,
             PermissaoAcessoService permissaoAcessoService,
             Clock clock
@@ -59,6 +82,10 @@ public class NutriProService implements
         this.carregarVisaoNutriProPort = carregarVisaoNutriProPort;
         this.listarPacientesNutriProPort = listarPacientesNutriProPort;
         this.carregarProntuarioNutriProPort = carregarProntuarioNutriProPort;
+        this.verificarPacienteNutriProPort = verificarPacienteNutriProPort;
+        this.salvarAvaliacaoAntropometricaNutriProPort = salvarAvaliacaoAntropometricaNutriProPort;
+        this.listarAvaliacoesAntropometricasNutriProPort = listarAvaliacoesAntropometricasNutriProPort;
+        this.carregarAvaliacaoAntropometricaNutriProPort = carregarAvaliacaoAntropometricaNutriProPort;
         this.tenantAccessService = tenantAccessService;
         this.permissaoAcessoService = permissaoAcessoService;
         this.clock = clock;
@@ -101,6 +128,49 @@ public class NutriProService implements
         UUID empresaId = resolverEmpresaId(command.empresaId());
         return carregarProntuarioNutriProPort.carregarProntuarioNutriPro(empresaId, command.pacienteId(), LocalDate.now(clock))
                 .map(dados -> montarProntuario(empresaId, dados));
+    }
+
+    @Override
+    public AvaliacaoAntropometricaNutriProResult criarAvaliacaoAntropometrica(CriarAvaliacaoAntropometricaNutriProCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+
+        AvaliacaoAntropometricaNutriPro avaliacao = AvaliacaoAntropometricaNutriPro.registrar(
+                empresaId,
+                command.pacienteId(),
+                command.pesoKg(),
+                command.alturaCm(),
+                command.idade(),
+                command.sexo(),
+                command.objetivo(),
+                command.fatorAtividade(),
+                command.observacoes(),
+                Instant.now(clock)
+        );
+        salvarAvaliacaoAntropometricaNutriProPort.salvarAvaliacaoAntropometrica(avaliacao);
+        return AvaliacaoAntropometricaNutriProResult.de(avaliacao);
+    }
+
+    @Override
+    public List<AvaliacaoAntropometricaNutriProResult> listarAvaliacoesAntropometricas(ListarAvaliacoesAntropometricasNutriProCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        return listarAvaliacoesAntropometricasNutriProPort.listarAvaliacoesAntropometricas(empresaId, command.pacienteId())
+                .stream()
+                .map(AvaliacaoAntropometricaNutriProResult::de)
+                .toList();
+    }
+
+    @Override
+    public Optional<AvaliacaoAntropometricaNutriProResult> detalharAvaliacaoAntropometrica(DetalharAvaliacaoAntropometricaNutriProCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        return carregarAvaliacaoAntropometricaNutriProPort
+                .carregarAvaliacaoAntropometrica(empresaId, command.pacienteId(), command.avaliacaoId())
+                .map(AvaliacaoAntropometricaNutriProResult::de);
     }
 
     private ProntuarioNutriProResult montarProntuario(UUID empresaId, DadosProntuarioNutriProResult dados) {
@@ -152,10 +222,10 @@ public class NutriProService implements
 
     private List<AcaoProntuarioNutriProResult> acoesProntuario() {
         return List.of(
-                acaoProntuario("gasto-energetico", "Adicionar gasto energético", "Abrir entrada preparada para TMB, GEB, GET e objetivo energético.", StatusAcaoNutriPro.PROXIMA_TASK, true),
+                acaoProntuario("gasto-energetico", "Adicionar gasto energético", "Registrar avaliação e estimar TMB, GEB, GET e meta energética.", StatusAcaoNutriPro.DISPONIVEL, true),
                 acaoProntuario("exames-laboratoriais", "Adicionar exames laboratoriais", "Preparar solicitação de exames e histórico do paciente.", StatusAcaoNutriPro.PREPARADO, true),
                 acaoProntuario("plano-alimentar", "Adicionar plano alimentar", "Iniciar fluxo preparado para plano alimentar por paciente.", StatusAcaoNutriPro.PREPARADO, true),
-                acaoProntuario("avaliacao-antropometrica", "Adicionar avaliação antropométrica", "Abrir estado preparado para peso, altura, IMC e objetivo.", StatusAcaoNutriPro.PROXIMA_TASK, false),
+                acaoProntuario("avaliacao-antropometrica", "Adicionar avaliação antropométrica", "Registrar peso, altura, IMC, objetivo e histórico do paciente.", StatusAcaoNutriPro.DISPONIVEL, false),
                 acaoProntuario("anamnese", "Adicionar anamnese", "Organizar queixas, rotina alimentar, preferências e observações.", StatusAcaoNutriPro.PREPARADO, false),
                 acaoProntuario("metas", "Adicionar metas", "Definir objetivos de acompanhamento nutricional.", StatusAcaoNutriPro.PREPARADO, false)
         );
@@ -183,6 +253,12 @@ public class NutriProService implements
             throw new BusinessException("NUTRI_PRO_EMPRESA_OBRIGATORIA", "Empresa e obrigatoria para operar Nutri Pro.");
         }
         return empresaIdSolicitada;
+    }
+
+    private void validarPacienteNutriPro(UUID empresaId, UUID pacienteId) {
+        if (pacienteId == null || !verificarPacienteNutriProPort.existePacienteNutriPro(empresaId, pacienteId)) {
+            throw new BusinessException("NUTRI_PRO_PACIENTE_NAO_ENCONTRADO", "Paciente de nutricao nao encontrado nesta empresa.");
+        }
     }
 
     private void validarPermissao() {

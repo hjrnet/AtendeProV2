@@ -1,8 +1,8 @@
 project: AtendePro
 strategy: professional_complete
 current_release: R10
-last_completed_task: TASK-NUTRI-003
-next_task: TASK-NUTRI-004
+last_completed_task: TASK-NUTRI-004
+next_task: TASK-NUTRI-005
 releases:
   R0:
     name: "R0 — Fundação técnica profissional"
@@ -144,7 +144,7 @@ releases:
     tasks:
       TASK-NUTRI-002: CONCLUIDA
       TASK-NUTRI-003: CONCLUIDA
-      TASK-NUTRI-004: PENDENTE
+      TASK-NUTRI-004: CONCLUIDA
       TASK-NUTRI-005: PENDENTE
       TASK-NUTRI-006: PENDENTE
       TASK-BEAUTY-001: PENDENTE

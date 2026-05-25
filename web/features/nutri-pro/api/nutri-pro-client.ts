@@ -77,6 +77,48 @@ export type ProntuarioNutriPro = {
   atualizadoEm: string;
 };
 
+export type SexoBiologicoNutriPro = "FEMININO" | "MASCULINO" | "NAO_INFORMADO";
+
+export type ObjetivoNutricionalNutriPro = "PERDA_DE_PESO" | "GANHO_DE_MASSA" | "MANUTENCAO" | "PERFORMANCE" | "SAUDE";
+
+export type AvaliacaoAntropometricaNutriPro = {
+  id: string;
+  empresaId: string;
+  pacienteId: string;
+  pesoKg: number;
+  alturaCm: number;
+  idade: number;
+  sexo: SexoBiologicoNutriPro;
+  sexoRotulo: string;
+  imc: number;
+  objetivo: ObjetivoNutricionalNutriPro;
+  objetivoRotulo: string;
+  fatorAtividade: number;
+  gebKcal: number;
+  tmbKcal: number;
+  getKcal: number;
+  metaEnergeticaKcal: number;
+  formula: string;
+  aviso: string;
+  observacoes: string | null;
+  criadoEm: string;
+  atualizadoEm: string;
+};
+
+export type AvaliacoesAntropometricasNutriPro = {
+  itens: AvaliacaoAntropometricaNutriPro[];
+};
+
+export type CriarAvaliacaoAntropometricaNutriProInput = {
+  pesoKg: number;
+  alturaCm: number;
+  idade: number;
+  sexo: SexoBiologicoNutriPro;
+  objetivo: ObjetivoNutricionalNutriPro;
+  fatorAtividade: number;
+  observacoes?: string | null;
+};
+
 export type VisaoNutriPro = {
   empresaId: string;
   empresaNome: string;
@@ -114,4 +156,24 @@ export function consultarProntuarioNutriPro(params: { empresaId: string; pacient
   return nutriProApi.get<ProntuarioNutriPro>(`/api/nutri-pro/pacientes/${params.pacienteId}/prontuario`, {
     query: { empresaId: params.empresaId }
   });
+}
+
+export function listarAvaliacoesAntropometricasNutriPro(params: { empresaId: string; pacienteId: string }) {
+  return nutriProApi.get<AvaliacoesAntropometricasNutriPro>(`/api/nutri-pro/pacientes/${params.pacienteId}/avaliacoes-antropometricas`, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export function criarAvaliacaoAntropometricaNutriPro(params: {
+  empresaId: string;
+  pacienteId: string;
+  dados: CriarAvaliacaoAntropometricaNutriProInput;
+}) {
+  return nutriProApi.post<AvaliacaoAntropometricaNutriPro>(
+    `/api/nutri-pro/pacientes/${params.pacienteId}/avaliacoes-antropometricas`,
+    params.dados,
+    {
+      query: { empresaId: params.empresaId }
+    }
+  );
 }
