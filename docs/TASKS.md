@@ -120,10 +120,11 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-0707 | Farmácia Clínica futuro | Serviços clínicos e documentos CRF. | CONCLUIDA |
 | TASK-0708 | Odonto Pro futuro | Documentos odontológicos e CRO. | CONCLUIDA |
 
-## R8 — App cliente/profissional e mobile Expo
+## R8 — Fundação de experiência profissional do SaaS
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
+| TASK-UX-001 | Redesenhar shell, navegação e experiência responsiva do AtendePro | Shell profissional responsivo, navegação real por área, progressive disclosure e acabamento premium. | PENDENTE |
 | TASK-0801 | Portal do cliente web | Agenda, documentos e evolução. | PENDENTE |
 | TASK-0802 | App Expo base | Estrutura mobile. | PENDENTE |
 | TASK-0803 | App do cliente/paciente | Agenda, documentos, diário, fotos e mensagens. | PENDENTE |

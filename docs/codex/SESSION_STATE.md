@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R8 — App cliente/profissional e mobile Expo.
+R8 — Fundação de experiência profissional do SaaS.
 
 ## Última task concluída
 TASK-0708 — Odonto Pro futuro.
 
 ## Próxima task recomendada
-TASK-0801 — Portal do cliente web.
+TASK-UX-001 — Redesenhar shell, navegação e experiência responsiva do AtendePro.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,9 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-UX-001 criada como primeira task pendente da R8 para redesenhar shell, navegacao e experiencia responsiva do AtendePro, sem implementacao nesta etapa.
+- R8 foi reposicionada como `Fundação de experiência profissional do SaaS`, mantendo portal/app/mobile como evolucoes posteriores da mesma release.
+- A implementacao futura deve trocar navegacao por scroll/ancora por conteudo ativo em painel central, com shell responsivo, progressive disclosure, mobile/tablet/desktop e validacao visual nas larguras obrigatorias.
 - TASK-0708 concluida em modo autopilot multiagente release R7.
 - Odonto Pro adicionado ao catalogo como `PREPARADO_FUTURO`, com CRO, documentos odontologicos, plano de tratamento, evolucao clinica e termos.
 - R7 concluida com TASK-NUTRI-001, TASK-AGD-001 e TASK-0701 a TASK-0708 registradas como concluidas; proxima release recomendada e R8.

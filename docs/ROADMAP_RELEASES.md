@@ -102,8 +102,9 @@
 - **TASK-0707 — Farmácia Clínica futuro**: Serviços clínicos e documentos CRF.
 - **TASK-0708 — Odonto Pro futuro**: Documentos odontológicos e CRO.
 
-## R8 — App cliente/profissional e mobile Expo
+## R8 — Fundação de experiência profissional do SaaS
 
+- **TASK-UX-001 — Redesenhar shell, navegação e experiência responsiva do AtendePro**: Shell profissional responsivo, navegação real por área, progressive disclosure e acabamento premium.
 - **TASK-0801 — Portal do cliente web**: Agenda, documentos e evolução.
 - **TASK-0802 — App Expo base**: Estrutura mobile.
 - **TASK-0803 — App do cliente/paciente**: Agenda, documentos, diário, fotos e mensagens.
