@@ -1,7 +1,7 @@
 project: AtendePro
 strategy: professional_complete
 current_release: R7
-last_completed_task: TASK-0607
+last_completed_task: TASK-NUTRI-001
 next_task: TASK-0701
 releases:
   R0:
@@ -102,8 +102,9 @@ releases:
       TASK-0607: CONCLUIDA
   R7:
     name: "R7 — Verticais profissionais"
-    status: PENDENTE
+    status: EM_ANDAMENTO
     tasks:
+      TASK-NUTRI-001: CONCLUIDA
       TASK-0701: PENDENTE
       TASK-0702: PENDENTE
       TASK-0703: PENDENTE

@@ -7,7 +7,7 @@ AtendePro — SaaS profissional completo.
 R7 — Verticais profissionais.
 
 ## Última task concluída
-TASK-0607 — Histórico e versionamento.
+TASK-NUTRI-001 — Estruturar requisitos completos do Nutri Pro.
 
 ## Próxima task recomendada
 TASK-0701 — Nutri Pro.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-NUTRI-001 concluida como task documental da R7, sem implementacao tecnica.
+- Especificacao oficial do Nutri Pro criada em `docs/product/verticais/`, cobrindo visao, requisitos, fluxos, telas, regras de negocio e backlog detalhado.
+- Referencias visuais foram registradas apenas como inspiracao funcional/UX; ficou proibido copiar layout, marca, textos, identidade visual ou design de terceiros.
+- Backlog futuro do Nutri Pro foi organizado em `TASK-NUTRI-002` a `TASK-NUTRI-025`, mas essas tasks ainda precisam ser promovidas para arquivos individuais antes de execucao.
+- Proxima task recomendada permanece `TASK-0701 — Nutri Pro`.
 - TASK-0607 concluida em modo autopilot multiagente release R6.
 - Historico e versionamento de documentos profissionais criados com snapshots de antes/depois em `documentos_profissionais_historico`.
 - A substituicao usa `/api/documentos-profissionais/{documentoId}/substituicoes`, incrementa `versao` e registra motivo, usuario quando houver contexto e dados anteriores/novos.

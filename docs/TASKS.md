@@ -109,6 +109,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
+| TASK-NUTRI-001 | Estruturar requisitos completos do Nutri Pro | Especificação oficial a partir da descrição e referências visuais, sem implementação técnica. | CONCLUIDA |
 | TASK-0701 | Nutri Pro | Plano alimentar, diário, exames, suplementação e CRN. | PENDENTE |
 | TASK-0702 | Beauty Pro | Protocolos, fotos, termos, pacotes e salão. | PENDENTE |
 | TASK-0703 | Biomed Pro | CRBM, habilitações, rastreabilidade e estética biomédica. | PENDENTE |
