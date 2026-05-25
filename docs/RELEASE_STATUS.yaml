@@ -1,0 +1,160 @@
+project: AtendePro
+strategy: professional_complete
+current_release: R0
+last_completed_task: null
+next_task: TASK-0001
+releases:
+  R0:
+    name: "R0 — Fundação técnica profissional"
+    status: PENDENTE
+    tasks:
+      TASK-0001: PENDENTE
+      TASK-0002: PENDENTE
+      TASK-0003: PENDENTE
+      TASK-0004: PENDENTE
+      TASK-0005: PENDENTE
+      TASK-0006: PENDENTE
+      TASK-0007: PENDENTE
+      TASK-0008: PENDENTE
+      TASK-0009: PENDENTE
+      TASK-0010: PENDENTE
+      TASK-0011: PENDENTE
+      TASK-0012: PENDENTE
+  R1:
+    name: "R1 — Auth, tenant e segurança"
+    status: PENDENTE
+    tasks:
+      TASK-0101: PENDENTE
+      TASK-0102: PENDENTE
+      TASK-0103: PENDENTE
+      TASK-0104: PENDENTE
+      TASK-0105: PENDENTE
+      TASK-0106: PENDENTE
+      TASK-0107: PENDENTE
+      TASK-0108: PENDENTE
+      TASK-0109: PENDENTE
+      TASK-0110: PENDENTE
+      TASK-0111: PENDENTE
+      TASK-0112: PENDENTE
+  R2:
+    name: "R2 — Admin SaaS, planos e assinaturas"
+    status: PENDENTE
+    tasks:
+      TASK-0201: PENDENTE
+      TASK-0202: PENDENTE
+      TASK-0203: PENDENTE
+      TASK-0204: PENDENTE
+      TASK-0205: PENDENTE
+      TASK-0206: PENDENTE
+      TASK-0207: PENDENTE
+      TASK-0208: PENDENTE
+      TASK-0209: PENDENTE
+      TASK-0210: PENDENTE
+  R3:
+    name: "R3 — Núcleo operacional comum"
+    status: PENDENTE
+    tasks:
+      TASK-0301: PENDENTE
+      TASK-0302: PENDENTE
+      TASK-0303: PENDENTE
+      TASK-0304: PENDENTE
+      TASK-0305: PENDENTE
+      TASK-0306: PENDENTE
+      TASK-0307: PENDENTE
+      TASK-0308: PENDENTE
+      TASK-0309: PENDENTE
+      TASK-0310: PENDENTE
+  R4:
+    name: "R4 — Custo real, precificação e relatórios"
+    status: PENDENTE
+    tasks:
+      TASK-0401: PENDENTE
+      TASK-0402: PENDENTE
+      TASK-0403: PENDENTE
+      TASK-0404: PENDENTE
+      TASK-0405: PENDENTE
+      TASK-0406: PENDENTE
+      TASK-0407: PENDENTE
+      TASK-0408: PENDENTE
+      TASK-0409: PENDENTE
+      TASK-0410: PENDENTE
+  R5:
+    name: "R5 — Sublocação e Spaces"
+    status: PENDENTE
+    tasks:
+      TASK-0501: PENDENTE
+      TASK-0502: PENDENTE
+      TASK-0503: PENDENTE
+      TASK-0504: PENDENTE
+      TASK-0505: PENDENTE
+      TASK-0506: PENDENTE
+      TASK-0507: PENDENTE
+  R6:
+    name: "R6 — Documentos profissionais e carimbo"
+    status: PENDENTE
+    tasks:
+      TASK-0601: PENDENTE
+      TASK-0602: PENDENTE
+      TASK-0603: PENDENTE
+      TASK-0604: PENDENTE
+      TASK-0605: PENDENTE
+      TASK-0606: PENDENTE
+      TASK-0607: PENDENTE
+  R7:
+    name: "R7 — Verticais profissionais"
+    status: PENDENTE
+    tasks:
+      TASK-0701: PENDENTE
+      TASK-0702: PENDENTE
+      TASK-0703: PENDENTE
+      TASK-0704: PENDENTE
+      TASK-0705: PENDENTE
+      TASK-0706: PENDENTE
+      TASK-0707: PENDENTE
+      TASK-0708: PENDENTE
+  R8:
+    name: "R8 — App cliente/profissional e mobile Expo"
+    status: PENDENTE
+    tasks:
+      TASK-0801: PENDENTE
+      TASK-0802: PENDENTE
+      TASK-0803: PENDENTE
+      TASK-0804: PENDENTE
+      TASK-0805: PENDENTE
+      TASK-0806: PENDENTE
+  R9:
+    name: "R9 — Suporte, central de ajuda e comunicação"
+    status: PENDENTE
+    tasks:
+      TASK-0901: PENDENTE
+      TASK-0902: PENDENTE
+      TASK-0903: PENDENTE
+      TASK-0904: PENDENTE
+      TASK-0905: PENDENTE
+  R10:
+    name: "R10 — Landing page e comercial"
+    status: PENDENTE
+    tasks:
+      TASK-1001: PENDENTE
+      TASK-1002: PENDENTE
+      TASK-1003: PENDENTE
+      TASK-1004: PENDENTE
+      TASK-1005: PENDENTE
+  R11:
+    name: "R11 — IA, automações e integrações"
+    status: PENDENTE
+    tasks:
+      TASK-1101: PENDENTE
+      TASK-1102: PENDENTE
+      TASK-1103: PENDENTE
+      TASK-1104: PENDENTE
+      TASK-1105: PENDENTE
+  R12:
+    name: "R12 — Escala, observabilidade e produção"
+    status: PENDENTE
+    tasks:
+      TASK-1201: PENDENTE
+      TASK-1202: PENDENTE
+      TASK-1203: PENDENTE
+      TASK-1204: PENDENTE
+      TASK-1205: PENDENTE

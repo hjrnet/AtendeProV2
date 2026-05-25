@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: atendepro-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-atendepro}
+      POSTGRES_USER: ${POSTGRES_USER:-atendepro}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-atendepro}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - atendepro_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-atendepro} -d ${POSTGRES_DB:-atendepro}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: atendepro-mailpit
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  atendepro_postgres_data:
