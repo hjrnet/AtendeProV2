@@ -54,6 +54,8 @@ type ResultadoSimulacao = {
   alertas: MargemLucroResponse["alertas"];
 };
 
+type FiltroHistorico = "TODAS" | "SAUDAVEIS" | "ALERTA" | "PREJUIZO";
+
 const TAMANHO_HISTORICO = 6;
 const VALORES_INICIAIS: PrecificacaoFormData = {
   nomeProcedimento: "Consulta profissional",
@@ -75,6 +77,7 @@ export function SimuladorPrecificacaoView({ empresaId }: SimuladorPrecificacaoVi
   const [simulacaoEditando, setSimulacaoEditando] = useState<SimulacaoPrecificacao | null>(null);
   const [relatorioGerandoId, setRelatorioGerandoId] = useState<string | null>(null);
   const [buscaHistorico, setBuscaHistorico] = useState("");
+  const [filtroHistorico, setFiltroHistorico] = useState<FiltroHistorico>("TODAS");
   const [paginaHistorico, setPaginaHistorico] = useState(0);
   const form = useForm<PrecificacaoFormData>({ defaultValues: VALORES_INICIAIS });
 
@@ -100,7 +103,7 @@ export function SimuladorPrecificacaoView({ empresaId }: SimuladorPrecificacaoVi
       return resultadoDeCalculos(recomendado, margem);
     },
     onSuccess: (novoResultado) => setResultado(novoResultado),
-    onError: (error) => setErro(error instanceof ApiError ? error.message : "Nao foi possivel simular o preco.")
+    onError: (error) => setErro(error instanceof ApiError ? error.message : "Não foi possível simular o preço.")
   });
 
   const salvarMutation = useMutation({
@@ -114,11 +117,13 @@ export function SimuladorPrecificacaoView({ empresaId }: SimuladorPrecificacaoVi
       setResultado(resultadoDeSimulacao(simulacao));
       setSimulacaoEditando(simulacao);
       await queryClient.invalidateQueries({ queryKey: ["precificacao-simulacoes", empresaId] });
+      await queryClient.invalidateQueries({ queryKey: ["precificacao-dashboard", empresaId] });
     },
-    onError: (error) => setErro(error instanceof ApiError ? error.message : "Nao foi possivel salvar a simulacao.")
+    onError: (error) => setErro(error instanceof ApiError ? error.message : "Não foi possível salvar a simulação.")
   });
 
   const historico = historicoQuery.data?.itens ?? [];
+  const historicoFiltrado = historico.filter((simulacao) => filtrarSimulacaoHistorico(simulacao, filtroHistorico));
   const totalPaginas = historicoQuery.data?.totalPaginas ?? 0;
   const podeVoltar = paginaHistorico > 0;
   const podeAvancar = totalPaginas > 0 && paginaHistorico + 1 < totalPaginas;
@@ -155,7 +160,7 @@ export function SimuladorPrecificacaoView({ empresaId }: SimuladorPrecificacaoVi
     }
 
     if (!empresaId) {
-      setErro("Selecione uma empresa para simular precificacao.");
+      setErro("Selecione uma empresa para simular precificação.");
       return null;
     }
 
@@ -409,60 +414,94 @@ export function SimuladorPrecificacaoView({ empresaId }: SimuladorPrecificacaoVi
           </div>
         </div>
 
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1" aria-label="Filtros rápidos de status da precificação">
+          {[
+            { valor: "TODAS", label: "Todas" },
+            { valor: "SAUDAVEIS", label: "Saudáveis" },
+            { valor: "ALERTA", label: "Em alerta" },
+            { valor: "PREJUIZO", label: "Em prejuízo" }
+          ].map((filtro) => (
+            <button
+              key={filtro.valor}
+              type="button"
+              onClick={() => setFiltroHistorico(filtro.valor as FiltroHistorico)}
+              className={`h-9 shrink-0 rounded-md border px-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                filtroHistorico === filtro.valor ? "border-primary bg-primary text-primary-foreground" : "bg-background text-card-foreground"
+              }`}
+            >
+              {filtro.label}
+            </button>
+          ))}
+        </div>
+
         <div className="mt-4 max-h-[420px] overflow-y-auto pr-1">
           {historicoQuery.isLoading ? (
             <div className="flex min-h-40 items-center justify-center rounded-lg border bg-background text-sm text-muted-foreground">
               <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-              Carregando simulacoes
+              Carregando simulações
             </div>
           ) : historico.length === 0 ? (
             <div className="flex min-h-40 flex-col items-center justify-center rounded-lg border bg-background p-6 text-center">
               <Calculator className="h-8 w-8 text-primary" />
-              <p className="mt-3 text-sm font-semibold text-card-foreground">Nenhuma simulacao salva</p>
+              <p className="mt-3 text-sm font-semibold text-card-foreground">Nenhuma simulação salva</p>
+            </div>
+          ) : historicoFiltrado.length === 0 ? (
+            <div className="flex min-h-40 flex-col items-center justify-center rounded-lg border bg-background p-6 text-center">
+              <Search className="h-8 w-8 text-primary" />
+              <p className="mt-3 text-sm font-semibold text-card-foreground">Nenhuma simulação neste filtro</p>
             </div>
           ) : (
             <div className="grid gap-3 lg:grid-cols-2">
-              {historico.map((simulacao) => (
-                <article
-                  key={simulacao.id}
-                  className={`rounded-lg border bg-background p-4 ${simulacaoEditando?.id === simulacao.id ? "border-primary" : ""}`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="truncate text-base font-semibold text-card-foreground">{simulacao.nomeProcedimento}</h3>
-                        <span className="rounded-md border px-2 py-1 text-xs font-semibold text-muted-foreground">
-                          {rotuloStatus(simulacao.statusMargem)}
-                        </span>
-                      </div>
-                      <p className="mt-2 text-sm text-muted-foreground">
-                        {simulacao.duracaoMinutos} min · margem {formatarNumero(simulacao.margemRealPercentual)}%
-                      </p>
-                    </div>
-                    <div className="flex shrink-0 gap-2">
-                      <Button type="button" variant="outline" size="icon" onClick={() => editarSimulacao(simulacao)} title="Editar simulacao">
-                        <Edit3 className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        onClick={() => void abrirRelatorio(simulacao.id)}
-                        disabled={relatorioGerandoId === simulacao.id}
-                        title="Abrir relatorio PDF"
-                      >
-                        {relatorioGerandoId === simulacao.id ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
-                      </Button>
-                    </div>
-                  </div>
+              {historicoFiltrado.map((simulacao) => {
+                const status = statusVisual(simulacao.statusMargem);
+                const Icon = status.icon;
 
-                  <div className="mt-4 grid gap-2 sm:grid-cols-3">
-                    <MetricaHistorico rotulo="Custo" valor={formatarMoeda(simulacao.custoTotal)} />
-                    <MetricaHistorico rotulo="Recomendado" valor={formatarMoeda(simulacao.precoRecomendado)} />
-                    <MetricaHistorico rotulo="Venda" valor={formatarMoeda(simulacao.precoVenda)} />
-                  </div>
-                </article>
-              ))}
+                return (
+                  <article
+                    key={simulacao.id}
+                    className={`rounded-lg border bg-background p-4 ${status.cardClass} ${
+                      simulacaoEditando?.id === simulacao.id ? "ring-2 ring-primary/30" : ""
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="truncate text-base font-semibold text-card-foreground">{simulacao.nomeProcedimento}</h3>
+                          <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs font-semibold ${status.badgeClass}`}>
+                            <Icon className="h-3.5 w-3.5" />
+                            {status.label}
+                          </span>
+                        </div>
+                        <p className={`mt-2 text-sm font-medium ${status.textClass}`}>{status.descricao}</p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {simulacao.duracaoMinutos} min · margem {formatarNumero(simulacao.margemRealPercentual)}%
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 gap-2">
+                        <Button type="button" variant="outline" size="icon" onClick={() => editarSimulacao(simulacao)} title="Editar simulação">
+                          <Edit3 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => void abrirRelatorio(simulacao.id)}
+                          disabled={relatorioGerandoId === simulacao.id}
+                          title="Abrir relatório PDF"
+                        >
+                          {relatorioGerandoId === simulacao.id ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                      <MetricaHistorico rotulo="Custo" valor={formatarMoeda(simulacao.custoTotal)} />
+                      <MetricaHistorico rotulo="Recomendado" valor={formatarMoeda(simulacao.precoRecomendado)} />
+                      <MetricaHistorico rotulo="Venda" valor={formatarMoeda(simulacao.precoVenda)} />
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           )}
         </div>
@@ -579,22 +618,81 @@ function alertaPorStatus(status: MargemLucroResponse["status"]) {
   };
 }
 
+function filtrarSimulacaoHistorico(simulacao: SimulacaoPrecificacao, filtro: FiltroHistorico) {
+  if (filtro === "SAUDAVEIS") {
+    return simulacao.statusMargem === "SAUDAVEL";
+  }
+  if (filtro === "PREJUIZO") {
+    return simulacao.statusMargem === "PREJUIZO";
+  }
+  if (filtro === "ALERTA") {
+    return simulacao.statusMargem !== "SAUDAVEL";
+  }
+  return true;
+}
+
+function statusVisual(status: MargemLucroResponse["status"]) {
+  const config = {
+    PREJUIZO: {
+      label: "Em prejuízo",
+      descricao: "Venda abaixo do custo real.",
+      icon: AlertTriangle,
+      cardClass: "border-red-300 bg-red-50/45",
+      badgeClass: "border-red-200 bg-red-50 text-red-700",
+      textClass: "text-red-700"
+    },
+    EQUILIBRIO: {
+      label: "Sem lucro",
+      descricao: "Preço cobre custos, mas não gera lucro.",
+      icon: AlertTriangle,
+      cardClass: "border-amber-300 bg-amber-50/45",
+      badgeClass: "border-amber-200 bg-amber-50 text-amber-800",
+      textClass: "text-amber-800"
+    },
+    MARGEM_BAIXA: {
+      label: "Margem baixa",
+      descricao: "Preço abaixo do recomendado.",
+      icon: AlertTriangle,
+      cardClass: "border-amber-300 bg-amber-50/45",
+      badgeClass: "border-amber-200 bg-amber-50 text-amber-800",
+      textClass: "text-amber-800"
+    },
+    SAUDAVEL: {
+      label: "Saudável",
+      descricao: "Preço dentro da margem esperada.",
+      icon: CheckCircle2,
+      cardClass: "border-emerald-200 bg-emerald-50/35",
+      badgeClass: "border-emerald-200 bg-emerald-50 text-emerald-800",
+      textClass: "text-emerald-800"
+    }
+  } satisfies Record<MargemLucroResponse["status"], {
+    label: string;
+    descricao: string;
+    icon: Icone;
+    cardClass: string;
+    badgeClass: string;
+    textClass: string;
+  }>;
+
+  return config[status];
+}
+
 function rotuloStatus(status: MargemLucroResponse["status"]) {
   const rotulos: Record<MargemLucroResponse["status"], string> = {
-    PREJUIZO: "Prejuizo",
-    EQUILIBRIO: "Equilibrio",
+    PREJUIZO: "Prejuízo",
+    EQUILIBRIO: "Equilíbrio",
     MARGEM_BAIXA: "Margem baixa",
-    SAUDAVEL: "Saudavel"
+    SAUDAVEL: "Saudável"
   };
   return rotulos[status];
 }
 
 function mensagemStatus(status: MargemLucroResponse["status"]) {
   const mensagens: Record<MargemLucroResponse["status"], string> = {
-    PREJUIZO: "Preco de venda esta abaixo do custo real.",
-    EQUILIBRIO: "Preco cobre os custos, mas ainda nao gera lucro.",
+    PREJUIZO: "Preço de venda está abaixo do custo real.",
+    EQUILIBRIO: "Preço cobre os custos, mas ainda não gera lucro.",
     MARGEM_BAIXA: "Margem positiva abaixo do recomendado.",
-    SAUDAVEL: "Precificacao saudavel."
+    SAUDAVEL: "Precificação saudável."
   };
   return mensagens[status];
 }

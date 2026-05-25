@@ -64,7 +64,7 @@ export function DashboardPrecificacaoView({ empresaId }: DashboardPrecificacaoVi
       <section className="rounded-lg border bg-card p-4 shadow-sm">
         <div className="flex min-h-44 items-center justify-center text-sm text-muted-foreground">
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-          Carregando precificacao
+          Carregando precificação
         </div>
       </section>
     );
@@ -76,7 +76,7 @@ export function DashboardPrecificacaoView({ empresaId }: DashboardPrecificacaoVi
         <CabecalhoDashboard />
         <div className="mt-4 flex min-h-44 flex-col items-center justify-center rounded-lg border bg-background p-6 text-center">
           <BarChart3 className="h-8 w-8 text-primary" />
-          <p className="mt-3 text-sm font-semibold text-card-foreground">Nenhuma simulacao para analisar</p>
+          <p className="mt-3 text-sm font-semibold text-card-foreground">Nenhuma simulação para analisar</p>
         </div>
       </section>
     );
@@ -87,10 +87,16 @@ export function DashboardPrecificacaoView({ empresaId }: DashboardPrecificacaoVi
       <CabecalhoDashboard dashboard={dashboard} />
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricaDashboard icon={BadgeDollarSign} label="Preco recomendado medio" value={formatarMoeda(dashboard.precoMedioRecomendado)} />
-        <MetricaDashboard icon={TrendingUp} label="Lucro medio" value={formatarMoeda(dashboard.lucroMedio)} />
-        <MetricaDashboard icon={Percent} label="Margem media" value={`${formatarNumero(dashboard.margemMediaPercentual)}%`} />
-        <MetricaDashboard icon={AlertTriangle} label="Simulacoes em alerta" value={String(dashboard.simulacoesComAlerta)} />
+        <MetricaDashboard icon={BadgeDollarSign} label="Preço recomendado médio" value={formatarMoeda(dashboard.precoMedioRecomendado)} />
+        <MetricaDashboard icon={TrendingUp} label="Lucro médio" value={formatarMoeda(dashboard.lucroMedio)} />
+        <MetricaDashboard icon={Percent} label="Margem média" value={`${formatarNumero(dashboard.margemMediaPercentual)}%`} />
+        <MetricaDashboard
+          icon={AlertTriangle}
+          label="Simulações em alerta"
+          value={String(dashboard.simulacoesComAlerta)}
+          descricao={dashboard.simulacoesComAlerta > 0 ? "Há itens com margem baixa ou prejuízo." : "Nenhuma simulação em alerta."}
+          destaque={dashboard.simulacoesComAlerta > 0 ? "alerta" : "positivo"}
+        />
       </div>
 
       <div className="mt-4 grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">
@@ -98,7 +104,7 @@ export function DashboardPrecificacaoView({ empresaId }: DashboardPrecificacaoVi
           <div className="mb-3 flex items-center justify-between gap-3">
             <h3 className="text-sm font-semibold text-card-foreground">Status das margens</h3>
             <span className="rounded-md border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground">
-              {dashboard.totalSimulacoes} simulacoes
+              {dashboard.totalSimulacoes} simulações
             </span>
           </div>
           <ResponsiveContainer width="100%" height={220}>
@@ -114,7 +120,7 @@ export function DashboardPrecificacaoView({ empresaId }: DashboardPrecificacaoVi
 
         <div className="min-h-72 rounded-lg border bg-background p-4">
           <div className="mb-3 flex items-center justify-between gap-3">
-            <h3 className="text-sm font-semibold text-card-foreground">Simulacoes recentes</h3>
+            <h3 className="text-sm font-semibold text-card-foreground">Simulações recentes</h3>
             <span className="rounded-md border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground">
               margem x venda
             </span>
@@ -127,7 +133,7 @@ export function DashboardPrecificacaoView({ empresaId }: DashboardPrecificacaoVi
               <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} />
               <Tooltip
                 formatter={(value, name) => [typeof value === "number" ? formatarTooltip(Number(value), String(name)) : value, rotuloGrafico(String(name))]}
-                labelFormatter={(label) => `Simulacao ${label}`}
+                labelFormatter={(label) => `Simulação ${label}`}
               />
               <Line yAxisId="left" type="monotone" dataKey="margem" stroke="#0f766e" strokeWidth={2} dot={{ r: 3 }} />
               <Line yAxisId="right" type="monotone" dataKey="venda" stroke="#d97706" strokeWidth={2} dot={{ r: 3 }} />
@@ -144,12 +150,12 @@ function CabecalhoDashboard({ dashboard }: { dashboard?: DashboardPrecificacao }
     <div className="flex flex-col gap-3 border-b pb-4 md:flex-row md:items-center md:justify-between">
       <div>
         <p className="text-sm font-medium text-primary">Dashboard</p>
-        <h2 className="mt-1 text-xl font-semibold text-card-foreground">Precificacao</h2>
+        <h2 className="mt-1 text-xl font-semibold text-card-foreground">Precificação</h2>
       </div>
       <div className="flex flex-wrap gap-2">
         <span className="inline-flex items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm font-semibold text-card-foreground">
           <CheckCircle2 className="h-4 w-4 text-primary" />
-          {dashboard?.simulacoesSaudaveis ?? 0} saudaveis
+          {dashboard?.simulacoesSaudaveis ?? 0} saudáveis
         </span>
         <span className="inline-flex items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm font-semibold text-card-foreground">
           <AlertTriangle className="h-4 w-4 text-amber-600" />
@@ -160,24 +166,43 @@ function CabecalhoDashboard({ dashboard }: { dashboard?: DashboardPrecificacao }
   );
 }
 
-function MetricaDashboard({ icon: Icon, label, value }: { icon: Icone; label: string; value: string }) {
+function MetricaDashboard({
+  icon: Icon,
+  label,
+  value,
+  descricao,
+  destaque = "neutro"
+}: {
+  icon: Icone;
+  label: string;
+  value: string;
+  descricao?: string;
+  destaque?: "neutro" | "alerta" | "positivo";
+}) {
+  const classe = {
+    neutro: "border bg-background",
+    alerta: "border-amber-300 bg-amber-50",
+    positivo: "border-emerald-200 bg-emerald-50"
+  }[destaque];
+
   return (
-    <article className="rounded-lg border bg-background p-4">
+    <article className={`rounded-lg p-4 ${classe}`}>
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-medium text-muted-foreground">{label}</p>
-        <Icon className="h-4 w-4 text-primary" />
+        <Icon className={`h-4 w-4 ${destaque === "alerta" ? "text-amber-700" : "text-primary"}`} />
       </div>
       <p className="mt-3 text-xl font-semibold text-card-foreground">{value}</p>
+      {descricao ? <p className="mt-1 text-xs font-medium text-muted-foreground">{descricao}</p> : null}
     </article>
   );
 }
 
 function rotuloStatus(status: DistribuicaoStatusPrecificacao["status"]) {
   const rotulos: Record<DistribuicaoStatusPrecificacao["status"], string> = {
-    PREJUIZO: "Prejuizo",
-    EQUILIBRIO: "Equilibrio",
+    PREJUIZO: "Prejuízo",
+    EQUILIBRIO: "Equilíbrio",
     MARGEM_BAIXA: "Baixa",
-    SAUDAVEL: "Saudavel"
+    SAUDAVEL: "Saudável"
   };
   return rotulos[status];
 }

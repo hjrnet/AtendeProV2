@@ -98,6 +98,25 @@ Melhorar a experiência visual da seção de precificação para que simulaçõe
 git commit -m "feat(precificacao): destacar simulacoes em alerta visualmente"
 ```
 
+## Execução
+
+Status: CONCLUIDA.
+
+Resumo:
+- Histórico de simulações passou a exibir status visual por card, com badge, ícone, borda e microcopy para saudável, margem baixa, sem lucro/equilíbrio e prejuízo.
+- Foram adicionados filtros rápidos para `Todas`, `Saudáveis`, `Em alerta` e `Em prejuízo`.
+- O card de `Simulações em alerta` no dashboard ganhou destaque e descrição contextual.
+- Salvamento/atualização de simulação passou a invalidar também o dashboard de precificação, mantendo contador e lista coerentes.
+
+Validação:
+- `corepack pnpm typecheck`
+- `corepack pnpm lint`
+- `corepack pnpm build`
+- `docker compose ps`
+- `GET http://127.0.0.1:8080/actuator/health`
+- `GET http://127.0.0.1:3000/app`
+- Browser em `/app`: criada simulação saudável, margem baixa e prejuízo; filtros `Em alerta` e `Em prejuízo` validados; console sem erros.
+
 ## Prompt recomendado
 
 ```md
