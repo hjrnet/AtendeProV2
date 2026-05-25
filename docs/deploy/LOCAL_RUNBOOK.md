@@ -8,6 +8,8 @@ docker compose up -d --build
 docker compose ps
 ```
 
+O Compose nao fixa `container_name`; os nomes ficam sob controle do projeto Docker Compose para evitar conflito entre clones ou ambientes locais diferentes.
+
 ## Backend futuro
 
 ```bash
