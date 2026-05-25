@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R1 — Auth, tenant e segurança.
+R2 — Admin SaaS, planos e assinaturas.
 
 ## Última task concluída
-TASK-0111 — Tela de login web.
+TASK-0112 — Proteção de rotas web.
 
 ## Próxima task recomendada
-TASK-0112 — Proteção de rotas web.
+TASK-0201 — Criar módulo Admin SaaS.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0112 concluida em modo autopilot multiagente release R1.
+- Web agora possui rota publica `/login`, rota protegida `/app` e redirecionamento raiz para o painel protegido.
+- `RotaProtegida` valida sessao no cliente e redireciona para `/login?redirectTo=...`; `RotaPublica` envia usuario autenticado para `/app`.
+- Validacao local confirmou redirecionamento sem sessao, login demo retornando para `/app` e logout voltando para `/login`.
+- R1 concluida; proxima release recomendada e R2.
 - TASK-0111 concluida em modo autopilot multiagente release R1.
 - Tela de login web criada como feature `auth`, com schema Zod, formulario validado, botao demo e pagina raiz fina.
 - Sessao autenticada e armazenada em `sessionStorage` quando disponivel, com fallback resiliente para ambientes que bloqueiam storage.

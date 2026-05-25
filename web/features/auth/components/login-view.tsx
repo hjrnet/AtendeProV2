@@ -1,15 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import {
   Activity,
   ArrowRight,
   BadgeCheck,
-  Building2,
   KeyRound,
   LoaderCircle,
-  LogOut,
   Mail,
   ShieldCheck,
   UserRound
@@ -18,12 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/lib/api";
 import { autenticarUsuario } from "@/features/auth/api/auth-client";
-import {
-  carregarSessaoAutenticada,
-  limparSessaoAutenticada,
-  salvarSessaoAutenticada,
-  type SessaoAutenticada
-} from "@/features/auth/lib/auth-storage";
+import { salvarSessaoAutenticada } from "@/features/auth/lib/auth-storage";
 import { loginSchema, type LoginFormData } from "@/features/auth/lib/login-schema";
 
 const CREDENCIAIS_DEMO: LoginFormData = {
@@ -37,21 +31,20 @@ const itensPainel = [
   { rotulo: "Release", valor: "R1", icone: BadgeCheck }
 ];
 
-export function LoginView() {
+type LoginViewProps = {
+  redirectTo?: string | string[];
+};
+
+export function LoginView({ redirectTo }: LoginViewProps) {
+  const router = useRouter();
   const [erroGeral, setErroGeral] = useState<string | null>(null);
-  const [sessao, setSessao] = useState<SessaoAutenticada | null>(null);
   const form = useForm<LoginFormData>({
     defaultValues: {
       email: "",
       senha: ""
     }
   });
-
-  useEffect(() => {
-    setSessao(carregarSessaoAutenticada());
-  }, []);
-
-  const perfilPrincipal = useMemo(() => sessao?.usuario.perfis.at(0)?.replace("_", " ") ?? "Acesso", [sessao]);
+  const destinoAposLogin = normalizarDestino(redirectTo);
 
   const entrar = form.handleSubmit(async (valores) => {
     setErroGeral(null);
@@ -70,9 +63,9 @@ export function LoginView() {
 
     try {
       const response = await autenticarUsuario(validacao.data);
-      const sessaoAutenticada = salvarSessaoAutenticada(response);
-      setSessao(sessaoAutenticada);
+      salvarSessaoAutenticada(response);
       form.reset({ email: validacao.data.email, senha: "" });
+      router.replace(destinoAposLogin);
     } catch (error) {
       if (error instanceof ApiError) {
         setErroGeral(error.message);
@@ -87,11 +80,6 @@ export function LoginView() {
     form.setValue("senha", CREDENCIAIS_DEMO.senha, { shouldDirty: true });
     form.clearErrors();
     setErroGeral(null);
-  }
-
-  function encerrarSessao() {
-    limparSessaoAutenticada();
-    setSessao(null);
   }
 
   return (
@@ -128,42 +116,6 @@ export function LoginView() {
             })}
           </div>
 
-          {sessao ? (
-            <section className="rounded-lg border bg-card p-5 shadow-sm">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-md bg-secondary text-secondary-foreground">
-                    <Building2 className="h-5 w-5" />
-                  </span>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Sessao ativa</p>
-                    <h2 className="text-lg font-semibold text-card-foreground">{sessao.usuario.nome}</h2>
-                  </div>
-                </div>
-                <Button type="button" variant="outline" onClick={encerrarSessao}>
-                  <LogOut className="h-4 w-4" />
-                  Sair
-                </Button>
-              </div>
-
-              <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                <div>
-                  <p className="text-xs font-medium uppercase text-muted-foreground">Perfil</p>
-                  <p className="mt-1 text-sm font-semibold text-card-foreground">{perfilPrincipal}</p>
-                </div>
-                <div>
-                  <p className="text-xs font-medium uppercase text-muted-foreground">Empresa</p>
-                  <p className="mt-1 truncate text-sm font-semibold text-card-foreground">
-                    {sessao.usuario.empresaId ?? "SaaS"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs font-medium uppercase text-muted-foreground">Expira em</p>
-                  <p className="mt-1 text-sm font-semibold text-card-foreground">{formatarData(sessao.expiraEm)}</p>
-                </div>
-              </div>
-            </section>
-          ) : null}
         </section>
 
         <section className="rounded-lg border bg-card p-5 shadow-sm sm:p-6">
@@ -243,14 +195,12 @@ export function LoginView() {
   );
 }
 
-function formatarData(valor: string) {
-  const data = new Date(valor);
-  if (Number.isNaN(data.getTime())) {
-    return valor;
+function normalizarDestino(redirectTo?: string | string[]) {
+  const destino = Array.isArray(redirectTo) ? redirectTo[0] : redirectTo;
+
+  if (destino && destino.startsWith("/") && !destino.startsWith("//")) {
+    return destino;
   }
 
-  return new Intl.DateTimeFormat("pt-BR", {
-    dateStyle: "short",
-    timeStyle: "short"
-  }).format(data);
+  return "/app";
 }

@@ -49,3 +49,7 @@ Perfis de acesso mapeiam permissões de negócio em `PermissaoAcesso`, com strin
 ## Login web
 
 O login web fica em `features/auth`, com página raiz fina, schema Zod e client dedicado para `/api/auth/login`. A sessão usa `sessionStorage` nesta fase para evitar persistência permanente em `localStorage`, com fallback para ambientes de teste que bloqueiam storage. O backend aplica CORS em `/api/**` a partir de `app.cors.allowed-origins` para suportar o desenvolvimento local web + API.
+
+## Proteção de rotas web
+
+A proteção web inicial é client-side porque a sessão atual vive no navegador. `/app` usa `RotaProtegida` e redireciona para `/login?redirectTo=...` quando não há sessão. `/login` usa `RotaPublica` e envia usuários autenticados para `/app`. A raiz `/` redireciona para `/app`, deixando o guarda decidir o destino final.

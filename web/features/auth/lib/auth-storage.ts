@@ -1,6 +1,7 @@
 import type { LoginResponse, UsuarioLogin } from "@/features/auth/api/auth-client";
 
 const CHAVE_SESSAO = "atendepro.auth.session.v1";
+let sessaoEmMemoria: SessaoAutenticada | null = null;
 
 export type SessaoAutenticada = {
   accessToken: string;
@@ -23,6 +24,7 @@ export function salvarSessaoAutenticada(response: LoginResponse) {
   if (storage) {
     storage.setItem(CHAVE_SESSAO, JSON.stringify(sessao));
   }
+  sessaoEmMemoria = sessao;
 
   return sessao;
 }
@@ -30,23 +32,26 @@ export function salvarSessaoAutenticada(response: LoginResponse) {
 export function carregarSessaoAutenticada() {
   const storage = obterSessionStorage();
   if (!storage) {
-    return null;
+    return sessaoEmMemoria;
   }
 
   const valor = storage.getItem(CHAVE_SESSAO);
   if (!valor) {
-    return null;
+    return sessaoEmMemoria;
   }
 
   try {
-    return JSON.parse(valor) as SessaoAutenticada;
+    sessaoEmMemoria = JSON.parse(valor) as SessaoAutenticada;
+    return sessaoEmMemoria;
   } catch {
     storage.removeItem(CHAVE_SESSAO);
+    sessaoEmMemoria = null;
     return null;
   }
 }
 
 export function limparSessaoAutenticada() {
+  sessaoEmMemoria = null;
   const storage = obterSessionStorage();
   if (storage) {
     storage.removeItem(CHAVE_SESSAO);
