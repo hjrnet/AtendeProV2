@@ -13,22 +13,29 @@ import br.com.atendepro.modules.auth.application.permission.PermissaoAcessoServi
 import br.com.atendepro.modules.auth.domain.model.PermissaoAcesso;
 import br.com.atendepro.modules.empresa.application.context.TenantAccessService;
 import br.com.atendepro.modules.precificacao.application.command.CalcularCustoRealCommand;
+import br.com.atendepro.modules.precificacao.application.command.CalcularPrecoMinimoCommand;
 import br.com.atendepro.modules.precificacao.application.command.CalcularPrecificacaoBaseCommand;
 import br.com.atendepro.modules.precificacao.application.command.ItemCustoPrecificacaoCommand;
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularCustoRealUseCase;
+import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecoMinimoUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecificacaoBaseUseCase;
 import br.com.atendepro.modules.precificacao.application.port.out.CarregarServicoParaPrecificacaoPort;
 import br.com.atendepro.modules.precificacao.application.result.CalculoPrecificacaoBaseResult;
 import br.com.atendepro.modules.precificacao.application.result.CustoRealPrecificacaoResult;
+import br.com.atendepro.modules.precificacao.application.result.PrecoMinimoPrecificacaoResult;
 import br.com.atendepro.modules.precificacao.application.result.ServicoPrecificacaoResult;
 import br.com.atendepro.modules.precificacao.domain.model.CalculoPrecificacao;
 import br.com.atendepro.modules.precificacao.domain.model.CustoRealPrecificacao;
 import br.com.atendepro.modules.precificacao.domain.model.ItemCustoPrecificacao;
+import br.com.atendepro.modules.precificacao.domain.model.PrecoMinimoPrecificacao;
 import br.com.atendepro.shared.domain.exception.BusinessException;
 
 @Service
 @Profile("!test")
-public class PrecificacaoService implements CalcularPrecificacaoBaseUseCase, CalcularCustoRealUseCase {
+public class PrecificacaoService implements
+        CalcularPrecificacaoBaseUseCase,
+        CalcularCustoRealUseCase,
+        CalcularPrecoMinimoUseCase {
 
     private final CarregarServicoParaPrecificacaoPort carregarServicoParaPrecificacaoPort;
     private final TenantAccessService tenantAccessService;
@@ -85,6 +92,29 @@ public class PrecificacaoService implements CalcularPrecificacaoBaseUseCase, Cal
                 Instant.now(clock)
         );
         return CustoRealPrecificacaoResult.de(custoReal, servico);
+    }
+
+    @Override
+    public PrecoMinimoPrecificacaoResult calcularPrecoMinimo(CalcularPrecoMinimoCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        ServicoPrecificacaoResult servico = carregarServico(command.servicoProcedimentoId(), empresaId);
+        String nomeProcedimento = nomeProcedimento(command.nomeProcedimento(), servico);
+        int duracaoMinutos = duracaoMinutos(command.duracaoMinutos(), servico);
+        CustoRealPrecificacao custoReal = CustoRealPrecificacao.calcular(
+                empresaId,
+                command.servicoProcedimentoId(),
+                nomeProcedimento,
+                duracaoMinutos,
+                command.custoInsumos(),
+                command.custoSalaPorHora(),
+                command.valorHoraProfissional(),
+                command.custoDeslocamento(),
+                command.custoAlimentacao(),
+                command.taxas(),
+                Instant.now(clock)
+        );
+        return PrecoMinimoPrecificacaoResult.de(PrecoMinimoPrecificacao.calcular(custoReal), servico);
     }
 
     private ServicoPrecificacaoResult carregarServico(UUID servicoProcedimentoId, UUID empresaId) {

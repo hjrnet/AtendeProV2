@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R4 — Custo real, precificação e relatórios.
 
 ## Última task concluída
-TASK-0402 — Calculadora de custo real.
+TASK-0403 — Preço mínimo.
 
 ## Próxima task recomendada
-TASK-0403 — Preço mínimo.
+TASK-0404 — Preço recomendado.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0403 concluida em modo autopilot multiagente release R4.
+- Preco minimo criado em `/api/precificacao/calculos/preco-minimo` como ponto de equilibrio igual ao custo real total.
+- O resultado retorna custo total, preco minimo e composicao de custos sem calcular margem desejada, preco recomendado, lucro ou alertas.
+- Validacao local confirmou `custoTotal=168.00`, `precoMinimo=168.00` e `mvn test` com 158 testes.
 - TASK-0402 concluida em modo autopilot multiagente release R4.
 - Calculadora de custo real criada em `/api/precificacao/calculos/custo-real`, usando insumos, sala por hora, tempo profissional por hora, deslocamento, alimentacao e taxas.
 - Custos de sala e tempo profissional sao rateados pela duracao em minutos; quando um servico/procedimento ativo e informado, sua duracao pode preencher a duracao do calculo.

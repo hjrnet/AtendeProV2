@@ -22,6 +22,7 @@ import br.com.atendepro.modules.empresa.application.context.TenantAccessService;
 import br.com.atendepro.modules.empresa.application.context.TenantContext;
 import br.com.atendepro.modules.empresa.application.context.TenantContextHolder;
 import br.com.atendepro.modules.precificacao.application.command.CalcularCustoRealCommand;
+import br.com.atendepro.modules.precificacao.application.command.CalcularPrecoMinimoCommand;
 import br.com.atendepro.modules.precificacao.application.command.CalcularPrecificacaoBaseCommand;
 import br.com.atendepro.modules.precificacao.application.command.ItemCustoPrecificacaoCommand;
 import br.com.atendepro.modules.precificacao.application.port.out.CarregarServicoParaPrecificacaoPort;
@@ -142,6 +143,28 @@ class PrecificacaoServiceTest {
                 BigDecimal.ZERO
         ))).isInstanceOf(BusinessException.class)
                 .hasMessage("Duracao do procedimento e obrigatoria para calcular custo real.");
+    }
+
+    @Test
+    void deveCalcularPrecoMinimoIgualAoCustoTotal() {
+        TenantContextHolder.definir(new TenantContext(EMPRESA_ID, UUID.randomUUID(), Set.of(PerfilAcesso.EMPRESA_ADMIN)));
+        PrecificacaoService service = service((empresaId, servicoProcedimentoId) -> Optional.empty());
+
+        var result = service.calcularPrecoMinimo(new CalcularPrecoMinimoCommand(
+                null,
+                null,
+                "Procedimento",
+                60,
+                new BigDecimal("30.00"),
+                new BigDecimal("40.00"),
+                new BigDecimal("80.00"),
+                new BigDecimal("10.00"),
+                new BigDecimal("5.00"),
+                new BigDecimal("3.00")
+        ));
+
+        assertThat(result.custoTotal()).isEqualByComparingTo("168.00");
+        assertThat(result.precoMinimo()).isEqualByComparingTo("168.00");
     }
 
     private PrecificacaoService service(CarregarServicoParaPrecificacaoPort carregarPort) {
