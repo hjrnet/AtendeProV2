@@ -59,3 +59,5 @@ A proteção web inicial é client-side porque a sessão atual vive no navegador
 O módulo Admin SaaS começa em backend hexagonal com permissão dedicada `ACESSAR_ADMIN_SAAS`, use case de status e controller fino em `/api/admin-saas/status`. O acesso inicial fica restrito aos perfis globais `SUPER_ADMIN` e `SUPORTE`; dashboards, gestão de empresas e planos evoluem nas tasks seguintes da R2.
 
 O dashboard Admin SaaS inicial fica em `/api/admin-saas/dashboard`. As metricas de empresas ativas e bloqueadas sao carregadas por adapter JDBC a partir da tabela `empresas`; MRR, trials e chamados permanecem zerados ate existirem os modulos oficiais de planos, trial/assinatura e suporte, evitando tabelas ou regras futuras fora do escopo da TASK-0202.
+
+A gestao Admin SaaS de empresas fica sob `/api/admin-saas/empresas`, separada dos endpoints tenant de `/api/empresas`. A listagem aceita busca por nome, documento ou email; o detalhe nao expoe entidade de persistencia; o bloqueio administrativo altera `empresas.ativo`; e a observacao operacional usa dados reais ja existentes, incluindo usuarios vinculados em `auth_usuarios`.
