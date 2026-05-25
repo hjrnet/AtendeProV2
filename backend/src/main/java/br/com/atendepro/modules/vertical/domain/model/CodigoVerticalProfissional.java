@@ -7,5 +7,6 @@ public enum CodigoVerticalProfissional {
     FISIO_PRO,
     PSICO_PRO,
     FONO_PRO,
-    FARMACIA_CLINICA
+    FARMACIA_CLINICA,
+    ODONTO_PRO
 }

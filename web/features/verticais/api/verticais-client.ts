@@ -8,7 +8,8 @@ export type CodigoVerticalProfissional =
   | "FISIO_PRO"
   | "PSICO_PRO"
   | "FONO_PRO"
-  | "FARMACIA_CLINICA";
+  | "FARMACIA_CLINICA"
+  | "ODONTO_PRO";
 
 export type StatusVerticalProfissional = "OPERACIONAL_BASE" | "PREPARADO_FUTURO";
 

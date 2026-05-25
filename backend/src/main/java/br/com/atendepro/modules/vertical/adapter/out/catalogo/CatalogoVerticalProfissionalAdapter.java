@@ -363,6 +363,53 @@ public class CatalogoVerticalProfissionalAdapter implements CarregarCatalogoVert
                             "criar documentos farmaceuticos oficiais",
                             "preparar relatorios clinicos"
                     )
+            ),
+            CodigoVerticalProfissional.ODONTO_PRO,
+            new VerticalProfissional(
+                    CodigoVerticalProfissional.ODONTO_PRO,
+                    "Odonto Pro",
+                    "R7",
+                    StatusVerticalProfissional.PREPARADO_FUTURO,
+                    "CRO",
+                    "Preparacao futura para odontologia, com documentos odontologicos, CRO, acompanhamento de tratamentos e evolucao clinica por atendimento.",
+                    List.of("Dentistas", "Clinicas odontologicas", "Consultorios odontologicos"),
+                    List.of(
+                            "documentos odontologicos",
+                            "registro de tratamentos",
+                            "evolucao clinica",
+                            "plano de tratamento",
+                            "termos de consentimento",
+                            "documentos com CRO",
+                            "agenda por cadeira e profissional"
+                    ),
+                    List.of(
+                            "Paciente odonto",
+                            "Plano de tratamento odontologico",
+                            "Procedimento odontologico",
+                            "Evolucao clinica odontologica",
+                            "Documento CRO",
+                            "Termo odontologico"
+                    ),
+                    List.of(
+                            "Plano de tratamento",
+                            "Termo de consentimento odontologico",
+                            "Relatorio odontologico",
+                            "Orientacoes pos-procedimento"
+                    ),
+                    List.of(
+                            "clientes/pacientes",
+                            "agenda",
+                            "documentos profissionais",
+                            "carimbo profissional",
+                            "servicos/procedimentos",
+                            "relatorios"
+                    ),
+                    List.of(
+                            "validar escopo regulatorio com CRO",
+                            "criar plano de tratamento odontologico",
+                            "criar documentos odontologicos oficiais",
+                            "preparar evolucao clinica por atendimento"
+                    )
             )
     );
 

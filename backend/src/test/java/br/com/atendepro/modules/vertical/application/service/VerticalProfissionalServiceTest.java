@@ -28,6 +28,7 @@ class VerticalProfissionalServiceTest {
                         CodigoVerticalProfissional.FISIO_PRO,
                         CodigoVerticalProfissional.FONO_PRO,
                         CodigoVerticalProfissional.NUTRI_PRO,
+                        CodigoVerticalProfissional.ODONTO_PRO,
                         CodigoVerticalProfissional.PSICO_PRO
                 );
         assertThat(verticais.get(0).capacidades())
@@ -136,5 +137,20 @@ class VerticalProfissionalServiceTest {
         assertThat(vertical.get().status().name()).isEqualTo("PREPARADO_FUTURO");
         assertThat(vertical.get().conselhoProfissional()).isEqualTo("CRF");
         assertThat(vertical.get().capacidades()).contains("servicos clinicos farmaceuticos", "documentos com CRF");
+    }
+
+    @Test
+    void deveDetalharOdontoProComoFuturoComCroEDocumentos() {
+        VerticalProfissionalService service = new VerticalProfissionalService(
+                new CatalogoVerticalProfissionalAdapter(),
+                new PermissaoAcessoService()
+        );
+
+        var vertical = service.detalharVertical(CodigoVerticalProfissional.ODONTO_PRO);
+
+        assertThat(vertical).isPresent();
+        assertThat(vertical.get().status().name()).isEqualTo("PREPARADO_FUTURO");
+        assertThat(vertical.get().conselhoProfissional()).isEqualTo("CRO");
+        assertThat(vertical.get().capacidades()).contains("documentos odontologicos", "plano de tratamento");
     }
 }
