@@ -58,6 +58,33 @@ Executar uma task com papéis profissionais: Produto, Arquitetura, Backend, Fron
 ### autopilot
 Executar múltiplas tasks em sequência, uma por vez, até limite, erro, bloqueio ou solicitação do usuário.
 
+### autopilot release
+Executar tasks pendentes de uma release específica em sequência, uma por vez, seguindo o protocolo completo.
+
+Formas aceitas:
+- `autopilot release`
+- `autopilot release atual`
+- `autopilot da release`
+- `executar release`
+- `concluir release`
+- `autopilot R0`
+- `autopilot R1`
+- `autopilot release R2`
+- `autopilot release R1 até 5 tasks`
+- `autopilot release R1 até concluir`
+- `autopilot release até falhar`
+
+Regras:
+- Se a release for informada, use exatamente essa release.
+- Se a release não for informada, use a release atual de `docs/RELEASE_STATUS.yaml` ou `docs/codex/SESSION_STATE.md`.
+- Se houver divergência entre status, sessão, backlog e task individual, pare e gere diagnóstico de inconsistência.
+- O limite padrão de `autopilot release` é de no máximo 3 tasks da release atual.
+- `até N tasks` limita a execução a N tasks.
+- `até concluir` executa até concluir a release ou encontrar erro/bloqueio.
+- `até falhar` executa até erro, bloqueio ou conclusão.
+- Cada task deve ser validada, revisada, registrada e commitada localmente antes da próxima.
+- Nunca faça push.
+
 ## Políticas de leitura para economizar tokens
 
 Antes de ler documentos longos, leia:
