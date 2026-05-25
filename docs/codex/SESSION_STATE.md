@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R4 — Custo real, precificação e relatórios.
 
 ## Última task concluída
-TASK-0408 — Relatório imprimível/PDF.
+TASK-0409 — Dashboard de precificação.
 
 ## Próxima task recomendada
-TASK-0409 — Dashboard de precificação.
+TASK-0410 — Dados demo realistas.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0409 concluida em modo autopilot multiagente release R4.
+- Dashboard de precificacao criado em `/api/precificacao/dashboard`, tenant-scoped, com UseCase, OutputPort, adapter JDBC e Responses dedicados.
+- As metricas usam `precificacao_simulacoes`: total de simulacoes, preco recomendado medio, lucro medio, margem media, simulacoes saudaveis, simulacoes em alerta, distribuicao por status e simulacoes recentes.
+- Web `features/precificacao` ganhou dashboard mobile-first com cards e graficos Recharts no painel `/app`, mantendo client dedicado e pagina fina.
+- Validacao confirmou `mvn test` com 171 testes, `pnpm lint`, `pnpm typecheck`, `pnpm build`, Docker Compose saudavel, API local do dashboard e Browser em `/app` com 2 graficos renderizados.
 - TASK-0408 concluida em modo autopilot multiagente release R4.
 - Relatorio PDF real de precificacao criado com PDFBox no backend, via UseCase `GerarRelatorioPrecificacaoUseCase`, OutputPort dedicado e adapter isolado de PDF.
 - Endpoint `/api/precificacao/simulacoes/{simulacaoId}/relatorio.pdf` retorna `application/pdf` tenant-scoped, com arquivo inline e composicao de custos da simulacao salva.

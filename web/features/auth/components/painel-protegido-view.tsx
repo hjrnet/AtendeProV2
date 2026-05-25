@@ -32,6 +32,7 @@ import {
   type DashboardEmpresa,
   type ResultadoBuscaGlobal
 } from "@/features/operacional/api/operacional-client";
+import { DashboardPrecificacaoView } from "@/features/precificacao/components/dashboard-precificacao-view";
 import { SimuladorPrecificacaoView } from "@/features/precificacao/components/simulador-precificacao-view";
 
 type PainelProtegidoViewProps = {
@@ -224,7 +225,10 @@ export function PainelProtegidoView({ sessao }: PainelProtegidoViewProps) {
           </section>
 
           <section id="precificacao" className="border-t py-5">
-            <SimuladorPrecificacaoView empresaId={empresaAtivaId} />
+            <div className="grid gap-4">
+              <DashboardPrecificacaoView empresaId={empresaAtivaId} />
+              <SimuladorPrecificacaoView empresaId={empresaAtivaId} />
+            </div>
           </section>
 
           <section id="busca" className="border-t py-5">

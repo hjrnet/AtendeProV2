@@ -99,6 +99,35 @@ export type SimulacoesPrecificacaoPaginadas = {
   totalPaginas: number;
 };
 
+export type DistribuicaoStatusPrecificacao = {
+  status: MargemLucroResponse["status"];
+  total: number;
+};
+
+export type SimulacaoDashboardPrecificacao = {
+  nomeProcedimento: string;
+  custoTotal: number;
+  precoRecomendado: number;
+  precoVenda: number;
+  margemRealPercentual: number;
+  atualizadoEm: string;
+};
+
+export type DashboardPrecificacao = {
+  empresaId: string;
+  totalSimulacoes: number;
+  custoMedio: number;
+  precoMedioRecomendado: number;
+  precoMedioVenda: number;
+  lucroMedio: number;
+  margemMediaPercentual: number;
+  simulacoesSaudaveis: number;
+  simulacoesComAlerta: number;
+  distribuicaoStatus: DistribuicaoStatusPrecificacao[];
+  simulacoesRecentes: SimulacaoDashboardPrecificacao[];
+  atualizadoEm: string;
+};
+
 const precificacaoApi = criarApiClient({
   getAccessToken: () => carregarSessaoAutenticada()?.accessToken ?? null,
   onUnauthorized: () => limparSessaoAutenticada()
@@ -112,6 +141,12 @@ export function calcularPrecoRecomendado(request: CalculoPrecoRecomendadoRequest
 
 export function calcularMargemLucro(request: CalculoMargemLucroRequest) {
   return precificacaoApi.post<MargemLucroResponse>("/api/precificacao/calculos/margem-lucro", request);
+}
+
+export function consultarDashboardPrecificacao(empresaId: string) {
+  return precificacaoApi.get<DashboardPrecificacao>("/api/precificacao/dashboard", {
+    query: { empresaId }
+  });
 }
 
 export function listarSimulacoesPrecificacao(params: { empresaId: string; pagina: number; tamanho: number; busca?: string }) {

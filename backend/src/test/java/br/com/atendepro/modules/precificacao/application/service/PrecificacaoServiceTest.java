@@ -28,11 +28,15 @@ import br.com.atendepro.modules.precificacao.application.command.CalcularPrecoRe
 import br.com.atendepro.modules.precificacao.application.command.CalcularPrecificacaoBaseCommand;
 import br.com.atendepro.modules.precificacao.application.command.ItemCustoPrecificacaoCommand;
 import br.com.atendepro.modules.precificacao.application.command.SalvarSimulacaoPrecificacaoCommand;
+import br.com.atendepro.modules.precificacao.application.port.out.CarregarMetricasDashboardPrecificacaoPort;
 import br.com.atendepro.modules.precificacao.application.port.out.CarregarServicoParaPrecificacaoPort;
 import br.com.atendepro.modules.precificacao.application.port.out.GerarRelatorioPrecificacaoPort;
 import br.com.atendepro.modules.precificacao.application.port.out.SalvarSimulacaoPrecificacaoPort;
+import br.com.atendepro.modules.precificacao.application.result.DistribuicaoStatusPrecificacaoResult;
+import br.com.atendepro.modules.precificacao.application.result.MetricasDashboardPrecificacaoResult;
 import br.com.atendepro.modules.precificacao.application.result.RelatorioPrecificacaoResult;
 import br.com.atendepro.modules.precificacao.application.result.ServicoPrecificacaoResult;
+import br.com.atendepro.modules.precificacao.application.result.SimulacaoDashboardPrecificacaoResult;
 import br.com.atendepro.modules.precificacao.domain.model.AnaliseMargemLucroPrecificacao;
 import br.com.atendepro.modules.precificacao.domain.model.CategoriaItemPrecificacao;
 import br.com.atendepro.modules.precificacao.domain.model.CustoRealPrecificacao;
@@ -258,6 +262,7 @@ class PrecificacaoServiceTest {
                 id -> Optional.of(simulacaoAtual),
                 (empresaId, paginacao, busca) -> new ResultadoPaginado<>(List.of(simulacaoAtual), 1, paginacao.pagina(), paginacao.tamanho()),
                 simulacao -> new RelatorioPrecificacaoResult("precificacao.pdf", "application/pdf", "%PDF".getBytes()),
+                empresaId -> metricasDashboard(),
                 new TenantAccessService(),
                 new PermissaoAcessoService(),
                 CLOCK
@@ -286,6 +291,7 @@ class PrecificacaoServiceTest {
                 id -> Optional.of(simulacaoAtual),
                 (empresaId, paginacao, busca) -> new ResultadoPaginado<>(List.of(simulacaoAtual), 1, paginacao.pagina(), paginacao.tamanho()),
                 gerarRelatorioFake,
+                empresaId -> metricasDashboard(),
                 new TenantAccessService(),
                 new PermissaoAcessoService(),
                 CLOCK
@@ -297,6 +303,35 @@ class PrecificacaoServiceTest {
         assertThat(result.contentType()).isEqualTo("application/pdf");
         assertThat(result.conteudo()).startsWith("%PDF".getBytes());
         assertThat(gerarRelatorioFake.simulacaoRecebida.id()).isEqualTo(simulacaoId);
+    }
+
+    @Test
+    void deveConsultarDashboardPrecificacaoDaEmpresaDoContexto() {
+        TenantContextHolder.definir(new TenantContext(EMPRESA_ID, UUID.randomUUID(), Set.of(PerfilAcesso.EMPRESA_ADMIN)));
+        DashboardMetricasFake metricasFake = new DashboardMetricasFake();
+        PrecificacaoService service = new PrecificacaoService(
+                (empresaId, servicoProcedimentoId) -> Optional.empty(),
+                simulacao -> {
+                },
+                simulacao -> {
+                },
+                id -> Optional.empty(),
+                (empresaId, paginacao, busca) -> new ResultadoPaginado<>(List.of(), 0, paginacao.pagina(), paginacao.tamanho()),
+                simulacao -> new RelatorioPrecificacaoResult("precificacao.pdf", "application/pdf", "%PDF".getBytes()),
+                metricasFake,
+                new TenantAccessService(),
+                new PermissaoAcessoService(),
+                CLOCK
+        );
+
+        var result = service.consultarDashboardPrecificacao(null);
+
+        assertThat(metricasFake.empresaRecebida).isEqualTo(EMPRESA_ID);
+        assertThat(result.totalSimulacoes()).isEqualTo(3);
+        assertThat(result.precoMedioRecomendado()).isEqualByComparingTo("240.00");
+        assertThat(result.distribuicaoStatus()).hasSize(2);
+        assertThat(result.simulacoesRecentes()).hasSize(1);
+        assertThat(result.atualizadoEm()).isEqualTo(Instant.parse("2026-05-25T00:00:00Z"));
     }
 
     private PrecificacaoService service(CarregarServicoParaPrecificacaoPort carregarPort) {
@@ -316,6 +351,7 @@ class PrecificacaoServiceTest {
                 id -> Optional.empty(),
                 (empresaId, paginacao, busca) -> new ResultadoPaginado<>(List.of(), 0, paginacao.pagina(), paginacao.tamanho()),
                 simulacao -> new RelatorioPrecificacaoResult("precificacao.pdf", "application/pdf", "%PDF".getBytes()),
+                empresaId -> metricasDashboard(),
                 new TenantAccessService(),
                 new PermissaoAcessoService(),
                 CLOCK
@@ -408,6 +444,31 @@ class PrecificacaoServiceTest {
         );
     }
 
+    private static MetricasDashboardPrecificacaoResult metricasDashboard() {
+        return new MetricasDashboardPrecificacaoResult(
+                3,
+                new BigDecimal("168.00"),
+                new BigDecimal("240.00"),
+                new BigDecimal("220.00"),
+                new BigDecimal("52.00"),
+                new BigDecimal("24.00"),
+                2,
+                1,
+                List.of(
+                        new DistribuicaoStatusPrecificacaoResult("SAUDAVEL", 2),
+                        new DistribuicaoStatusPrecificacaoResult("MARGEM_BAIXA", 1)
+                ),
+                List.of(new SimulacaoDashboardPrecificacaoResult(
+                        "Simulacao recente",
+                        new BigDecimal("168.00"),
+                        new BigDecimal("240.00"),
+                        new BigDecimal("220.00"),
+                        new BigDecimal("24.00"),
+                        Instant.parse("2026-05-25T00:00:00Z")
+                ))
+        );
+    }
+
     private static class SalvarSimulacaoFake implements SalvarSimulacaoPrecificacaoPort {
 
         private SimulacaoPrecificacao simulacaoSalva;
@@ -435,6 +496,17 @@ class PrecificacaoServiceTest {
         public RelatorioPrecificacaoResult gerarRelatorio(SimulacaoPrecificacao simulacao) {
             this.simulacaoRecebida = simulacao;
             return new RelatorioPrecificacaoResult("precificacao.pdf", "application/pdf", "%PDF".getBytes());
+        }
+    }
+
+    private static class DashboardMetricasFake implements CarregarMetricasDashboardPrecificacaoPort {
+
+        private UUID empresaRecebida;
+
+        @Override
+        public MetricasDashboardPrecificacaoResult carregarMetricasDashboardPrecificacao(UUID empresaId) {
+            this.empresaRecebida = empresaId;
+            return metricasDashboard();
         }
     }
 }
