@@ -221,6 +221,53 @@ public class CatalogoVerticalProfissionalAdapter implements CarregarCatalogoVert
                             "criar evolucao por sessao",
                             "criar relatorio de acompanhamento"
                     )
+            ),
+            CodigoVerticalProfissional.PSICO_PRO,
+            new VerticalProfissional(
+                    CodigoVerticalProfissional.PSICO_PRO,
+                    "Psico Pro",
+                    "R7",
+                    StatusVerticalProfissional.PREPARADO_FUTURO,
+                    "CRP",
+                    "Preparacao futura para psicologia, com documentos psicologicos, evolucao de atendimento e regras sensiveis de privacidade profissional.",
+                    List.of("Psicologos", "Clinicas de psicologia", "Atendimento online futuro"),
+                    List.of(
+                            "evolucao de atendimento",
+                            "documentos psicologicos",
+                            "registro de sessoes",
+                            "termos e consentimentos",
+                            "agenda recorrente",
+                            "controle de sigilo",
+                            "relatorios futuros"
+                    ),
+                    List.of(
+                            "Paciente psico",
+                            "Sessao psicologica",
+                            "Evolucao psicologica",
+                            "Documento psicologico",
+                            "Consentimento",
+                            "Plano de acompanhamento"
+                    ),
+                    List.of(
+                            "Declaracao psicologica",
+                            "Relatorio psicologico",
+                            "Termo de consentimento",
+                            "Orientacoes ao paciente"
+                    ),
+                    List.of(
+                            "clientes/pacientes",
+                            "agenda",
+                            "documentos profissionais",
+                            "carimbo profissional",
+                            "app do paciente futuro",
+                            "videoconferencia futura"
+                    ),
+                    List.of(
+                            "validar regras regulatorias de documentos psicologicos",
+                            "criar controles de privacidade reforcados",
+                            "criar evolucao por sessao",
+                            "preparar atendimento online"
+                    )
             )
     );
 

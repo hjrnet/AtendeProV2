@@ -25,7 +25,8 @@ class VerticalProfissionalServiceTest {
                         CodigoVerticalProfissional.BEAUTY_PRO,
                         CodigoVerticalProfissional.BIOMED_PRO,
                         CodigoVerticalProfissional.FISIO_PRO,
-                        CodigoVerticalProfissional.NUTRI_PRO
+                        CodigoVerticalProfissional.NUTRI_PRO,
+                        CodigoVerticalProfissional.PSICO_PRO
                 );
         assertThat(verticais.get(0).capacidades())
                 .contains("protocolos de atendimento", "termos de consentimento");
@@ -88,5 +89,20 @@ class VerticalProfissionalServiceTest {
         assertThat(vertical.get().conselhoProfissional()).isEqualTo("CREFITO");
         assertThat(vertical.get().capacidades()).contains("avaliacao funcional", "plano terapeutico", "evolucao por sessao");
         assertThat(vertical.get().documentos()).contains("Relatorio fisioterapeutico");
+    }
+
+    @Test
+    void deveDetalharPsicoProComoFuturoComCrpEPrivacidade() {
+        VerticalProfissionalService service = new VerticalProfissionalService(
+                new CatalogoVerticalProfissionalAdapter(),
+                new PermissaoAcessoService()
+        );
+
+        var vertical = service.detalharVertical(CodigoVerticalProfissional.PSICO_PRO);
+
+        assertThat(vertical).isPresent();
+        assertThat(vertical.get().status().name()).isEqualTo("PREPARADO_FUTURO");
+        assertThat(vertical.get().conselhoProfissional()).isEqualTo("CRP");
+        assertThat(vertical.get().capacidades()).contains("documentos psicologicos", "controle de sigilo");
     }
 }

@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R7 — Verticais profissionais.
 
 ## Última task concluída
-TASK-0704 — Fisio Pro.
+TASK-0705 — Psico Pro futuro.
 
 ## Próxima task recomendada
-TASK-0705 — Psico Pro futuro.
+TASK-0706 — Fono Pro futuro.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,9 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0705 concluida em modo autopilot multiagente release R7.
+- Psico Pro adicionado ao catalogo como `PREPARADO_FUTURO`, com CRP, documentos psicologicos, evolucao, sigilo e controles de privacidade previstos.
+- A task respeitou o escopo futuro: nao criou prontuario psicologico, regras regulatórias finais, videoconferencia ou documentos oficiais especificos.
 - TASK-0704 concluida em modo autopilot multiagente release R7.
 - Fisio Pro adicionado ao catalogo backend de verticais profissionais e ao tipo web, com CREFITO, avaliacao funcional, plano terapeutico, evolucao por sessao e relatorios.
 - A task nao criou prontuario fisioterapeutico persistido nem escalas clinicas reais; isso fica para evolucao propria da vertical.
