@@ -119,6 +119,91 @@ export type CriarAvaliacaoAntropometricaNutriProInput = {
   observacoes?: string | null;
 };
 
+export type StatusPlanoAlimentarNutriPro = "RASCUNHO" | "ATIVO" | "SUBSTITUIDO" | "ARQUIVADO";
+
+export type TipoItemPlanoAlimentarNutriPro = "ALIMENTO" | "SUPLEMENTO";
+
+export type ItemPlanoAlimentarNutriPro = {
+  id: string;
+  tipoItem: TipoItemPlanoAlimentarNutriPro;
+  tipoItemRotulo: string;
+  nome: string;
+  grupo: string | null;
+  unidadeMedida: string;
+  quantidade: number;
+  quantidadeBase: number;
+  energiaKcal: number;
+  proteinas: number;
+  carboidratos: number;
+  lipidios: number;
+  observacoes: string | null;
+  ordenacao: number;
+};
+
+export type RefeicaoPlanoAlimentarNutriPro = {
+  id: string;
+  nome: string;
+  horario: string | null;
+  observacoes: string | null;
+  ordenacao: number;
+  itens: ItemPlanoAlimentarNutriPro[];
+  energiaTotalKcal: number;
+  proteinasTotal: number;
+  carboidratosTotal: number;
+  lipidiosTotal: number;
+};
+
+export type PlanoAlimentarNutriPro = {
+  id: string;
+  empresaId: string;
+  pacienteId: string;
+  objetivo: string;
+  descricao: string | null;
+  status: StatusPlanoAlimentarNutriPro;
+  statusRotulo: string;
+  refeicoes: RefeicaoPlanoAlimentarNutriPro[];
+  energiaTotalKcal: number;
+  proteinasTotal: number;
+  carboidratosTotal: number;
+  lipidiosTotal: number;
+  criadoEm: string;
+  atualizadoEm: string;
+};
+
+export type PlanosAlimentaresNutriPro = {
+  itens: PlanoAlimentarNutriPro[];
+};
+
+export type CriarItemPlanoAlimentarNutriProInput = {
+  tipoItem: TipoItemPlanoAlimentarNutriPro;
+  nome: string;
+  grupo?: string | null;
+  unidadeMedida: string;
+  quantidadeBase: number;
+  quantidade: number;
+  energiaKcalBase: number;
+  proteinasBase: number;
+  carboidratosBase: number;
+  lipidiosBase: number;
+  observacoes?: string | null;
+  ordenacao: number;
+};
+
+export type CriarRefeicaoPlanoAlimentarNutriProInput = {
+  nome: string;
+  horario?: string | null;
+  observacoes?: string | null;
+  ordenacao: number;
+  itens: CriarItemPlanoAlimentarNutriProInput[];
+};
+
+export type CriarPlanoAlimentarNutriProInput = {
+  objetivo: string;
+  descricao?: string | null;
+  status?: StatusPlanoAlimentarNutriPro;
+  refeicoes: CriarRefeicaoPlanoAlimentarNutriProInput[];
+};
+
 export type VisaoNutriPro = {
   empresaId: string;
   empresaNome: string;
@@ -171,6 +256,32 @@ export function criarAvaliacaoAntropometricaNutriPro(params: {
 }) {
   return nutriProApi.post<AvaliacaoAntropometricaNutriPro>(
     `/api/nutri-pro/pacientes/${params.pacienteId}/avaliacoes-antropometricas`,
+    params.dados,
+    {
+      query: { empresaId: params.empresaId }
+    }
+  );
+}
+
+export function listarPlanosAlimentaresNutriPro(params: { empresaId: string; pacienteId: string }) {
+  return nutriProApi.get<PlanosAlimentaresNutriPro>(`/api/nutri-pro/pacientes/${params.pacienteId}/planos-alimentares`, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export function detalharPlanoAlimentarNutriPro(params: { empresaId: string; pacienteId: string; planoId: string }) {
+  return nutriProApi.get<PlanoAlimentarNutriPro>(`/api/nutri-pro/pacientes/${params.pacienteId}/planos-alimentares/${params.planoId}`, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export function criarPlanoAlimentarNutriPro(params: {
+  empresaId: string;
+  pacienteId: string;
+  dados: CriarPlanoAlimentarNutriProInput;
+}) {
+  return nutriProApi.post<PlanoAlimentarNutriPro>(
+    `/api/nutri-pro/pacientes/${params.pacienteId}/planos-alimentares`,
     params.dados,
     {
       query: { empresaId: params.empresaId }

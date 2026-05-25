@@ -59,3 +59,5 @@ databaseChangeLog:
       file: db/changelog/changes/0029-create-chamados-suporte.yaml
   - include:
       file: db/changelog/changes/0030-create-nutri-avaliacoes-antropometricas.yaml
+  - include:
+      file: db/changelog/changes/0031-create-nutri-planos-alimentares.yaml

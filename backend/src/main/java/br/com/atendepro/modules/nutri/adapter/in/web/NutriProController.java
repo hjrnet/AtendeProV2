@@ -14,15 +14,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.atendepro.modules.nutri.application.command.DetalharAvaliacaoAntropometricaNutriProCommand;
+import br.com.atendepro.modules.nutri.application.command.DetalharPlanoAlimentarNutriProCommand;
 import br.com.atendepro.modules.nutri.application.command.ListarAvaliacoesAntropometricasNutriProCommand;
+import br.com.atendepro.modules.nutri.application.command.ListarPlanosAlimentaresNutriProCommand;
 import br.com.atendepro.modules.nutri.application.command.ConsultarProntuarioNutriProCommand;
 import br.com.atendepro.modules.nutri.application.command.ConsultarVisaoNutriProCommand;
 import br.com.atendepro.modules.nutri.application.command.ListarPacientesNutriProCommand;
 import br.com.atendepro.modules.nutri.application.port.in.CriarAvaliacaoAntropometricaNutriProUseCase;
+import br.com.atendepro.modules.nutri.application.port.in.CriarPlanoAlimentarNutriProUseCase;
 import br.com.atendepro.modules.nutri.application.port.in.DetalharAvaliacaoAntropometricaNutriProUseCase;
+import br.com.atendepro.modules.nutri.application.port.in.DetalharPlanoAlimentarNutriProUseCase;
 import br.com.atendepro.modules.nutri.application.port.in.ConsultarProntuarioNutriProUseCase;
 import br.com.atendepro.modules.nutri.application.port.in.ConsultarVisaoNutriProUseCase;
 import br.com.atendepro.modules.nutri.application.port.in.ListarAvaliacoesAntropometricasNutriProUseCase;
+import br.com.atendepro.modules.nutri.application.port.in.ListarPlanosAlimentaresNutriProUseCase;
 import br.com.atendepro.modules.nutri.application.port.in.ListarPacientesNutriProUseCase;
 import jakarta.validation.Valid;
 
@@ -37,6 +42,9 @@ public class NutriProController {
     private final CriarAvaliacaoAntropometricaNutriProUseCase criarAvaliacaoAntropometricaNutriProUseCase;
     private final ListarAvaliacoesAntropometricasNutriProUseCase listarAvaliacoesAntropometricasNutriProUseCase;
     private final DetalharAvaliacaoAntropometricaNutriProUseCase detalharAvaliacaoAntropometricaNutriProUseCase;
+    private final CriarPlanoAlimentarNutriProUseCase criarPlanoAlimentarNutriProUseCase;
+    private final ListarPlanosAlimentaresNutriProUseCase listarPlanosAlimentaresNutriProUseCase;
+    private final DetalharPlanoAlimentarNutriProUseCase detalharPlanoAlimentarNutriProUseCase;
 
     public NutriProController(
             ConsultarVisaoNutriProUseCase consultarVisaoNutriProUseCase,
@@ -44,7 +52,10 @@ public class NutriProController {
             ConsultarProntuarioNutriProUseCase consultarProntuarioNutriProUseCase,
             CriarAvaliacaoAntropometricaNutriProUseCase criarAvaliacaoAntropometricaNutriProUseCase,
             ListarAvaliacoesAntropometricasNutriProUseCase listarAvaliacoesAntropometricasNutriProUseCase,
-            DetalharAvaliacaoAntropometricaNutriProUseCase detalharAvaliacaoAntropometricaNutriProUseCase
+            DetalharAvaliacaoAntropometricaNutriProUseCase detalharAvaliacaoAntropometricaNutriProUseCase,
+            CriarPlanoAlimentarNutriProUseCase criarPlanoAlimentarNutriProUseCase,
+            ListarPlanosAlimentaresNutriProUseCase listarPlanosAlimentaresNutriProUseCase,
+            DetalharPlanoAlimentarNutriProUseCase detalharPlanoAlimentarNutriProUseCase
     ) {
         this.consultarVisaoNutriProUseCase = consultarVisaoNutriProUseCase;
         this.listarPacientesNutriProUseCase = listarPacientesNutriProUseCase;
@@ -52,6 +63,9 @@ public class NutriProController {
         this.criarAvaliacaoAntropometricaNutriProUseCase = criarAvaliacaoAntropometricaNutriProUseCase;
         this.listarAvaliacoesAntropometricasNutriProUseCase = listarAvaliacoesAntropometricasNutriProUseCase;
         this.detalharAvaliacaoAntropometricaNutriProUseCase = detalharAvaliacaoAntropometricaNutriProUseCase;
+        this.criarPlanoAlimentarNutriProUseCase = criarPlanoAlimentarNutriProUseCase;
+        this.listarPlanosAlimentaresNutriProUseCase = listarPlanosAlimentaresNutriProUseCase;
+        this.detalharPlanoAlimentarNutriProUseCase = detalharPlanoAlimentarNutriProUseCase;
     }
 
     @GetMapping("/visao")
@@ -119,6 +133,44 @@ public class NutriProController {
         return detalharAvaliacaoAntropometricaNutriProUseCase
                 .detalharAvaliacaoAntropometrica(new DetalharAvaliacaoAntropometricaNutriProCommand(empresaId, pacienteId, avaliacaoId))
                 .map(AvaliacaoAntropometricaNutriProResponse::de)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/pacientes/{pacienteId}/planos-alimentares")
+    public ResponseEntity<PlanoAlimentarNutriProResponse> criarPlanoAlimentar(
+            @PathVariable UUID pacienteId,
+            @RequestParam(required = false) UUID empresaId,
+            @Valid @RequestBody CriarPlanoAlimentarNutriProRequest request
+    ) {
+        PlanoAlimentarNutriProResponse response = PlanoAlimentarNutriProResponse.de(
+                criarPlanoAlimentarNutriProUseCase.criarPlanoAlimentar(request.paraCommand(empresaId, pacienteId))
+        );
+        return ResponseEntity.created(URI.create("/api/nutri-pro/pacientes/" + pacienteId + "/planos-alimentares/" + response.id()))
+                .body(response);
+    }
+
+    @GetMapping("/pacientes/{pacienteId}/planos-alimentares")
+    public ResponseEntity<PlanosAlimentaresNutriProResponse> listarPlanosAlimentares(
+            @PathVariable UUID pacienteId,
+            @RequestParam(required = false) UUID empresaId
+    ) {
+        return ResponseEntity.ok(PlanosAlimentaresNutriProResponse.de(
+                listarPlanosAlimentaresNutriProUseCase.listarPlanosAlimentares(
+                        new ListarPlanosAlimentaresNutriProCommand(empresaId, pacienteId)
+                )
+        ));
+    }
+
+    @GetMapping("/pacientes/{pacienteId}/planos-alimentares/{planoId}")
+    public ResponseEntity<PlanoAlimentarNutriProResponse> detalharPlanoAlimentar(
+            @PathVariable UUID pacienteId,
+            @PathVariable UUID planoId,
+            @RequestParam(required = false) UUID empresaId
+    ) {
+        return detalharPlanoAlimentarNutriProUseCase
+                .detalharPlanoAlimentar(new DetalharPlanoAlimentarNutriProCommand(empresaId, pacienteId, planoId))
+                .map(PlanoAlimentarNutriProResponse::de)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

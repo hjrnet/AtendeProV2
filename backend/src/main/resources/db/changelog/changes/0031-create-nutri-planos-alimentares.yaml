@@ -1,0 +1,144 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0031-create-nutri-planos-alimentares
+      author: codex
+      changes:
+        - createTable:
+            tableName: nutri_alimentos_personalizados
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: empresa_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: nome, type: varchar(160), constraints: { nullable: false } }
+              - column: { name: grupo, type: varchar(80) }
+              - column: { name: unidade_medida, type: varchar(30), constraints: { nullable: false } }
+              - column: { name: quantidade_base, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: energia_kcal_base, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: proteinas_base, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: carboidratos_base, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: lipidios_base, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: ativo, type: boolean, defaultValueBoolean: true, constraints: { nullable: false } }
+              - column: { name: criado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+              - column: { name: atualizado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+        - createTable:
+            tableName: nutri_suplementos_formulacoes
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: empresa_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: nome, type: varchar(160), constraints: { nullable: false } }
+              - column: { name: tipo, type: varchar(80) }
+              - column: { name: unidade_medida, type: varchar(30), constraints: { nullable: false } }
+              - column: { name: quantidade_base, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: energia_kcal_base, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: proteinas_base, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: carboidratos_base, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: lipidios_base, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: orientacao_uso, type: varchar(500) }
+              - column: { name: ativo, type: boolean, defaultValueBoolean: true, constraints: { nullable: false } }
+              - column: { name: criado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+              - column: { name: atualizado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+        - createTable:
+            tableName: nutri_planos_alimentares
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: empresa_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: paciente_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: objetivo, type: varchar(160), constraints: { nullable: false } }
+              - column: { name: descricao, type: varchar(1000) }
+              - column: { name: status, type: varchar(30), constraints: { nullable: false } }
+              - column: { name: energia_total_kcal, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: proteinas_total, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: carboidratos_total, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: lipidios_total, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: criado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+              - column: { name: atualizado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+        - createTable:
+            tableName: nutri_plano_refeicoes
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: empresa_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: plano_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: nome, type: varchar(120), constraints: { nullable: false } }
+              - column: { name: horario, type: varchar(20) }
+              - column: { name: observacoes, type: varchar(500) }
+              - column: { name: ordenacao, type: int, constraints: { nullable: false } }
+              - column: { name: energia_total_kcal, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: proteinas_total, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: carboidratos_total, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: lipidios_total, type: "numeric(8,2)", constraints: { nullable: false } }
+        - createTable:
+            tableName: nutri_refeicao_itens
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: empresa_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: refeicao_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: tipo_item, type: varchar(30), constraints: { nullable: false } }
+              - column: { name: nome, type: varchar(160), constraints: { nullable: false } }
+              - column: { name: grupo, type: varchar(80) }
+              - column: { name: unidade_medida, type: varchar(30), constraints: { nullable: false } }
+              - column: { name: quantidade_base, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: quantidade, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: energia_kcal_base, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: proteinas_base, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: carboidratos_base, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: lipidios_base, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: energia_kcal, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: proteinas, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: carboidratos, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: lipidios, type: "numeric(8,2)", constraints: { nullable: false } }
+              - column: { name: observacoes, type: varchar(500) }
+              - column: { name: ordenacao, type: int, constraints: { nullable: false } }
+        - addForeignKeyConstraint:
+            baseTableName: nutri_alimentos_personalizados
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_nutri_alimentos_empresas
+        - addForeignKeyConstraint:
+            baseTableName: nutri_suplementos_formulacoes
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_nutri_suplementos_empresas
+        - addForeignKeyConstraint:
+            baseTableName: nutri_planos_alimentares
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_nutri_planos_empresas
+        - addForeignKeyConstraint:
+            baseTableName: nutri_planos_alimentares
+            baseColumnNames: paciente_id
+            referencedTableName: clientes_pacientes
+            referencedColumnNames: id
+            constraintName: fk_nutri_planos_pacientes
+        - addForeignKeyConstraint:
+            baseTableName: nutri_plano_refeicoes
+            baseColumnNames: plano_id
+            referencedTableName: nutri_planos_alimentares
+            referencedColumnNames: id
+            constraintName: fk_nutri_refeicoes_planos
+        - addForeignKeyConstraint:
+            baseTableName: nutri_refeicao_itens
+            baseColumnNames: refeicao_id
+            referencedTableName: nutri_plano_refeicoes
+            referencedColumnNames: id
+            constraintName: fk_nutri_itens_refeicoes
+        - createIndex:
+            tableName: nutri_planos_alimentares
+            indexName: idx_nutri_planos_empresa_paciente_status
+            columns:
+              - column: { name: empresa_id }
+              - column: { name: paciente_id }
+              - column: { name: status }
+        - createIndex:
+            tableName: nutri_alimentos_personalizados
+            indexName: idx_nutri_alimentos_empresa_nome
+            columns:
+              - column: { name: empresa_id }
+              - column: { name: nome }
+        - createIndex:
+            tableName: nutri_suplementos_formulacoes
+            indexName: idx_nutri_suplementos_empresa_nome
+            columns:
+              - column: { name: empresa_id }
+              - column: { name: nome }

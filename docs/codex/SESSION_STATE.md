@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R10 — Nutri Pro, Beauty Pro e comercial.
 
 ## Última task concluída
-TASK-NUTRI-004 — Criar avaliação antropométrica e gasto energético.
+TASK-NUTRI-005 — Criar plano alimentar com refeições, alimentos e suplementos.
 
 ## Próxima task recomendada
-TASK-NUTRI-005 — Criar plano alimentar com refeições, alimentos e suplementos.
+TASK-NUTRI-006 — Criar documentos, exames, prescrições e dashboard Nutri Pro.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,12 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-NUTRI-005 concluida em modo autopilot multiagente release R10.
+- Backend Nutri Pro ganhou plano alimentar operacional por paciente, com `nutri_planos_alimentares`, `nutri_plano_refeicoes`, `nutri_refeicao_itens`, banco inicial de alimentos personalizados e suplementos/formulacoes por empresa.
+- API operacional adicionou `POST`, `GET` lista e `GET` detalhe em `/api/nutri-pro/pacientes/{pacienteId}/planos-alimentares`, preservando controller fino, Request/Response, Commands, Results, UseCases/InputPorts, OutputPorts e adapter JDBC.
+- O dominio calcula energia, proteinas, carboidratos e lipidios proporcionalmente por item, por refeicao e no total diario, com status `RASCUNHO`, `ATIVO`, `SUBSTITUIDO` e `ARQUIVADO`.
+- Web do prontuario Nutri Pro tornou a acao `Adicionar plano alimentar` funcional, criando plano inicial com refeicoes, alimentos, suplemento, resumo diario, historico e cards responsivos.
+- Validacao confirmou `mvn test` com 281 testes, `pnpm typecheck`, `pnpm lint`, `pnpm build`, Docker Compose saudavel, backend/web locais ativos, API local criando/listando/detalhando plano alimentar e Browser em Verticais > Nutri Pro sem erros de console.
 - TASK-NUTRI-004 concluida em modo autopilot multiagente release R10.
 - Nutri Pro ganhou tabela `nutri_avaliacoes_antropometricas` para histórico tenant-scoped por paciente, com migration `0030-create-nutri-avaliacoes-antropometricas.yaml`.
 - Backend criou dominio `AvaliacaoAntropometricaNutriPro`, sexo biologico, objetivo nutricional, calculo de IMC e estimativa inicial de TMB/GEB/GET pela formula Mifflin-St Jeor.

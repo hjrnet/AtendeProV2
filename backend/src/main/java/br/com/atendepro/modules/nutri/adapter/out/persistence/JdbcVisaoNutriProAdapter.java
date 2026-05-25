@@ -16,15 +16,23 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import br.com.atendepro.modules.nutri.application.port.out.CarregarAvaliacaoAntropometricaNutriProPort;
+import br.com.atendepro.modules.nutri.application.port.out.CarregarPlanoAlimentarNutriProPort;
 import br.com.atendepro.modules.nutri.application.port.out.CarregarVisaoNutriProPort;
 import br.com.atendepro.modules.nutri.application.port.out.CarregarProntuarioNutriProPort;
 import br.com.atendepro.modules.nutri.application.port.out.ListarAvaliacoesAntropometricasNutriProPort;
+import br.com.atendepro.modules.nutri.application.port.out.ListarPlanosAlimentaresNutriProPort;
 import br.com.atendepro.modules.nutri.application.port.out.ListarPacientesNutriProPort;
 import br.com.atendepro.modules.nutri.application.port.out.SalvarAvaliacaoAntropometricaNutriProPort;
+import br.com.atendepro.modules.nutri.application.port.out.SalvarPlanoAlimentarNutriProPort;
 import br.com.atendepro.modules.nutri.application.port.out.VerificarPacienteNutriProPort;
 import br.com.atendepro.modules.nutri.domain.model.AvaliacaoAntropometricaNutriPro;
+import br.com.atendepro.modules.nutri.domain.model.ItemPlanoAlimentarNutriPro;
 import br.com.atendepro.modules.nutri.domain.model.ObjetivoNutricionalNutriPro;
+import br.com.atendepro.modules.nutri.domain.model.PlanoAlimentarNutriPro;
+import br.com.atendepro.modules.nutri.domain.model.RefeicaoPlanoAlimentarNutriPro;
 import br.com.atendepro.modules.nutri.domain.model.SexoBiologicoNutriPro;
+import br.com.atendepro.modules.nutri.domain.model.StatusPlanoAlimentarNutriPro;
+import br.com.atendepro.modules.nutri.domain.model.TipoItemPlanoAlimentarNutriPro;
 import br.com.atendepro.modules.nutri.application.result.DadosProntuarioNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.MetricasNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.PacienteProntuarioNutriProResult;
@@ -40,7 +48,10 @@ public class JdbcVisaoNutriProAdapter implements
         VerificarPacienteNutriProPort,
         SalvarAvaliacaoAntropometricaNutriProPort,
         ListarAvaliacoesAntropometricasNutriProPort,
-        CarregarAvaliacaoAntropometricaNutriProPort {
+        CarregarAvaliacaoAntropometricaNutriProPort,
+        SalvarPlanoAlimentarNutriProPort,
+        ListarPlanosAlimentaresNutriProPort,
+        CarregarPlanoAlimentarNutriProPort {
 
     private static final String AREA_NUTRI = "NUTRI";
 
@@ -62,7 +73,7 @@ public class JdbcVisaoNutriProAdapter implements
                 contarDocumentosNutri(empresaId),
                 contarSimulacoesNutri(empresaId, false),
                 contarSimulacoesNutri(empresaId, true),
-                0,
+                contarPlanosAtivosNutri(empresaId),
                 listarPacientesRecentes(empresaId)
         );
     }
@@ -107,8 +118,8 @@ public class JdbcVisaoNutriProAdapter implements
                                           and inicio::date >= ?
                                         """, empresaId, pacienteId, hoje),
                                 contarSimulacoesNutri(empresaId, false),
-                                0,
-                                "PREPARADO",
+                                contarPlanosAtivosPaciente(empresaId, pacienteId),
+                                contarPlanosAtivosPaciente(empresaId, pacienteId) > 0 ? "ATIVO" : "PREPARADO",
                                 "PREPARADO",
                                 existeAvaliacaoAntropometrica(empresaId, pacienteId) ? "DISPONIVEL" : "PROXIMA_TASK",
                                 existeAvaliacaoAntropometrica(empresaId, pacienteId) ? "DISPONIVEL" : "PROXIMA_TASK",
@@ -187,6 +198,178 @@ public class JdbcVisaoNutriProAdapter implements
         }
     }
 
+    @Override
+    public void salvarPlanoAlimentar(PlanoAlimentarNutriPro plano) {
+        jdbcTemplate.update("""
+                insert into nutri_planos_alimentares (
+                    id, empresa_id, paciente_id, objetivo, descricao, status,
+                    energia_total_kcal, proteinas_total, carboidratos_total, lipidios_total,
+                    criado_em, atualizado_em
+                ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                plano.id(),
+                plano.empresaId(),
+                plano.pacienteId(),
+                plano.objetivo(),
+                plano.descricao(),
+                plano.status().name(),
+                plano.energiaTotalKcal(),
+                plano.proteinasTotal(),
+                plano.carboidratosTotal(),
+                plano.lipidiosTotal(),
+                Timestamp.from(plano.criadoEm()),
+                Timestamp.from(plano.atualizadoEm())
+        );
+        for (RefeicaoPlanoAlimentarNutriPro refeicao : plano.refeicoes()) {
+            salvarRefeicao(refeicao);
+        }
+    }
+
+    @Override
+    public List<PlanoAlimentarNutriPro> listarPlanosAlimentares(UUID empresaId, UUID pacienteId) {
+        return jdbcTemplate.query("""
+                select *
+                from nutri_planos_alimentares
+                where empresa_id = ?
+                  and paciente_id = ?
+                order by criado_em desc
+                limit 10
+                """, this::mapearPlanoAlimentar, empresaId, pacienteId);
+    }
+
+    @Override
+    public Optional<PlanoAlimentarNutriPro> carregarPlanoAlimentar(UUID empresaId, UUID pacienteId, UUID planoId) {
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject("""
+                    select *
+                    from nutri_planos_alimentares
+                    where id = ?
+                      and empresa_id = ?
+                      and paciente_id = ?
+                    """, this::mapearPlanoAlimentar, planoId, empresaId, pacienteId));
+        } catch (EmptyResultDataAccessException exception) {
+            return Optional.empty();
+        }
+    }
+
+    private void salvarRefeicao(RefeicaoPlanoAlimentarNutriPro refeicao) {
+        jdbcTemplate.update("""
+                insert into nutri_plano_refeicoes (
+                    id, empresa_id, plano_id, nome, horario, observacoes, ordenacao,
+                    energia_total_kcal, proteinas_total, carboidratos_total, lipidios_total
+                ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                refeicao.id(),
+                refeicao.empresaId(),
+                refeicao.planoId(),
+                refeicao.nome(),
+                refeicao.horario(),
+                refeicao.observacoes(),
+                refeicao.ordenacao(),
+                refeicao.energiaTotalKcal(),
+                refeicao.proteinasTotal(),
+                refeicao.carboidratosTotal(),
+                refeicao.lipidiosTotal()
+        );
+        for (ItemPlanoAlimentarNutriPro item : refeicao.itens()) {
+            salvarItemRefeicao(item);
+            registrarItemNoBancoPersonalizado(item);
+        }
+    }
+
+    private void salvarItemRefeicao(ItemPlanoAlimentarNutriPro item) {
+        jdbcTemplate.update("""
+                insert into nutri_refeicao_itens (
+                    id, empresa_id, refeicao_id, tipo_item, nome, grupo, unidade_medida,
+                    quantidade_base, quantidade, energia_kcal_base, proteinas_base, carboidratos_base,
+                    lipidios_base, energia_kcal, proteinas, carboidratos, lipidios, observacoes, ordenacao
+                ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                item.id(),
+                item.empresaId(),
+                item.refeicaoId(),
+                item.tipoItem().name(),
+                item.nome(),
+                item.grupo(),
+                item.unidadeMedida(),
+                item.quantidadeBase(),
+                item.quantidade(),
+                item.energiaKcalBase(),
+                item.proteinasBase(),
+                item.carboidratosBase(),
+                item.lipidiosBase(),
+                item.energiaKcal(),
+                item.proteinas(),
+                item.carboidratos(),
+                item.lipidios(),
+                item.observacoes(),
+                item.ordenacao()
+        );
+    }
+
+    private void registrarItemNoBancoPersonalizado(ItemPlanoAlimentarNutriPro item) {
+        if (item.tipoItem() == TipoItemPlanoAlimentarNutriPro.ALIMENTO) {
+            registrarAlimentoPersonalizado(item);
+            return;
+        }
+        registrarSuplementoPersonalizado(item);
+    }
+
+    private void registrarAlimentoPersonalizado(ItemPlanoAlimentarNutriPro item) {
+        jdbcTemplate.update("""
+                insert into nutri_alimentos_personalizados (
+                    id, empresa_id, nome, grupo, unidade_medida, quantidade_base, energia_kcal_base,
+                    proteinas_base, carboidratos_base, lipidios_base, ativo, criado_em, atualizado_em
+                )
+                select ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, true, now(), now()
+                where not exists (
+                    select 1 from nutri_alimentos_personalizados
+                    where empresa_id = ? and lower(nome) = lower(?)
+                )
+                """,
+                UUID.randomUUID(),
+                item.empresaId(),
+                item.nome(),
+                item.grupo(),
+                item.unidadeMedida(),
+                item.quantidadeBase(),
+                item.energiaKcalBase(),
+                item.proteinasBase(),
+                item.carboidratosBase(),
+                item.lipidiosBase(),
+                item.empresaId(),
+                item.nome()
+        );
+    }
+
+    private void registrarSuplementoPersonalizado(ItemPlanoAlimentarNutriPro item) {
+        jdbcTemplate.update("""
+                insert into nutri_suplementos_formulacoes (
+                    id, empresa_id, nome, tipo, unidade_medida, quantidade_base, energia_kcal_base,
+                    proteinas_base, carboidratos_base, lipidios_base, orientacao_uso, ativo, criado_em, atualizado_em
+                )
+                select ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, true, now(), now()
+                where not exists (
+                    select 1 from nutri_suplementos_formulacoes
+                    where empresa_id = ? and lower(nome) = lower(?)
+                )
+                """,
+                UUID.randomUUID(),
+                item.empresaId(),
+                item.nome(),
+                item.grupo(),
+                item.unidadeMedida(),
+                item.quantidadeBase(),
+                item.energiaKcalBase(),
+                item.proteinasBase(),
+                item.carboidratosBase(),
+                item.lipidiosBase(),
+                item.observacoes(),
+                item.empresaId(),
+                item.nome()
+        );
+    }
+
     private String carregarNomeEmpresa(UUID empresaId) {
         try {
             return jdbcTemplate.queryForObject(
@@ -232,6 +415,27 @@ public class JdbcVisaoNutriProAdapter implements
                   and simulacao.ativo = true
                   and (servico.area = ? or simulacao.nome_procedimento ilike '%nutri%')
                 """ + filtroAlerta, empresaId, AREA_NUTRI);
+    }
+
+    private long contarPlanosAtivosNutri(UUID empresaId) {
+        return contar("""
+                select count(*)
+                from nutri_planos_alimentares plano
+                join clientes_pacientes paciente on paciente.id = plano.paciente_id
+                where plano.empresa_id = ?
+                  and paciente.area = ?
+                  and plano.status = 'ATIVO'
+                """, empresaId, AREA_NUTRI);
+    }
+
+    private long contarPlanosAtivosPaciente(UUID empresaId, UUID pacienteId) {
+        return contar("""
+                select count(*)
+                from nutri_planos_alimentares
+                where empresa_id = ?
+                  and paciente_id = ?
+                  and status = 'ATIVO'
+                """, empresaId, pacienteId);
     }
 
     private List<PacienteNutriResumoResult> listarPacientesRecentes(UUID empresaId) {
@@ -332,6 +536,89 @@ public class JdbcVisaoNutriProAdapter implements
                 rs.getString("observacoes"),
                 rs.getTimestamp("criado_em").toInstant(),
                 rs.getTimestamp("atualizado_em").toInstant()
+        );
+    }
+
+    private PlanoAlimentarNutriPro mapearPlanoAlimentar(ResultSet rs, int rowNum) throws SQLException {
+        UUID planoId = rs.getObject("id", UUID.class);
+        UUID empresaId = rs.getObject("empresa_id", UUID.class);
+        return new PlanoAlimentarNutriPro(
+                planoId,
+                empresaId,
+                rs.getObject("paciente_id", UUID.class),
+                rs.getString("objetivo"),
+                rs.getString("descricao"),
+                StatusPlanoAlimentarNutriPro.deCodigo(rs.getString("status")),
+                carregarRefeicoesPlano(empresaId, planoId),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                rs.getTimestamp("criado_em").toInstant(),
+                rs.getTimestamp("atualizado_em").toInstant()
+        );
+    }
+
+    private List<RefeicaoPlanoAlimentarNutriPro> carregarRefeicoesPlano(UUID empresaId, UUID planoId) {
+        return jdbcTemplate.query("""
+                select *
+                from nutri_plano_refeicoes
+                where empresa_id = ?
+                  and plano_id = ?
+                order by ordenacao, nome
+                """, this::mapearRefeicaoPlano, empresaId, planoId);
+    }
+
+    private RefeicaoPlanoAlimentarNutriPro mapearRefeicaoPlano(ResultSet rs, int rowNum) throws SQLException {
+        UUID refeicaoId = rs.getObject("id", UUID.class);
+        UUID empresaId = rs.getObject("empresa_id", UUID.class);
+        return new RefeicaoPlanoAlimentarNutriPro(
+                refeicaoId,
+                empresaId,
+                rs.getObject("plano_id", UUID.class),
+                rs.getString("nome"),
+                rs.getString("horario"),
+                rs.getString("observacoes"),
+                rs.getInt("ordenacao"),
+                carregarItensRefeicao(empresaId, refeicaoId),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO
+        );
+    }
+
+    private List<ItemPlanoAlimentarNutriPro> carregarItensRefeicao(UUID empresaId, UUID refeicaoId) {
+        return jdbcTemplate.query("""
+                select *
+                from nutri_refeicao_itens
+                where empresa_id = ?
+                  and refeicao_id = ?
+                order by ordenacao, nome
+                """, this::mapearItemRefeicao, empresaId, refeicaoId);
+    }
+
+    private ItemPlanoAlimentarNutriPro mapearItemRefeicao(ResultSet rs, int rowNum) throws SQLException {
+        return new ItemPlanoAlimentarNutriPro(
+                rs.getObject("id", UUID.class),
+                rs.getObject("empresa_id", UUID.class),
+                rs.getObject("refeicao_id", UUID.class),
+                TipoItemPlanoAlimentarNutriPro.deCodigo(rs.getString("tipo_item")),
+                rs.getString("nome"),
+                rs.getString("grupo"),
+                rs.getString("unidade_medida"),
+                bigDecimal(rs, "quantidade_base"),
+                bigDecimal(rs, "quantidade"),
+                bigDecimal(rs, "energia_kcal_base"),
+                bigDecimal(rs, "proteinas_base"),
+                bigDecimal(rs, "carboidratos_base"),
+                bigDecimal(rs, "lipidios_base"),
+                bigDecimal(rs, "energia_kcal"),
+                bigDecimal(rs, "proteinas"),
+                bigDecimal(rs, "carboidratos"),
+                bigDecimal(rs, "lipidios"),
+                rs.getString("observacoes"),
+                rs.getInt("ordenacao")
         );
     }
 

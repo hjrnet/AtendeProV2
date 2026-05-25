@@ -20,15 +20,19 @@ import {
   consultarProntuarioNutriPro,
   consultarVisaoNutriPro,
   criarAvaliacaoAntropometricaNutriPro,
+  criarPlanoAlimentarNutriPro,
   listarAvaliacoesAntropometricasNutriPro,
   listarPacientesNutriPro,
+  listarPlanosAlimentaresNutriPro,
   type AcaoProntuarioNutriPro,
   type AtalhoNutriPro,
   type AvaliacaoAntropometricaNutriPro,
   type CriarAvaliacaoAntropometricaNutriProInput,
+  type CriarPlanoAlimentarNutriProInput,
   type IndicadorNutriPro,
   type ObjetivoNutricionalNutriPro,
   type PacienteNutriResumo,
+  type PlanoAlimentarNutriPro,
   type ProntuarioNutriPro,
   type SexoBiologicoNutriPro
 } from "@/features/nutri-pro/api/nutri-pro-client";
@@ -428,7 +432,7 @@ function PainelAcaoProntuario({ empresaId, prontuario, acao }: { empresaId: stri
       <div className="mt-3">
         {acao.codigo === "gasto-energetico" ? <FluxoAvaliacaoEGastoEnergetico empresaId={empresaId} prontuario={prontuario} /> : null}
         {acao.codigo === "exames-laboratoriais" ? <FluxoExamesLaboratoriais /> : null}
-        {acao.codigo === "plano-alimentar" ? <FluxoPlanoAlimentar /> : null}
+        {acao.codigo === "plano-alimentar" ? <FluxoPlanoAlimentar empresaId={empresaId} prontuario={prontuario} /> : null}
         {acao.codigo === "avaliacao-antropometrica" ? <FluxoAvaliacaoEGastoEnergetico empresaId={empresaId} prontuario={prontuario} /> : null}
         {acao.codigo === "anamnese" ? <FluxoAnamnese /> : null}
         {acao.codigo === "metas" ? <FluxoMetas /> : null}
@@ -661,14 +665,269 @@ function FluxoExamesLaboratoriais() {
   );
 }
 
-function FluxoPlanoAlimentar() {
+function FluxoPlanoAlimentar({ empresaId, prontuario }: { empresaId: string; prontuario: ProntuarioNutriPro }) {
+  const queryClient = useQueryClient();
+
+  const planosQuery = useQuery({
+    queryKey: ["nutri-pro-planos-alimentares", empresaId, prontuario.paciente.id],
+    queryFn: () => listarPlanosAlimentaresNutriPro({ empresaId, pacienteId: prontuario.paciente.id }),
+    enabled: Boolean(empresaId && prontuario.paciente.id)
+  });
+
+  const criarPlanoMutation = useMutation({
+    mutationFn: () =>
+      criarPlanoAlimentarNutriPro({
+        empresaId,
+        pacienteId: prontuario.paciente.id,
+        dados: criarPlanoAlimentarInicial()
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-planos-alimentares", empresaId, prontuario.paciente.id] });
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-prontuario", empresaId, prontuario.paciente.id] });
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-visao", empresaId] });
+    }
+  });
+
+  const planos = planosQuery.data?.itens ?? [];
+  const planoEmFoco = criarPlanoMutation.data ?? planos[0] ?? null;
+
   return (
-    <div className="grid gap-3 md:grid-cols-3">
-      <CampoPreparado label="Objetivo do plano" value="Emagrecimento, performance ou saúde" />
-      <CampoPreparado label="Refeições" value="Café, almoço, lanches e jantar" />
-      <CampoPreparado label="PDF" value="Preparado para task futura" />
+    <div className="grid gap-4">
+      <div className="rounded-lg border border-emerald-200 bg-emerald-50/70 p-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-emerald-900">Plano alimentar operacional</p>
+            <p className="mt-1 text-sm leading-6 text-emerald-950/80">
+              Crie um plano inicial com refeições, alimentos, suplemento e resumo de macronutrientes para este paciente.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => criarPlanoMutation.mutate()}
+            disabled={criarPlanoMutation.isPending}
+            className="inline-flex h-10 shrink-0 items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {criarPlanoMutation.isPending ? "Criando plano" : "Criar plano alimentar inicial"}
+          </button>
+        </div>
+        {criarPlanoMutation.isError ? <p className="mt-3 text-sm font-medium text-destructive">Não foi possível criar o plano alimentar. Confira a conexão e tente novamente.</p> : null}
+      </div>
+
+      {planoEmFoco ? (
+        <ResumoPlanoAlimentar plano={planoEmFoco} />
+      ) : (
+        <div className="rounded-lg border bg-white p-4 text-sm leading-6 text-muted-foreground">
+          Nenhum plano alimentar criado ainda. Use o botão acima para gerar o primeiro plano operacional do paciente.
+        </div>
+      )}
+
+      <section className="rounded-lg border bg-white p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-card-foreground">Histórico de planos alimentares</p>
+            <p className="text-xs text-muted-foreground">Planos mais recentes do paciente.</p>
+          </div>
+          {planosQuery.isLoading ? <LoaderCircle className="h-4 w-4 animate-spin text-muted-foreground" /> : null}
+        </div>
+        <div className="mt-3 grid gap-2">
+          {planos.length ? (
+            planos.map((plano) => <LinhaPlanoAlimentar key={plano.id} plano={plano} />)
+          ) : (
+            <div className="rounded-md border bg-background p-3 text-sm text-muted-foreground">Nenhum plano alimentar registrado ainda.</div>
+          )}
+        </div>
+      </section>
     </div>
   );
+}
+
+function ResumoPlanoAlimentar({ plano }: { plano: PlanoAlimentarNutriPro }) {
+  return (
+    <section className="rounded-lg border bg-white p-4">
+      <div className="flex flex-col gap-2 border-b pb-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-card-foreground">{plano.objetivo}</p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">{plano.descricao ?? "Plano alimentar com refeições e macros calculados automaticamente."}</p>
+        </div>
+        <span className="w-fit rounded-md border bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-800">{plano.statusRotulo}</span>
+      </div>
+
+      <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <CampoPreparado label="Energia diária" value={formatarKcal(plano.energiaTotalKcal)} />
+        <CampoPreparado label="Proteínas" value={formatarMacro(plano.proteinasTotal)} />
+        <CampoPreparado label="Carboidratos" value={formatarMacro(plano.carboidratosTotal)} />
+        <CampoPreparado label="Lipídios" value={formatarMacro(plano.lipidiosTotal)} />
+      </div>
+
+      <div className="mt-4 grid gap-3">
+        <p className="text-sm font-semibold text-card-foreground">Refeições do plano</p>
+        {plano.refeicoes.map((refeicao) => (
+          <article key={refeicao.id} className="rounded-lg border bg-background p-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-card-foreground">
+                  {refeicao.nome}
+                  {refeicao.horario ? <span className="font-medium text-muted-foreground"> · {refeicao.horario}</span> : null}
+                </p>
+                {refeicao.observacoes ? <p className="mt-1 text-xs leading-5 text-muted-foreground">{refeicao.observacoes}</p> : null}
+              </div>
+              <span className="w-fit rounded-md border bg-white px-2 py-1 text-xs font-semibold text-emerald-800">{formatarKcal(refeicao.energiaTotalKcal)}</span>
+            </div>
+            <div className="mt-3 grid gap-2">
+              {refeicao.itens.map((item) => (
+                <div key={item.id} className="grid gap-2 rounded-md border bg-white p-3 text-sm md:grid-cols-[minmax(0,1fr)_auto]">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-card-foreground">
+                      {item.nome}
+                      <span className="ml-2 rounded-md border bg-background px-2 py-0.5 text-xs font-semibold text-muted-foreground">{item.tipoItemRotulo}</span>
+                    </p>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                      {formatarDecimal(item.quantidade)} {item.unidadeMedida}
+                      {item.grupo ? ` · ${item.grupo}` : ""}
+                      {item.observacoes ? ` · ${item.observacoes}` : ""}
+                    </p>
+                  </div>
+                  <p className="text-xs font-semibold text-muted-foreground md:text-right">
+                    {formatarKcal(item.energiaKcal)} · P {formatarMacro(item.proteinas)} · C {formatarMacro(item.carboidratos)} · L {formatarMacro(item.lipidios)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function LinhaPlanoAlimentar({ plano }: { plano: PlanoAlimentarNutriPro }) {
+  return (
+    <article className="grid gap-2 rounded-md border bg-background p-3 text-sm sm:grid-cols-[minmax(0,1fr)_auto]">
+      <div>
+        <p className="font-semibold text-card-foreground">{plano.objetivo}</p>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+          {formatarDataHora(plano.criadoEm)} · {plano.refeicoes.length} refeições · {formatarKcal(plano.energiaTotalKcal)}
+        </p>
+      </div>
+      <div className="flex flex-wrap gap-2 sm:justify-end">
+        <span className="rounded-md border bg-white px-2 py-1 text-xs font-semibold text-emerald-800">{plano.statusRotulo}</span>
+        <span className="rounded-md border bg-white px-2 py-1 text-xs font-semibold text-muted-foreground">P {formatarMacro(plano.proteinasTotal)}</span>
+      </div>
+    </article>
+  );
+}
+
+function criarPlanoAlimentarInicial(): CriarPlanoAlimentarNutriProInput {
+  return {
+    objetivo: "Plano inicial de acompanhamento",
+    descricao: "Plano alimentar operacional inicial criado no Nutri Pro.",
+    status: "ATIVO",
+    refeicoes: [
+      {
+        nome: "Café da manhã",
+        horario: "08:00",
+        observacoes: "Manter hidratação ao acordar.",
+        ordenacao: 0,
+        itens: [
+          {
+            tipoItem: "ALIMENTO",
+            nome: "Pão integral",
+            grupo: "Cereais",
+            unidadeMedida: "g",
+            quantidadeBase: 50,
+            quantidade: 50,
+            energiaKcalBase: 125,
+            proteinasBase: 5,
+            carboidratosBase: 23,
+            lipidiosBase: 2,
+            ordenacao: 0
+          },
+          {
+            tipoItem: "ALIMENTO",
+            nome: "Ovo",
+            grupo: "Proteínas",
+            unidadeMedida: "un",
+            quantidadeBase: 1,
+            quantidade: 2,
+            energiaKcalBase: 70,
+            proteinasBase: 6,
+            carboidratosBase: 0,
+            lipidiosBase: 5,
+            ordenacao: 1
+          }
+        ]
+      },
+      {
+        nome: "Almoço",
+        horario: "12:30",
+        observacoes: "Priorizar salada e mastigação lenta.",
+        ordenacao: 1,
+        itens: [
+          {
+            tipoItem: "ALIMENTO",
+            nome: "Arroz integral",
+            grupo: "Cereais",
+            unidadeMedida: "g",
+            quantidadeBase: 100,
+            quantidade: 120,
+            energiaKcalBase: 124,
+            proteinasBase: 2.6,
+            carboidratosBase: 25.8,
+            lipidiosBase: 1,
+            ordenacao: 0
+          },
+          {
+            tipoItem: "ALIMENTO",
+            nome: "Frango grelhado",
+            grupo: "Proteínas",
+            unidadeMedida: "g",
+            quantidadeBase: 100,
+            quantidade: 120,
+            energiaKcalBase: 197,
+            proteinasBase: 24.4,
+            carboidratosBase: 0,
+            lipidiosBase: 2,
+            ordenacao: 1
+          }
+        ]
+      },
+      {
+        nome: "Lanche da tarde",
+        horario: "16:00",
+        observacoes: "Usar nos dias de treino.",
+        ordenacao: 2,
+        itens: [
+          {
+            tipoItem: "ALIMENTO",
+            nome: "Banana",
+            grupo: "Frutas",
+            unidadeMedida: "un",
+            quantidadeBase: 1,
+            quantidade: 1,
+            energiaKcalBase: 89,
+            proteinasBase: 1.1,
+            carboidratosBase: 22.8,
+            lipidiosBase: 0.3,
+            ordenacao: 0
+          },
+          {
+            tipoItem: "SUPLEMENTO",
+            nome: "Whey protein",
+            grupo: "Proteína",
+            unidadeMedida: "g",
+            quantidadeBase: 30,
+            quantidade: 30,
+            energiaKcalBase: 120,
+            proteinasBase: 24,
+            carboidratosBase: 3,
+            lipidiosBase: 1.5,
+            observacoes: "Diluir em água.",
+            ordenacao: 1
+          }
+        ]
+      }
+    ]
+  };
 }
 
 function FluxoAnamnese() {
@@ -783,6 +1042,10 @@ function formatarDecimal(valor: number) {
 
 function formatarKcal(valor: number) {
   return `${formatarDecimal(valor)} kcal`;
+}
+
+function formatarMacro(valor: number) {
+  return `${formatarDecimal(valor)} g`;
 }
 
 function formatarDataHora(valor: string) {

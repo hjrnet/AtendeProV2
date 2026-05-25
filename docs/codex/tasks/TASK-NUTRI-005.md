@@ -45,3 +45,24 @@ Criar o fluxo operacional inicial de plano alimentar por paciente, com refeiçõ
 ```bash
 git commit -m "feat(nutri): criar plano alimentar com refeicoes e macros (TASK-NUTRI-005)"
 ```
+
+## Execução
+
+Status: CONCLUIDA em modo autopilot multiagente release R10.
+
+Entregue:
+- Backend hexagonal para criar, listar e detalhar planos alimentares por paciente.
+- Tabelas tenant-scoped para planos, refeições, itens, alimentos personalizados e suplementos/formulações.
+- Cálculo proporcional de energia, proteínas, carboidratos e lipídios por item, refeição e plano.
+- Ação rápida `Adicionar plano alimentar` funcional no prontuário Nutri Pro.
+- UI responsiva com criação de plano inicial, resumo diário, refeições, itens e histórico.
+
+Validação executada:
+- `mvn test` — 281 testes passaram.
+- `corepack pnpm typecheck` — passou.
+- `corepack pnpm lint` — passou.
+- `corepack pnpm build` — passou.
+- `docker compose up -d` / `docker compose ps` — Postgres e Mailpit saudáveis.
+- Backend local reiniciado com profile `local` — Liquibase com 31 changesets registrados.
+- API local validou login da Karol, criação, listagem e detalhe de plano alimentar.
+- Browser em `/app` validou Verticais > Nutri Pro > Adicionar plano alimentar sem erros de console.
