@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R5 — Sublocação e Spaces.
 
 ## Última task concluída
-TASK-0505 — Simulação do parceiro.
+TASK-0506 — Agenda de ocupação.
 
 ## Próxima task recomendada
-TASK-0506 — Agenda de ocupação.
+TASK-0507 — Relatório de sublocação.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0506 concluida em modo autopilot multiagente release R5.
+- Agenda de ocupacao Spaces criada em `spaces_ocupacoes`, com status `RESERVADA`, `CONFIRMADA` e `CANCELADA`.
+- API `/api/spaces/ocupacoes` permite agendar, detalhar e listar ocupacoes por empresa, recurso, periodo e status; `/api/spaces/ocupacoes/disponibilidade` verifica disponibilidade do recurso.
+- Ocupacoes `RESERVADA` e `CONFIRMADA` bloqueiam sobreposicao de horario para o mesmo recurso; pacote opcional e validado contra tenant e recurso vinculado quando existir.
+- Validacao confirmou `mvn test` com 203 testes, Docker Compose saudavel, criacao/listagem real de ocupacao e conflito `SPACES_OCUPACAO_CONFLITO` com HTTP 422.
 - TASK-0505 concluida em modo autopilot multiagente release R5.
 - Simulacao de parceiro criada em `/api/spaces/simulacoes/parceiro`, usando pacote de sublocacao existente para estimar receita bruta, custo fixo, custo percentual, custos operacionais, lucro e margem.
 - Status inicial da simulacao: `SAUDAVEL`, `MARGEM_BAIXA` ou `PREJUIZO`; o calculo nao persiste historico nem agenda ocupacao, mantendo esses pontos para TASK-0506/TASK-0507.

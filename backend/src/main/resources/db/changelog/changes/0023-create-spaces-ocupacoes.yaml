@@ -1,0 +1,101 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0023-create-spaces-ocupacoes
+      author: codex
+      changes:
+        - createTable:
+            tableName: spaces_ocupacoes
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: empresa_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: recurso_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: pacote_id
+                  type: uuid
+              - column:
+                  name: nome_parceiro
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: inicio_em
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+              - column:
+                  name: fim_em
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: observacao
+                  type: varchar(1000)
+              - column:
+                  name: criado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: spaces_ocupacoes
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_spaces_ocupacoes_empresas
+        - addForeignKeyConstraint:
+            baseTableName: spaces_ocupacoes
+            baseColumnNames: recurso_id
+            referencedTableName: spaces_recursos
+            referencedColumnNames: id
+            constraintName: fk_spaces_ocupacoes_recursos
+        - addForeignKeyConstraint:
+            baseTableName: spaces_ocupacoes
+            baseColumnNames: pacote_id
+            referencedTableName: spaces_pacotes_sublocacao
+            referencedColumnNames: id
+            constraintName: fk_spaces_ocupacoes_pacotes
+        - createIndex:
+            tableName: spaces_ocupacoes
+            indexName: idx_spaces_ocupacoes_empresa_recurso_periodo
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: recurso_id
+              - column:
+                  name: inicio_em
+              - column:
+                  name: fim_em
+        - createIndex:
+            tableName: spaces_ocupacoes
+            indexName: idx_spaces_ocupacoes_empresa_status
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: status

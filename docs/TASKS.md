@@ -90,7 +90,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-0503 | Custo por hora de espaço | Rateio por disponibilidade e custos fixos. | CONCLUIDA |
 | TASK-0504 | Pacotes de sublocação | Hora, turno, diária, mensal, fixo + percentual. | CONCLUIDA |
 | TASK-0505 | Simulação do parceiro | Lucro do profissional que subloca. | CONCLUIDA |
-| TASK-0506 | Agenda de ocupação | Disponibilidade de recursos. | PENDENTE |
+| TASK-0506 | Agenda de ocupação | Disponibilidade de recursos. | CONCLUIDA |
 | TASK-0507 | Relatório de sublocação | PDF e indicadores. | PENDENTE |
 
 ## R6 — Documentos profissionais e carimbo

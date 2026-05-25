@@ -43,3 +43,5 @@ databaseChangeLog:
       file: db/changelog/changes/0021-create-spaces-recursos.yaml
   - include:
       file: db/changelog/changes/0022-create-spaces-pacotes-sublocacao.yaml
+  - include:
+      file: db/changelog/changes/0023-create-spaces-ocupacoes.yaml

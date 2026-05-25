@@ -1,6 +1,7 @@
 package br.com.atendepro.modules.spaces.adapter.in.web;
 
 import java.net.URI;
+import java.time.Instant;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
@@ -16,12 +17,17 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.atendepro.modules.spaces.application.port.in.CadastrarRecursoSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.CalcularCustoHoraSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.CadastrarPacoteSublocacaoSpacesUseCase;
+import br.com.atendepro.modules.spaces.application.port.in.AgendarOcupacaoSpacesUseCase;
+import br.com.atendepro.modules.spaces.application.port.in.ConsultarDisponibilidadeSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.ConsultarSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.DetalharPacoteSublocacaoSpacesUseCase;
+import br.com.atendepro.modules.spaces.application.port.in.DetalharOcupacaoSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.DetalharRecursoSpacesUseCase;
+import br.com.atendepro.modules.spaces.application.port.in.ListarOcupacoesSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.ListarPacotesSublocacaoSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.ListarRecursosSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.SimularParceiroSpacesUseCase;
+import br.com.atendepro.modules.spaces.domain.model.StatusOcupacaoSpaces;
 import br.com.atendepro.modules.spaces.domain.model.TipoPacoteSublocacaoSpaces;
 import br.com.atendepro.modules.spaces.domain.model.TipoRecursoSpaces;
 import br.com.atendepro.shared.application.pagination.Paginacao;
@@ -41,6 +47,10 @@ public class SpacesController {
     private final DetalharPacoteSublocacaoSpacesUseCase detalharPacoteSublocacaoSpacesUseCase;
     private final ListarPacotesSublocacaoSpacesUseCase listarPacotesSublocacaoSpacesUseCase;
     private final SimularParceiroSpacesUseCase simularParceiroSpacesUseCase;
+    private final AgendarOcupacaoSpacesUseCase agendarOcupacaoSpacesUseCase;
+    private final DetalharOcupacaoSpacesUseCase detalharOcupacaoSpacesUseCase;
+    private final ListarOcupacoesSpacesUseCase listarOcupacoesSpacesUseCase;
+    private final ConsultarDisponibilidadeSpacesUseCase consultarDisponibilidadeSpacesUseCase;
 
     public SpacesController(
             ConsultarSpacesUseCase consultarSpacesUseCase,
@@ -51,7 +61,11 @@ public class SpacesController {
             CadastrarPacoteSublocacaoSpacesUseCase cadastrarPacoteSublocacaoSpacesUseCase,
             DetalharPacoteSublocacaoSpacesUseCase detalharPacoteSublocacaoSpacesUseCase,
             ListarPacotesSublocacaoSpacesUseCase listarPacotesSublocacaoSpacesUseCase,
-            SimularParceiroSpacesUseCase simularParceiroSpacesUseCase
+            SimularParceiroSpacesUseCase simularParceiroSpacesUseCase,
+            AgendarOcupacaoSpacesUseCase agendarOcupacaoSpacesUseCase,
+            DetalharOcupacaoSpacesUseCase detalharOcupacaoSpacesUseCase,
+            ListarOcupacoesSpacesUseCase listarOcupacoesSpacesUseCase,
+            ConsultarDisponibilidadeSpacesUseCase consultarDisponibilidadeSpacesUseCase
     ) {
         this.consultarSpacesUseCase = consultarSpacesUseCase;
         this.calcularCustoHoraSpacesUseCase = calcularCustoHoraSpacesUseCase;
@@ -62,6 +76,10 @@ public class SpacesController {
         this.detalharPacoteSublocacaoSpacesUseCase = detalharPacoteSublocacaoSpacesUseCase;
         this.listarPacotesSublocacaoSpacesUseCase = listarPacotesSublocacaoSpacesUseCase;
         this.simularParceiroSpacesUseCase = simularParceiroSpacesUseCase;
+        this.agendarOcupacaoSpacesUseCase = agendarOcupacaoSpacesUseCase;
+        this.detalharOcupacaoSpacesUseCase = detalharOcupacaoSpacesUseCase;
+        this.listarOcupacoesSpacesUseCase = listarOcupacoesSpacesUseCase;
+        this.consultarDisponibilidadeSpacesUseCase = consultarDisponibilidadeSpacesUseCase;
     }
 
     @GetMapping("/status")
@@ -160,6 +178,55 @@ public class SpacesController {
     ) {
         return ResponseEntity.ok(SimulacaoParceiroSpacesResponse.de(
                 simularParceiroSpacesUseCase.simularParceiro(request.paraCommand())
+        ));
+    }
+
+    @PostMapping("/ocupacoes")
+    public ResponseEntity<OcupacaoSpacesResponse> agendarOcupacao(
+            @Valid @RequestBody AgendarOcupacaoSpacesRequest request
+    ) {
+        OcupacaoSpacesResponse response = OcupacaoSpacesResponse.de(
+                agendarOcupacaoSpacesUseCase.agendarOcupacao(request.paraCommand())
+        );
+        return ResponseEntity.created(URI.create("/api/spaces/ocupacoes/" + response.id())).body(response);
+    }
+
+    @GetMapping("/ocupacoes/{ocupacaoId}")
+    public ResponseEntity<OcupacaoSpacesResponse> detalharOcupacao(@PathVariable UUID ocupacaoId) {
+        return detalharOcupacaoSpacesUseCase.detalharOcupacao(ocupacaoId)
+                .map(OcupacaoSpacesResponse::de)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/ocupacoes")
+    public ResponseEntity<OcupacoesSpacesPaginadasResponse> listarOcupacoes(
+            @RequestParam(required = false) UUID empresaId,
+            @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "20") int tamanho,
+            @RequestParam(required = false) UUID recursoId,
+            @RequestParam(required = false) Instant inicioEm,
+            @RequestParam(required = false) Instant fimEm,
+            @RequestParam(required = false) StatusOcupacaoSpaces status
+    ) {
+        return ResponseEntity.ok(OcupacoesSpacesPaginadasResponse.de(
+                listarOcupacoesSpacesUseCase.listarOcupacoes(
+                        empresaId,
+                        new Paginacao(pagina, tamanho),
+                        recursoId,
+                        inicioEm,
+                        fimEm,
+                        status
+                )
+        ));
+    }
+
+    @PostMapping("/ocupacoes/disponibilidade")
+    public ResponseEntity<DisponibilidadeSpacesResponse> consultarDisponibilidade(
+            @Valid @RequestBody ConsultarDisponibilidadeSpacesRequest request
+    ) {
+        return ResponseEntity.ok(DisponibilidadeSpacesResponse.de(
+                consultarDisponibilidadeSpacesUseCase.consultarDisponibilidade(request.paraCommand())
         ));
     }
 }
