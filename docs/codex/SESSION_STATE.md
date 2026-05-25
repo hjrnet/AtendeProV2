@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R10 — Nutri Pro, Beauty Pro e comercial.
 
 ## Última task concluída
-TASK-NUTRI-005 — Criar plano alimentar com refeições, alimentos e suplementos.
+TASK-NUTRI-006 — Criar documentos, exames, prescrições e dashboard Nutri Pro.
 
 ## Próxima task recomendada
-TASK-NUTRI-006 — Criar documentos, exames, prescrições e dashboard Nutri Pro.
+TASK-BEAUTY-001 — Criar módulo Beauty Pro operacional.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,12 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-NUTRI-006 concluida em modo autopilot multiagente release R10.
+- Nutri Pro passou a reaproveitar o modulo de documentos profissionais para solicitacoes de exames, prescricoes e documento/PDF de plano alimentar, sem criar um motor documental paralelo.
+- O backend adicionou tipos documentais `SOLICITACAO_EXAMES`, `PRESCRICAO` e `PLANO_ALIMENTAR`, mantendo PDF, validacao publica, carimbo profissional e marca d'agua academica no modulo de documentos.
+- Dashboard Nutri Pro passou a exibir indicadores reais de avaliacoes, exames, prescricoes, documentos e planos alimentares.
+- Web do prontuario Nutri Pro ganhou fluxos funcionais para criar solicitacao de exames, prescricao inicial e documento/PDF do plano alimentar, com historico por paciente e links de PDF.
+- Validacao confirmou `mvn test` com 281 testes, `pnpm typecheck`, `pnpm lint`, `pnpm build`, Docker Compose saudavel, backend/web locais ativos, API criando documentos/PDF com carimbo CRN, PDF de Plano Estudante e Browser sem erros de console.
 - TASK-NUTRI-005 concluida em modo autopilot multiagente release R10.
 - Backend Nutri Pro ganhou plano alimentar operacional por paciente, com `nutri_planos_alimentares`, `nutri_plano_refeicoes`, `nutri_refeicao_itens`, banco inicial de alimentos personalizados e suplementos/formulacoes por empresa.
 - API operacional adicionou `POST`, `GET` lista e `GET` detalhe em `/api/nutri-pro/pacientes/{pacienteId}/planos-alimentares`, preservando controller fino, Request/Response, Commands, Results, UseCases/InputPorts, OutputPorts e adapter JDBC.

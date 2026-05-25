@@ -19,16 +19,21 @@ import {
 import {
   consultarProntuarioNutriPro,
   consultarVisaoNutriPro,
+  caminhoPdfDocumentoNutriPro,
   criarAvaliacaoAntropometricaNutriPro,
+  criarDocumentoProfissionalNutriPro,
   criarPlanoAlimentarNutriPro,
   listarAvaliacoesAntropometricasNutriPro,
+  listarDocumentosProfissionaisNutriPro,
   listarPacientesNutriPro,
   listarPlanosAlimentaresNutriPro,
   type AcaoProntuarioNutriPro,
   type AtalhoNutriPro,
   type AvaliacaoAntropometricaNutriPro,
   type CriarAvaliacaoAntropometricaNutriProInput,
+  type CriarDocumentoProfissionalNutriProInput,
   type CriarPlanoAlimentarNutriProInput,
+  type DocumentoProfissionalNutriPro,
   type IndicadorNutriPro,
   type ObjetivoNutricionalNutriPro,
   type PacienteNutriResumo,
@@ -36,6 +41,7 @@ import {
   type ProntuarioNutriPro,
   type SexoBiologicoNutriPro
 } from "@/features/nutri-pro/api/nutri-pro-client";
+import { carregarSessaoAutenticada } from "@/features/auth/lib/auth-storage";
 import { cn } from "@/lib/utils";
 
 type NutriProOperacionalViewProps = {
@@ -69,6 +75,7 @@ const iconesAtalhos: Record<string, Icone> = {
   "gasto-energetico": Gauge,
   "exames-laboratoriais": ClipboardList,
   "plano-alimentar": Apple,
+  prescricoes: FileText,
   prontuario: Users,
   avaliacao: Stethoscope,
   documentos: FileText
@@ -431,10 +438,11 @@ function PainelAcaoProntuario({ empresaId, prontuario, acao }: { empresaId: stri
       </div>
       <div className="mt-3">
         {acao.codigo === "gasto-energetico" ? <FluxoAvaliacaoEGastoEnergetico empresaId={empresaId} prontuario={prontuario} /> : null}
-        {acao.codigo === "exames-laboratoriais" ? <FluxoExamesLaboratoriais /> : null}
+        {acao.codigo === "exames-laboratoriais" ? <FluxoExamesLaboratoriais empresaId={empresaId} prontuario={prontuario} /> : null}
         {acao.codigo === "plano-alimentar" ? <FluxoPlanoAlimentar empresaId={empresaId} prontuario={prontuario} /> : null}
         {acao.codigo === "avaliacao-antropometrica" ? <FluxoAvaliacaoEGastoEnergetico empresaId={empresaId} prontuario={prontuario} /> : null}
         {acao.codigo === "anamnese" ? <FluxoAnamnese /> : null}
+        {acao.codigo === "prescricoes" ? <FluxoPrescricoes empresaId={empresaId} prontuario={prontuario} /> : null}
         {acao.codigo === "metas" ? <FluxoMetas /> : null}
       </div>
     </div>
@@ -655,12 +663,50 @@ function LinhaAvaliacaoNutri({ avaliacao }: { avaliacao: AvaliacaoAntropometrica
   );
 }
 
-function FluxoExamesLaboratoriais() {
+function FluxoExamesLaboratoriais({ empresaId, prontuario }: { empresaId: string; prontuario: ProntuarioNutriPro }) {
+  const queryClient = useQueryClient();
+  const documentosQuery = useQuery({
+    queryKey: ["nutri-pro-documentos", empresaId, prontuario.paciente.id, "SOLICITACAO_EXAMES"],
+    queryFn: () => listarDocumentosProfissionaisNutriPro({ empresaId, pacienteId: prontuario.paciente.id, tipo: "SOLICITACAO_EXAMES" }),
+    enabled: Boolean(empresaId && prontuario.paciente.id)
+  });
+
+  const criarSolicitacaoMutation = useMutation({
+    mutationFn: () => criarDocumentoProfissionalNutriPro(criarSolicitacaoExamesInicial(empresaId, prontuario)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-documentos", empresaId, prontuario.paciente.id] });
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-prontuario", empresaId, prontuario.paciente.id] });
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-visao", empresaId] });
+    }
+  });
+
+  const documentos = documentosQuery.data?.itens ?? [];
+  const documentoEmFoco = criarSolicitacaoMutation.data ?? documentos[0] ?? null;
+
   return (
-    <div className="grid gap-2 sm:grid-cols-2">
-      {["Hemograma", "Glicemia", "Insulina", "Vitamina D", "Perfil lipídico", "Ferritina"].map((exame) => (
-        <div key={exame} className="rounded-md border bg-white px-3 py-2 text-sm font-medium text-card-foreground">{exame}</div>
-      ))}
+    <div className="grid gap-4">
+      <div className="rounded-lg border border-emerald-200 bg-emerald-50/70 p-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-emerald-900">Solicitação laboratorial</p>
+            <p className="mt-1 text-sm leading-6 text-emerald-950/80">
+              Gere uma solicitação inicial com exames frequentes no acompanhamento nutricional. O documento já fica no prontuário e pode virar PDF.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => criarSolicitacaoMutation.mutate()}
+            disabled={criarSolicitacaoMutation.isPending}
+            className="inline-flex h-10 shrink-0 items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {criarSolicitacaoMutation.isPending ? "Criando solicitação" : "Criar solicitação de exames"}
+          </button>
+        </div>
+        {criarSolicitacaoMutation.isError ? <p className="mt-3 text-sm font-medium text-destructive">Não foi possível criar a solicitação. Confira a conexão e tente novamente.</p> : null}
+      </div>
+
+      {documentoEmFoco ? <ResumoDocumentoNutri documento={documentoEmFoco} /> : null}
+      <ListaDocumentosNutri titulo="Histórico de solicitações" documentos={documentos} carregando={documentosQuery.isLoading} vazio="Nenhuma solicitação de exames registrada ainda." />
     </div>
   );
 }
@@ -688,8 +734,30 @@ function FluxoPlanoAlimentar({ empresaId, prontuario }: { empresaId: string; pro
     }
   });
 
+  const documentosPlanoQuery = useQuery({
+    queryKey: ["nutri-pro-documentos", empresaId, prontuario.paciente.id, "PLANO_ALIMENTAR"],
+    queryFn: () => listarDocumentosProfissionaisNutriPro({ empresaId, pacienteId: prontuario.paciente.id, tipo: "PLANO_ALIMENTAR" }),
+    enabled: Boolean(empresaId && prontuario.paciente.id)
+  });
+
   const planos = planosQuery.data?.itens ?? [];
   const planoEmFoco = criarPlanoMutation.data ?? planos[0] ?? null;
+  const documentosPlano = documentosPlanoQuery.data?.itens ?? [];
+  const documentoPlanoMaisRecente = documentosPlano[0] ?? null;
+
+  const criarDocumentoPlanoMutation = useMutation({
+    mutationFn: () => {
+      if (!planoEmFoco) {
+        throw new Error("Plano alimentar não selecionado.");
+      }
+      return criarDocumentoProfissionalNutriPro(criarDocumentoPlanoAlimentar(empresaId, prontuario, planoEmFoco));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-documentos", empresaId, prontuario.paciente.id] });
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-prontuario", empresaId, prontuario.paciente.id] });
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-visao", empresaId] });
+    }
+  });
 
   return (
     <div className="grid gap-4">
@@ -714,7 +782,30 @@ function FluxoPlanoAlimentar({ empresaId, prontuario }: { empresaId: string; pro
       </div>
 
       {planoEmFoco ? (
-        <ResumoPlanoAlimentar plano={planoEmFoco} />
+        <>
+          <ResumoPlanoAlimentar plano={planoEmFoco} />
+          <section className="rounded-lg border bg-white p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-card-foreground">Documento e PDF do plano</p>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                  Gere um documento profissional com refeições, macros e aviso de responsabilidade. O PDF usa o módulo de documentos e aceita carimbo CRN.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => criarDocumentoPlanoMutation.mutate()}
+                disabled={criarDocumentoPlanoMutation.isPending}
+                className="inline-flex h-10 shrink-0 items-center justify-center rounded-md border bg-background px-4 text-sm font-semibold text-card-foreground transition-colors hover:border-primary/50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {criarDocumentoPlanoMutation.isPending ? "Gerando documento" : "Gerar documento do plano"}
+              </button>
+            </div>
+            {criarDocumentoPlanoMutation.isError ? <p className="mt-3 text-sm font-medium text-destructive">Não foi possível gerar o documento do plano.</p> : null}
+            {criarDocumentoPlanoMutation.data ? <ResumoDocumentoNutri documento={criarDocumentoPlanoMutation.data} compacto /> : null}
+            {!criarDocumentoPlanoMutation.data && documentoPlanoMaisRecente ? <ResumoDocumentoNutri documento={documentoPlanoMaisRecente} compacto /> : null}
+          </section>
+        </>
       ) : (
         <div className="rounded-lg border bg-white p-4 text-sm leading-6 text-muted-foreground">
           Nenhum plano alimentar criado ainda. Use o botão acima para gerar o primeiro plano operacional do paciente.
@@ -814,6 +905,124 @@ function LinhaPlanoAlimentar({ plano }: { plano: PlanoAlimentarNutriPro }) {
         <span className="rounded-md border bg-white px-2 py-1 text-xs font-semibold text-muted-foreground">P {formatarMacro(plano.proteinasTotal)}</span>
       </div>
     </article>
+  );
+}
+
+function FluxoPrescricoes({ empresaId, prontuario }: { empresaId: string; prontuario: ProntuarioNutriPro }) {
+  const queryClient = useQueryClient();
+  const documentosQuery = useQuery({
+    queryKey: ["nutri-pro-documentos", empresaId, prontuario.paciente.id, "PRESCRICAO"],
+    queryFn: () => listarDocumentosProfissionaisNutriPro({ empresaId, pacienteId: prontuario.paciente.id, tipo: "PRESCRICAO" }),
+    enabled: Boolean(empresaId && prontuario.paciente.id)
+  });
+
+  const criarPrescricaoMutation = useMutation({
+    mutationFn: () => criarDocumentoProfissionalNutriPro(criarPrescricaoInicial(empresaId, prontuario)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-documentos", empresaId, prontuario.paciente.id] });
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-prontuario", empresaId, prontuario.paciente.id] });
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-visao", empresaId] });
+    }
+  });
+
+  const documentos = documentosQuery.data?.itens ?? [];
+  const documentoEmFoco = criarPrescricaoMutation.data ?? documentos[0] ?? null;
+
+  return (
+    <div className="grid gap-4">
+      <div className="rounded-lg border border-sky-200 bg-sky-50/70 p-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-sky-950">Prescrição de suplementação</p>
+            <p className="mt-1 text-sm leading-6 text-sky-950/80">
+              Registre uma prescrição inicial com suplementação e orientações. A responsabilidade técnica permanece com a nutricionista.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => criarPrescricaoMutation.mutate()}
+            disabled={criarPrescricaoMutation.isPending}
+            className="inline-flex h-10 shrink-0 items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {criarPrescricaoMutation.isPending ? "Criando prescrição" : "Criar prescrição inicial"}
+          </button>
+        </div>
+        {criarPrescricaoMutation.isError ? <p className="mt-3 text-sm font-medium text-destructive">Não foi possível criar a prescrição. Confira a conexão e tente novamente.</p> : null}
+      </div>
+
+      {documentoEmFoco ? <ResumoDocumentoNutri documento={documentoEmFoco} /> : null}
+      <ListaDocumentosNutri titulo="Histórico de prescrições" documentos={documentos} carregando={documentosQuery.isLoading} vazio="Nenhuma prescrição registrada ainda." />
+    </div>
+  );
+}
+
+function ResumoDocumentoNutri({ documento, compacto = false }: { documento: DocumentoProfissionalNutriPro; compacto?: boolean }) {
+  return (
+    <article className={cn("rounded-lg border bg-white p-4", compacto ? "mt-3" : "")}>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-card-foreground">{documento.titulo}</p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            {rotuloTipoDocumento(documento.tipo)} · {rotuloStatusDocumento(documento.status)} · {formatarDataHora(documento.criadoEm)}
+          </p>
+        </div>
+        <a
+          href={caminhoPdfDocumentoNutriPro(documento.id)}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex h-10 shrink-0 items-center justify-center rounded-md border bg-background px-4 text-sm font-semibold text-card-foreground transition-colors hover:border-primary/50"
+        >
+          Abrir PDF
+        </a>
+      </div>
+      {!compacto ? <p className="mt-3 line-clamp-4 whitespace-pre-line text-sm leading-6 text-muted-foreground">{documento.conteudo}</p> : null}
+    </article>
+  );
+}
+
+function ListaDocumentosNutri({
+  titulo,
+  documentos,
+  carregando,
+  vazio
+}: {
+  titulo: string;
+  documentos: DocumentoProfissionalNutriPro[];
+  carregando: boolean;
+  vazio: string;
+}) {
+  return (
+    <section className="rounded-lg border bg-white p-4">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-sm font-semibold text-card-foreground">{titulo}</p>
+          <p className="text-xs text-muted-foreground">Documentos emitidos pelo módulo profissional.</p>
+        </div>
+        {carregando ? <LoaderCircle className="h-4 w-4 animate-spin text-muted-foreground" /> : null}
+      </div>
+      <div className="mt-3 grid gap-2">
+        {documentos.length ? (
+          documentos.map((documento) => (
+            <article key={documento.id} className="grid gap-2 rounded-md border bg-background p-3 text-sm sm:grid-cols-[minmax(0,1fr)_auto]">
+              <div className="min-w-0">
+                <p className="truncate font-semibold text-card-foreground">{documento.titulo}</p>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">{formatarDataHora(documento.criadoEm)} · {rotuloStatusDocumento(documento.status)}</p>
+              </div>
+              <a
+                href={caminhoPdfDocumentoNutriPro(documento.id)}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-9 items-center justify-center rounded-md border bg-white px-3 text-xs font-semibold text-card-foreground transition-colors hover:border-primary/50"
+              >
+                PDF
+              </a>
+            </article>
+          ))
+        ) : (
+          <div className="rounded-md border bg-background p-3 text-sm text-muted-foreground">{vazio}</div>
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -928,6 +1137,136 @@ function criarPlanoAlimentarInicial(): CriarPlanoAlimentarNutriProInput {
       }
     ]
   };
+}
+
+function criarSolicitacaoExamesInicial(empresaId: string, prontuario: ProntuarioNutriPro): CriarDocumentoProfissionalNutriProInput {
+  const profissional = profissionalDocumento();
+  const exames = ["Hemograma completo", "Glicemia de jejum", "Insulina", "Vitamina D", "Perfil lipídico", "Ferritina"];
+  return {
+    empresaId,
+    clientePacienteId: prontuario.paciente.id,
+    profissionalId: profissional.id,
+    profissionalNome: profissional.nome,
+    titulo: `Solicitação de exames laboratoriais - ${prontuario.paciente.nome}`,
+    tipo: "SOLICITACAO_EXAMES",
+    status: "EMITIDO",
+    conteudo: [
+      "Solicitação de exames laboratoriais",
+      `Paciente: ${prontuario.paciente.nome}`,
+      `Profissional: ${profissional.nome}`,
+      "Conselho: CRN/RJ 00000-D",
+      "",
+      "Exames solicitados:",
+      ...exames.map((exame) => `- ${exame}`),
+      "",
+      "Justificativa/observações:",
+      "Acompanhamento nutricional inicial para avaliação metabólica, estado nutricional e apoio à conduta profissional.",
+      "",
+      "Aviso: o AtendePro organiza o documento, mas a solicitação e a responsabilidade técnica são da nutricionista."
+    ].join("\n")
+  };
+}
+
+function criarPrescricaoInicial(empresaId: string, prontuario: ProntuarioNutriPro): CriarDocumentoProfissionalNutriProInput {
+  const profissional = profissionalDocumento();
+  return {
+    empresaId,
+    clientePacienteId: prontuario.paciente.id,
+    profissionalId: profissional.id,
+    profissionalNome: profissional.nome,
+    titulo: `Prescrição nutricional inicial - ${prontuario.paciente.nome}`,
+    tipo: "PRESCRICAO",
+    status: "EMITIDO",
+    conteudo: [
+      "Prescrição de suplementação e orientações nutricionais",
+      `Paciente: ${prontuario.paciente.nome}`,
+      `Profissional: ${profissional.nome}`,
+      "Conselho: CRN/RJ 00000-D",
+      "",
+      "Itens iniciais:",
+      "- Whey protein: 30 g após treino, conforme tolerância e avaliação profissional.",
+      "- Creatina: 3 g ao dia, conforme indicação individual.",
+      "",
+      "Orientações:",
+      "Manter hidratação, registrar sintomas e comunicar qualquer desconforto. Ajustes devem ser feitos pela nutricionista responsável.",
+      "",
+      "Aviso: documento demonstrativo local. A conduta final deve ser validada por profissional habilitado."
+    ].join("\n")
+  };
+}
+
+function criarDocumentoPlanoAlimentar(
+  empresaId: string,
+  prontuario: ProntuarioNutriPro,
+  plano: PlanoAlimentarNutriPro
+): CriarDocumentoProfissionalNutriProInput {
+  const profissional = profissionalDocumento();
+  const refeicoes = plano.refeicoes.flatMap((refeicao) => [
+    `${refeicao.nome}${refeicao.horario ? ` (${refeicao.horario})` : ""}`,
+    ...refeicao.itens.map((item) => `- ${item.nome}: ${formatarDecimal(item.quantidade)} ${item.unidadeMedida}`),
+    refeicao.observacoes ? `Observações: ${refeicao.observacoes}` : ""
+  ]);
+
+  return {
+    empresaId,
+    clientePacienteId: prontuario.paciente.id,
+    profissionalId: profissional.id,
+    profissionalNome: profissional.nome,
+    titulo: `${plano.objetivo} - ${prontuario.paciente.nome}`,
+    tipo: "PLANO_ALIMENTAR",
+    status: "EMITIDO",
+    conteudo: [
+      "Plano alimentar",
+      `Paciente: ${prontuario.paciente.nome}`,
+      `Profissional: ${profissional.nome}`,
+      "Conselho: CRN/RJ 00000-D",
+      `Objetivo: ${plano.objetivo}`,
+      plano.descricao ? `Descrição: ${plano.descricao}` : "",
+      "",
+      "Resumo diário:",
+      `Energia total: ${formatarKcal(plano.energiaTotalKcal)}`,
+      `Proteínas: ${formatarMacro(plano.proteinasTotal)}`,
+      `Carboidratos: ${formatarMacro(plano.carboidratosTotal)}`,
+      `Lipídios: ${formatarMacro(plano.lipidiosTotal)}`,
+      "",
+      "Refeições:",
+      ...refeicoes.filter(Boolean),
+      "",
+      "Aviso: o plano alimentar deve ser validado e acompanhado pela nutricionista responsável."
+    ].join("\n")
+  };
+}
+
+function profissionalDocumento() {
+  const usuario = carregarSessaoAutenticada()?.usuario;
+  return {
+    id: usuario?.id ?? null,
+    nome: usuario?.nome ?? "Nutricionista responsável"
+  };
+}
+
+function rotuloTipoDocumento(tipo: string) {
+  const rotulos: Record<string, string> = {
+    SOLICITACAO_EXAMES: "Solicitação de exames",
+    PRESCRICAO: "Prescrição",
+    PLANO_ALIMENTAR: "Plano alimentar",
+    ORIENTACAO: "Orientação",
+    RELATORIO: "Relatório",
+    TERMO: "Termo",
+    DECLARACAO: "Declaração",
+    RECIBO: "Recibo",
+    OUTRO: "Documento"
+  };
+  return rotulos[tipo] ?? tipo;
+}
+
+function rotuloStatusDocumento(status: string) {
+  const rotulos: Record<string, string> = {
+    RASCUNHO: "Rascunho",
+    EMITIDO: "Emitido",
+    CANCELADO: "Cancelado"
+  };
+  return rotulos[status] ?? status;
 }
 
 function FluxoAnamnese() {

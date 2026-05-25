@@ -73,7 +73,7 @@ class NutriProServiceTest {
 
         assertThat(result.empresaId()).isEqualTo(EMPRESA_ID);
         assertThat(result.statusOperacional()).isEqualTo(StatusOperacionalNutriPro.OPERACIONAL);
-        assertThat(result.indicadores()).extracting("codigo").contains("pacientes", "precificacao", "planos");
+        assertThat(result.indicadores()).extracting("codigo").contains("pacientes", "precificacao", "planos", "avaliacoes", "exames");
         assertThat(result.atalhosPrioritarios()).hasSize(3);
     }
 
@@ -97,7 +97,7 @@ class NutriProServiceTest {
         assertThat(result).isPresent();
         assertThat(result.get().paciente().nome()).isEqualTo("Ana Nutri");
         assertThat(result.get().acoesRapidas()).extracting("codigo")
-                .contains("gasto-energetico", "exames-laboratoriais", "plano-alimentar");
+                .contains("gasto-energetico", "exames-laboratoriais", "plano-alimentar", "prescricoes");
     }
 
     @Test
@@ -297,6 +297,9 @@ class NutriProServiceTest {
                 3,
                 4,
                 2,
+                1,
+                1,
+                1,
                 3,
                 1,
                 0,

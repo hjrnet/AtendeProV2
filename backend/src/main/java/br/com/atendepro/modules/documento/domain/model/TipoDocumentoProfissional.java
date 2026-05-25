@@ -6,6 +6,9 @@ public enum TipoDocumentoProfissional {
     TERMO,
     ORIENTACAO,
     RECIBO,
+    SOLICITACAO_EXAMES,
+    PRESCRICAO,
+    PLANO_ALIMENTAR,
     OUTRO;
 
     public static TipoDocumentoProfissional deCodigo(String codigo) {

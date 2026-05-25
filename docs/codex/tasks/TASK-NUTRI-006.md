@@ -44,3 +44,27 @@ Completar o primeiro ciclo operacional do Nutri Pro com solicitações de exames
 ```bash
 git commit -m "feat(nutri): criar documentos exames prescricoes e dashboard (TASK-NUTRI-006)"
 ```
+
+## Execução
+
+Status: CONCLUIDA em modo autopilot multiagente release R10.
+
+Entregue:
+- Tipos documentais nutricionais no módulo de documentos profissionais: `SOLICITACAO_EXAMES`, `PRESCRICAO` e `PLANO_ALIMENTAR`.
+- Dashboard Nutri Pro com indicadores reais de avaliações, exames, prescrições, documentos e planos.
+- Ação `Adicionar exames laboratoriais` funcional no prontuário.
+- Ação `Adicionar prescrição` funcional no prontuário.
+- Documento/PDF inicial do plano alimentar reaproveitando o módulo de documentos profissionais.
+- PDF com carimbo CRN validado via endpoint de documentos profissionais.
+- Fluxo de Plano Estudante validado com PDF e marca d'água acadêmica existente.
+
+Validação executada:
+- `mvn test` — 281 testes passaram.
+- `corepack pnpm typecheck` — passou.
+- `corepack pnpm lint` — passou.
+- `corepack pnpm build` — passou.
+- `docker compose up -d` / `docker compose ps` — Postgres e Mailpit saudáveis.
+- Backend e web locais reiniciados em `8080` e `3000`.
+- API local validou criação de solicitação de exames, prescrição, carimbo CRN e PDF.
+- API local validou documento/PDF com usuário Plano Estudante.
+- Browser em `/app` validou exames, prescrição e documento/PDF do plano sem erros de console.

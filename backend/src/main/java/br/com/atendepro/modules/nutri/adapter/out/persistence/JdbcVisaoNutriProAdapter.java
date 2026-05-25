@@ -71,6 +71,9 @@ public class JdbcVisaoNutriProAdapter implements
                 contarAgendaNutri(empresaId, hoje, daqui7Dias),
                 contar("select count(*) from servicos_procedimentos where empresa_id = ? and area = ? and ativo = true", empresaId, AREA_NUTRI),
                 contarDocumentosNutri(empresaId),
+                contarAvaliacoesAntropometricas(empresaId),
+                contarDocumentosNutriPorTipo(empresaId, "SOLICITACAO_EXAMES"),
+                contarDocumentosNutriPorTipo(empresaId, "PRESCRICAO"),
                 contarSimulacoesNutri(empresaId, false),
                 contarSimulacoesNutri(empresaId, true),
                 contarPlanosAtivosNutri(empresaId),
@@ -123,7 +126,7 @@ public class JdbcVisaoNutriProAdapter implements
                                 "PREPARADO",
                                 existeAvaliacaoAntropometrica(empresaId, pacienteId) ? "DISPONIVEL" : "PROXIMA_TASK",
                                 existeAvaliacaoAntropometrica(empresaId, pacienteId) ? "DISPONIVEL" : "PROXIMA_TASK",
-                                "PREPARADO",
+                                existeDocumentoNutriTipo(empresaId, pacienteId, "SOLICITACAO_EXAMES") ? "DISPONIVEL" : "PREPARADO",
                                 carregarUltimaConsulta(empresaId, pacienteId)
                         )
                 ));
@@ -401,8 +404,45 @@ public class JdbcVisaoNutriProAdapter implements
                 left join clientes_pacientes cliente on cliente.id = documento.cliente_paciente_id
                 where documento.empresa_id = ?
                   and documento.ativo = true
-                  and (cliente.area = ? or documento.tipo ilike '%NUTRI%' or documento.titulo ilike '%nutri%')
+                  and (
+                    cliente.area = ?
+                    or documento.tipo in ('SOLICITACAO_EXAMES', 'PRESCRICAO', 'PLANO_ALIMENTAR')
+                    or documento.titulo ilike '%nutri%'
+                  )
                 """, empresaId, AREA_NUTRI);
+    }
+
+    private long contarAvaliacoesAntropometricas(UUID empresaId) {
+        return contar("""
+                select count(*)
+                from nutri_avaliacoes_antropometricas avaliacao
+                join clientes_pacientes paciente on paciente.id = avaliacao.paciente_id
+                where avaliacao.empresa_id = ?
+                  and paciente.area = ?
+                """, empresaId, AREA_NUTRI);
+    }
+
+    private long contarDocumentosNutriPorTipo(UUID empresaId, String tipo) {
+        return contar("""
+                select count(*)
+                from documentos_profissionais documento
+                join clientes_pacientes paciente on paciente.id = documento.cliente_paciente_id
+                where documento.empresa_id = ?
+                  and documento.ativo = true
+                  and paciente.area = ?
+                  and documento.tipo = ?
+                """, empresaId, AREA_NUTRI, tipo);
+    }
+
+    private boolean existeDocumentoNutriTipo(UUID empresaId, UUID pacienteId, String tipo) {
+        return contar("""
+                select count(*)
+                from documentos_profissionais
+                where empresa_id = ?
+                  and cliente_paciente_id = ?
+                  and ativo = true
+                  and tipo = ?
+                """, empresaId, pacienteId, tipo) > 0;
     }
 
     private long contarSimulacoesNutri(UUID empresaId, boolean somenteAlertas) {

@@ -204,6 +204,57 @@ export type CriarPlanoAlimentarNutriProInput = {
   refeicoes: CriarRefeicaoPlanoAlimentarNutriProInput[];
 };
 
+export type TipoDocumentoProfissionalNutriPro =
+  | "DECLARACAO"
+  | "RELATORIO"
+  | "TERMO"
+  | "ORIENTACAO"
+  | "RECIBO"
+  | "SOLICITACAO_EXAMES"
+  | "PRESCRICAO"
+  | "PLANO_ALIMENTAR"
+  | "OUTRO";
+
+export type StatusDocumentoProfissionalNutriPro = "RASCUNHO" | "EMITIDO" | "CANCELADO";
+
+export type DocumentoProfissionalNutriPro = {
+  id: string;
+  empresaId: string;
+  clientePacienteId: string | null;
+  profissionalId: string | null;
+  profissionalNome: string;
+  titulo: string;
+  tipo: TipoDocumentoProfissionalNutriPro;
+  conteudo: string;
+  status: StatusDocumentoProfissionalNutriPro;
+  versao: number;
+  codigoValidacao: string;
+  caminhoValidacao: string;
+  validacaoPublicaAtiva: boolean;
+  ativo: boolean;
+  criadoEm: string;
+  atualizadoEm: string;
+};
+
+export type DocumentosProfissionaisNutriPro = {
+  itens: DocumentoProfissionalNutriPro[];
+  totalItens: number;
+  pagina: number;
+  tamanho: number;
+  totalPaginas: number;
+};
+
+export type CriarDocumentoProfissionalNutriProInput = {
+  empresaId: string;
+  clientePacienteId: string;
+  profissionalId?: string | null;
+  profissionalNome: string;
+  titulo: string;
+  tipo: TipoDocumentoProfissionalNutriPro;
+  conteudo: string;
+  status?: StatusDocumentoProfissionalNutriPro;
+};
+
 export type VisaoNutriPro = {
   empresaId: string;
   empresaNome: string;
@@ -287,4 +338,29 @@ export function criarPlanoAlimentarNutriPro(params: {
       query: { empresaId: params.empresaId }
     }
   );
+}
+
+export function listarDocumentosProfissionaisNutriPro(params: {
+  empresaId: string;
+  pacienteId: string;
+  tipo?: TipoDocumentoProfissionalNutriPro;
+}) {
+  return nutriProApi.get<DocumentosProfissionaisNutriPro>("/api/documentos-profissionais", {
+    query: {
+      empresaId: params.empresaId,
+      clientePacienteId: params.pacienteId,
+      tipo: params.tipo,
+      ativo: true,
+      tamanho: 20
+    }
+  });
+}
+
+export function criarDocumentoProfissionalNutriPro(dados: CriarDocumentoProfissionalNutriProInput) {
+  return nutriProApi.post<DocumentoProfissionalNutriPro>("/api/documentos-profissionais", dados);
+}
+
+export function caminhoPdfDocumentoNutriPro(documentoId: string) {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+  return new URL(`/api/documentos-profissionais/${documentoId}/pdf`, baseUrl).toString();
 }

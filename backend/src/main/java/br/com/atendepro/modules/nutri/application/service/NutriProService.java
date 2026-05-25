@@ -251,7 +251,10 @@ public class NutriProService implements
                 indicador("agendaHoje", "Agenda hoje", metricas.agendaHoje(), "Atendimentos nutricionais previstos para hoje.", "OPERACIONAL"),
                 indicador("agenda7Dias", "Próximos 7 dias", metricas.agendaProximos7Dias(), "Consultas e retornos nutricionais da semana.", "OPERACIONAL"),
                 indicador("servicos", "Serviços Nutri", metricas.servicosNutriAtivos(), "Procedimentos e serviços ativos da vertical.", "OPERACIONAL"),
-                indicador("documentos", "Documentos", metricas.documentosNutri(), "Documentos nutricionais vinculados a pacientes.", "PREPARADO"),
+                indicador("avaliacoes", "Avaliações", metricas.avaliacoesAntropometricas(), "Avaliações antropométricas registradas para pacientes Nutri.", "OPERACIONAL"),
+                indicador("exames", "Exames solicitados", metricas.examesLaboratoriais(), "Solicitações laboratoriais emitidas pelo Nutri Pro.", "OPERACIONAL"),
+                indicador("prescricoes", "Prescrições", metricas.prescricoesNutri(), "Prescrições e orientações nutricionais registradas.", "OPERACIONAL"),
+                indicador("documentos", "Documentos", metricas.documentosNutri(), "Documentos nutricionais vinculados a pacientes.", "OPERACIONAL"),
                 indicador("precificacao", "Precificação", metricas.simulacoesPrecificacao(), "Simulações de custo real para serviços de nutrição.", "OPERACIONAL"),
                 indicador("alertas", "Alertas de preço", metricas.simulacoesEmAlerta(), "Simulações com margem baixa ou prejuízo.", metricas.simulacoesEmAlerta() > 0 ? "ALERTA" : "SAUDAVEL"),
                 indicador("planos", "Planos alimentares", metricas.planosAlimentaresAtivos(), "Planos alimentares ativos por paciente.", "OPERACIONAL")
@@ -265,7 +268,7 @@ public class NutriProService implements
     private List<AtalhoNutriProResult> atalhosPrioritarios() {
         return List.of(
                 atalho("gasto-energetico", "Adicionar gasto energético", "Preparar TMB, GEB e GET do paciente na próxima etapa.", "PLANEJADO_R10", "nutri-pro/gasto-energetico"),
-                atalho("exames-laboratoriais", "Adicionar exames laboratoriais", "Criar solicitação e histórico de exames em documento profissional.", "PLANEJADO_R10", "nutri-pro/exames"),
+                atalho("exames-laboratoriais", "Adicionar exames laboratoriais", "Criar solicitação e histórico de exames em documento profissional.", "DISPONIVEL", "nutri-pro/exames"),
                 atalho("plano-alimentar", "Adicionar plano alimentar", "Criar plano com refeições, alimentos, suplementos e macros iniciais.", "DISPONIVEL", "nutri-pro/plano-alimentar")
         );
     }
@@ -274,7 +277,7 @@ public class NutriProService implements
         return List.of(
                 atalho("prontuario", "Prontuário nutricional", "Perfil nutricional com resumo, histórico e menu rápido funcional.", "PROXIMA_TASK", "nutri-pro/prontuario"),
                 atalho("avaliacao", "Avaliação antropométrica", "Peso, altura, IMC, objetivos e evolução corporal.", "PLANEJADO_R10", "nutri-pro/avaliacao"),
-                atalho("documentos", "Documentos com CRN", "Solicitações, prescrições e carimbo profissional.", "PLANEJADO_R10", "nutri-pro/documentos")
+                atalho("documentos", "Documentos com CRN", "Solicitações, prescrições e carimbo profissional.", "DISPONIVEL", "nutri-pro/documentos")
         );
     }
 
@@ -285,10 +288,11 @@ public class NutriProService implements
     private List<AcaoProntuarioNutriProResult> acoesProntuario() {
         return List.of(
                 acaoProntuario("gasto-energetico", "Adicionar gasto energético", "Registrar avaliação e estimar TMB, GEB, GET e meta energética.", StatusAcaoNutriPro.DISPONIVEL, true),
-                acaoProntuario("exames-laboratoriais", "Adicionar exames laboratoriais", "Preparar solicitação de exames e histórico do paciente.", StatusAcaoNutriPro.PREPARADO, true),
+                acaoProntuario("exames-laboratoriais", "Adicionar exames laboratoriais", "Preparar solicitação de exames e histórico do paciente.", StatusAcaoNutriPro.DISPONIVEL, true),
                 acaoProntuario("plano-alimentar", "Adicionar plano alimentar", "Criar plano com refeições, alimentos, suplementos e resumo de macros.", StatusAcaoNutriPro.DISPONIVEL, true),
                 acaoProntuario("avaliacao-antropometrica", "Adicionar avaliação antropométrica", "Registrar peso, altura, IMC, objetivo e histórico do paciente.", StatusAcaoNutriPro.DISPONIVEL, false),
                 acaoProntuario("anamnese", "Adicionar anamnese", "Organizar queixas, rotina alimentar, preferências e observações.", StatusAcaoNutriPro.PREPARADO, false),
+                acaoProntuario("prescricoes", "Adicionar prescrição", "Registrar suplementação, formulações e orientações nutricionais.", StatusAcaoNutriPro.DISPONIVEL, false),
                 acaoProntuario("metas", "Adicionar metas", "Definir objetivos de acompanhamento nutricional.", StatusAcaoNutriPro.PREPARADO, false)
         );
     }
