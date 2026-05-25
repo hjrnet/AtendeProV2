@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R0 — Fundação técnica profissional.
+R1 — Auth, tenant e segurança.
 
 ## Última task concluída
-TASK-0011 — Criar padrão de testes backend.
+TASK-0012 — Criar padrão de API client web.
 
 ## Próxima task recomendada
-TASK-0012 — Criar padrão de API client web.
+TASK-0101 — Criar módulo Auth.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,9 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- R0 concluida em modo autopilot release.
+- TASK-0012 concluida em modo autopilot release R0.
+- API client web criado em `web/lib/api` com base URL, interceptors, tratamento de erros e metodos HTTP.
 - TASK-0011 concluida em modo autopilot release R0.
 - Padrao de testes backend criado com JUnit 5, Mockito via Spring Boot Test, Testcontainers PostgreSQL e smoke tests.
 - TASK-0010 concluida em modo autopilot release R0.

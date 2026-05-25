@@ -18,3 +18,7 @@ Se a maquina tiver proxy npm local invalido, rode a instalacao com override:
 ```bash
 corepack pnpm --config.proxy=null --config.https-proxy=null install
 ```
+
+## API client
+
+O client compartilhado fica em `web/lib/api` e usa `NEXT_PUBLIC_API_URL` como base URL.
