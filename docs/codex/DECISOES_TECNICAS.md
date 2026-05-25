@@ -119,3 +119,7 @@ A TASK-0408 gera PDF real no backend com PDFBox, isolado no adapter `PdfBoxRelat
 A TASK-0409 cria o dashboard de precificacao em `/api/precificacao/dashboard`, sem tabela propria. O adapter JDBC agrega dados reais de `precificacao_simulacoes`, incluindo totais, medias financeiras, distribuicao de status e simulacoes recentes. A aplicacao preserva tenant e permissao antes de consultar as metricas. Na web, `features/precificacao` exibe indicadores e graficos Recharts no painel `/app`, mantendo pagina fina e client dedicado.
 
 A TASK-0410 adiciona dados demo realistas por Liquibase, sem criar regra de aplicacao nova. A seed `0020-insert-dados-demo-precificacao.yaml` usa UUIDs fixos e `on conflict` para ser idempotente, criando a empresa `AtendePro Demo Multiárea`, 10 servicos/procedimentos e 10 simulacoes de precificacao para NUTRI, BEAUTY, BIOMED, FISIO e SPACES. Os valores incluem margens saudaveis, margens baixas e prejuizo para alimentar historico, PDF e dashboard com cenarios reais de decisao.
+
+## Spaces
+
+A TASK-0501 inicia o modulo `spaces` com status operacional em `/api/spaces/status`, protegido por `GERENCIAR_SPACES`. A base reconhece os tipos de recurso `SALA`, `CADEIRA`, `CABINE` e `EQUIPAMENTO`, mas nao cria persistencia ou CRUD nesta etapa; cadastro de recursos, custos, pacotes, simulacao, ocupacao e relatorios evoluem nas tasks seguintes da R5.

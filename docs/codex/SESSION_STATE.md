@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R5 — Sublocação e Spaces.
 
 ## Última task concluída
-TASK-0410 — Dados demo realistas.
+TASK-0501 — Módulo Spaces.
 
 ## Próxima task recomendada
-TASK-0501 — Módulo Spaces.
+TASK-0502 — Cadastro de recursos.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0501 concluida em modo autopilot multiagente release R5.
+- Modulo `spaces` iniciado no backend com endpoint `/api/spaces/status`, UseCase, Result, service e controller fino.
+- Permissao `GERENCIAR_SPACES` adicionada aos perfis operacionais para proteger a base de sublocacao.
+- Tipos base de recurso definidos como `SALA`, `CADEIRA`, `CABINE` e `EQUIPAMENTO`; CRUD e persistencia ficam reservados para TASK-0502.
+- Validacao confirmou `mvn test` com 175 testes, Docker Compose saudavel e API local de status do Spaces.
 - TASK-0410 concluida em modo autopilot multiagente release R4.
 - Dados demo realistas adicionados por Liquibase em `0020-insert-dados-demo-precificacao.yaml`, com empresa demo multiárea, 10 serviços/procedimentos e 10 simulações.
 - A seed cobre NUTRI, BEAUTY, BIOMED, FISIO e SPACES, com status `SAUDAVEL`, `MARGEM_BAIXA` e `PREJUIZO` para alimentar historico e dashboard.

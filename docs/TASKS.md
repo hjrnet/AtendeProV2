@@ -85,7 +85,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
-| TASK-0501 | Módulo Spaces | Base para salas, cadeiras, cabines e recursos. | PENDENTE |
+| TASK-0501 | Módulo Spaces | Base para salas, cadeiras, cabines e recursos. | CONCLUIDA |
 | TASK-0502 | Cadastro de recursos | Salas, cadeiras, cabines e equipamentos. | PENDENTE |
 | TASK-0503 | Custo por hora de espaço | Rateio por disponibilidade e custos fixos. | PENDENTE |
 | TASK-0504 | Pacotes de sublocação | Hora, turno, diária, mensal, fixo + percentual. | PENDENTE |

@@ -1,8 +1,8 @@
 project: AtendePro
 strategy: professional_complete
 current_release: R5
-last_completed_task: TASK-0410
-next_task: TASK-0501
+last_completed_task: TASK-0501
+next_task: TASK-0502
 releases:
   R0:
     name: "R0 — Fundação técnica profissional"
@@ -80,9 +80,9 @@ releases:
       TASK-0410: CONCLUIDA
   R5:
     name: "R5 — Sublocação e Spaces"
-    status: PENDENTE
+    status: EM_ANDAMENTO
     tasks:
-      TASK-0501: PENDENTE
+      TASK-0501: CONCLUIDA
       TASK-0502: PENDENTE
       TASK-0503: PENDENTE
       TASK-0504: PENDENTE

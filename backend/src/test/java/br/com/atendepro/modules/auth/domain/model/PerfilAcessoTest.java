@@ -28,7 +28,8 @@ class PerfilAcessoTest {
                         PermissaoAcesso.GERENCIAR_CUSTOS,
                         PermissaoAcesso.GERENCIAR_ESTOQUE,
                         PermissaoAcesso.GERENCIAR_EQUIPAMENTOS,
-                        PermissaoAcesso.GERENCIAR_PRECIFICACAO
+                        PermissaoAcesso.GERENCIAR_PRECIFICACAO,
+                        PermissaoAcesso.GERENCIAR_SPACES
                 );
         assertThat(PerfilAcesso.PROFISSIONAL.possuiPermissao(PermissaoAcesso.CADASTRAR_EMPRESA)).isFalse();
     }
