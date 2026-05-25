@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R6 — Documentos profissionais e carimbo.
 
 ## Última task concluída
-TASK-0601 — Módulo Documento Profissional.
+TASK-0602 — Carimbo profissional.
 
 ## Próxima task recomendada
-TASK-0602 — Carimbo profissional.
+TASK-0603 — Geração de PDF.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0602 concluida em modo autopilot multiagente release R6.
+- Carimbo profissional criado dentro do modulo `documento`, com dominio `CarimboProfissional`, enum `ConselhoProfissional`, Command/Result, UseCases, OutputPorts, adapter JDBC e controller fino em `/api/documentos-profissionais/carimbos`.
+- A base do carimbo registra profissional, conselho, UF, numero de registro, assinatura textual e clinica, sem antecipar upload de imagem, storage externo ou geracao de PDF.
+- Validacao confirmou `mvn test` com 220 testes, Docker Compose saudavel, backend local `UP` e fluxo API real de criar/listar/detalhar carimbo profissional.
 - TASK-0601 concluida em modo autopilot multiagente release R6.
 - Modulo `documento` criado no backend com dominio `DocumentoProfissional`, tipos, status, Command/Result, UseCases, OutputPorts, adapter JDBC e controller fino em `/api/documentos-profissionais`.
 - Documentos profissionais sao tenant-scoped por `empresa_id`, podem vincular opcionalmente `cliente_paciente_id`, nascem com `versao=1`, `ativo=true` e status inicial `RASCUNHO` quando nao informado.

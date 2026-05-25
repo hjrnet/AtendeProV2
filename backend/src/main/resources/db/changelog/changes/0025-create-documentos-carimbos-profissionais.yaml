@@ -1,0 +1,101 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0025-create-documentos-carimbos-profissionais
+      author: codex
+      changes:
+        - createTable:
+            tableName: documentos_carimbos_profissionais
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: empresa_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: profissional_id
+                  type: uuid
+              - column:
+                  name: profissional_nome
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: conselho
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: uf
+                  type: varchar(2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: numero_registro
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: assinatura_texto
+                  type: varchar(500)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: clinica_nome
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ativo
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: documentos_carimbos_profissionais
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_documentos_carimbos_profissionais_empresas
+        - createIndex:
+            tableName: documentos_carimbos_profissionais
+            indexName: idx_documentos_carimbos_empresa_profissional
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: profissional_id
+        - createIndex:
+            tableName: documentos_carimbos_profissionais
+            indexName: idx_documentos_carimbos_empresa_conselho
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: conselho
+        - createIndex:
+            tableName: documentos_carimbos_profissionais
+            indexName: idx_documentos_carimbos_empresa_ativo
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: ativo

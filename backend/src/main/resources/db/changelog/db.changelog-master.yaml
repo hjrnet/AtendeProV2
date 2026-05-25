@@ -47,3 +47,5 @@ databaseChangeLog:
       file: db/changelog/changes/0023-create-spaces-ocupacoes.yaml
   - include:
       file: db/changelog/changes/0024-create-documentos-profissionais.yaml
+  - include:
+      file: db/changelog/changes/0025-create-documentos-carimbos-profissionais.yaml
