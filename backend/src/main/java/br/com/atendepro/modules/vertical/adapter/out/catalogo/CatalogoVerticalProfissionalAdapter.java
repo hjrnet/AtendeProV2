@@ -68,6 +68,57 @@ public class CatalogoVerticalProfissionalAdapter implements CarregarCatalogoVert
                             "TASK-NUTRI-009 calcular energia e macronutrientes",
                             "TASK-NUTRI-010 criar PDF do plano alimentar com carimbo CRN"
                     )
+            ),
+            CodigoVerticalProfissional.BEAUTY_PRO,
+            new VerticalProfissional(
+                    CodigoVerticalProfissional.BEAUTY_PRO,
+                    "Beauty Pro",
+                    "R7",
+                    StatusVerticalProfissional.OPERACIONAL_BASE,
+                    null,
+                    "Base profissional para estetica, beleza e saloes gerenciarem protocolos, fotos de evolucao, termos, pacotes e rotinas de atendimento.",
+                    List.of("Clinicas de estetica", "Profissionais de beleza", "Saloes", "Espacos de beleza"),
+                    List.of(
+                            "protocolos de atendimento",
+                            "registro de fotos de evolucao",
+                            "termos de consentimento",
+                            "pacotes de servicos",
+                            "agenda por profissional",
+                            "ficha de cliente",
+                            "materiais e produtos usados",
+                            "alertas de retorno",
+                            "relatorios de recorrencia"
+                    ),
+                    List.of(
+                            "Cliente beauty",
+                            "Protocolo estetico",
+                            "Sessao do protocolo",
+                            "Foto de evolucao",
+                            "Termo de consentimento",
+                            "Pacote de servicos",
+                            "Produto aplicado"
+                    ),
+                    List.of(
+                            "Termo de consentimento",
+                            "Ficha de procedimento",
+                            "Orientacoes pos-atendimento",
+                            "Contrato de pacote"
+                    ),
+                    List.of(
+                            "clientes/pacientes",
+                            "agenda",
+                            "servicos/procedimentos",
+                            "estoque",
+                            "documentos profissionais",
+                            "custos e precificacao",
+                            "relatorios"
+                    ),
+                    List.of(
+                            "criar protocolos por procedimento",
+                            "criar fotos de evolucao com historico",
+                            "criar pacotes e retornos",
+                            "preparar experiencia de salao multiagenda"
+                    )
             )
     );
 

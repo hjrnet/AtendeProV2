@@ -21,9 +21,9 @@ class VerticalProfissionalServiceTest {
 
         assertThat(verticais)
                 .extracting("codigo")
-                .containsExactly(CodigoVerticalProfissional.NUTRI_PRO);
+                .containsExactly(CodigoVerticalProfissional.BEAUTY_PRO, CodigoVerticalProfissional.NUTRI_PRO);
         assertThat(verticais.get(0).capacidades())
-                .contains("plano alimentar", "diario alimentar", "solicitacao de exames");
+                .contains("protocolos de atendimento", "termos de consentimento");
     }
 
     @Test
@@ -38,5 +38,20 @@ class VerticalProfissionalServiceTest {
         assertThat(vertical).isPresent();
         assertThat(vertical.get().conselhoProfissional()).isEqualTo("CRN");
         assertThat(vertical.get().documentos()).contains("Plano alimentar imprimivel");
+    }
+
+    @Test
+    void deveDetalharBeautyProComProtocolosETermos() {
+        VerticalProfissionalService service = new VerticalProfissionalService(
+                new CatalogoVerticalProfissionalAdapter(),
+                new PermissaoAcessoService()
+        );
+
+        var vertical = service.detalharVertical(CodigoVerticalProfissional.BEAUTY_PRO);
+
+        assertThat(vertical).isPresent();
+        assertThat(vertical.get().conselhoProfissional()).isNull();
+        assertThat(vertical.get().capacidades()).contains("protocolos de atendimento", "registro de fotos de evolucao");
+        assertThat(vertical.get().documentos()).contains("Termo de consentimento");
     }
 }

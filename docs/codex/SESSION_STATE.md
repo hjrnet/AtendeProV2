@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R7 — Verticais profissionais.
 
 ## Última task concluída
-TASK-0701 — Nutri Pro.
+TASK-0702 — Beauty Pro.
 
 ## Próxima task recomendada
-TASK-0702 — Beauty Pro.
+TASK-0703 — Biomed Pro.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,9 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0702 concluida em modo autopilot multiagente release R7.
+- Beauty Pro adicionado ao catalogo backend de verticais profissionais e ao tipo web da feature `verticais`.
+- Escopo entregue como base operacional de protocolos, fotos de evolucao, termos, pacotes, agenda e salao, sem storage de imagens, automacoes ou CRUD profundo nesta task.
 - TASK-0701 concluida em modo autopilot multiagente release R7.
 - Modulo backend `vertical` criado com arquitetura hexagonal, catalogo inicial do Nutri Pro, permissionamento `verticais:acessar` e endpoints `/api/verticais-profissionais`.
 - Painel web `/app` ganhou secao mobile-first de verticais profissionais, com busca e cards baseados no catalogo da API.
