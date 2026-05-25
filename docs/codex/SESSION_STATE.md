@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R2 — Admin SaaS, planos e assinaturas.
 
 ## Última task concluída
-TASK-0201 — Criar módulo Admin SaaS.
+TASK-0202 — Dashboard Admin SaaS.
 
 ## Próxima task recomendada
-TASK-0202 — Dashboard Admin SaaS.
+TASK-0203 — Gestão de empresas.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0202 concluida em modo autopilot multiagente release R2.
+- Dashboard Admin SaaS criado no backend em `/api/admin-saas/dashboard`, com UseCase, Result, porta de saida, adapter JDBC e Response.
+- Metricas de empresas ativas/bloqueadas usam a tabela real `empresas`; MRR, trials e chamados permanecem zerados ate os modulos oficiais existirem nas proximas tasks.
+- Validacao local confirmou login real do super admin e consulta do dashboard com Bearer JWT.
 - TASK-0201 concluida em modo autopilot multiagente release R2.
 - Modulo Admin SaaS criado no backend com UseCase, Result, Service, Controller e Response para `/api/admin-saas/status`.
 - Permissao `ACESSAR_ADMIN_SAAS` adicionada aos perfis globais `SUPER_ADMIN` e `SUPORTE`.
