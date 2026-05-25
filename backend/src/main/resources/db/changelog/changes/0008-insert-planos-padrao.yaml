@@ -1,0 +1,43 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0008-insert-planos-padrao
+      author: codex
+      changes:
+        - sql:
+            splitStatements: true
+            stripComments: true
+            sql: |
+              insert into planos (
+                  id, codigo, nome, descricao, valor_mensal, limite_usuarios, limite_clientes,
+                  limite_profissionais, ativo, criado_em, atualizado_em
+              )
+              values
+                  ('00000000-0000-0000-0000-000000002101', 'ESTUDANTE', 'Estudante', 'Plano academico para estudos e primeiros atendimentos supervisionados.', 29.90, 1, 30, 1, true, now(), now()),
+                  ('00000000-0000-0000-0000-000000002102', 'START', 'Start', 'Plano inicial para profissionais independentes.', 79.90, 2, 100, 1, true, now(), now()),
+                  ('00000000-0000-0000-0000-000000002103', 'CARE', 'Care', 'Plano profissional com gestao operacional ampliada.', 129.90, 5, 500, 5, true, now(), now()),
+                  ('00000000-0000-0000-0000-000000002104', 'NUTRI_PRO', 'Nutri Pro', 'Plano vertical para nutricionistas.', 169.90, 5, 1000, 5, true, now(), now()),
+                  ('00000000-0000-0000-0000-000000002105', 'BEAUTY_PRO', 'Beauty Pro', 'Plano vertical para estetica e beleza.', 169.90, 5, 1000, 5, true, now(), now()),
+                  ('00000000-0000-0000-0000-000000002106', 'BIOMED_PRO', 'Biomed Pro', 'Plano vertical para biomedicina estetica.', 189.90, 5, 1000, 5, true, now(), now()),
+                  ('00000000-0000-0000-0000-000000002107', 'FISIO_PRO', 'Fisio Pro', 'Plano vertical para fisioterapia.', 169.90, 5, 1000, 5, true, now(), now()),
+                  ('00000000-0000-0000-0000-000000002108', 'BUSINESS', 'Business', 'Plano para clinicas e equipes em crescimento.', 249.90, 15, 5000, 15, true, now(), now()),
+                  ('00000000-0000-0000-0000-000000002109', 'SPACES', 'Spaces', 'Plano para espacos compartilhados e sublocacao.', 299.90, 20, 5000, 30, true, now(), now()),
+                  ('00000000-0000-0000-0000-000000002110', 'PREMIUM', 'Premium', 'Plano completo para operacoes profissionais maduras.', 399.90, 50, 100000, 50, true, now(), now())
+              on conflict (codigo) do nothing;
+
+              insert into plano_modulos (plano_id, modulo)
+              select p.id, v.modulo
+              from (
+                  values
+                      ('ESTUDANTE', 'tenant-empresa'), ('ESTUDANTE', 'usuarios-permissoes'), ('ESTUDANTE', 'dashboard'), ('ESTUDANTE', 'clientes'), ('ESTUDANTE', 'agenda'), ('ESTUDANTE', 'procedimentos'), ('ESTUDANTE', 'documentos'),
+                      ('START', 'tenant-empresa'), ('START', 'usuarios-permissoes'), ('START', 'dashboard'), ('START', 'clientes'), ('START', 'agenda'), ('START', 'procedimentos'),
+                      ('CARE', 'tenant-empresa'), ('CARE', 'usuarios-permissoes'), ('CARE', 'dashboard'), ('CARE', 'clientes'), ('CARE', 'agenda'), ('CARE', 'procedimentos'), ('CARE', 'custos'), ('CARE', 'precificacao'), ('CARE', 'documentos'), ('CARE', 'suporte'),
+                      ('NUTRI_PRO', 'tenant-empresa'), ('NUTRI_PRO', 'usuarios-permissoes'), ('NUTRI_PRO', 'dashboard'), ('NUTRI_PRO', 'clientes'), ('NUTRI_PRO', 'agenda'), ('NUTRI_PRO', 'procedimentos'), ('NUTRI_PRO', 'custos'), ('NUTRI_PRO', 'precificacao'), ('NUTRI_PRO', 'documentos'), ('NUTRI_PRO', 'nutri-pro'),
+                      ('BEAUTY_PRO', 'tenant-empresa'), ('BEAUTY_PRO', 'usuarios-permissoes'), ('BEAUTY_PRO', 'dashboard'), ('BEAUTY_PRO', 'clientes'), ('BEAUTY_PRO', 'agenda'), ('BEAUTY_PRO', 'procedimentos'), ('BEAUTY_PRO', 'custos'), ('BEAUTY_PRO', 'precificacao'), ('BEAUTY_PRO', 'estoque'), ('BEAUTY_PRO', 'equipamentos'), ('BEAUTY_PRO', 'beauty-pro'),
+                      ('BIOMED_PRO', 'tenant-empresa'), ('BIOMED_PRO', 'usuarios-permissoes'), ('BIOMED_PRO', 'dashboard'), ('BIOMED_PRO', 'clientes'), ('BIOMED_PRO', 'agenda'), ('BIOMED_PRO', 'procedimentos'), ('BIOMED_PRO', 'custos'), ('BIOMED_PRO', 'precificacao'), ('BIOMED_PRO', 'estoque'), ('BIOMED_PRO', 'equipamentos'), ('BIOMED_PRO', 'biomed-pro'),
+                      ('FISIO_PRO', 'tenant-empresa'), ('FISIO_PRO', 'usuarios-permissoes'), ('FISIO_PRO', 'dashboard'), ('FISIO_PRO', 'clientes'), ('FISIO_PRO', 'agenda'), ('FISIO_PRO', 'procedimentos'), ('FISIO_PRO', 'custos'), ('FISIO_PRO', 'precificacao'), ('FISIO_PRO', 'documentos'), ('FISIO_PRO', 'fisio-pro'),
+                      ('BUSINESS', 'tenant-empresa'), ('BUSINESS', 'usuarios-permissoes'), ('BUSINESS', 'dashboard'), ('BUSINESS', 'clientes'), ('BUSINESS', 'agenda'), ('BUSINESS', 'procedimentos'), ('BUSINESS', 'custos'), ('BUSINESS', 'precificacao'), ('BUSINESS', 'estoque'), ('BUSINESS', 'equipamentos'), ('BUSINESS', 'documentos'), ('BUSINESS', 'suporte'),
+                      ('SPACES', 'tenant-empresa'), ('SPACES', 'usuarios-permissoes'), ('SPACES', 'dashboard'), ('SPACES', 'clientes'), ('SPACES', 'agenda'), ('SPACES', 'sublocacao'), ('SPACES', 'spaces'), ('SPACES', 'suporte'),
+                      ('PREMIUM', 'tenant-empresa'), ('PREMIUM', 'usuarios-permissoes'), ('PREMIUM', 'dashboard'), ('PREMIUM', 'clientes'), ('PREMIUM', 'agenda'), ('PREMIUM', 'procedimentos'), ('PREMIUM', 'custos'), ('PREMIUM', 'precificacao'), ('PREMIUM', 'estoque'), ('PREMIUM', 'equipamentos'), ('PREMIUM', 'documentos'), ('PREMIUM', 'sublocacao'), ('PREMIUM', 'nutri-pro'), ('PREMIUM', 'beauty-pro'), ('PREMIUM', 'biomed-pro'), ('PREMIUM', 'fisio-pro'), ('PREMIUM', 'spaces'), ('PREMIUM', 'suporte')
+              ) as v(codigo, modulo)
+              join planos p on p.codigo = v.codigo
+              on conflict (plano_id, modulo) do nothing;

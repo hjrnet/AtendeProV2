@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R2 — Admin SaaS, planos e assinaturas.
 
 ## Última task concluída
-TASK-0204 — Criar módulo de planos.
+TASK-0205 — Planos padrão.
 
 ## Próxima task recomendada
-TASK-0205 — Planos padrão.
+TASK-0206 — Plano Estudante.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0205 concluida em modo autopilot multiagente release R2.
+- Catalogo `PlanoPadrao` criado com Estudante, Start, Care, Nutri Pro, Beauty Pro, Biomed Pro, Fisio Pro, Business, Spaces e Premium.
+- Liquibase passou a inserir os 10 planos padrao e seus modulos em `planos` e `plano_modulos`, com `on conflict` para idempotencia local.
+- Validacao local confirmou 10 planos ativos pela API Admin SaaS e modulos do `NUTRI_PRO`.
 - TASK-0204 concluida em modo autopilot multiagente release R2.
 - Modulo `plano` criado no backend com entidade `PlanoAssinatura`, enum `ModuloPlano`, Commands, Results, UseCases, OutputPorts, adapter JDBC e controller Admin SaaS.
 - Liquibase criou `planos` e `plano_modulos`; o endpoint `/api/admin-saas/planos` permite criar, listar, detalhar e atualizar planos sem expor persistencia.

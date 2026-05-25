@@ -44,7 +44,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-0202 | Dashboard Admin SaaS | MRR, empresas, trials e chamados. | CONCLUIDA |
 | TASK-0203 | Gestão de empresas | Listar, detalhar, bloquear e observar empresas. | CONCLUIDA |
 | TASK-0204 | Criar módulo de planos | Entidade Plano e regras de módulos. | CONCLUIDA |
-| TASK-0205 | Planos padrão | Estudante, Start, Care, Nutri Pro, Beauty Pro, Biomed Pro, Fisio Pro, Business, Spaces, Premium. | PENDENTE |
+| TASK-0205 | Planos padrão | Estudante, Start, Care, Nutri Pro, Beauty Pro, Biomed Pro, Fisio Pro, Business, Spaces, Premium. | CONCLUIDA |
 | TASK-0206 | Plano Estudante | Limites e marca d'água acadêmica. | PENDENTE |
 | TASK-0207 | Trial 30 dias | Trial com vencimento e conversão. | PENDENTE |
 | TASK-0208 | Assinaturas | Status, upgrade, downgrade, cancelamento e bloqueio. | PENDENTE |
