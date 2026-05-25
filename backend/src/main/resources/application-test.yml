@@ -16,3 +16,5 @@ app:
     jwt-secret: teste-local-sem-valor-real
     jwt-expiracao-minutos: 60
     jwt-refresh-expiracao-dias: 7
+    senha-recuperacao-expiracao-minutos: 30
+    expor-token-recuperacao-local: false

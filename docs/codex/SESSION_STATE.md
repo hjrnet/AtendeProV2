@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R1 — Auth, tenant e segurança.
 
 ## Última task concluída
-TASK-0104 — Refresh token.
+TASK-0105 — Recuperação de senha.
 
 ## Próxima task recomendada
-TASK-0105 — Recuperação de senha.
+TASK-0106 — Criar módulo Empresa/Tenant.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0105 concluida em modo autopilot multiagente release R1.
+- Recuperacao de senha criada com token aleatorio, hash SHA-256 persistido em `auth_password_reset_tokens`, expiracao curta, uso unico e resposta generica.
+- Token de recuperacao so e exposto por configuracao local para teste sem provedor externo.
+- Validacao local confirmou `/api/auth/password/forgot`, `/api/auth/password/reset`, login posterior e token marcado como utilizado no Postgres.
 - TASK-0104 concluida em modo autopilot multiagente release R1.
 - Refresh token criado com valor aleatorio, hash SHA-256 persistido em `auth_refresh_tokens`, expiracao configuravel e rotacao com revogacao do token anterior.
 - Validacao local confirmou login, `/api/auth/refresh`, migration Liquibase e 1 token revogado apos rotacao.

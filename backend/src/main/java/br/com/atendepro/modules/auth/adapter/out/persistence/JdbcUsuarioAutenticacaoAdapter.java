@@ -15,6 +15,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import br.com.atendepro.modules.auth.application.port.out.AtualizarSenhaUsuarioPort;
 import br.com.atendepro.modules.auth.application.port.out.CarregarUsuarioPorIdPort;
 import br.com.atendepro.modules.auth.application.port.out.CarregarUsuarioPorEmailPort;
 import br.com.atendepro.modules.auth.application.port.out.SalvarUsuarioAutenticacaoPort;
@@ -24,7 +25,11 @@ import br.com.atendepro.modules.auth.domain.model.UsuarioAutenticacao;
 
 @Repository
 @Profile("!test")
-public class JdbcUsuarioAutenticacaoAdapter implements CarregarUsuarioPorEmailPort, CarregarUsuarioPorIdPort, SalvarUsuarioAutenticacaoPort {
+public class JdbcUsuarioAutenticacaoAdapter implements
+        CarregarUsuarioPorEmailPort,
+        CarregarUsuarioPorIdPort,
+        SalvarUsuarioAutenticacaoPort,
+        AtualizarSenhaUsuarioPort {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -104,6 +109,20 @@ public class JdbcUsuarioAutenticacaoAdapter implements CarregarUsuarioPorEmailPo
             statement.setTimestamp(8, criadoEm);
             return statement;
         });
+    }
+
+    @Override
+    public void atualizarSenhaUsuario(UUID usuarioId, String senhaHash) {
+        jdbcTemplate.update(
+                """
+                update auth_usuarios
+                   set senha_hash = ?,
+                       atualizado_em = now()
+                 where id = ?
+                """,
+                senhaHash,
+                usuarioId
+        );
     }
 
     private String[] mapearPerfis(Set<PerfilAcesso> perfis) {

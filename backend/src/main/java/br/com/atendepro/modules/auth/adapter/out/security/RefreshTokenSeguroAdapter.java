@@ -12,12 +12,19 @@ import java.util.HexFormat;
 import org.springframework.stereotype.Component;
 
 import br.com.atendepro.modules.auth.application.port.out.GerarRefreshTokenPort;
+import br.com.atendepro.modules.auth.application.port.out.GerarTokenRecuperacaoSenhaPort;
 import br.com.atendepro.modules.auth.application.port.out.HashRefreshTokenPort;
+import br.com.atendepro.modules.auth.application.port.out.HashTokenRecuperacaoSenhaPort;
 import br.com.atendepro.modules.auth.application.port.out.RefreshTokenGerado;
+import br.com.atendepro.modules.auth.application.port.out.TokenRecuperacaoSenhaGerado;
 import br.com.atendepro.modules.auth.domain.model.UsuarioAutenticacao;
 
 @Component
-public class RefreshTokenSeguroAdapter implements GerarRefreshTokenPort, HashRefreshTokenPort {
+public class RefreshTokenSeguroAdapter implements
+        GerarRefreshTokenPort,
+        HashRefreshTokenPort,
+        GerarTokenRecuperacaoSenhaPort,
+        HashTokenRecuperacaoSenhaPort {
 
     private static final int TAMANHO_BYTES = 48;
 
@@ -32,9 +39,7 @@ public class RefreshTokenSeguroAdapter implements GerarRefreshTokenPort, HashRef
 
     @Override
     public RefreshTokenGerado gerarRefreshToken(UsuarioAutenticacao usuario) {
-        byte[] bytes = new byte[TAMANHO_BYTES];
-        secureRandom.nextBytes(bytes);
-        String valor = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+        String valor = gerarValorSeguro();
         return new RefreshTokenGerado(
                 valor,
                 gerarHashRefreshToken(valor),
@@ -44,9 +49,34 @@ public class RefreshTokenSeguroAdapter implements GerarRefreshTokenPort, HashRef
 
     @Override
     public String gerarHashRefreshToken(String refreshToken) {
+        return gerarHash(refreshToken);
+    }
+
+    @Override
+    public TokenRecuperacaoSenhaGerado gerarTokenRecuperacaoSenha(UsuarioAutenticacao usuario) {
+        String valor = gerarValorSeguro();
+        return new TokenRecuperacaoSenhaGerado(
+                valor,
+                gerarHashTokenRecuperacaoSenha(valor),
+                Instant.now(clock).plusSeconds(properties.recuperacaoSenhaExpiracaoMinutos() * 60L)
+        );
+    }
+
+    @Override
+    public String gerarHashTokenRecuperacaoSenha(String tokenEmTexto) {
+        return gerarHash(tokenEmTexto);
+    }
+
+    private String gerarValorSeguro() {
+        byte[] bytes = new byte[TAMANHO_BYTES];
+        secureRandom.nextBytes(bytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+    }
+
+    private String gerarHash(String valor) {
         try {
             byte[] hash = MessageDigest.getInstance("SHA-256")
-                    .digest(refreshToken.getBytes(StandardCharsets.UTF_8));
+                    .digest(valor.getBytes(StandardCharsets.UTF_8));
             return HexFormat.of().formatHex(hash);
         } catch (NoSuchAlgorithmException exception) {
             throw new IllegalStateException("algoritmo de hash indisponivel", exception);

@@ -19,7 +19,7 @@ class JwtAutenticacaoAdapterTest {
     @Test
     void deveGerarAccessTokenJwt() {
         JwtAutenticacaoAdapter adapter = new JwtAutenticacaoAdapter(
-                new JwtAutenticacaoProperties("atendepro-test", "segredo-de-teste", 30, 7),
+                new JwtAutenticacaoProperties("atendepro-test", "segredo-de-teste", 30, 7, 30, false),
                 Clock.fixed(Instant.parse("2026-05-25T00:00:00Z"), ZoneOffset.UTC)
         );
 

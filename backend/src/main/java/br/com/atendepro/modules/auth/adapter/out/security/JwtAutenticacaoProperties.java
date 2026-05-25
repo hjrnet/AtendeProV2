@@ -7,7 +7,9 @@ public record JwtAutenticacaoProperties(
         String jwtIssuer,
         String jwtSecret,
         Integer jwtExpiracaoMinutos,
-        Integer jwtRefreshExpiracaoDias
+        Integer jwtRefreshExpiracaoDias,
+        Integer senhaRecuperacaoExpiracaoMinutos,
+        Boolean exporTokenRecuperacaoLocal
 ) {
 
     public String emissor() {
@@ -30,6 +32,17 @@ public record JwtAutenticacaoProperties(
             return 7;
         }
         return jwtRefreshExpiracaoDias;
+    }
+
+    public int recuperacaoSenhaExpiracaoMinutos() {
+        if (senhaRecuperacaoExpiracaoMinutos == null || senhaRecuperacaoExpiracaoMinutos < 5) {
+            return 30;
+        }
+        return senhaRecuperacaoExpiracaoMinutos;
+    }
+
+    public boolean deveExporTokenRecuperacaoLocal() {
+        return Boolean.TRUE.equals(exporTokenRecuperacaoLocal);
     }
 
     private static String valorOuPadrao(String valor, String padrao) {

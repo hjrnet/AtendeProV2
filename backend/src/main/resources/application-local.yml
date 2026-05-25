@@ -20,3 +20,5 @@ app:
     jwt-secret: ${JWT_SECRET:troque-este-segredo-localmente}
     jwt-expiracao-minutos: ${JWT_EXPIRACAO_MINUTOS:60}
     jwt-refresh-expiracao-dias: ${JWT_REFRESH_EXPIRACAO_DIAS:7}
+    senha-recuperacao-expiracao-minutos: ${SENHA_RECUPERACAO_EXPIRACAO_MINUTOS:30}
+    expor-token-recuperacao-local: ${EXPOR_TOKEN_RECUPERACAO_LOCAL:true}

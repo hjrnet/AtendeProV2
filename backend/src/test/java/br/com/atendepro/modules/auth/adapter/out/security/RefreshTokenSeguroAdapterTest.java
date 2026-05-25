@@ -19,7 +19,7 @@ class RefreshTokenSeguroAdapterTest {
     @Test
     void deveGerarRefreshTokenSeguroComHash() {
         RefreshTokenSeguroAdapter adapter = new RefreshTokenSeguroAdapter(
-                new JwtAutenticacaoProperties("atendepro-test", "segredo-de-teste", 30, 7),
+                new JwtAutenticacaoProperties("atendepro-test", "segredo-de-teste", 30, 7, 30, false),
                 Clock.fixed(Instant.parse("2026-05-25T00:00:00Z"), ZoneOffset.UTC)
         );
 
@@ -29,6 +29,21 @@ class RefreshTokenSeguroAdapterTest {
         assertThat(token.tokenHash()).hasSize(64);
         assertThat(token.tokenHash()).isEqualTo(adapter.gerarHashRefreshToken(token.valor()));
         assertThat(token.expiraEm()).isEqualTo(Instant.parse("2026-06-01T00:00:00Z"));
+    }
+
+    @Test
+    void deveGerarTokenRecuperacaoSenhaSeguroComHash() {
+        RefreshTokenSeguroAdapter adapter = new RefreshTokenSeguroAdapter(
+                new JwtAutenticacaoProperties("atendepro-test", "segredo-de-teste", 30, 7, 30, false),
+                Clock.fixed(Instant.parse("2026-05-25T00:00:00Z"), ZoneOffset.UTC)
+        );
+
+        var token = adapter.gerarTokenRecuperacaoSenha(usuario());
+
+        assertThat(token.valor()).hasSizeGreaterThan(40);
+        assertThat(token.tokenHash()).hasSize(64);
+        assertThat(token.tokenHash()).isEqualTo(adapter.gerarHashTokenRecuperacaoSenha(token.valor()));
+        assertThat(token.expiraEm()).isEqualTo(Instant.parse("2026-05-25T00:30:00Z"));
     }
 
     private UsuarioAutenticacao usuario() {
