@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R4 — Custo real, precificação e relatórios.
 
 ## Última task concluída
-TASK-0310 — UX premium operacional.
+TASK-0401 — Módulo Precificação.
 
 ## Próxima task recomendada
-TASK-0401 — Insumos por procedimento.
+TASK-0402 — Calculadora de custo real.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,12 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0401 concluida em modo autopilot multiagente release R4.
+- Modulo `precificacao` criado no backend com dominio de calculo base, itens de custo categorizados, Command/Result, UseCase, OutputPort, service e controller fino.
+- API `/api/precificacao/calculos/base` calcula custo total por itens informados, opcionalmente enriquecendo a simulacao com servico/procedimento ativo existente via adapter JDBC.
+- A TASK-0401 nao persiste historico, nao calcula preco minimo, preco recomendado, margem ou lucro; esses pontos permanecem reservados para as tasks seguintes da R4.
+- Permissao `GERENCIAR_PRECIFICACAO` adicionada aos perfis operacionais da empresa.
+- Validacao local confirmou Docker Compose saudavel, endpoint real de precificacao com `custoTotal=90.00` e `mvn test` com 150 testes.
 - TASK-0310 concluida em modo autopilot multiagente release R3.
 - `/app` recebeu shell operacional responsivo, sidebar desktop, seletor de empresa para super admin, cards de indicadores, alertas operacionais, busca global e manutencao do CRUD Admin SaaS.
 - A UX usa clients por feature em `features/operacional/api`, TanStack Query e dados reais de `/api/dashboard/empresa`, `/api/busca/global` e `/api/empresas`.

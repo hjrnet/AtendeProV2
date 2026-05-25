@@ -70,7 +70,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
-| TASK-0401 | Módulo Precificação | Base hexagonal de cálculo. | PENDENTE |
+| TASK-0401 | Módulo Precificação | Base hexagonal de cálculo. | CONCLUIDA |
 | TASK-0402 | Calculadora de custo real | Insumos, sala, tempo, deslocamento, alimentação, taxas. | PENDENTE |
 | TASK-0403 | Preço mínimo | Preço para não operar no prejuízo. | PENDENTE |
 | TASK-0404 | Preço recomendado | Cálculo por margem desejada. | PENDENTE |

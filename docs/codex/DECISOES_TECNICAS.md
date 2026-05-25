@@ -95,3 +95,9 @@ O dashboard operacional da empresa fica no modulo `dashboard` e exposto em `/api
 A busca global fica no modulo `busca` e exposta em `/api/busca/global`. A TASK-0309 nao cria indice dedicado nem motor externo: ela agrega consultas JDBC tenant-scoped sobre os cadastros da R3, com filtros simples por termo, categoria e status. `ATIVO`/`INATIVO` se aplica a cadastros com campo `ativo`; agenda usa o proprio status do compromisso.
 
 A UX operacional da R3 usa `/app` como cockpit autenticado mobile-first. O shell combina seletor de empresa para usuarios globais, metricas de `/api/dashboard/empresa`, busca de `/api/busca/global` e o CRUD Admin SaaS existente. O client operacional fica em `features/operacional/api`; a pagina continua fina por meio de `AppProtegido` e componentes de feature. Ajustes visuais evitam pagina de marketing e priorizam operacao densa, escaneavel e responsiva.
+
+## Precificação
+
+O modulo `precificacao` nasce na TASK-0401 como motor hexagonal de calculo base, sem persistir historico. A API `/api/precificacao/calculos/base` recebe itens de custo categorizados e retorna o custo total normalizado em `BigDecimal`. Quando um `servicoProcedimentoId` ativo e informado, o modulo usa um OutputPort com adapter JDBC para carregar nome, duracao e preco base do servico, mantendo o calculo desacoplado da persistencia de servicos.
+
+Preco minimo, preco recomendado, margem, lucro, historico de simulacoes, PDF e dashboard ficam fora da TASK-0401 e devem evoluir nas tasks oficiais seguintes da R4.
