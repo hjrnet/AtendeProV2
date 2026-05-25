@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R10 — Nutri Pro, Beauty Pro e comercial.
 
 ## Última task concluída
-TASK-BEAUTY-005 — Integrar Beauty Pro com agenda, precificação e experiência web.
+TASK-1001 — Landing page pública.
 
 ## Próxima task recomendada
-TASK-1001 — Landing page pública.
+TASK-1002 — Páginas por vertical.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-1001 concluida em modo autopilot multiagente release R10.
+- A rota pública `/` deixou de redirecionar automaticamente para `/app` e passou a exibir landing page própria com hero, dor, solução, verticais conectadas e CTA para demonstração/painel local.
+- A landing foi criada em `features/marketing`, mantendo feature architecture, mobile-first, cena visual do produto no hero e identidade premium alinhada ao SaaS de saúde, estética e gestão.
+- A task não implementou páginas por vertical, página de planos, calculadora gratuita ou formulário de lead; esses itens permanecem nas tasks oficiais seguintes.
+- Validação confirmou `pnpm typecheck`, `pnpm lint`, `pnpm build`, Docker Compose com Postgres/Mailpit saudáveis, web local `200` em `/` e Browser sem erros de console.
 - TASK-BEAUTY-005 concluida em modo autopilot multiagente release R10.
 - Beauty Pro ganhou consulta operacional integrada em `/api/beauty-pro/integracoes-operacionais`, agregando agenda dos próximos 14 dias, serviços/procedimentos Beauty e simulações de precificação do tenant sem expor persistência.
 - Backend manteve arquitetura hexagonal com Command, Result, UseCase/InputPort, OutputPort e adapter JDBC para a integração de agenda, serviços e precificação.

@@ -160,7 +160,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-BEAUTY-003 | Criar protocolos, sessões e evolução Beauty Pro | Protocolos faciais/corporais, pacote de sessões, execução e evolução. | CONCLUIDA |
 | TASK-BEAUTY-004 | Criar termos, fotos placeholder, produtos/lotes e dashboard Beauty Pro | Termos, rastreabilidade simples, evidências seguras sem fotos reais e indicadores da vertical. | CONCLUIDA |
 | TASK-BEAUTY-005 | Integrar Beauty Pro com agenda, precificação e experiência web | Tela operacional completa, agenda, serviços, custos e precificação integrados. | CONCLUIDA |
-| TASK-1001 | Landing page pública | Produto, dor, solução e CTA. | PENDENTE |
+| TASK-1001 | Landing page pública | Produto, dor, solução e CTA. | CONCLUIDA |
 | TASK-1002 | Páginas por vertical | Nutri, Estética, Biomed, Fisio, Spaces. | PENDENTE |
 | TASK-1003 | Página de planos | Comparação e trial 30 dias. | PENDENTE |
 | TASK-1004 | Calculadora gratuita | Lead magnet de preço ideal. | PENDENTE |
