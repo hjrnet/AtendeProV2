@@ -54,7 +54,7 @@ export function SecaoOperacao({ empresaId, sessao }: SecaoOperacaoProps) {
         />
         <MetricaOperacional
           icon={Activity}
-          label="Proximos 7 dias"
+          label="Próximos 7 dias"
           value={valorMetrica(dashboard?.compromissosProximos7Dias, dashboardQuery.isLoading)}
         />
         <MetricaOperacional
@@ -69,7 +69,7 @@ export function SecaoOperacao({ empresaId, sessao }: SecaoOperacaoProps) {
           <div className="mb-4 flex items-center justify-between gap-3 border-b pb-4">
             <div>
               <p className="text-sm font-medium text-primary">Alertas operacionais</p>
-              <h2 className="mt-1 text-lg font-semibold text-card-foreground">Acoes que pedem atencao</h2>
+              <h2 className="mt-1 text-lg font-semibold text-card-foreground">Ações que pedem atenção</h2>
             </div>
             {dashboardQuery.isFetching ? <LoaderCircle className="h-4 w-4 animate-spin text-muted-foreground" /> : null}
           </div>
@@ -89,7 +89,7 @@ export function SecaoOperacao({ empresaId, sessao }: SecaoOperacaoProps) {
             />
             <IndicadorAlerta
               icon={Wrench}
-              label="Manutencao 30 dias"
+              label="Manutenção 30 dias"
               value={dashboard?.equipamentosManutencao30Dias ?? 0}
               active={(dashboard?.equipamentosManutencao30Dias ?? 0) > 0}
             />
@@ -99,7 +99,7 @@ export function SecaoOperacao({ empresaId, sessao }: SecaoOperacaoProps) {
         <section className="grid content-start gap-3 rounded-lg border bg-card p-4 shadow-sm">
           <div className="flex items-center justify-between gap-3 border-b pb-4">
             <div>
-              <p className="text-sm font-medium text-primary">Sessao</p>
+              <p className="text-sm font-medium text-primary">Sessão</p>
               <h2 className="text-lg font-semibold text-card-foreground">{sessao.usuario.nome}</h2>
             </div>
             <span className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">

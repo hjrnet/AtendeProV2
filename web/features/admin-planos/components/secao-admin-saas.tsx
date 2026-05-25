@@ -32,7 +32,7 @@ export function SecaoAdminSaas({ empresaId, sessao }: SecaoAdminSaasProps) {
   return (
     <section className="grid gap-4">
       <div className="rounded-lg border bg-card p-4 shadow-sm">
-        <div className="flex gap-2 overflow-x-auto pb-1" aria-label="Subsecoes Admin SaaS">
+        <div className="flex gap-2 overflow-x-auto pb-1" aria-label="Subseções Admin SaaS">
           {secoesAdmin.map((secao) => {
             const Icon = secao.icon;
             const ativo = subsecaoAtiva === secao.id;

@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R9 — Suporte, central de ajuda, comunicação e refinamentos de experiência.
 
 ## Última task concluída
-TASK-R9-002 — Criar menu rápido de ações principais do Nutri Pro.
+TASK-R9-003 — Corrigir acentuação e textos em português do sistema.
 
 ## Próxima task recomendada
-TASK-R9-003 — Corrigir acentuação e textos em português do sistema.
+TASK-R9-004 — Popular ambiente demo com usuários, planos e simulações realistas.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-R9-003 concluida em modo autopilot multiagente release R9.
+- Textos visiveis do shell, operacao, verticais, precificacao, Admin SaaS/planos e login foram revisados para portugues brasileiro com acentuacao correta.
+- Mensagens de validacao e erro exibidas ao usuario em planos e precificacao foram ajustadas para microcopy profissional.
+- Busca por termos comuns sem acento passou a retornar apenas falsos positivos tecnicos ou textos ja acentuados.
+- Validacao confirmou `pnpm lint`, `pnpm typecheck`, `pnpm build`, Docker Compose saudavel, backend local `UP`, web local `/app` HTTP 200 e Browser sem erros de console nas telas principais.
 - TASK-R9-002 concluida em modo autopilot multiagente release R9.
 - Menu Rapido Nutri Pro foi documentado oficialmente em `docs/product/verticais/nutri-pro-menu-rapido.md`, com acoes, fluxos, estados, UX responsiva e regras de Plano Estudante.
 - Docs oficiais do Nutri Pro foram atualizados para incluir o menu rapido em requisitos, telas, fluxos, regras de negocio e backlog futuro `TASK-NUTRI-026`.

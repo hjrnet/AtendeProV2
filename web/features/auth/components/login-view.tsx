@@ -26,7 +26,7 @@ const CREDENCIAIS_DEMO: LoginFormData = {
 };
 
 const itensPainel = [
-  { rotulo: "Nucleo", valor: "Auth e tenant", icone: ShieldCheck },
+  { rotulo: "Núcleo", valor: "Auth e tenant", icone: ShieldCheck },
   { rotulo: "Ambiente", valor: "Local seguro", icone: Activity },
   { rotulo: "Release", valor: "R1", icone: BadgeCheck }
 ];
@@ -71,7 +71,7 @@ export function LoginView({ redirectTo }: LoginViewProps) {
         setErroGeral(error.message);
         return;
       }
-      setErroGeral("Nao foi possivel entrar agora.");
+      setErroGeral("Não foi possível entrar agora.");
     }
   });
 
@@ -89,10 +89,10 @@ export function LoginView({ redirectTo }: LoginViewProps) {
           <div className="max-w-2xl">
             <p className="text-sm font-medium text-primary">AtendePro SaaS</p>
             <h1 className="mt-2 text-3xl font-semibold tracking-normal text-foreground sm:text-4xl">
-              Acesso profissional para gestao multiempresa
+              Acesso profissional para gestão multiempresa
             </h1>
             <p className="mt-3 max-w-xl text-base leading-7 text-muted-foreground">
-              Auth, tenant e permissoes preparados para o nucleo operacional do AtendePro.
+              Auth, tenant e permissões preparados para o núcleo operacional do AtendePro.
             </p>
           </div>
 

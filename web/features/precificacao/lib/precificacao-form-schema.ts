@@ -1,16 +1,16 @@
 import { z } from "zod";
 
 export const precificacaoFormSchema = z.object({
-  nomeProcedimento: z.string().trim().min(2, "Nome obrigatorio"),
-  duracaoMinutos: z.coerce.number().int().min(1, "Duracao invalida"),
-  custoInsumos: z.coerce.number().min(0, "Valor invalido"),
-  custoSalaPorHora: z.coerce.number().min(0, "Valor invalido"),
-  valorHoraProfissional: z.coerce.number().min(0, "Valor invalido"),
-  custoDeslocamento: z.coerce.number().min(0, "Valor invalido"),
-  custoAlimentacao: z.coerce.number().min(0, "Valor invalido"),
-  taxas: z.coerce.number().min(0, "Valor invalido"),
-  margemDesejadaPercentual: z.coerce.number().min(0, "Margem invalida").max(99.99, "Margem invalida"),
-  precoVenda: z.coerce.number().min(0.01, "Preco invalido")
+  nomeProcedimento: z.string().trim().min(2, "Nome obrigatório"),
+  duracaoMinutos: z.coerce.number().int().min(1, "Duração inválida"),
+  custoInsumos: z.coerce.number().min(0, "Valor inválido"),
+  custoSalaPorHora: z.coerce.number().min(0, "Valor inválido"),
+  valorHoraProfissional: z.coerce.number().min(0, "Valor inválido"),
+  custoDeslocamento: z.coerce.number().min(0, "Valor inválido"),
+  custoAlimentacao: z.coerce.number().min(0, "Valor inválido"),
+  taxas: z.coerce.number().min(0, "Valor inválido"),
+  margemDesejadaPercentual: z.coerce.number().min(0, "Margem inválida").max(99.99, "Margem inválida"),
+  precoVenda: z.coerce.number().min(0.01, "Preço inválido")
 });
 
 export type PrecificacaoFormData = z.infer<typeof precificacaoFormSchema>;

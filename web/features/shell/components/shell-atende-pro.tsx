@@ -20,26 +20,26 @@ type ShellAtendeProProps = {
 const secoesPrincipais: SecaoPrincipalConfig[] = [
   {
     id: "operacao",
-    label: "Operacao",
+    label: "Operação",
     labelCurto: "Operar",
     titulo: "Painel operacional",
-    descricao: "Indicadores e alertas do nucleo comum para acompanhar a rotina da empresa.",
+    descricao: "Indicadores e alertas do núcleo comum para acompanhar a rotina da empresa.",
     icon: LayoutDashboard
   },
   {
     id: "verticais",
     label: "Verticais",
-    labelCurto: "Areas",
+    labelCurto: "Áreas",
     titulo: "Verticais profissionais",
-    descricao: "Modulos por area com detalhe sob demanda, sem empilhar todas as capacidades na mesma pagina.",
+    descricao: "Módulos por área com detalhe sob demanda, sem empilhar todas as capacidades na mesma página.",
     icon: Stethoscope
   },
   {
     id: "precificacao",
-    label: "Precificacao",
-    labelCurto: "Preco",
-    titulo: "Precificacao",
-    descricao: "Simulador de custo real, margem e historico de precos em uma area propria.",
+    label: "Precificação",
+    labelCurto: "Preço",
+    titulo: "Precificação",
+    descricao: "Simulador de custo real, margem e histórico de preços em uma área própria.",
     icon: BadgeDollarSign
   },
   {
@@ -47,7 +47,7 @@ const secoesPrincipais: SecaoPrincipalConfig[] = [
     label: "Busca global",
     labelCurto: "Busca",
     titulo: "Busca global",
-    descricao: "Localize clientes, agenda, servicos, estoque, equipamentos e custos sem sair do contexto ativo.",
+    descricao: "Localize clientes, agenda, serviços, estoque, equipamentos e custos sem sair do contexto ativo.",
     icon: Search
   },
   {
@@ -55,7 +55,7 @@ const secoesPrincipais: SecaoPrincipalConfig[] = [
     label: "Admin SaaS",
     labelCurto: "Admin",
     titulo: "Admin SaaS",
-    descricao: "Area administrativa para planos, limites e evolucoes futuras de empresas e assinaturas.",
+    descricao: "Área administrativa para planos, limites e evoluções futuras de empresas e assinaturas.",
     icon: PackageCheck
   }
 ];

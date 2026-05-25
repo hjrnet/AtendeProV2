@@ -25,11 +25,11 @@ export function SecaoPrecificacao({ empresaId }: SecaoPrecificacaoProps) {
     <section className="grid gap-4">
       <div className="flex flex-col gap-3 rounded-lg border bg-card p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p className="text-sm font-medium text-primary">Precificacao</p>
-          <h2 className="mt-1 text-lg font-semibold text-card-foreground">Custo real, margem e simulacoes</h2>
+          <p className="text-sm font-medium text-primary">Precificação</p>
+          <h2 className="mt-1 text-lg font-semibold text-card-foreground">Custo real, margem e simulações</h2>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 lg:w-auto" role="tablist" aria-label="Areas de precificacao">
+        <div className="grid grid-cols-2 gap-2 lg:w-auto" role="tablist" aria-label="Áreas de precificação">
           {abas.map((aba) => {
             const Icon = aba.icon;
             const ativa = aba.id === abaAtiva;

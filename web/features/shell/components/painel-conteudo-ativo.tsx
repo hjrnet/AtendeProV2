@@ -40,8 +40,8 @@ function renderizarSecaoAtiva(secaoAtiva: SecaoPrincipal, empresaId: string, ses
       return (
         <div className="flex min-h-72 flex-col items-center justify-center rounded-lg border bg-card p-8 text-center shadow-sm">
           <Search className="h-9 w-9 text-primary" />
-          <h2 className="mt-3 text-lg font-semibold text-card-foreground">Secao indisponivel</h2>
-          <p className="mt-1 max-w-md text-sm leading-6 text-muted-foreground">Escolha uma area no menu principal.</p>
+          <h2 className="mt-3 text-lg font-semibold text-card-foreground">Seção indisponível</h2>
+          <p className="mt-1 max-w-md text-sm leading-6 text-muted-foreground">Escolha uma área no menu principal.</p>
         </div>
       );
   }

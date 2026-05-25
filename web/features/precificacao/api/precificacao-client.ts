@@ -193,10 +193,10 @@ async function criarErroRelatorio(response: Response) {
   if (contentType.includes("application/json")) {
     try {
       const payload = (await response.json()) as ApiErrorPayload;
-      return new ApiError(response.status, payload.mensagem ?? "Nao foi possivel gerar o relatorio.", payload);
+      return new ApiError(response.status, payload.mensagem ?? "Não foi possível gerar o relatório.", payload);
     } catch {
-      return new ApiError(response.status, "Nao foi possivel gerar o relatorio.");
+      return new ApiError(response.status, "Não foi possível gerar o relatório.");
     }
   }
-  return new ApiError(response.status, "Nao foi possivel gerar o relatorio.");
+  return new ApiError(response.status, "Não foi possível gerar o relatório.");
 }

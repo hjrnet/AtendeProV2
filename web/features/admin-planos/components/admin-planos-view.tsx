@@ -52,7 +52,7 @@ export function AdminPlanosView() {
       await queryClient.invalidateQueries({ queryKey: ["admin-planos"] });
       limparFormulario();
     },
-    onError: (error) => setErro(error instanceof ApiError ? error.message : "Nao foi possivel salvar o plano.")
+    onError: (error) => setErro(error instanceof ApiError ? error.message : "Não foi possível salvar o plano.")
   });
 
   const totalPaginas = planosQuery.data?.totalPaginas ?? 0;
@@ -165,14 +165,14 @@ export function AdminPlanosView() {
                 setPagina(0);
               }}
               className="h-10 w-full rounded-md border bg-background pl-10 pr-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
-              placeholder="Buscar por codigo ou nome"
+              placeholder="Buscar por código ou nome"
             />
           </label>
           <div className="flex gap-2">
-            <Button type="button" variant="outline" size="icon" onClick={() => setPagina((valor) => valor - 1)} disabled={!podeVoltar} title="Pagina anterior">
+            <Button type="button" variant="outline" size="icon" onClick={() => setPagina((valor) => valor - 1)} disabled={!podeVoltar} title="Página anterior">
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Button type="button" variant="outline" size="icon" onClick={() => setPagina((valor) => valor + 1)} disabled={!podeAvancar} title="Proxima pagina">
+            <Button type="button" variant="outline" size="icon" onClick={() => setPagina((valor) => valor + 1)} disabled={!podeAvancar} title="Próxima página">
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
@@ -204,7 +204,7 @@ export function AdminPlanosView() {
                           {plano.ativo ? "Ativo" : "Inativo"}
                         </span>
                       </div>
-                      <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{plano.descricao ?? "Sem descricao"}</p>
+                      <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{plano.descricao ?? "Sem descrição"}</p>
                     </div>
                     <div className="flex shrink-0 gap-2">
                       <Button type="button" variant="outline" size="icon" onClick={() => editarPlano(plano)} title="Editar plano">
@@ -218,7 +218,7 @@ export function AdminPlanosView() {
 
                   <div className="mt-4 grid gap-2 sm:grid-cols-4">
                     <MetricaPlano rotulo="Mensal" valor={formatarMoeda(plano.valorMensal)} />
-                    <MetricaPlano rotulo="Usuarios" valor={String(plano.limiteUsuarios)} />
+                    <MetricaPlano rotulo="Usuários" valor={String(plano.limiteUsuarios)} />
                     <MetricaPlano rotulo="Clientes" valor={String(plano.limiteClientes)} />
                     <MetricaPlano rotulo="Profissionais" valor={String(plano.limiteProfissionais)} />
                   </div>
@@ -241,19 +241,19 @@ export function AdminPlanosView() {
         </div>
 
         <form className="grid gap-3" onSubmit={salvar}>
-          <CampoTexto id="codigo" label="Codigo" erro={form.formState.errors.codigo?.message} registro={form.register("codigo")} />
+          <CampoTexto id="codigo" label="Código" erro={form.formState.errors.codigo?.message} registro={form.register("codigo")} />
           <CampoTexto id="nome" label="Nome" erro={form.formState.errors.nome?.message} registro={form.register("nome")} />
-          <CampoTexto id="descricao" label="Descricao" erro={form.formState.errors.descricao?.message} registro={form.register("descricao")} />
+          <CampoTexto id="descricao" label="Descrição" erro={form.formState.errors.descricao?.message} registro={form.register("descricao")} />
 
           <div className="grid grid-cols-2 gap-3">
             <CampoNumero id="valorMensal" label="Mensal" erro={form.formState.errors.valorMensal?.message} registro={form.register("valorMensal")} />
-            <CampoNumero id="limiteUsuarios" label="Usuarios" erro={form.formState.errors.limiteUsuarios?.message} registro={form.register("limiteUsuarios")} />
+            <CampoNumero id="limiteUsuarios" label="Usuários" erro={form.formState.errors.limiteUsuarios?.message} registro={form.register("limiteUsuarios")} />
             <CampoNumero id="limiteClientes" label="Clientes" erro={form.formState.errors.limiteClientes?.message} registro={form.register("limiteClientes")} />
             <CampoNumero id="limiteProfissionais" label="Profissionais" erro={form.formState.errors.limiteProfissionais?.message} registro={form.register("limiteProfissionais")} />
           </div>
 
-          <CampoTexto id="modulosTexto" label="Modulos" erro={form.formState.errors.modulosTexto?.message} registro={form.register("modulosTexto")} />
-          <CampoTexto id="marcaDaguaAcademica" label="Marca d'agua" erro={form.formState.errors.marcaDaguaAcademica?.message} registro={form.register("marcaDaguaAcademica")} />
+          <CampoTexto id="modulosTexto" label="Módulos" erro={form.formState.errors.modulosTexto?.message} registro={form.register("modulosTexto")} />
+          <CampoTexto id="marcaDaguaAcademica" label="Marca d'água" erro={form.formState.errors.marcaDaguaAcademica?.message} registro={form.register("marcaDaguaAcademica")} />
 
           <div className="grid grid-cols-2 gap-3">
             <label className="flex items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm font-medium text-card-foreground">

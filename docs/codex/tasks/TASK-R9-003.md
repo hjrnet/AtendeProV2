@@ -103,6 +103,26 @@ Exemplos:
 git commit -m "fix(ui): corrigir acentuacao e textos em portugues"
 ```
 
+## Execução
+
+Status: CONCLUIDA.
+
+Resumo:
+- Textos visíveis do shell, operação, verticais, precificação, Admin SaaS/planos e login foram corrigidos para português brasileiro com acentuação.
+- Labels, placeholders, títulos, botões, estados vazios, tooltips e mensagens de erro/validação foram ajustados onde estavam visíveis ao usuário.
+- Nomes técnicos, variáveis, endpoints, tipos e campos de API foram preservados sem renomeação.
+- Busca por termos comuns sem acento passou a retornar apenas falsos positivos técnicos ou textos já acentuados.
+
+Validação:
+- `rg` por termos sem acento comuns no frontend.
+- `corepack pnpm typecheck`
+- `corepack pnpm lint`
+- `corepack pnpm build`
+- `docker compose ps`
+- `GET http://127.0.0.1:8080/actuator/health`
+- `GET http://127.0.0.1:3000/app`
+- Browser em `/app`: menu, operação, verticais, Admin SaaS e simulador de precificação conferidos sem erros de console.
+
 ## Prompt recomendado
 
 ```md

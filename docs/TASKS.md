@@ -143,7 +143,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-0905 | Notificações internas | Eventos, avisos e alertas. | CONCLUIDA |
 | TASK-R9-001 | Destacar visualmente simulações em alerta na Precificação | Alertas visuais, badges, ícones e filtros para identificar simulações saudáveis, com margem baixa ou em prejuízo. | CONCLUIDA |
 | TASK-R9-002 | Criar menu rápido de ações principais do Nutri Pro | Especificar menu rápido no prontuário nutricional, priorizando gastos energéticos, exames laboratoriais e plano alimentar. | CONCLUIDA |
-| TASK-R9-003 | Corrigir acentuação e textos em português do sistema | Revisar textos visíveis, labels, botões, estados vazios e microcopy para português brasileiro correto. | PENDENTE |
+| TASK-R9-003 | Corrigir acentuação e textos em português do sistema | Revisar textos visíveis, labels, botões, estados vazios e microcopy para português brasileiro correto. | CONCLUIDA |
 | TASK-R9-004 | Popular ambiente demo com usuários, planos e simulações realistas | Seed local/demo com empresas, usuários, planos, pacientes, procedimentos, simulações e documentação de logins fictícios. | PENDENTE |
 
 ## R10 — Landing page e comercial

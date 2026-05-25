@@ -24,7 +24,7 @@ import { cn } from "@/lib/utils";
 type AbaVertical = "visao" | "capacidades" | "documentos" | "roadmap";
 
 const abasVerticais: Array<{ id: AbaVertical; label: string; icon: typeof Stethoscope }> = [
-  { id: "visao", label: "Visao geral", icon: Sparkles },
+  { id: "visao", label: "Visão geral", icon: Sparkles },
   { id: "capacidades", label: "Capacidades", icon: Layers3 },
   { id: "documentos", label: "Documentos", icon: FileText },
   { id: "roadmap", label: "Roadmap", icon: Route }
@@ -83,7 +83,7 @@ export function VerticaisProfissionaisView() {
       <div className="flex flex-col gap-3 rounded-lg border bg-card p-4 shadow-sm lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
           <p className="text-sm font-medium text-primary">Verticais profissionais</p>
-          <h2 className="mt-1 text-lg font-semibold tracking-normal text-card-foreground">Catalogo modular por area</h2>
+          <h2 className="mt-1 text-lg font-semibold tracking-normal text-card-foreground">Catálogo modular por área</h2>
         </div>
 
         <label className="grid gap-1 text-sm font-medium text-card-foreground lg:w-80">
@@ -94,7 +94,7 @@ export function VerticaisProfissionaisView() {
               value={busca}
               onChange={(event) => setBusca(event.target.value)}
               className="h-10 w-full rounded-md border bg-background pl-10 pr-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
-              placeholder="Area, conselho, capacidade"
+              placeholder="Área, conselho, capacidade"
             />
           </span>
         </label>
@@ -251,13 +251,13 @@ function AbaVisao({ vertical }: { vertical: VerticalProfissional }) {
           <MenuRapidoNutriProPreview />
         </div>
       ) : null}
-      <ListaDetalhe titulo="Publicos atendidos" itens={vertical.publicosAtendidos} />
-      <ListaDetalhe titulo="Integracoes do nucleo" itens={vertical.integracoesNucleo} />
+      <ListaDetalhe titulo="Públicos atendidos" itens={vertical.publicosAtendidos} />
+      <ListaDetalhe titulo="Integrações do núcleo" itens={vertical.integracoesNucleo} />
       <ListaDetalhe titulo="Entidades previstas" itens={vertical.entidades} />
       <div className="rounded-lg border bg-background p-4">
         <p className="text-sm font-semibold text-card-foreground">Status</p>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          {rotuloStatus(vertical.status)} na {vertical.release}. A vertical reaproveita o nucleo comum e evolui por tasks proprias.
+          {rotuloStatus(vertical.status)} na {vertical.release}. A vertical reaproveita o núcleo comum e evolui por tasks próprias.
         </p>
       </div>
     </div>
@@ -267,11 +267,11 @@ function AbaVisao({ vertical }: { vertical: VerticalProfissional }) {
 function AbaRoadmap({ vertical }: { vertical: VerticalProfissional }) {
   return (
     <div className="grid gap-3">
-      <ListaDetalhe titulo="Proximas evolucoes" itens={vertical.proximasEvolucoes} />
+      <ListaDetalhe titulo="Próximas evoluções" itens={vertical.proximasEvolucoes} />
       <div className="rounded-lg border bg-background p-4">
         <p className="text-sm font-semibold text-card-foreground">Progressive disclosure</p>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          O detalhe da vertical aparece somente quando selecionado. As demais areas permanecem compactas para reduzir rolagem e clarear o contexto.
+          O detalhe da vertical aparece somente quando selecionado. As demais áreas permanecem compactas para reduzir rolagem e clarear o contexto.
         </p>
       </div>
     </div>
@@ -295,7 +295,7 @@ function ListaDetalhe({ titulo, itens }: { titulo: string; itens: string[] }) {
 
 function rotuloStatus(status: VerticalProfissional["status"]) {
   return {
-    OPERACIONAL_BASE: "Disponivel",
+    OPERACIONAL_BASE: "Disponível",
     PREPARADO_FUTURO: "Planejado"
   }[status];
 }

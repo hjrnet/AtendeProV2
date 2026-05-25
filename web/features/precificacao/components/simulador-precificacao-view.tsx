@@ -211,7 +211,7 @@ export function SimuladorPrecificacaoView({ empresaId }: SimuladorPrecificacaoVi
       window.setTimeout(() => URL.revokeObjectURL(url), 60000);
     } catch (error) {
       janela?.close();
-      setErro(error instanceof ApiError ? error.message : "Nao foi possivel abrir o relatorio.");
+      setErro(error instanceof ApiError ? error.message : "Não foi possível abrir o relatório.");
     } finally {
       setRelatorioGerandoId(null);
     }
@@ -223,11 +223,11 @@ export function SimuladorPrecificacaoView({ empresaId }: SimuladorPrecificacaoVi
         <div className="rounded-lg border bg-card p-4 shadow-sm">
           <div className="mb-4 flex items-center justify-between gap-3 border-b pb-4">
             <div>
-              <p className="text-sm font-medium text-primary">Precificacao</p>
-              <h2 className="mt-1 text-xl font-semibold text-card-foreground">Simulador de preco</h2>
+              <p className="text-sm font-medium text-primary">Precificação</p>
+              <h2 className="mt-1 text-xl font-semibold text-card-foreground">Simulador de preço</h2>
             </div>
             <div className="flex gap-2">
-              <Button type="button" variant="outline" size="icon" onClick={novaSimulacao} title="Nova simulacao">
+              <Button type="button" variant="outline" size="icon" onClick={novaSimulacao} title="Nova simulação">
                 <Plus className="h-4 w-4" />
               </Button>
               <span className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">
@@ -247,7 +247,7 @@ export function SimuladorPrecificacaoView({ empresaId }: SimuladorPrecificacaoVi
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               <CampoNumero
                 id="duracaoMinutos"
-                label="Duracao"
+                label="Duração"
                 erro={form.formState.errors.duracaoMinutos?.message}
                 registro={form.register("duracaoMinutos")}
               />
@@ -277,7 +277,7 @@ export function SimuladorPrecificacaoView({ empresaId }: SimuladorPrecificacaoVi
               />
               <CampoNumero
                 id="custoAlimentacao"
-                label="Alimentacao"
+                label="Alimentação"
                 erro={form.formState.errors.custoAlimentacao?.message}
                 registro={form.register("custoAlimentacao")}
               />
@@ -290,7 +290,7 @@ export function SimuladorPrecificacaoView({ empresaId }: SimuladorPrecificacaoVi
               />
               <CampoNumero
                 id="precoVenda"
-                label="Preco praticado"
+                label="Preço praticado"
                 erro={form.formState.errors.precoVenda?.message}
                 registro={form.register("precoVenda")}
               />
@@ -301,7 +301,7 @@ export function SimuladorPrecificacaoView({ empresaId }: SimuladorPrecificacaoVi
             <div className="grid gap-2 sm:grid-cols-2">
               <Button type="submit" disabled={simulacaoMutation.isPending || salvarMutation.isPending || !empresaId}>
                 {simulacaoMutation.isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Calculator className="h-4 w-4" />}
-                Simular preco
+                Simular preço
               </Button>
               <Button
                 type="button"
@@ -310,7 +310,7 @@ export function SimuladorPrecificacaoView({ empresaId }: SimuladorPrecificacaoVi
                 onClick={() => void salvar()}
               >
                 {salvarMutation.isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                {simulacaoEditando ? "Atualizar simulacao" : "Salvar simulacao"}
+                {simulacaoEditando ? "Atualizar simulação" : "Salvar simulação"}
               </Button>
             </div>
           </form>
@@ -321,7 +321,7 @@ export function SimuladorPrecificacaoView({ empresaId }: SimuladorPrecificacaoVi
             <div>
               <p className="text-sm font-medium text-primary">Resultado</p>
               <h2 className="mt-1 text-lg font-semibold text-card-foreground">
-                {resultado?.nomeProcedimento ?? "Aguardando simulacao"}
+                {resultado?.nomeProcedimento ?? "Aguardando simulação"}
               </h2>
             </div>
             <span className="flex h-10 w-10 items-center justify-center rounded-md bg-secondary text-secondary-foreground">
@@ -332,8 +332,8 @@ export function SimuladorPrecificacaoView({ empresaId }: SimuladorPrecificacaoVi
           {resultado ? (
             <div className="grid gap-3">
               <MetricaResultado icon={ReceiptText} label="Custo real" value={formatarMoeda(resultado.custoTotal)} />
-              <MetricaResultado icon={BadgeDollarSign} label="Preco minimo" value={formatarMoeda(resultado.precoMinimo)} />
-              <MetricaResultado icon={TrendingUp} label="Preco recomendado" value={formatarMoeda(resultado.precoRecomendado)} />
+              <MetricaResultado icon={BadgeDollarSign} label="Preço mínimo" value={formatarMoeda(resultado.precoMinimo)} />
+              <MetricaResultado icon={TrendingUp} label="Preço recomendado" value={formatarMoeda(resultado.precoRecomendado)} />
               <MetricaResultado icon={Percent} label="Margem real" value={`${formatarNumero(resultado.margemRealPercentual)}%`} />
               <MetricaResultado icon={CheckCircle2} label="Lucro estimado" value={formatarMoeda(resultado.lucroEstimado)} />
 
@@ -341,7 +341,7 @@ export function SimuladorPrecificacaoView({ empresaId }: SimuladorPrecificacaoVi
                 {resultado.alertas.length === 0 ? (
                   <div className="flex items-center gap-2 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm font-medium text-green-700">
                     <CheckCircle2 className="h-4 w-4" />
-                    Precificacao saudavel
+                    Precificação saudável
                   </div>
                 ) : (
                   <div className="grid gap-2">
@@ -363,13 +363,13 @@ export function SimuladorPrecificacaoView({ empresaId }: SimuladorPrecificacaoVi
                   onClick={() => void abrirRelatorio(simulacaoEditando.id)}
                 >
                   {relatorioGerandoId === simulacaoEditando.id ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
-                  Relatorio PDF
+                  Relatório PDF
                 </Button>
               ) : null}
             </div>
           ) : (
             <div className="flex min-h-72 items-center justify-center rounded-lg border bg-background px-4 text-center text-sm font-medium text-muted-foreground">
-              Nenhuma simulacao calculada
+              Nenhuma simulação calculada
             </div>
           )}
         </aside>
@@ -382,8 +382,8 @@ export function SimuladorPrecificacaoView({ empresaId }: SimuladorPrecificacaoVi
               <History className="h-5 w-5" />
             </span>
             <div>
-              <p className="text-sm font-medium text-primary">Historico</p>
-              <h2 className="mt-1 text-lg font-semibold text-card-foreground">Simulacoes salvas</h2>
+              <p className="text-sm font-medium text-primary">Histórico</p>
+              <h2 className="mt-1 text-lg font-semibold text-card-foreground">Simulações salvas</h2>
             </div>
           </div>
           <span className="rounded-md border bg-background px-3 py-2 text-sm font-semibold text-card-foreground">
@@ -401,14 +401,14 @@ export function SimuladorPrecificacaoView({ empresaId }: SimuladorPrecificacaoVi
                 setPaginaHistorico(0);
               }}
               className="h-10 w-full rounded-md border bg-background pl-10 pr-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
-              placeholder="Buscar simulacao"
+              placeholder="Buscar simulação"
             />
           </label>
           <div className="flex gap-2">
-            <Button type="button" variant="outline" size="icon" onClick={() => setPaginaHistorico((valor) => valor - 1)} disabled={!podeVoltar} title="Pagina anterior">
+            <Button type="button" variant="outline" size="icon" onClick={() => setPaginaHistorico((valor) => valor - 1)} disabled={!podeVoltar} title="Página anterior">
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Button type="button" variant="outline" size="icon" onClick={() => setPaginaHistorico((valor) => valor + 1)} disabled={!podeAvancar} title="Proxima pagina">
+            <Button type="button" variant="outline" size="icon" onClick={() => setPaginaHistorico((valor) => valor + 1)} disabled={!podeAvancar} title="Próxima página">
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
