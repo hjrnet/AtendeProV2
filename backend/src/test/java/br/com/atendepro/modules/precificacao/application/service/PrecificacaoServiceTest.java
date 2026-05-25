@@ -23,6 +23,7 @@ import br.com.atendepro.modules.empresa.application.context.TenantContext;
 import br.com.atendepro.modules.empresa.application.context.TenantContextHolder;
 import br.com.atendepro.modules.precificacao.application.command.CalcularCustoRealCommand;
 import br.com.atendepro.modules.precificacao.application.command.CalcularPrecoMinimoCommand;
+import br.com.atendepro.modules.precificacao.application.command.CalcularPrecoRecomendadoCommand;
 import br.com.atendepro.modules.precificacao.application.command.CalcularPrecificacaoBaseCommand;
 import br.com.atendepro.modules.precificacao.application.command.ItemCustoPrecificacaoCommand;
 import br.com.atendepro.modules.precificacao.application.port.out.CarregarServicoParaPrecificacaoPort;
@@ -165,6 +166,31 @@ class PrecificacaoServiceTest {
 
         assertThat(result.custoTotal()).isEqualByComparingTo("168.00");
         assertThat(result.precoMinimo()).isEqualByComparingTo("168.00");
+    }
+
+    @Test
+    void deveCalcularPrecoRecomendadoPorMargemDesejada() {
+        TenantContextHolder.definir(new TenantContext(EMPRESA_ID, UUID.randomUUID(), Set.of(PerfilAcesso.EMPRESA_ADMIN)));
+        PrecificacaoService service = service((empresaId, servicoProcedimentoId) -> Optional.empty());
+
+        var result = service.calcularPrecoRecomendado(new CalcularPrecoRecomendadoCommand(
+                null,
+                null,
+                "Procedimento",
+                60,
+                new BigDecimal("168.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                new BigDecimal("30.00")
+        ));
+
+        assertThat(result.custoTotal()).isEqualByComparingTo("168.00");
+        assertThat(result.precoMinimo()).isEqualByComparingTo("168.00");
+        assertThat(result.precoRecomendado()).isEqualByComparingTo("240.00");
+        assertThat(result.margemDesejadaPercentual()).isEqualByComparingTo("30.00");
     }
 
     private PrecificacaoService service(CarregarServicoParaPrecificacaoPort carregarPort) {

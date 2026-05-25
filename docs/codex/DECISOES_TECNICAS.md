@@ -105,3 +105,5 @@ Preco minimo, preco recomendado, margem, lucro, historico de simulacoes, PDF e d
 A TASK-0402 adiciona `/api/precificacao/calculos/custo-real`. O custo real soma insumos, custo de sala rateado por duracao, custo de tempo profissional rateado por duracao, deslocamento, alimentacao e taxas. A duracao pode vir da requisicao ou do servico/procedimento ativo informado. O resultado continua sem persistencia, servindo como base para preco minimo, margem e historico nas tasks seguintes.
 
 A TASK-0403 define preco minimo como ponto de equilibrio: `precoMinimo = custoRealTotal`. O endpoint `/api/precificacao/calculos/preco-minimo` reutiliza os mesmos componentes do custo real e nao calcula margem desejada, lucro estimado ou alertas, preservando esses comportamentos para as tasks oficiais seguintes.
+
+A TASK-0404 calcula preco recomendado por margem desejada sobre o preco de venda: `precoRecomendado = custoTotal / (1 - margemDesejadaPercentual / 100)`. A margem deve ficar entre 0 e 99.99, e o arredondamento usa teto em centavos para evitar recomendar preco que fique abaixo da margem alvo.

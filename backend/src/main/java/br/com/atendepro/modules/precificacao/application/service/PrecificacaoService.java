@@ -14,20 +14,24 @@ import br.com.atendepro.modules.auth.domain.model.PermissaoAcesso;
 import br.com.atendepro.modules.empresa.application.context.TenantAccessService;
 import br.com.atendepro.modules.precificacao.application.command.CalcularCustoRealCommand;
 import br.com.atendepro.modules.precificacao.application.command.CalcularPrecoMinimoCommand;
+import br.com.atendepro.modules.precificacao.application.command.CalcularPrecoRecomendadoCommand;
 import br.com.atendepro.modules.precificacao.application.command.CalcularPrecificacaoBaseCommand;
 import br.com.atendepro.modules.precificacao.application.command.ItemCustoPrecificacaoCommand;
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularCustoRealUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecoMinimoUseCase;
+import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecoRecomendadoUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecificacaoBaseUseCase;
 import br.com.atendepro.modules.precificacao.application.port.out.CarregarServicoParaPrecificacaoPort;
 import br.com.atendepro.modules.precificacao.application.result.CalculoPrecificacaoBaseResult;
 import br.com.atendepro.modules.precificacao.application.result.CustoRealPrecificacaoResult;
 import br.com.atendepro.modules.precificacao.application.result.PrecoMinimoPrecificacaoResult;
+import br.com.atendepro.modules.precificacao.application.result.PrecoRecomendadoPrecificacaoResult;
 import br.com.atendepro.modules.precificacao.application.result.ServicoPrecificacaoResult;
 import br.com.atendepro.modules.precificacao.domain.model.CalculoPrecificacao;
 import br.com.atendepro.modules.precificacao.domain.model.CustoRealPrecificacao;
 import br.com.atendepro.modules.precificacao.domain.model.ItemCustoPrecificacao;
 import br.com.atendepro.modules.precificacao.domain.model.PrecoMinimoPrecificacao;
+import br.com.atendepro.modules.precificacao.domain.model.PrecoRecomendadoPrecificacao;
 import br.com.atendepro.shared.domain.exception.BusinessException;
 
 @Service
@@ -35,7 +39,8 @@ import br.com.atendepro.shared.domain.exception.BusinessException;
 public class PrecificacaoService implements
         CalcularPrecificacaoBaseUseCase,
         CalcularCustoRealUseCase,
-        CalcularPrecoMinimoUseCase {
+        CalcularPrecoMinimoUseCase,
+        CalcularPrecoRecomendadoUseCase {
 
     private final CarregarServicoParaPrecificacaoPort carregarServicoParaPrecificacaoPort;
     private final TenantAccessService tenantAccessService;
@@ -115,6 +120,34 @@ public class PrecificacaoService implements
                 Instant.now(clock)
         );
         return PrecoMinimoPrecificacaoResult.de(PrecoMinimoPrecificacao.calcular(custoReal), servico);
+    }
+
+    @Override
+    public PrecoRecomendadoPrecificacaoResult calcularPrecoRecomendado(CalcularPrecoRecomendadoCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        ServicoPrecificacaoResult servico = carregarServico(command.servicoProcedimentoId(), empresaId);
+        String nomeProcedimento = nomeProcedimento(command.nomeProcedimento(), servico);
+        int duracaoMinutos = duracaoMinutos(command.duracaoMinutos(), servico);
+        CustoRealPrecificacao custoReal = CustoRealPrecificacao.calcular(
+                empresaId,
+                command.servicoProcedimentoId(),
+                nomeProcedimento,
+                duracaoMinutos,
+                command.custoInsumos(),
+                command.custoSalaPorHora(),
+                command.valorHoraProfissional(),
+                command.custoDeslocamento(),
+                command.custoAlimentacao(),
+                command.taxas(),
+                Instant.now(clock)
+        );
+        PrecoMinimoPrecificacao precoMinimo = PrecoMinimoPrecificacao.calcular(custoReal);
+        PrecoRecomendadoPrecificacao precoRecomendado = PrecoRecomendadoPrecificacao.calcular(
+                precoMinimo,
+                command.margemDesejadaPercentual()
+        );
+        return PrecoRecomendadoPrecificacaoResult.de(precoRecomendado, servico);
     }
 
     private ServicoPrecificacaoResult carregarServico(UUID servicoProcedimentoId, UUID empresaId) {

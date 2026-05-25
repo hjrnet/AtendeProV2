@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularCustoRealUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecoMinimoUseCase;
+import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecoRecomendadoUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecificacaoBaseUseCase;
 import jakarta.validation.Valid;
 
@@ -20,15 +21,18 @@ public class PrecificacaoController {
     private final CalcularPrecificacaoBaseUseCase calcularPrecificacaoBaseUseCase;
     private final CalcularCustoRealUseCase calcularCustoRealUseCase;
     private final CalcularPrecoMinimoUseCase calcularPrecoMinimoUseCase;
+    private final CalcularPrecoRecomendadoUseCase calcularPrecoRecomendadoUseCase;
 
     public PrecificacaoController(
             CalcularPrecificacaoBaseUseCase calcularPrecificacaoBaseUseCase,
             CalcularCustoRealUseCase calcularCustoRealUseCase,
-            CalcularPrecoMinimoUseCase calcularPrecoMinimoUseCase
+            CalcularPrecoMinimoUseCase calcularPrecoMinimoUseCase,
+            CalcularPrecoRecomendadoUseCase calcularPrecoRecomendadoUseCase
     ) {
         this.calcularPrecificacaoBaseUseCase = calcularPrecificacaoBaseUseCase;
         this.calcularCustoRealUseCase = calcularCustoRealUseCase;
         this.calcularPrecoMinimoUseCase = calcularPrecoMinimoUseCase;
+        this.calcularPrecoRecomendadoUseCase = calcularPrecoRecomendadoUseCase;
     }
 
     @PostMapping("/calculos/base")
@@ -55,6 +59,15 @@ public class PrecificacaoController {
     ) {
         return ResponseEntity.ok(PrecoMinimoPrecificacaoResponse.de(
                 calcularPrecoMinimoUseCase.calcularPrecoMinimo(request.paraCommand())
+        ));
+    }
+
+    @PostMapping("/calculos/preco-recomendado")
+    public ResponseEntity<PrecoRecomendadoPrecificacaoResponse> calcularPrecoRecomendado(
+            @Valid @RequestBody CalcularPrecoRecomendadoRequest request
+    ) {
+        return ResponseEntity.ok(PrecoRecomendadoPrecificacaoResponse.de(
+                calcularPrecoRecomendadoUseCase.calcularPrecoRecomendado(request.paraCommand())
         ));
     }
 }

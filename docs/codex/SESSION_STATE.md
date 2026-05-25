@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R4 — Custo real, precificação e relatórios.
 
 ## Última task concluída
-TASK-0403 — Preço mínimo.
+TASK-0404 — Preço recomendado.
 
 ## Próxima task recomendada
-TASK-0404 — Preço recomendado.
+TASK-0405 — Margem e lucro.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0404 concluida em modo autopilot multiagente release R4.
+- Preco recomendado criado em `/api/precificacao/calculos/preco-recomendado`, calculado por margem desejada sobre o preco de venda.
+- Formula adotada: `precoRecomendado = custoTotal / (1 - margemDesejadaPercentual / 100)`, com arredondamento para cima em centavos para preservar a margem alvo.
+- Validacao local confirmou `custoTotal=168.00`, `margemDesejadaPercentual=30.00` e `precoRecomendado=240.00`; `mvn test` passou com 161 testes.
 - TASK-0403 concluida em modo autopilot multiagente release R4.
 - Preco minimo criado em `/api/precificacao/calculos/preco-minimo` como ponto de equilibrio igual ao custo real total.
 - O resultado retorna custo total, preco minimo e composicao de custos sem calcular margem desejada, preco recomendado, lucro ou alertas.
