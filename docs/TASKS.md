@@ -47,7 +47,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-0205 | Planos padrão | Estudante, Start, Care, Nutri Pro, Beauty Pro, Biomed Pro, Fisio Pro, Business, Spaces, Premium. | CONCLUIDA |
 | TASK-0206 | Plano Estudante | Limites e marca d'água acadêmica. | CONCLUIDA |
 | TASK-0207 | Trial 30 dias | Trial com vencimento e conversão. | CONCLUIDA |
-| TASK-0208 | Assinaturas | Status, upgrade, downgrade, cancelamento e bloqueio. | PENDENTE |
+| TASK-0208 | Assinaturas | Status, upgrade, downgrade, cancelamento e bloqueio. | CONCLUIDA |
 | TASK-0209 | Tela Admin de planos | CRUD e limites por plano. | PENDENTE |
 | TASK-0210 | Dashboard de vendas | MRR, conversão, churn e planos vendidos. | PENDENTE |
 

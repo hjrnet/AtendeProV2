@@ -1,0 +1,79 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0011-create-assinaturas
+      author: codex
+      changes:
+        - createTable:
+            tableName: assinaturas
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: empresa_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: plano_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: iniciado_em
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cancelado_em
+                  type: timestamptz
+              - column:
+                  name: bloqueado_em
+                  type: timestamptz
+              - column:
+                  name: criado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: assinaturas
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_assinaturas_empresas
+        - addForeignKeyConstraint:
+            baseTableName: assinaturas
+            baseColumnNames: plano_id
+            referencedTableName: planos
+            referencedColumnNames: id
+            constraintName: fk_assinaturas_planos
+        - createIndex:
+            tableName: assinaturas
+            indexName: idx_assinaturas_empresa_status
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: status
+        - createIndex:
+            tableName: assinaturas
+            indexName: idx_assinaturas_plano
+            columns:
+              - column:
+                  name: plano_id

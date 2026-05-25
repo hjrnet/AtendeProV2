@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R2 — Admin SaaS, planos e assinaturas.
 
 ## Última task concluída
-TASK-0207 — Trial 30 dias.
+TASK-0208 — Assinaturas.
 
 ## Próxima task recomendada
-TASK-0208 — Assinaturas.
+TASK-0209 — Tela Admin de planos.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0208 concluida em modo autopilot multiagente release R2.
+- Assinaturas pagas criadas no modulo `assinatura`, com status `ATIVA`, `BLOQUEADA` e `CANCELADA`.
+- API Admin SaaS `/api/admin-saas/assinaturas` permite criar, listar, consultar, alterar plano, bloquear, desbloquear e cancelar.
+- Validacao local confirmou criacao de assinatura, upgrade/downgrade por troca de plano, bloqueio, desbloqueio, cancelamento e listagem por status.
 - TASK-0207 concluida em modo autopilot multiagente release R2.
 - Modulo `assinatura` iniciado com trial de 30 dias, status `ATIVO`, `EXPIRADO`, `CONVERTIDO` e `CANCELADO`.
 - Trial Admin SaaS criado em `/api/admin-saas/trials`, com iniciar, listar, consultar e converter trial.
