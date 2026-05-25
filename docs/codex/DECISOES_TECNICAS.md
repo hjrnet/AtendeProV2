@@ -83,3 +83,5 @@ A agenda operacional fica no modulo `agenda`, tenant-scoped por `empresa_id` e e
 Servicos/Procedimentos ficam no modulo `servico`, tenant-scoped por `empresa_id` e expostos em `/api/servicos-procedimentos`. O dominio `ServicoProcedimento` registra nome, descricao, area, duracao em minutos e preco base com `BigDecimal`; custos reais, margem e preco recomendado permanecem reservados para R4.
 
 Custos gerais ficam no modulo `custo`, tenant-scoped por `empresa_id` e expostos em `/api/custos/gerais`. A TASK-0304 cobre somente custos `FIXO`, `VARIAVEL` e `EVENTUAL`, com categoria textual, valor em `BigDecimal` e competencia opcional no formato `YearMonth`. Alimentacao e transporte seguem separados para TASK-0305.
+
+Alimentacao e transporte permanecem no modulo `custo`, mas em tabela e endpoint proprios: `custos_alimentacao_transporte` e `/api/custos/alimentacao-transporte`. A modelagem usa `TipoCustoPessoal` (`ALIMENTACAO`, `TRANSPORTE`) e `PeriodicidadeCustoPessoal` (`DIARIO`, `MENSAL`, `POR_ATENDIMENTO`), com profissional opcional para custos individualizados.

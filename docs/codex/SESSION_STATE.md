@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R3 — Núcleo operacional comum.
 
 ## Última task concluída
-TASK-0304 — Custos gerais.
+TASK-0305 — Alimentação e transporte.
 
 ## Próxima task recomendada
-TASK-0305 — Alimentação e transporte.
+TASK-0306 — Estoque base.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0305 concluida em modo autopilot multiagente release R3.
+- Modulo `custo` recebeu custos de alimentacao e transporte em `/api/custos/alimentacao-transporte`, com tipo, periodicidade, profissional opcional e valor em `BigDecimal`.
+- A modelagem separa custos pessoais/profissionais dos custos gerais, mantendo filtros por empresa, tipo, profissional e ativo.
+- Validacao local confirmou migration `custos_alimentacao_transporte`, criacao/listagem real e `mvn test` com 129 testes.
 - TASK-0304 concluida em modo autopilot multiagente release R3.
 - Modulo `custo` iniciado com custos gerais fixos, variaveis e eventuais, usando `CustoGeral`, `TipoCustoGeral`, Command/Result, UseCases, OutputPorts, adapter JDBC e controller fino.
 - API `/api/custos/gerais` permite cadastrar, detalhar e listar custos por empresa, busca, tipo, categoria e ativo.
