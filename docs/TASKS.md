@@ -79,7 +79,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-0407 | Histórico de simulações | Salvar e editar simulações. | CONCLUIDA |
 | TASK-0408 | Relatório imprimível/PDF | PDF de precificação e composição de custos. | CONCLUIDA |
 | TASK-0409 | Dashboard de precificação | Indicadores e gráficos. | CONCLUIDA |
-| TASK-0410 | Dados demo realistas | Procedimentos e simulações por área. | PENDENTE |
+| TASK-0410 | Dados demo realistas | Procedimentos e simulações por área. | CONCLUIDA |
 
 ## R5 — Sublocação e Spaces
 

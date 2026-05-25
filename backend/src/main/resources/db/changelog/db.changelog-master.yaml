@@ -37,3 +37,5 @@ databaseChangeLog:
       file: db/changelog/changes/0018-create-equipamentos.yaml
   - include:
       file: db/changelog/changes/0019-create-precificacao-simulacoes.yaml
+  - include:
+      file: db/changelog/changes/0020-insert-dados-demo-precificacao.yaml

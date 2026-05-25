@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R4 — Custo real, precificação e relatórios.
+R5 — Sublocação e Spaces.
 
 ## Última task concluída
-TASK-0409 — Dashboard de precificação.
+TASK-0410 — Dados demo realistas.
 
 ## Próxima task recomendada
-TASK-0410 — Dados demo realistas.
+TASK-0501 — Módulo Spaces.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0410 concluida em modo autopilot multiagente release R4.
+- Dados demo realistas adicionados por Liquibase em `0020-insert-dados-demo-precificacao.yaml`, com empresa demo multiárea, 10 serviços/procedimentos e 10 simulações.
+- A seed cobre NUTRI, BEAUTY, BIOMED, FISIO e SPACES, com status `SAUDAVEL`, `MARGEM_BAIXA` e `PREJUIZO` para alimentar historico e dashboard.
+- Validacao confirmou `mvn test` com 171 testes, Docker Compose saudavel, migration local aplicada, banco com 5 areas demo, API real com 10 servicos e 10 simulacoes, e Browser em `/app` sem novos erros.
+- R4 concluida; proxima release recomendada e R5.
 - TASK-0409 concluida em modo autopilot multiagente release R4.
 - Dashboard de precificacao criado em `/api/precificacao/dashboard`, tenant-scoped, com UseCase, OutputPort, adapter JDBC e Responses dedicados.
 - As metricas usam `precificacao_simulacoes`: total de simulacoes, preco recomendado medio, lucro medio, margem media, simulacoes saudaveis, simulacoes em alerta, distribuicao por status e simulacoes recentes.
