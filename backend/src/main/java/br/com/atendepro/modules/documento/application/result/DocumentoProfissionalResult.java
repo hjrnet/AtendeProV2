@@ -18,6 +18,8 @@ public record DocumentoProfissionalResult(
         String conteudo,
         StatusDocumentoProfissional status,
         int versao,
+        String codigoValidacao,
+        boolean validacaoPublicaAtiva,
         boolean ativo,
         Instant criadoEm,
         Instant atualizadoEm
@@ -35,6 +37,8 @@ public record DocumentoProfissionalResult(
                 documento.conteudo(),
                 documento.status(),
                 documento.versao(),
+                documento.codigoValidacao(),
+                documento.validacaoPublicaAtiva(),
                 documento.ativo(),
                 documento.criadoEm(),
                 documento.atualizadoEm()

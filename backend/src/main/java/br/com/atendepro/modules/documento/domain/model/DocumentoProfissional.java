@@ -14,6 +14,8 @@ public record DocumentoProfissional(
         String conteudo,
         StatusDocumentoProfissional status,
         int versao,
+        String codigoValidacao,
+        boolean validacaoPublicaAtiva,
         boolean ativo,
         Instant criadoEm,
         Instant atualizadoEm
@@ -44,12 +46,16 @@ public record DocumentoProfissional(
         if (versao < 1) {
             throw new IllegalArgumentException("versao do documento profissional deve ser positiva");
         }
+        if (codigoValidacao == null || codigoValidacao.isBlank()) {
+            throw new IllegalArgumentException("codigo de validacao do documento profissional e obrigatorio");
+        }
         if (criadoEm == null || atualizadoEm == null) {
             throw new IllegalArgumentException("datas do documento profissional sao obrigatorias");
         }
         profissionalNome = profissionalNome.trim();
         titulo = titulo.trim();
         conteudo = conteudo.trim();
+        codigoValidacao = codigoValidacao.trim();
     }
 
     public static DocumentoProfissional criar(
@@ -74,6 +80,8 @@ public record DocumentoProfissional(
                 conteudo,
                 status == null ? StatusDocumentoProfissional.RASCUNHO : status,
                 1,
+                UUID.randomUUID().toString(),
+                true,
                 true,
                 agora,
                 agora

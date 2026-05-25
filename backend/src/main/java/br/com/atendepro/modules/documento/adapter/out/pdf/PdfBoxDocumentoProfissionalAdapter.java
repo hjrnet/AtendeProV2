@@ -79,6 +79,8 @@ public class PdfBoxDocumentoProfissionalAdapter implements GerarPdfDocumentoProf
             escritor.linha();
             escritor.texto("Documento gerado sem carimbo profissional vinculado.", 9, PDType1Font.HELVETICA);
         }
+        escritor.espaco();
+        escritor.texto("Validacao publica: /api/documentos-profissionais/validacao/" + documento.codigoValidacao(), 9, PDType1Font.HELVETICA);
     }
 
     private String nomeArquivo(DocumentoProfissional documento) {

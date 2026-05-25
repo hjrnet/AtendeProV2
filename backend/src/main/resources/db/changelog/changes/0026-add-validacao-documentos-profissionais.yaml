@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0026-add-validacao-documentos-profissionais
+      author: codex
+      changes:
+        - addColumn:
+            tableName: documentos_profissionais
+            columns:
+              - column:
+                  name: codigo_validacao
+                  type: varchar(64)
+                  defaultValueComputed: gen_random_uuid()::text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: validacao_publica_ativa
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: documentos_profissionais
+            columnNames: codigo_validacao
+            constraintName: uk_documentos_profissionais_codigo_validacao
+        - createIndex:
+            tableName: documentos_profissionais
+            indexName: idx_documentos_profissionais_codigo_validacao
+            columns:
+              - column:
+                  name: codigo_validacao
+              - column:
+                  name: validacao_publica_ativa

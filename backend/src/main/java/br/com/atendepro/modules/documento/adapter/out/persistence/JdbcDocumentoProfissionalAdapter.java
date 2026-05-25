@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import br.com.atendepro.modules.documento.application.port.out.CarregarDocumentoProfissionalPorIdPort;
+import br.com.atendepro.modules.documento.application.port.out.CarregarDocumentoProfissionalPorCodigoValidacaoPort;
 import br.com.atendepro.modules.documento.application.port.out.ListarDocumentosProfissionaisPort;
 import br.com.atendepro.modules.documento.application.port.out.SalvarDocumentoProfissionalPort;
 import br.com.atendepro.modules.documento.domain.model.DocumentoProfissional;
@@ -23,6 +24,7 @@ import br.com.atendepro.shared.application.pagination.ResultadoPaginado;
 @Profile("!test")
 public class JdbcDocumentoProfissionalAdapter implements
         SalvarDocumentoProfissionalPort,
+        CarregarDocumentoProfissionalPorCodigoValidacaoPort,
         CarregarDocumentoProfissionalPorIdPort,
         ListarDocumentosProfissionaisPort {
 
@@ -38,9 +40,10 @@ public class JdbcDocumentoProfissionalAdapter implements
                 """
                 insert into documentos_profissionais (
                     id, empresa_id, cliente_paciente_id, profissional_id, profissional_nome,
-                    titulo, tipo, conteudo, status, versao, ativo, criado_em, atualizado_em
+                    titulo, tipo, conteudo, status, versao, codigo_validacao,
+                    validacao_publica_ativa, ativo, criado_em, atualizado_em
                 )
-                values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 documento.id(),
                 documento.empresaId(),
@@ -52,6 +55,8 @@ public class JdbcDocumentoProfissionalAdapter implements
                 documento.conteudo(),
                 documento.status().name(),
                 documento.versao(),
+                documento.codigoValidacao(),
+                documento.validacaoPublicaAtiva(),
                 documento.ativo(),
                 Timestamp.from(documento.criadoEm()),
                 Timestamp.from(documento.atualizadoEm())
@@ -64,7 +69,8 @@ public class JdbcDocumentoProfissionalAdapter implements
             return Optional.of(jdbcTemplate.queryForObject(
                     """
                     select id, empresa_id, cliente_paciente_id, profissional_id, profissional_nome,
-                           titulo, tipo, conteudo, status, versao, ativo, criado_em, atualizado_em
+                           titulo, tipo, conteudo, status, versao, codigo_validacao,
+                           validacao_publica_ativa, ativo, criado_em, atualizado_em
                     from documentos_profissionais
                     where id = ?
                     """,
@@ -78,10 +84,45 @@ public class JdbcDocumentoProfissionalAdapter implements
                             rs.getString("conteudo"),
                             rs.getString("status"),
                             rs.getInt("versao"),
+                            rs.getString("codigo_validacao"),
+                            rs.getBoolean("validacao_publica_ativa"),
                             rs.getBoolean("ativo"),
                             rs.getTimestamp("criado_em"),
                             rs.getTimestamp("atualizado_em")),
                     documentoId
+            ));
+        } catch (EmptyResultDataAccessException ignored) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<DocumentoProfissional> carregarDocumentoPorCodigoValidacao(String codigoValidacao) {
+        try {
+            return Optional.of(jdbcTemplate.queryForObject(
+                    """
+                    select id, empresa_id, cliente_paciente_id, profissional_id, profissional_nome,
+                           titulo, tipo, conteudo, status, versao, codigo_validacao,
+                           validacao_publica_ativa, ativo, criado_em, atualizado_em
+                    from documentos_profissionais
+                    where codigo_validacao = ?
+                    """,
+                    (rs, rowNum) -> mapearDocumento(rs.getObject("id", UUID.class),
+                            rs.getObject("empresa_id", UUID.class),
+                            rs.getObject("cliente_paciente_id", UUID.class),
+                            rs.getObject("profissional_id", UUID.class),
+                            rs.getString("profissional_nome"),
+                            rs.getString("titulo"),
+                            rs.getString("tipo"),
+                            rs.getString("conteudo"),
+                            rs.getString("status"),
+                            rs.getInt("versao"),
+                            rs.getString("codigo_validacao"),
+                            rs.getBoolean("validacao_publica_ativa"),
+                            rs.getBoolean("ativo"),
+                            rs.getTimestamp("criado_em"),
+                            rs.getTimestamp("atualizado_em")),
+                    codigoValidacao
             ));
         } catch (EmptyResultDataAccessException ignored) {
             return Optional.empty();
@@ -111,7 +152,8 @@ public class JdbcDocumentoProfissionalAdapter implements
         var documentos = jdbcTemplate.query(
                 """
                 select id, empresa_id, cliente_paciente_id, profissional_id, profissional_nome,
-                       titulo, tipo, conteudo, status, versao, ativo, criado_em, atualizado_em
+                       titulo, tipo, conteudo, status, versao, codigo_validacao,
+                       validacao_publica_ativa, ativo, criado_em, atualizado_em
                 from documentos_profissionais
                 %s
                 order by atualizado_em desc
@@ -127,6 +169,8 @@ public class JdbcDocumentoProfissionalAdapter implements
                         rs.getString("conteudo"),
                         rs.getString("status"),
                         rs.getInt("versao"),
+                        rs.getString("codigo_validacao"),
+                        rs.getBoolean("validacao_publica_ativa"),
                         rs.getBoolean("ativo"),
                         rs.getTimestamp("criado_em"),
                         rs.getTimestamp("atualizado_em")),
@@ -146,6 +190,8 @@ public class JdbcDocumentoProfissionalAdapter implements
             String conteudo,
             String status,
             int versao,
+            String codigoValidacao,
+            boolean validacaoPublicaAtiva,
             boolean ativo,
             Timestamp criadoEm,
             Timestamp atualizadoEm
@@ -161,6 +207,8 @@ public class JdbcDocumentoProfissionalAdapter implements
                 conteudo,
                 StatusDocumentoProfissional.deCodigo(status),
                 versao,
+                codigoValidacao,
+                validacaoPublicaAtiva,
                 ativo,
                 criadoEm.toInstant(),
                 atualizadoEm.toInstant()

@@ -34,6 +34,8 @@ class DocumentoProfissionalTest {
         assertThat(documento.conteudo()).isEqualTo("Conteudo clinico orientativo.");
         assertThat(documento.status()).isEqualTo(StatusDocumentoProfissional.RASCUNHO);
         assertThat(documento.versao()).isEqualTo(1);
+        assertThat(documento.codigoValidacao()).isNotBlank();
+        assertThat(documento.validacaoPublicaAtiva()).isTrue();
         assertThat(documento.ativo()).isTrue();
     }
 

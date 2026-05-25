@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R6 — Documentos profissionais e carimbo.
 
 ## Última task concluída
-TASK-0603 — Geração de PDF.
+TASK-0604 — QR Code de validação.
 
 ## Próxima task recomendada
-TASK-0604 — QR Code de validação.
+TASK-0605 — Marca d'água Plano Estudante.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0604 concluida em modo autopilot multiagente release R6.
+- Documentos profissionais receberam `codigoValidacao` opaco e `validacaoPublicaAtiva`, com caminho de validacao retornado no response privado para uso como payload de QR.
+- Endpoint publico `/api/documentos-profissionais/validacao/{codigoValidacao}` retorna apenas dados limitados: validade, titulo, tipo, status, profissional, versao e data; nao expoe conteudo, cliente/paciente ou empresa.
+- O PDF inicial passou a exibir o caminho de validacao publica como texto, sem antecipar imagem QR ou dependencia externa.
+- Validacao confirmou `mvn test` com 229 testes, Docker Compose saudavel, backend local `UP` e chamada publica sem Authorization sem vazamento de campos sensiveis.
 - TASK-0603 concluida em modo autopilot multiagente release R6.
 - Geracao de PDF de documentos profissionais criada em `/api/documentos-profissionais/{documentoId}/pdf`, com `carimboId` opcional para compor dados do carimbo profissional.
 - PDFBox ficou isolado em adapter de saida `PdfBoxDocumentoProfissionalAdapter`, por porta `GerarPdfDocumentoProfissionalPort`; o controller apenas retorna bytes `application/pdf`.

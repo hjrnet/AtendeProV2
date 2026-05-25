@@ -117,6 +117,8 @@ class DocumentoProfissionalPdfServiceTest {
                 "Paciente em acompanhamento profissional.",
                 StatusDocumentoProfissional.EMITIDO,
                 1,
+                "codigo-task-0604",
+                true,
                 true,
                 Instant.parse("2026-05-25T12:00:00Z"),
                 Instant.parse("2026-05-25T12:00:00Z")

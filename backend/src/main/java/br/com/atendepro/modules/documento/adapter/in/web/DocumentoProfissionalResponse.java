@@ -18,6 +18,9 @@ public record DocumentoProfissionalResponse(
         String conteudo,
         StatusDocumentoProfissional status,
         int versao,
+        String codigoValidacao,
+        String caminhoValidacao,
+        boolean validacaoPublicaAtiva,
         boolean ativo,
         Instant criadoEm,
         Instant atualizadoEm
@@ -35,6 +38,9 @@ public record DocumentoProfissionalResponse(
                 result.conteudo(),
                 result.status(),
                 result.versao(),
+                result.codigoValidacao(),
+                "/api/documentos-profissionais/validacao/" + result.codigoValidacao(),
+                result.validacaoPublicaAtiva(),
                 result.ativo(),
                 result.criadoEm(),
                 result.atualizadoEm()
