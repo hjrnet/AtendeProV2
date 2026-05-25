@@ -31,3 +31,5 @@ databaseChangeLog:
       file: db/changelog/changes/0015-create-custos-gerais.yaml
   - include:
       file: db/changelog/changes/0016-create-custos-alimentacao-transporte.yaml
+  - include:
+      file: db/changelog/changes/0017-create-estoque-produtos.yaml

@@ -1,0 +1,103 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0017-create-estoque-produtos
+      author: codex
+      changes:
+        - createTable:
+            tableName: estoque_produtos
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: empresa_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: nome
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: categoria
+                  type: varchar(120)
+              - column:
+                  name: lote
+                  type: varchar(120)
+              - column:
+                  name: validade
+                  type: date
+              - column:
+                  name: unidade
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantidade_atual
+                  type: numeric(14,3)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: custo_unitario
+                  type: numeric(12,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: estoque_minimo
+                  type: numeric(14,3)
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ativo
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: estoque_produtos
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_estoque_produtos_empresas
+        - createIndex:
+            tableName: estoque_produtos
+            indexName: idx_estoque_produtos_empresa_nome
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: nome
+        - createIndex:
+            tableName: estoque_produtos
+            indexName: idx_estoque_produtos_empresa_categoria
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: categoria
+        - createIndex:
+            tableName: estoque_produtos
+            indexName: idx_estoque_produtos_empresa_validade
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: validade

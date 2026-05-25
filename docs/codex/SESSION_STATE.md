@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R3 — Núcleo operacional comum.
 
 ## Última task concluída
-TASK-0305 — Alimentação e transporte.
+TASK-0306 — Estoque base.
 
 ## Próxima task recomendada
-TASK-0306 — Estoque base.
+TASK-0307 — Equipamentos base.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0306 concluida em modo autopilot multiagente release R3.
+- Modulo `estoque` criado no backend com dominio `ProdutoEstoque`, Command/Result, UseCases, OutputPorts, adapter JDBC e controller fino.
+- API `/api/estoque/produtos` permite cadastrar, detalhar e listar produtos por empresa, busca, categoria, ativo e validade limite.
+- A base de estoque registra lote, validade, unidade, quantidade atual, custo unitario e estoque minimo, sem antecipar movimentacoes complexas de estoque.
+- Validacao local confirmou migration `estoque_produtos`, criacao/listagem real e `mvn test` com 134 testes.
 - TASK-0305 concluida em modo autopilot multiagente release R3.
 - Modulo `custo` recebeu custos de alimentacao e transporte em `/api/custos/alimentacao-transporte`, com tipo, periodicidade, profissional opcional e valor em `BigDecimal`.
 - A modelagem separa custos pessoais/profissionais dos custos gerais, mantendo filtros por empresa, tipo, profissional e ativo.
