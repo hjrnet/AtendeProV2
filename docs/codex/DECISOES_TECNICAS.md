@@ -123,3 +123,5 @@ A TASK-0410 adiciona dados demo realistas por Liquibase, sem criar regra de apli
 ## Spaces
 
 A TASK-0501 inicia o modulo `spaces` com status operacional em `/api/spaces/status`, protegido por `GERENCIAR_SPACES`. A base reconhece os tipos de recurso `SALA`, `CADEIRA`, `CABINE` e `EQUIPAMENTO`, mas nao cria persistencia ou CRUD nesta etapa; cadastro de recursos, custos, pacotes, simulacao, ocupacao e relatorios evoluem nas tasks seguintes da R5.
+
+A TASK-0502 persiste recursos em `spaces_recursos`, tenant-scoped por `empresa_id`, e expõe cadastro, detalhe e listagem em `/api/spaces/recursos`. O dominio `RecursoSpaces` cobre nome, tipo, descricao, capacidade, localizacao e ativo. Custos fixos, disponibilidade financeira, pacotes, simulacoes, agenda e relatorios continuam fora desta task para preservar o fatiamento da R5.

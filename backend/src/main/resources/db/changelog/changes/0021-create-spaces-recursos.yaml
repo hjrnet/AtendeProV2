@@ -1,0 +1,81 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0021-create-spaces-recursos
+      author: codex
+      changes:
+        - createTable:
+            tableName: spaces_recursos
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: empresa_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: nome
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tipo
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: descricao
+                  type: varchar(1000)
+              - column:
+                  name: capacidade_pessoas
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: localizacao
+                  type: varchar(160)
+              - column:
+                  name: ativo
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: spaces_recursos
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_spaces_recursos_empresas
+        - createIndex:
+            tableName: spaces_recursos
+            indexName: idx_spaces_recursos_empresa_nome
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: nome
+        - createIndex:
+            tableName: spaces_recursos
+            indexName: idx_spaces_recursos_empresa_tipo
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: tipo
