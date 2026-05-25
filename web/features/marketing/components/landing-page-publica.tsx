@@ -12,6 +12,7 @@ import {
   Stethoscope,
   WalletCards
 } from "lucide-react";
+import { verticaisPublicas } from "@/features/marketing/data/verticais-publicas";
 
 const dores = [
   {
@@ -39,8 +40,6 @@ const solucoes = [
   "Admin SaaS com planos e permissões",
   "Base preparada para app do paciente"
 ];
-
-const verticais = ["Nutri Pro", "Beauty Pro", "Biomed Pro", "Fisio Pro", "Spaces"];
 
 const indicadores = [
   { rotulo: "Simulações", valor: "15", detalhe: "cenários demo com margem e alerta" },
@@ -105,12 +104,16 @@ export function LandingPagePublica() {
             </Link>
           </div>
           <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            {verticais.map((vertical) => (
-              <article key={vertical} className="rounded-lg border border-[#d6e5e0] bg-[#f8fcfa] p-4">
+            {verticaisPublicas.map((vertical) => (
+              <Link
+                key={vertical.slug}
+                href={`/verticais/${vertical.slug}`}
+                className="rounded-lg border border-[#d6e5e0] bg-[#f8fcfa] p-4 transition hover:-translate-y-0.5 hover:border-[#9fc8bf] hover:bg-white hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f766e]"
+              >
                 <Stethoscope className="h-5 w-5 text-[#0f766e]" aria-hidden="true" />
-                <h3 className="mt-4 text-base font-semibold text-[#14302d]">{vertical}</h3>
-                <p className="mt-2 text-sm leading-6 text-[#5a706c]">Fluxos profissionais com identidade própria.</p>
-              </article>
+                <h3 className="mt-4 text-base font-semibold text-[#14302d]">{vertical.nome}</h3>
+                <p className="mt-2 text-sm leading-6 text-[#5a706c]">{vertical.categoria}</p>
+              </Link>
             ))}
           </div>
         </div>

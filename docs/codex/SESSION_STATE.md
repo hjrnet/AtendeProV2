@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R10 — Nutri Pro, Beauty Pro e comercial.
 
 ## Última task concluída
-TASK-1001 — Landing page pública.
+TASK-1002 — Páginas por vertical.
 
 ## Próxima task recomendada
-TASK-1002 — Páginas por vertical.
+TASK-1003 — Página de planos.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-1002 concluida em modo autopilot multiagente release R10.
+- Marketing público ganhou rotas estáticas `/verticais/nutri-pro`, `/verticais/beauty-pro`, `/verticais/biomed-pro`, `/verticais/fisio-pro` e `/verticais/spaces`, com conteúdo próprio por vertical, CTA e cena visual do produto.
+- A landing passou a linkar os cards de verticais para suas páginas dedicadas, sem implementar página de planos, calculadora gratuita ou formulário de lead.
+- Validação confirmou `pnpm typecheck`, `pnpm lint`, `pnpm build`, cinco rotas públicas com HTTP 200, Docker Compose saudável, web local ativo e Browser em Nutri Pro/Beauty Pro sem erros de console.
 - TASK-1001 concluida em modo autopilot multiagente release R10.
 - A rota pública `/` deixou de redirecionar automaticamente para `/app` e passou a exibir landing page própria com hero, dor, solução, verticais conectadas e CTA para demonstração/painel local.
 - A landing foi criada em `features/marketing`, mantendo feature architecture, mobile-first, cena visual do produto no hero e identidade premium alinhada ao SaaS de saúde, estética e gestão.
