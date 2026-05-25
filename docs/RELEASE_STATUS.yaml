@@ -1,8 +1,8 @@
 project: AtendePro
 strategy: professional_complete
 current_release: R7
-last_completed_task: TASK-0706
-next_task: TASK-0707
+last_completed_task: TASK-0707
+next_task: TASK-0708
 releases:
   R0:
     name: "R0 — Fundação técnica profissional"
@@ -112,7 +112,7 @@ releases:
       TASK-0704: CONCLUIDA
       TASK-0705: CONCLUIDA
       TASK-0706: CONCLUIDA
-      TASK-0707: PENDENTE
+      TASK-0707: CONCLUIDA
       TASK-0708: PENDENTE
   R8:
     name: "R8 — App cliente/profissional e mobile Expo"

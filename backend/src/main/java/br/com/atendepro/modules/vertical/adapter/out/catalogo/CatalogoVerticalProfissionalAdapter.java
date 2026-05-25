@@ -316,6 +316,53 @@ public class CatalogoVerticalProfissionalAdapter implements CarregarCatalogoVert
                             "criar evolucao por sessao",
                             "preparar materiais para pacientes e responsaveis"
                     )
+            ),
+            CodigoVerticalProfissional.FARMACIA_CLINICA,
+            new VerticalProfissional(
+                    CodigoVerticalProfissional.FARMACIA_CLINICA,
+                    "Farmacia Clinica",
+                    "R7",
+                    StatusVerticalProfissional.PREPARADO_FUTURO,
+                    "CRF",
+                    "Preparacao futura para farmacia clinica, com servicos clinicos, documentos CRF, acompanhamento farmacoterapeutico e orientacoes ao paciente.",
+                    List.of("Farmaceuticos clinicos", "Farmacias clinicas", "Consultorios farmaceuticos"),
+                    List.of(
+                            "servicos clinicos farmaceuticos",
+                            "acompanhamento farmacoterapeutico",
+                            "documentos com CRF",
+                            "orientacoes ao paciente",
+                            "registro de intervencoes",
+                            "agenda de acompanhamento",
+                            "relatorios futuros"
+                    ),
+                    List.of(
+                            "Paciente farmacia clinica",
+                            "Servico clinico farmaceutico",
+                            "Acompanhamento farmacoterapeutico",
+                            "Intervencao farmaceutica",
+                            "Documento CRF",
+                            "Orientacao ao paciente"
+                    ),
+                    List.of(
+                            "Declaracao farmaceutica",
+                            "Relatorio de acompanhamento",
+                            "Orientacao farmaceutica",
+                            "Registro de servico clinico"
+                    ),
+                    List.of(
+                            "clientes/pacientes",
+                            "agenda",
+                            "documentos profissionais",
+                            "carimbo profissional",
+                            "servicos/procedimentos",
+                            "relatorios"
+                    ),
+                    List.of(
+                            "validar escopo regulatorio com CRF",
+                            "criar acompanhamento farmacoterapeutico",
+                            "criar documentos farmaceuticos oficiais",
+                            "preparar relatorios clinicos"
+                    )
             )
     );
 

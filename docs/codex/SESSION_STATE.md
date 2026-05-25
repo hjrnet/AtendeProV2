@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R7 — Verticais profissionais.
 
 ## Última task concluída
-TASK-0706 — Fono Pro futuro.
+TASK-0707 — Farmácia Clínica futuro.
 
 ## Próxima task recomendada
-TASK-0707 — Farmácia Clínica futuro.
+TASK-0708 — Odonto Pro futuro.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,9 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0707 concluida em modo autopilot multiagente release R7.
+- Farmacia Clinica adicionada ao catalogo como `PREPARADO_FUTURO`, com CRF, servicos clinicos, acompanhamento farmacoterapeutico, intervencoes e documentos.
+- A task nao criou prescricao, integracoes externas, prontuario farmaceutico persistido ou regras clinicas finais.
 - TASK-0706 concluida em modo autopilot multiagente release R7.
 - Fono Pro adicionado ao catalogo como `PREPARADO_FUTURO`, com CREFONO, relatorios, laudos futuros, acompanhamento, metas terapeuticas e orientacoes.
 - A task nao criou laudos oficiais persistidos nem protocolos clinicos finais; isso fica para evolucao propria da vertical.
