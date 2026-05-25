@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R0 — Fundação técnica profissional.
 
 ## Última task concluída
-TASK-0009 — Criar shared kernel do backend.
+TASK-0010 — Criar padrão global de erros.
 
 ## Próxima task recomendada
-TASK-0010 — Criar padrão global de erros.
+TASK-0011 — Criar padrão de testes backend.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,8 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0010 concluida em modo autopilot release R0.
+- Padrao global de erros criado com `BusinessException`, `ValidationException`, `GlobalExceptionHandler` e DTOs de erro.
 - TASK-0009 concluida em modo autopilot release R0.
 - Shared kernel backend criado com `Money`, `Percentual`, `BaseId`, `Periodo`, `Paginacao` e `ResultadoPaginado`, com testes unitarios.
 - TASK-0008 concluida em modo autopilot release R0.
