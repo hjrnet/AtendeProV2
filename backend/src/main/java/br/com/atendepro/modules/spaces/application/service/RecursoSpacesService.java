@@ -12,13 +12,17 @@ import br.com.atendepro.modules.auth.application.permission.PermissaoAcessoServi
 import br.com.atendepro.modules.auth.domain.model.PermissaoAcesso;
 import br.com.atendepro.modules.empresa.application.context.TenantAccessService;
 import br.com.atendepro.modules.spaces.application.command.CadastrarRecursoSpacesCommand;
+import br.com.atendepro.modules.spaces.application.command.CalcularCustoHoraSpacesCommand;
+import br.com.atendepro.modules.spaces.application.port.in.CalcularCustoHoraSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.CadastrarRecursoSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.DetalharRecursoSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.ListarRecursosSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.out.CarregarRecursoSpacesPorIdPort;
 import br.com.atendepro.modules.spaces.application.port.out.ListarRecursosSpacesPort;
 import br.com.atendepro.modules.spaces.application.port.out.SalvarRecursoSpacesPort;
+import br.com.atendepro.modules.spaces.application.result.CustoHoraSpacesResult;
 import br.com.atendepro.modules.spaces.application.result.RecursoSpacesResult;
+import br.com.atendepro.modules.spaces.domain.model.CustoHoraSpaces;
 import br.com.atendepro.modules.spaces.domain.model.RecursoSpaces;
 import br.com.atendepro.modules.spaces.domain.model.TipoRecursoSpaces;
 import br.com.atendepro.shared.application.pagination.Paginacao;
@@ -28,6 +32,7 @@ import br.com.atendepro.shared.domain.exception.BusinessException;
 @Service
 @Profile("!test")
 public class RecursoSpacesService implements
+        CalcularCustoHoraSpacesUseCase,
         CadastrarRecursoSpacesUseCase,
         DetalharRecursoSpacesUseCase,
         ListarRecursosSpacesUseCase {
@@ -53,6 +58,30 @@ public class RecursoSpacesService implements
         this.tenantAccessService = tenantAccessService;
         this.permissaoAcessoService = permissaoAcessoService;
         this.clock = clock;
+    }
+
+    @Override
+    public CustoHoraSpacesResult calcularCustoHora(CalcularCustoHoraSpacesCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        RecursoSpaces recurso = null;
+        if (command.recursoId() != null) {
+            recurso = carregarRecursoSpacesPorIdPort.carregarRecursoPorId(command.recursoId())
+                    .orElseThrow(() -> new BusinessException("SPACES_RECURSO_NAO_ENCONTRADO", "Recurso Spaces nao encontrado."));
+            tenantAccessService.validarAcessoEmpresa(recurso.empresaId());
+            if (!recurso.empresaId().equals(empresaId)) {
+                throw new BusinessException("SPACES_RECURSO_EMPRESA_DIVERGENTE", "Recurso Spaces nao pertence a empresa informada.");
+            }
+        }
+        CustoHoraSpaces custoHora = CustoHoraSpaces.calcular(
+                command.recursoId(),
+                recurso == null ? null : recurso.nome(),
+                recurso == null ? null : recurso.tipo(),
+                command.custoFixoMensal(),
+                command.diasDisponiveisMes(),
+                command.horasDisponiveisDia()
+        );
+        return CustoHoraSpacesResult.de(empresaId, custoHora);
     }
 
     @Override

@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R5 — Sublocação e Spaces.
 
 ## Última task concluída
-TASK-0502 — Cadastro de recursos.
+TASK-0503 — Custo por hora de espaço.
 
 ## Próxima task recomendada
-TASK-0503 — Custo por hora de espaço.
+TASK-0504 — Pacotes de sublocação.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0503 concluida em modo autopilot multiagente release R5.
+- Calculo de custo por hora criado em `/api/spaces/calculos/custo-hora`, rateando custo fixo mensal por dias disponiveis no mes e horas disponiveis por dia.
+- O calculo pode vincular um recurso Spaces para validar tenant e enriquecer o resultado com nome/tipo, mas nao persiste custos nem cria pacotes.
+- Validacao confirmou `mvn test` com 183 testes, Docker Compose saudavel e API local retornando `horasDisponiveisMes=120.00` e `custoHora=20.00`.
 - TASK-0502 concluida em modo autopilot multiagente release R5.
 - Cadastro de recursos Spaces criado em `spaces_recursos`, tenant-scoped por `empresa_id`, com tipos `SALA`, `CADEIRA`, `CABINE` e `EQUIPAMENTO`.
 - API `/api/spaces/recursos` permite cadastrar, detalhar e listar recursos com busca, filtro por tipo e ativo, sem expor persistencia.

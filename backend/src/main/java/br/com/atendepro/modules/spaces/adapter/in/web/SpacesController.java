@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.atendepro.modules.spaces.application.port.in.CadastrarRecursoSpacesUseCase;
+import br.com.atendepro.modules.spaces.application.port.in.CalcularCustoHoraSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.ConsultarSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.DetalharRecursoSpacesUseCase;
 import br.com.atendepro.modules.spaces.application.port.in.ListarRecursosSpacesUseCase;
@@ -27,17 +28,20 @@ import jakarta.validation.Valid;
 public class SpacesController {
 
     private final ConsultarSpacesUseCase consultarSpacesUseCase;
+    private final CalcularCustoHoraSpacesUseCase calcularCustoHoraSpacesUseCase;
     private final CadastrarRecursoSpacesUseCase cadastrarRecursoSpacesUseCase;
     private final DetalharRecursoSpacesUseCase detalharRecursoSpacesUseCase;
     private final ListarRecursosSpacesUseCase listarRecursosSpacesUseCase;
 
     public SpacesController(
             ConsultarSpacesUseCase consultarSpacesUseCase,
+            CalcularCustoHoraSpacesUseCase calcularCustoHoraSpacesUseCase,
             CadastrarRecursoSpacesUseCase cadastrarRecursoSpacesUseCase,
             DetalharRecursoSpacesUseCase detalharRecursoSpacesUseCase,
             ListarRecursosSpacesUseCase listarRecursosSpacesUseCase
     ) {
         this.consultarSpacesUseCase = consultarSpacesUseCase;
+        this.calcularCustoHoraSpacesUseCase = calcularCustoHoraSpacesUseCase;
         this.cadastrarRecursoSpacesUseCase = cadastrarRecursoSpacesUseCase;
         this.detalharRecursoSpacesUseCase = detalharRecursoSpacesUseCase;
         this.listarRecursosSpacesUseCase = listarRecursosSpacesUseCase;
@@ -46,6 +50,15 @@ public class SpacesController {
     @GetMapping("/status")
     public ResponseEntity<SpacesStatusResponse> consultarStatus() {
         return ResponseEntity.ok(SpacesStatusResponse.de(consultarSpacesUseCase.consultarStatus()));
+    }
+
+    @PostMapping("/calculos/custo-hora")
+    public ResponseEntity<CustoHoraSpacesResponse> calcularCustoHora(
+            @Valid @RequestBody CalcularCustoHoraSpacesRequest request
+    ) {
+        return ResponseEntity.ok(CustoHoraSpacesResponse.de(
+                calcularCustoHoraSpacesUseCase.calcularCustoHora(request.paraCommand())
+        ));
     }
 
     @PostMapping("/recursos")

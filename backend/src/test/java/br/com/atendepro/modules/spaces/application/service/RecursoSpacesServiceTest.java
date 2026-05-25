@@ -3,6 +3,7 @@ package br.com.atendepro.modules.spaces.application.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -20,6 +21,7 @@ import br.com.atendepro.modules.auth.domain.model.PerfilAcesso;
 import br.com.atendepro.modules.empresa.application.context.TenantAccessService;
 import br.com.atendepro.modules.empresa.application.context.TenantContext;
 import br.com.atendepro.modules.empresa.application.context.TenantContextHolder;
+import br.com.atendepro.modules.spaces.application.command.CalcularCustoHoraSpacesCommand;
 import br.com.atendepro.modules.spaces.application.command.CadastrarRecursoSpacesCommand;
 import br.com.atendepro.modules.spaces.application.port.out.SalvarRecursoSpacesPort;
 import br.com.atendepro.modules.spaces.domain.model.RecursoSpaces;
@@ -75,6 +77,34 @@ class RecursoSpacesServiceTest {
 
         assertThat(result.totalItens()).isEqualTo(1);
         assertThat(result.itens()).extracting("nome").containsExactly("Sala premium");
+    }
+
+    @Test
+    void deveCalcularCustoHoraParaRecursoDaEmpresaDoContexto() {
+        TenantContextHolder.definir(new TenantContext(EMPRESA_ID, UUID.randomUUID(), Set.of(PerfilAcesso.EMPRESA_ADMIN)));
+        RecursoSpaces recurso = recurso();
+        RecursoSpacesService service = new RecursoSpacesService(
+                recursoSalvo -> {
+                },
+                id -> Optional.of(recurso),
+                (empresaId, paginacao, busca, tipo, ativo) -> new ResultadoPaginado<>(List.of(), 0, paginacao.pagina(), paginacao.tamanho()),
+                new TenantAccessService(),
+                new PermissaoAcessoService(),
+                CLOCK
+        );
+
+        var result = service.calcularCustoHora(new CalcularCustoHoraSpacesCommand(
+                null,
+                recurso.id(),
+                new BigDecimal("2400.00"),
+                20,
+                new BigDecimal("6.00")
+        ));
+
+        assertThat(result.empresaId()).isEqualTo(EMPRESA_ID);
+        assertThat(result.nomeRecurso()).isEqualTo("Sala premium");
+        assertThat(result.horasDisponiveisMes()).isEqualByComparingTo("120.00");
+        assertThat(result.custoHora()).isEqualByComparingTo("20.00");
     }
 
     @Test
