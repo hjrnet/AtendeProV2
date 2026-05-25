@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R1 — Auth, tenant e segurança.
 
 ## Última task concluída
-TASK-0101 — Criar módulo Auth.
+TASK-0102 — Cadastro de usuário bootstrap.
 
 ## Próxima task recomendada
-TASK-0102 — Cadastro de usuário bootstrap.
+TASK-0103 — Login com JWT.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,9 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0102 concluida em modo autopilot multiagente release R1.
+- Usuario bootstrap local criado por configuracao `app.bootstrap.admin`, com senha forte, hash BCrypt e persistencia JDBC em `auth_usuarios`.
+- Validacao local confirmou Liquibase, healthcheck e usuario `admin@atendepro.local` no Postgres Docker.
 - TASK-0101 concluida em modo autopilot multiagente release R1.
 - Modulo Auth iniciado com estrutura hexagonal: dominio, commands/results e portas de autenticacao.
 - R0 concluida em modo autopilot release.
