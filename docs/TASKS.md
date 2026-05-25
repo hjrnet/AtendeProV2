@@ -151,7 +151,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
 | TASK-NUTRI-002 | Criar módulo Nutri Pro operacional | Backend hexagonal, rotas web e base de domínio para Nutri Pro real. | CONCLUIDA |
-| TASK-NUTRI-003 | Criar prontuário nutricional e menu rápido funcional | Perfil nutricional do paciente com ações rápidas reais. | PENDENTE |
+| TASK-NUTRI-003 | Criar prontuário nutricional e menu rápido funcional | Perfil nutricional do paciente com ações rápidas reais. | CONCLUIDA |
 | TASK-NUTRI-004 | Criar avaliação antropométrica e gasto energético | Registrar avaliação, IMC, TMB/GEB/GET e metas. | PENDENTE |
 | TASK-NUTRI-005 | Criar plano alimentar com refeições, alimentos e suplementos | Plano alimentar operacional com refeições, alimentos personalizados, suplementos e macros iniciais. | PENDENTE |
 | TASK-NUTRI-006 | Criar documentos, exames, prescrições e dashboard Nutri Pro | Solicitações, prescrições, PDF com CRN/carimbo e indicadores da vertical. | PENDENTE |

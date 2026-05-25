@@ -1,8 +1,8 @@
 package br.com.atendepro.modules.nutri.domain.model;
 
 public enum StatusOperacionalNutriPro {
-    OPERACIONAL("Operacional", "Nutri Pro pronto para acompanhar pacientes usando o nucleo comum."),
-    CONFIGURACAO_PENDENTE("Configuracao pendente", "Cadastre pacientes e servicos de nutricao para ativar a rotina operacional.");
+    OPERACIONAL("Operacional", "Nutri Pro pronto para acompanhar pacientes usando o núcleo comum."),
+    CONFIGURACAO_PENDENTE("Configuração pendente", "Cadastre pacientes e serviços de nutrição para ativar a rotina operacional.");
 
     private final String rotulo;
     private final String mensagem;

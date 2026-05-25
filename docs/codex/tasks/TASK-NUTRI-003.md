@@ -44,3 +44,28 @@ Criar o prontuário nutricional do paciente e transformar o Menu Rápido Nutri P
 ```bash
 git commit -m "feat(nutri): criar prontuario nutricional e menu rapido funcional (TASK-NUTRI-003)"
 ```
+
+## Execução
+
+- Status: CONCLUIDA
+- Data: 2026-05-25
+- Implementação:
+  - Backend Nutri Pro passou a listar pacientes e consultar prontuário nutricional por paciente, com escopo por empresa/tenant.
+  - API adicionada em `GET /api/nutri-pro/pacientes` e `GET /api/nutri-pro/pacientes/{pacienteId}/prontuario`.
+  - Web Nutri Pro passou a exibir busca/lista de pacientes, central do paciente e menu rápido funcional.
+  - Ações rápidas priorizadas: gasto energético, exames laboratoriais e plano alimentar.
+  - Ações indisponíveis permanecem como estados preparados para as próximas tasks da R10.
+- Validação:
+  - `mvn test` — PASSOU, 276 testes.
+  - `corepack pnpm typecheck` — PASSOU.
+  - `corepack pnpm lint` — PASSOU.
+  - `corepack pnpm build` — PASSOU.
+  - `docker compose ps` — PostgreSQL e Mailpit saudáveis.
+  - API local com login `karol.nutri@atendepro.local` — PASSOU.
+  - Browser em `/app`, Verticais > Nutri Pro — PASSOU, sem erros de console.
+- Fora de escopo respeitado:
+  - Não foi criado cálculo completo de TMB/GET.
+  - Não foi criado plano alimentar completo.
+  - Não foi gerado PDF.
+  - Não foi criado app mobile.
+  - Push não foi realizado.

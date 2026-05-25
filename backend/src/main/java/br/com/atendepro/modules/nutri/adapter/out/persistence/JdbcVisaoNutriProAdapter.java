@@ -3,7 +3,9 @@ package br.com.atendepro.modules.nutri.adapter.out.persistence;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
@@ -12,12 +14,20 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import br.com.atendepro.modules.nutri.application.port.out.CarregarVisaoNutriProPort;
+import br.com.atendepro.modules.nutri.application.port.out.CarregarProntuarioNutriProPort;
+import br.com.atendepro.modules.nutri.application.port.out.ListarPacientesNutriProPort;
+import br.com.atendepro.modules.nutri.application.result.DadosProntuarioNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.MetricasNutriProResult;
+import br.com.atendepro.modules.nutri.application.result.PacienteProntuarioNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.PacienteNutriResumoResult;
+import br.com.atendepro.modules.nutri.application.result.ResumoProntuarioNutriProResult;
 
 @Repository
 @Profile("!test")
-public class JdbcVisaoNutriProAdapter implements CarregarVisaoNutriProPort {
+public class JdbcVisaoNutriProAdapter implements
+        CarregarVisaoNutriProPort,
+        ListarPacientesNutriProPort,
+        CarregarProntuarioNutriProPort {
 
     private static final String AREA_NUTRI = "NUTRI";
 
@@ -42,6 +52,57 @@ public class JdbcVisaoNutriProAdapter implements CarregarVisaoNutriProPort {
                 0,
                 listarPacientesRecentes(empresaId)
         );
+    }
+
+    @Override
+    public List<PacienteNutriResumoResult> listarPacientesNutriPro(UUID empresaId, String busca) {
+        String termo = busca == null || busca.isBlank() ? null : "%" + busca.trim().toLowerCase() + "%";
+        if (termo == null) {
+            return jdbcTemplate.query("""
+                    select id, nome, telefone, observacoes, ativo, atualizado_em
+                    from clientes_pacientes
+                    where empresa_id = ?
+                      and area = ?
+                    order by ativo desc, nome
+                    limit 30
+                    """, this::mapearPaciente, empresaId, AREA_NUTRI);
+        }
+        return jdbcTemplate.query("""
+                select id, nome, telefone, observacoes, ativo, atualizado_em
+                from clientes_pacientes
+                where empresa_id = ?
+                  and area = ?
+                  and (lower(nome) like ? or lower(coalesce(email, '')) like ? or lower(coalesce(telefone, '')) like ?)
+                order by ativo desc, nome
+                limit 30
+                """, this::mapearPaciente, empresaId, AREA_NUTRI, termo, termo, termo);
+    }
+
+    @Override
+    public Optional<DadosProntuarioNutriProResult> carregarProntuarioNutriPro(UUID empresaId, UUID pacienteId, LocalDate hoje) {
+        return carregarPacienteProntuario(empresaId, pacienteId, hoje)
+                .map(paciente -> new DadosProntuarioNutriProResult(
+                        paciente,
+                        new ResumoProntuarioNutriProResult(
+                                contar("select count(*) from documentos_profissionais where empresa_id = ? and cliente_paciente_id = ? and ativo = true", empresaId, pacienteId),
+                                contar("""
+                                        select count(*)
+                                        from agenda_compromissos
+                                        where empresa_id = ?
+                                          and cliente_paciente_id = ?
+                                          and status <> 'CANCELADO'
+                                          and inicio::date >= ?
+                                        """, empresaId, pacienteId, hoje),
+                                contarSimulacoesNutri(empresaId, false),
+                                0,
+                                "PREPARADO",
+                                "PREPARADO",
+                                "PROXIMA_TASK",
+                                "PROXIMA_TASK",
+                                "PREPARADO",
+                                carregarUltimaConsulta(empresaId, pacienteId)
+                        )
+                ));
     }
 
     private String carregarNomeEmpresa(UUID empresaId) {
@@ -102,6 +163,52 @@ public class JdbcVisaoNutriProAdapter implements CarregarVisaoNutriProPort {
                 """, this::mapearPaciente, empresaId, AREA_NUTRI);
     }
 
+    private Optional<PacienteProntuarioNutriProResult> carregarPacienteProntuario(UUID empresaId, UUID pacienteId, LocalDate hoje) {
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject("""
+                    select id, empresa_id, nome, email, telefone, data_nascimento, observacoes, ativo, atualizado_em
+                    from clientes_pacientes
+                    where id = ?
+                      and empresa_id = ?
+                      and area = ?
+                    """, (rs, rowNum) -> mapearPacienteProntuario(rs, hoje), pacienteId, empresaId, AREA_NUTRI));
+        } catch (EmptyResultDataAccessException exception) {
+            return Optional.empty();
+        }
+    }
+
+    private PacienteProntuarioNutriProResult mapearPacienteProntuario(ResultSet rs, LocalDate hoje) throws SQLException {
+        LocalDate dataNascimento = rs.getObject("data_nascimento", LocalDate.class);
+        return new PacienteProntuarioNutriProResult(
+                rs.getObject("id", UUID.class),
+                rs.getObject("empresa_id", UUID.class),
+                rs.getString("nome"),
+                rs.getString("email"),
+                rs.getString("telefone"),
+                dataNascimento,
+                idade(dataNascimento, hoje),
+                rs.getString("observacoes"),
+                rs.getBoolean("ativo"),
+                rs.getTimestamp("atualizado_em").toInstant()
+        );
+    }
+
+    private java.time.Instant carregarUltimaConsulta(UUID empresaId, UUID pacienteId) {
+        try {
+            var timestamp = jdbcTemplate.queryForObject("""
+                    select max(inicio)
+                    from agenda_compromissos
+                    where empresa_id = ?
+                      and cliente_paciente_id = ?
+                      and status <> 'CANCELADO'
+                      and inicio < now()
+                    """, java.sql.Timestamp.class, empresaId, pacienteId);
+            return timestamp == null ? null : timestamp.toInstant();
+        } catch (EmptyResultDataAccessException exception) {
+            return null;
+        }
+    }
+
     private PacienteNutriResumoResult mapearPaciente(ResultSet rs, int rowNum) throws SQLException {
         return new PacienteNutriResumoResult(
                 rs.getObject("id", UUID.class),
@@ -111,6 +218,13 @@ public class JdbcVisaoNutriProAdapter implements CarregarVisaoNutriProPort {
                 rs.getBoolean("ativo"),
                 rs.getTimestamp("atualizado_em").toInstant()
         );
+    }
+
+    private Integer idade(LocalDate dataNascimento, LocalDate hoje) {
+        if (dataNascimento == null) {
+            return null;
+        }
+        return Period.between(dataNascimento, hoje).getYears();
     }
 
     private long contar(String sql, Object... parametros) {

@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R10 — Nutri Pro, Beauty Pro e comercial.
 
 ## Última task concluída
-TASK-NUTRI-002 — Criar módulo Nutri Pro operacional.
+TASK-NUTRI-003 — Criar prontuário nutricional e menu rápido funcional.
 
 ## Próxima task recomendada
-TASK-NUTRI-003 — Criar prontuário nutricional e menu rápido funcional.
+TASK-NUTRI-004 — Criar avaliação antropométrica e gasto energético.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,12 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-NUTRI-003 concluida em modo autopilot multiagente release R10.
+- Backend Nutri Pro ganhou listagem de pacientes tenant-scoped em `/api/nutri-pro/pacientes` e prontuario nutricional em `/api/nutri-pro/pacientes/{pacienteId}/prontuario`, mantendo controller fino, DTOs dedicados, Commands, Results, UseCases/InputPorts e OutputPorts.
+- O prontuario agrega dados do nucleo comum para paciente, resumo, consultas futuras, documentos, simulacoes e plano ativo sem criar tabelas profundas fora do escopo.
+- Web Nutri Pro ganhou busca/lista de pacientes, selecao de prontuario e menu rapido funcional com destaque para gasto energetico, exames laboratoriais e plano alimentar.
+- As acoes rapidas abrem estados preparados e orientados por paciente; calculo completo de TMB/GET, plano alimentar completo, PDF e documentos oficiais continuam reservados para as tasks seguintes.
+- Validacao confirmou `mvn test` com 276 testes, `pnpm typecheck`, `pnpm lint`, `pnpm build`, Docker Compose saudavel, API local com Karol demo e Browser em Verticais > Nutri Pro sem erros de console.
 - TASK-NUTRI-002 concluida em modo autopilot multiagente release R10.
 - Modulo backend `nutri` criado com arquitetura hexagonal, `ConsultarVisaoNutriProCommand`, UseCase/InputPort, OutputPort, service, adapter JDBC e controller fino em `/api/nutri-pro/visao`.
 - A visao operacional do Nutri Pro agrega dados reais do tenant a partir do nucleo comum: pacientes NUTRI, agenda, servicos, documentos, precificacao e pacientes recentes, sem criar tabelas de plano alimentar fora de escopo.
