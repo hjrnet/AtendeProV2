@@ -10,6 +10,7 @@ public enum PerfilAcesso {
             PermissaoAcesso.CADASTRAR_ADMINISTRADOR_EMPRESA,
             PermissaoAcesso.GERENCIAR_USUARIOS,
             PermissaoAcesso.GERENCIAR_CLIENTES,
+            PermissaoAcesso.GERENCIAR_AGENDA,
             PermissaoAcesso.ACESSAR_ADMIN_SAAS,
             PermissaoAcesso.ACESSAR_SUPORTE
     )),
@@ -24,10 +25,19 @@ public enum PerfilAcesso {
             PermissaoAcesso.VISUALIZAR_EMPRESA,
             PermissaoAcesso.CADASTRAR_ADMINISTRADOR_EMPRESA,
             PermissaoAcesso.GERENCIAR_USUARIOS,
-            PermissaoAcesso.GERENCIAR_CLIENTES
+            PermissaoAcesso.GERENCIAR_CLIENTES,
+            PermissaoAcesso.GERENCIAR_AGENDA
     )),
-    PROFISSIONAL(Set.of(PermissaoAcesso.VISUALIZAR_EMPRESA, PermissaoAcesso.GERENCIAR_CLIENTES)),
-    RECEPCIONISTA(Set.of(PermissaoAcesso.VISUALIZAR_EMPRESA, PermissaoAcesso.GERENCIAR_CLIENTES)),
+    PROFISSIONAL(Set.of(
+            PermissaoAcesso.VISUALIZAR_EMPRESA,
+            PermissaoAcesso.GERENCIAR_CLIENTES,
+            PermissaoAcesso.GERENCIAR_AGENDA
+    )),
+    RECEPCIONISTA(Set.of(
+            PermissaoAcesso.VISUALIZAR_EMPRESA,
+            PermissaoAcesso.GERENCIAR_CLIENTES,
+            PermissaoAcesso.GERENCIAR_AGENDA
+    )),
     CLIENTE(Set.of()),
     ESTUDANTE(Set.of());
 

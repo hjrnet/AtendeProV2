@@ -1,0 +1,105 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0013-create-agenda-compromissos
+      author: codex
+      changes:
+        - createTable:
+            tableName: agenda_compromissos
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: empresa_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cliente_paciente_id
+                  type: uuid
+              - column:
+                  name: profissional_id
+                  type: uuid
+              - column:
+                  name: profissional_nome
+                  type: varchar(160)
+              - column:
+                  name: sala
+                  type: varchar(120)
+              - column:
+                  name: tipo
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: inicio
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+              - column:
+                  name: fim
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+              - column:
+                  name: observacoes
+                  type: varchar(1000)
+              - column:
+                  name: criado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: agenda_compromissos
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_agenda_compromissos_empresas
+        - addForeignKeyConstraint:
+            baseTableName: agenda_compromissos
+            baseColumnNames: cliente_paciente_id
+            referencedTableName: clientes_pacientes
+            referencedColumnNames: id
+            constraintName: fk_agenda_compromissos_clientes_pacientes
+        - createIndex:
+            tableName: agenda_compromissos
+            indexName: idx_agenda_empresa_periodo
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: inicio
+              - column:
+                  name: fim
+        - createIndex:
+            tableName: agenda_compromissos
+            indexName: idx_agenda_empresa_profissional
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: profissional_id
+        - createIndex:
+            tableName: agenda_compromissos
+            indexName: idx_agenda_empresa_sala
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: sala

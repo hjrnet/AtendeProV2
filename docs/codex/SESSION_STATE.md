@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R3 — Núcleo operacional comum.
 
 ## Última task concluída
-TASK-0301 — Clientes/Pacientes.
+TASK-0302 — Agenda base.
 
 ## Próxima task recomendada
-TASK-0302 — Agenda base.
+TASK-0303 — Serviços/Procedimentos.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0302 concluida em modo autopilot multiagente release R3.
+- Modulo `agenda` criado no backend com dominio `CompromissoAgenda`, status, tipo, Command/Result, UseCases, OutputPorts, adapter JDBC e controller fino.
+- API `/api/agenda/compromissos` permite agendar, detalhar e listar compromissos por empresa, periodo, profissional, sala e status.
+- A regra inicial impede conflito de horario para mesmo profissional ou mesma sala dentro da empresa, ignorando compromissos cancelados.
+- Validacao local confirmou migration `agenda_compromissos`, criacao/listagem real e erro `AGENDA_CONFLITO_HORARIO`; `mvn test` passou com 115 testes.
 - TASK-0301 concluida em modo autopilot multiagente release R3.
 - Modulo `cliente` criado no backend com dominio `ClientePaciente`, areas multiárea, Command/Result, UseCases, OutputPorts, adapter JDBC e controller fino.
 - API tenant-scoped `/api/clientes-pacientes` permite cadastrar, detalhar e listar clientes/pacientes por empresa, busca, area e ativo sem expor persistencia.

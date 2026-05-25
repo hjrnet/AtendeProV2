@@ -7,6 +7,7 @@ public enum PermissaoAcesso {
     CADASTRAR_ADMINISTRADOR_EMPRESA("empresa:administrador:cadastrar"),
     GERENCIAR_USUARIOS("usuarios:gerenciar"),
     GERENCIAR_CLIENTES("clientes:gerenciar"),
+    GERENCIAR_AGENDA("agenda:gerenciar"),
     ACESSAR_ADMIN_SAAS("admin-saas:acessar"),
     ACESSAR_SUPORTE("suporte:acessar");
 
