@@ -42,12 +42,13 @@ public class JdbcUsuarioAutenticacaoAdapter implements
         try {
             UsuarioAutenticacao usuario = jdbcTemplate.queryForObject(
                     """
-                    select id, nome, email, senha_hash, perfis, ativo, criado_em
+                    select id, empresa_id, nome, email, senha_hash, perfis, ativo, criado_em
                     from auth_usuarios
                     where email = ?
                     """,
                     (rs, rowNum) -> new UsuarioAutenticacao(
                             rs.getObject("id", UUID.class),
+                            rs.getObject("empresa_id", UUID.class),
                             EmailUsuario.de(rs.getString("email")),
                             rs.getString("nome"),
                             rs.getString("senha_hash"),
@@ -68,12 +69,13 @@ public class JdbcUsuarioAutenticacaoAdapter implements
         try {
             UsuarioAutenticacao usuario = jdbcTemplate.queryForObject(
                     """
-                    select id, nome, email, senha_hash, perfis, ativo, criado_em
+                    select id, empresa_id, nome, email, senha_hash, perfis, ativo, criado_em
                     from auth_usuarios
                     where id = ?
                     """,
                     (rs, rowNum) -> new UsuarioAutenticacao(
                             rs.getObject("id", UUID.class),
+                            rs.getObject("empresa_id", UUID.class),
                             EmailUsuario.de(rs.getString("email")),
                             rs.getString("nome"),
                             rs.getString("senha_hash"),
@@ -94,19 +96,20 @@ public class JdbcUsuarioAutenticacaoAdapter implements
         jdbcTemplate.update(connection -> {
             PreparedStatement statement = connection.prepareStatement(
                     """
-                    insert into auth_usuarios (id, nome, email, senha_hash, perfis, ativo, criado_em, atualizado_em)
-                    values (?, ?, ?, ?, ?, ?, ?, ?)
+                    insert into auth_usuarios (id, empresa_id, nome, email, senha_hash, perfis, ativo, criado_em, atualizado_em)
+                    values (?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """
             );
             Timestamp criadoEm = Timestamp.from(usuario.criadoEm());
             statement.setObject(1, usuario.id());
-            statement.setString(2, usuario.nome());
-            statement.setString(3, usuario.email().valor());
-            statement.setString(4, usuario.senhaHash());
-            statement.setArray(5, connection.createArrayOf("text", mapearPerfis(usuario.perfis())));
-            statement.setBoolean(6, usuario.ativo());
-            statement.setTimestamp(7, criadoEm);
+            statement.setObject(2, usuario.empresaId());
+            statement.setString(3, usuario.nome());
+            statement.setString(4, usuario.email().valor());
+            statement.setString(5, usuario.senhaHash());
+            statement.setArray(6, connection.createArrayOf("text", mapearPerfis(usuario.perfis())));
+            statement.setBoolean(7, usuario.ativo());
             statement.setTimestamp(8, criadoEm);
+            statement.setTimestamp(9, criadoEm);
             return statement;
         });
     }

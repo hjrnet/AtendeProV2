@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R1 — Auth, tenant e segurança.
 
 ## Última task concluída
-TASK-0106 — Criar módulo Empresa/Tenant.
+TASK-0107 — Criar usuário administrador da empresa.
 
 ## Próxima task recomendada
-TASK-0107 — Criar usuário administrador da empresa.
+TASK-0108 — Contexto de tenant.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0107 concluida em modo autopilot multiagente release R1.
+- Usuarios de autenticacao agora aceitam `empresaId` opcional; super admin SaaS permanece sem tenant e admin de empresa usa `EMPRESA_ADMIN`.
+- Cadastro de administrador da empresa criado em `/api/empresas/{empresaId}/usuarios/admin`, com email unico e senha forte.
+- Validacao local confirmou migration `empresa_id`, admin vinculado e login retornando `empresaId`.
 - TASK-0106 concluida em modo autopilot multiagente release R1.
 - Modulo Empresa/Tenant criado com dominio, Command/Result, UseCases, portas, adapter JDBC e API `/api/empresas`.
 - Base de isolamento definida com `empresas.id` como identificador de tenant para vinculacoes futuras.

@@ -20,6 +20,7 @@ public record LoginResponse(
                 result.expiraEm(),
                 new UsuarioLoginResponse(
                         result.usuario().id(),
+                        result.usuario().empresaId(),
                         result.usuario().nome(),
                         result.usuario().email(),
                         result.usuario().perfis()

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.atendepro.modules.auth.application.port.in.CadastrarAdministradorEmpresaUseCase;
 import br.com.atendepro.modules.empresa.application.port.in.BuscarEmpresaUseCase;
 import br.com.atendepro.modules.empresa.application.port.in.CadastrarEmpresaUseCase;
 import br.com.atendepro.modules.empresa.application.port.in.ListarEmpresasUseCase;
@@ -27,15 +28,18 @@ public class EmpresaController {
     private final CadastrarEmpresaUseCase cadastrarEmpresaUseCase;
     private final BuscarEmpresaUseCase buscarEmpresaUseCase;
     private final ListarEmpresasUseCase listarEmpresasUseCase;
+    private final CadastrarAdministradorEmpresaUseCase cadastrarAdministradorEmpresaUseCase;
 
     public EmpresaController(
             CadastrarEmpresaUseCase cadastrarEmpresaUseCase,
             BuscarEmpresaUseCase buscarEmpresaUseCase,
-            ListarEmpresasUseCase listarEmpresasUseCase
+            ListarEmpresasUseCase listarEmpresasUseCase,
+            CadastrarAdministradorEmpresaUseCase cadastrarAdministradorEmpresaUseCase
     ) {
         this.cadastrarEmpresaUseCase = cadastrarEmpresaUseCase;
         this.buscarEmpresaUseCase = buscarEmpresaUseCase;
         this.listarEmpresasUseCase = listarEmpresasUseCase;
+        this.cadastrarAdministradorEmpresaUseCase = cadastrarAdministradorEmpresaUseCase;
     }
 
     @PostMapping
@@ -60,5 +64,17 @@ public class EmpresaController {
         return ResponseEntity.ok(EmpresasPaginadasResponse.de(
                 listarEmpresasUseCase.listarEmpresas(new Paginacao(pagina, tamanho))
         ));
+    }
+
+    @PostMapping("/{empresaId}/usuarios/admin")
+    public ResponseEntity<AdministradorEmpresaResponse> cadastrarAdministradorEmpresa(
+            @PathVariable UUID empresaId,
+            @Valid @RequestBody CadastrarAdministradorEmpresaRequest request
+    ) {
+        AdministradorEmpresaResponse response = AdministradorEmpresaResponse.de(
+                cadastrarAdministradorEmpresaUseCase.cadastrarAdministradorEmpresa(request.paraCommand(empresaId))
+        );
+        return ResponseEntity.created(URI.create("/api/empresas/" + empresaId + "/usuarios/admin/" + response.id()))
+                .body(response);
     }
 }

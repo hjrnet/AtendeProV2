@@ -7,6 +7,7 @@ import br.com.atendepro.modules.auth.domain.model.PerfilAcesso;
 
 public record UsuarioLoginResponse(
         UUID id,
+        UUID empresaId,
         String nome,
         String email,
         Set<PerfilAcesso> perfis

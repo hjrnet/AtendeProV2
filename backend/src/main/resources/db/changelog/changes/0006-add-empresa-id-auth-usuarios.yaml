@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0006-add-empresa-id-auth-usuarios
+      author: codex
+      changes:
+        - addColumn:
+            tableName: auth_usuarios
+            columns:
+              - column:
+                  name: empresa_id
+                  type: uuid
+        - addForeignKeyConstraint:
+            baseTableName: auth_usuarios
+            baseColumnNames: empresa_id
+            constraintName: fk_auth_usuarios_empresa
+            referencedTableName: empresas
+            referencedColumnNames: id
+        - createIndex:
+            tableName: auth_usuarios
+            indexName: idx_auth_usuarios_empresa
+            columns:
+              - column:
+                  name: empresa_id

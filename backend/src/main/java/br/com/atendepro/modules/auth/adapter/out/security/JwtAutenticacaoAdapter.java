@@ -38,15 +38,18 @@ public class JwtAutenticacaoAdapter implements GerarTokenAutenticacaoPort {
     public TokenGerado gerarAccessToken(UsuarioAutenticacao usuario) {
         Instant emitidoEm = Instant.now(clock);
         Instant expiraEm = emitidoEm.plusSeconds(properties.expiracaoMinutos() * 60L);
-        JwtClaimsSet claims = JwtClaimsSet.builder()
+        JwtClaimsSet.Builder claimsBuilder = JwtClaimsSet.builder()
                 .issuer(properties.emissor())
                 .issuedAt(emitidoEm)
                 .expiresAt(expiraEm)
                 .subject(usuario.id().toString())
                 .claim("email", usuario.email().valor())
                 .claim("nome", usuario.nome())
-                .claim("perfis", usuario.perfis().stream().map(Enum::name).toList())
-                .build();
+                .claim("perfis", usuario.perfis().stream().map(Enum::name).toList());
+        if (usuario.empresaId() != null) {
+            claimsBuilder.claim("empresaId", usuario.empresaId().toString());
+        }
+        JwtClaimsSet claims = claimsBuilder.build();
 
         JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
         String token = jwtEncoder().encode(JwtEncoderParameters.from(header, claims)).getTokenValue();

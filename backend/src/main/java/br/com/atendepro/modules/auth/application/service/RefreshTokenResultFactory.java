@@ -43,6 +43,7 @@ final class RefreshTokenResultFactory {
                 accessToken.expiraEm(),
                 new UsuarioAutenticadoResult(
                         usuario.id(),
+                        usuario.empresaId(),
                         usuario.nome(),
                         usuario.email().valor(),
                         usuario.perfis()

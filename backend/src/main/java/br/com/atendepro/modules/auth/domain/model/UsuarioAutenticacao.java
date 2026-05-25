@@ -6,6 +6,7 @@ import java.util.UUID;
 
 public record UsuarioAutenticacao(
         UUID id,
+        UUID empresaId,
         EmailUsuario email,
         String nome,
         String senhaHash,
@@ -13,6 +14,18 @@ public record UsuarioAutenticacao(
         boolean ativo,
         Instant criadoEm
 ) {
+
+    public UsuarioAutenticacao(
+            UUID id,
+            EmailUsuario email,
+            String nome,
+            String senhaHash,
+            Set<PerfilAcesso> perfis,
+            boolean ativo,
+            Instant criadoEm
+    ) {
+        this(id, null, email, nome, senhaHash, perfis, ativo, criadoEm);
+    }
 
     public UsuarioAutenticacao {
         perfis = Set.copyOf(perfis);
