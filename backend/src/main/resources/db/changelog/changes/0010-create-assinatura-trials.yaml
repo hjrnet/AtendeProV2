@@ -1,0 +1,81 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0010-create-assinatura-trials
+      author: codex
+      changes:
+        - createTable:
+            tableName: assinatura_trials
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: empresa_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: plano_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: iniciado_em
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+              - column:
+                  name: expira_em
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+              - column:
+                  name: convertido_em
+                  type: timestamptz
+              - column:
+                  name: criado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: assinatura_trials
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_assinatura_trials_empresas
+        - addForeignKeyConstraint:
+            baseTableName: assinatura_trials
+            baseColumnNames: plano_id
+            referencedTableName: planos
+            referencedColumnNames: id
+            constraintName: fk_assinatura_trials_planos
+        - createIndex:
+            tableName: assinatura_trials
+            indexName: idx_assinatura_trials_empresa_status
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: status
+        - createIndex:
+            tableName: assinatura_trials
+            indexName: idx_assinatura_trials_status
+            columns:
+              - column:
+                  name: status

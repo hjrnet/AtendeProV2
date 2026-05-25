@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R2 — Admin SaaS, planos e assinaturas.
 
 ## Última task concluída
-TASK-0206 — Plano Estudante.
+TASK-0207 — Trial 30 dias.
 
 ## Próxima task recomendada
-TASK-0207 — Trial 30 dias.
+TASK-0208 — Assinaturas.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0207 concluida em modo autopilot multiagente release R2.
+- Modulo `assinatura` iniciado com trial de 30 dias, status `ATIVO`, `EXPIRADO`, `CONVERTIDO` e `CANCELADO`.
+- Trial Admin SaaS criado em `/api/admin-saas/trials`, com iniciar, listar, consultar e converter trial.
+- Persistencia `assinatura_trials` criada com vinculo a empresa e plano; conversao muda o status para `CONVERTIDO`, deixando assinatura paga completa para TASK-0208.
+- Validacao local confirmou inicio de trial, vencimento de 30 dias, listagem ativa e conversao.
 - TASK-0206 concluida em modo autopilot multiagente release R2.
 - Plano Estudante ganhou regras explicitas de dominio: limites maximos 1 usuario, 30 clientes e 1 profissional.
 - `planos` recebeu os campos `estudante` e `marca_dagua_academica`; a API Admin SaaS retorna esses dados para aplicacao futura da marca d'agua.

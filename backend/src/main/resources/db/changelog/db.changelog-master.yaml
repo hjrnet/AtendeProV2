@@ -17,3 +17,5 @@ databaseChangeLog:
       file: db/changelog/changes/0008-insert-planos-padrao.yaml
   - include:
       file: db/changelog/changes/0009-add-plano-estudante-regras.yaml
+  - include:
+      file: db/changelog/changes/0010-create-assinatura-trials.yaml
