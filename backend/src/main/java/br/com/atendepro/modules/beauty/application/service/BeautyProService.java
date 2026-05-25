@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import br.com.atendepro.modules.auth.application.permission.PermissaoAcessoService;
 import br.com.atendepro.modules.auth.domain.model.PermissaoAcesso;
 import br.com.atendepro.modules.beauty.application.command.AtualizarFichaEsteticaBeautyProCommand;
+import br.com.atendepro.modules.beauty.application.command.ConsultarIntegracoesOperacionaisBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.ConsultarProntuarioBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.ConsultarSegurancaOperacionalBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.ConsultarVisaoBeautyProCommand;
@@ -27,6 +28,7 @@ import br.com.atendepro.modules.beauty.application.command.ListarProtocolosBeaut
 import br.com.atendepro.modules.beauty.application.command.RegistrarSessaoProtocoloBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.VincularProdutoBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.port.in.AtualizarFichaEsteticaBeautyProUseCase;
+import br.com.atendepro.modules.beauty.application.port.in.ConsultarIntegracoesOperacionaisBeautyProUseCase;
 import br.com.atendepro.modules.beauty.application.port.in.ConsultarProntuarioBeautyProUseCase;
 import br.com.atendepro.modules.beauty.application.port.in.ConsultarSegurancaOperacionalBeautyProUseCase;
 import br.com.atendepro.modules.beauty.application.port.in.ConsultarVisaoBeautyProUseCase;
@@ -44,6 +46,7 @@ import br.com.atendepro.modules.beauty.application.port.out.AtualizarFichaEsteti
 import br.com.atendepro.modules.beauty.application.port.out.AtualizarProtocoloBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarClienteBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarFichaEsteticaBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.CarregarIntegracoesOperacionaisBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarProtocoloBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarVisaoBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.ListarEvidenciasEvolucaoBeautyProPort;
@@ -52,6 +55,7 @@ import br.com.atendepro.modules.beauty.application.result.ClienteBeautyResumoRes
 import br.com.atendepro.modules.beauty.application.result.EvidenciaEvolucaoBeautyProResult;
 import br.com.atendepro.modules.beauty.application.result.FichaEsteticaBeautyProResult;
 import br.com.atendepro.modules.beauty.application.result.IndicadorBeautyProResult;
+import br.com.atendepro.modules.beauty.application.result.IntegracoesOperacionaisBeautyProResult;
 import br.com.atendepro.modules.beauty.application.result.MetricasBeautyProResult;
 import br.com.atendepro.modules.beauty.application.result.ProdutoBeautyEstoqueResult;
 import br.com.atendepro.modules.beauty.application.result.ProdutoUtilizadoBeautyProResult;
@@ -101,7 +105,8 @@ public class BeautyProService implements
         ConsultarSegurancaOperacionalBeautyProUseCase,
         CriarTermoConsentimentoBeautyProUseCase,
         CriarEvidenciaEvolucaoBeautyProUseCase,
-        VincularProdutoBeautyProUseCase {
+        VincularProdutoBeautyProUseCase,
+        ConsultarIntegracoesOperacionaisBeautyProUseCase {
 
     private final CarregarVisaoBeautyProPort carregarVisaoBeautyProPort;
     private final ListarClientesBeautyProPort listarClientesBeautyProPort;
@@ -123,6 +128,7 @@ public class BeautyProService implements
     private final SalvarProdutoUtilizadoBeautyProPort salvarProdutoUtilizadoBeautyProPort;
     private final ListarProdutosUtilizadosBeautyProPort listarProdutosUtilizadosBeautyProPort;
     private final ListarProdutosEstoqueBeautyProPort listarProdutosEstoqueBeautyProPort;
+    private final CarregarIntegracoesOperacionaisBeautyProPort carregarIntegracoesOperacionaisBeautyProPort;
     private final TenantAccessService tenantAccessService;
     private final PermissaoAcessoService permissaoAcessoService;
     private final Clock clock;
@@ -148,6 +154,7 @@ public class BeautyProService implements
             SalvarProdutoUtilizadoBeautyProPort salvarProdutoUtilizadoBeautyProPort,
             ListarProdutosUtilizadosBeautyProPort listarProdutosUtilizadosBeautyProPort,
             ListarProdutosEstoqueBeautyProPort listarProdutosEstoqueBeautyProPort,
+            CarregarIntegracoesOperacionaisBeautyProPort carregarIntegracoesOperacionaisBeautyProPort,
             TenantAccessService tenantAccessService,
             PermissaoAcessoService permissaoAcessoService,
             Clock clock
@@ -172,6 +179,7 @@ public class BeautyProService implements
         this.salvarProdutoUtilizadoBeautyProPort = salvarProdutoUtilizadoBeautyProPort;
         this.listarProdutosUtilizadosBeautyProPort = listarProdutosUtilizadosBeautyProPort;
         this.listarProdutosEstoqueBeautyProPort = listarProdutosEstoqueBeautyProPort;
+        this.carregarIntegracoesOperacionaisBeautyProPort = carregarIntegracoesOperacionaisBeautyProPort;
         this.tenantAccessService = tenantAccessService;
         this.permissaoAcessoService = permissaoAcessoService;
         this.clock = clock;
@@ -199,6 +207,13 @@ public class BeautyProService implements
                 metricas.clientesRecentes(),
                 Instant.now(clock)
         );
+    }
+
+    @Override
+    public IntegracoesOperacionaisBeautyProResult consultarIntegracoesOperacionais(ConsultarIntegracoesOperacionaisBeautyProCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        return carregarIntegracoesOperacionaisBeautyProPort.carregarIntegracoesOperacionais(empresaId, LocalDate.now(clock));
     }
 
     @Override

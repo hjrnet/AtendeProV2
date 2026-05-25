@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.atendepro.modules.beauty.application.command.ConsultarIntegracoesOperacionaisBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.AtualizarFichaEsteticaBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.ConsultarProntuarioBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.ConsultarSegurancaOperacionalBeautyProCommand;
@@ -22,6 +23,7 @@ import br.com.atendepro.modules.beauty.application.command.CriarFichaEsteticaBea
 import br.com.atendepro.modules.beauty.application.command.ListarProtocolosBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.ListarClientesBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.ListarFichasEsteticasBeautyProCommand;
+import br.com.atendepro.modules.beauty.application.port.in.ConsultarIntegracoesOperacionaisBeautyProUseCase;
 import br.com.atendepro.modules.beauty.application.port.in.AtualizarFichaEsteticaBeautyProUseCase;
 import br.com.atendepro.modules.beauty.application.port.in.ConsultarProntuarioBeautyProUseCase;
 import br.com.atendepro.modules.beauty.application.port.in.ConsultarSegurancaOperacionalBeautyProUseCase;
@@ -44,6 +46,7 @@ import jakarta.validation.Valid;
 public class BeautyProController {
 
     private final ConsultarVisaoBeautyProUseCase consultarVisaoBeautyProUseCase;
+    private final ConsultarIntegracoesOperacionaisBeautyProUseCase consultarIntegracoesOperacionaisBeautyProUseCase;
     private final ListarClientesBeautyProUseCase listarClientesBeautyProUseCase;
     private final ConsultarProntuarioBeautyProUseCase consultarProntuarioBeautyProUseCase;
     private final CriarFichaEsteticaBeautyProUseCase criarFichaEsteticaBeautyProUseCase;
@@ -60,6 +63,7 @@ public class BeautyProController {
 
     public BeautyProController(
             ConsultarVisaoBeautyProUseCase consultarVisaoBeautyProUseCase,
+            ConsultarIntegracoesOperacionaisBeautyProUseCase consultarIntegracoesOperacionaisBeautyProUseCase,
             ListarClientesBeautyProUseCase listarClientesBeautyProUseCase,
             ConsultarProntuarioBeautyProUseCase consultarProntuarioBeautyProUseCase,
             CriarFichaEsteticaBeautyProUseCase criarFichaEsteticaBeautyProUseCase,
@@ -75,6 +79,7 @@ public class BeautyProController {
             VincularProdutoBeautyProUseCase vincularProdutoBeautyProUseCase
     ) {
         this.consultarVisaoBeautyProUseCase = consultarVisaoBeautyProUseCase;
+        this.consultarIntegracoesOperacionaisBeautyProUseCase = consultarIntegracoesOperacionaisBeautyProUseCase;
         this.listarClientesBeautyProUseCase = listarClientesBeautyProUseCase;
         this.consultarProntuarioBeautyProUseCase = consultarProntuarioBeautyProUseCase;
         this.criarFichaEsteticaBeautyProUseCase = criarFichaEsteticaBeautyProUseCase;
@@ -96,6 +101,17 @@ public class BeautyProController {
     ) {
         return ResponseEntity.ok(VisaoBeautyProResponse.de(
                 consultarVisaoBeautyProUseCase.consultarVisaoBeautyPro(new ConsultarVisaoBeautyProCommand(empresaId))
+        ));
+    }
+
+    @GetMapping("/integracoes-operacionais")
+    public ResponseEntity<IntegracoesOperacionaisBeautyProResponse> consultarIntegracoesOperacionais(
+            @RequestParam(required = false) UUID empresaId
+    ) {
+        return ResponseEntity.ok(IntegracoesOperacionaisBeautyProResponse.de(
+                consultarIntegracoesOperacionaisBeautyProUseCase.consultarIntegracoesOperacionais(
+                        new ConsultarIntegracoesOperacionaisBeautyProCommand(empresaId)
+                )
         ));
     }
 

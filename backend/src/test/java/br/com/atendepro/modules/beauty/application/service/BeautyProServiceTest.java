@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import br.com.atendepro.modules.auth.application.permission.PermissaoAcessoService;
 import br.com.atendepro.modules.auth.domain.exception.PermissaoNegadaException;
 import br.com.atendepro.modules.auth.domain.model.PerfilAcesso;
+import br.com.atendepro.modules.beauty.application.command.ConsultarIntegracoesOperacionaisBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.ConsultarSegurancaOperacionalBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.CriarEvidenciaEvolucaoBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.command.CriarFichaEsteticaBeautyProCommand;
@@ -32,6 +33,7 @@ import br.com.atendepro.modules.beauty.application.port.out.AtualizarFichaEsteti
 import br.com.atendepro.modules.beauty.application.port.out.AtualizarProtocoloBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarClienteBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarFichaEsteticaBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.CarregarIntegracoesOperacionaisBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarProtocoloBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarVisaoBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.ListarClientesBeautyProPort;
@@ -50,8 +52,12 @@ import br.com.atendepro.modules.beauty.application.port.out.SalvarSessaoProtocol
 import br.com.atendepro.modules.beauty.application.port.out.SalvarTermoConsentimentoBeautyProPort;
 import br.com.atendepro.modules.beauty.application.result.ClienteBeautyProntuarioResult;
 import br.com.atendepro.modules.beauty.application.result.ClienteBeautyResumoResult;
+import br.com.atendepro.modules.beauty.application.result.AgendaBeautyProResult;
+import br.com.atendepro.modules.beauty.application.result.IntegracoesOperacionaisBeautyProResult;
 import br.com.atendepro.modules.beauty.application.result.MetricasBeautyProResult;
 import br.com.atendepro.modules.beauty.application.result.ProdutoBeautyEstoqueResult;
+import br.com.atendepro.modules.beauty.application.result.ServicoBeautyProResult;
+import br.com.atendepro.modules.beauty.application.result.SimulacaoBeautyProResult;
 import br.com.atendepro.modules.beauty.domain.model.EvidenciaEvolucaoBeautyPro;
 import br.com.atendepro.modules.beauty.domain.model.FichaEsteticaBeautyPro;
 import br.com.atendepro.modules.beauty.domain.model.ObjetivoEsteticoBeautyPro;
@@ -278,12 +284,26 @@ class BeautyProServiceTest {
         assertThat(seguranca.produtosUtilizados()).hasSize(1);
     }
 
+    @Test
+    void deveConsultarIntegracoesOperacionaisBeautyPro() {
+        TenantContextHolder.definir(new TenantContext(EMPRESA_ID, UUID.randomUUID(), Set.of(PerfilAcesso.PROFISSIONAL)));
+        BeautyProService service = service(metricasComDados());
+
+        var result = service.consultarIntegracoesOperacionais(new ConsultarIntegracoesOperacionaisBeautyProCommand(null));
+
+        assertThat(result.agenda()).extracting("clienteNome").containsExactly("Juliana Beauty");
+        assertThat(result.servicos()).extracting("nome").contains("Limpeza de pele premium");
+        assertThat(result.simulacoes()).extracting("statusMargem").contains("MARGEM_BAIXA");
+        assertThat(result.simulacoes()).first().extracting("alerta").isEqualTo(true);
+    }
+
     private BeautyProService service(MetricasBeautyProResult metricas) {
         return service(new FakeBeautyPorts(metricas));
     }
 
     private BeautyProService service(FakeBeautyPorts ports) {
         return new BeautyProService(
+                ports,
                 ports,
                 ports,
                 ports,
@@ -358,7 +378,8 @@ class BeautyProServiceTest {
             ListarEvidenciasEvolucaoBeautyProPort,
             SalvarProdutoUtilizadoBeautyProPort,
             ListarProdutosUtilizadosBeautyProPort,
-            ListarProdutosEstoqueBeautyProPort {
+            ListarProdutosEstoqueBeautyProPort,
+            CarregarIntegracoesOperacionaisBeautyProPort {
 
         private final MetricasBeautyProResult metricas;
         private final List<FichaEsteticaBeautyPro> fichas = new ArrayList<>();
@@ -521,6 +542,49 @@ class BeautyProServiceTest {
                     false,
                     true
             ));
+        }
+
+        @Override
+        public IntegracoesOperacionaisBeautyProResult carregarIntegracoesOperacionais(UUID empresaId, LocalDate hoje) {
+            return new IntegracoesOperacionaisBeautyProResult(
+                    List.of(new AgendaBeautyProResult(
+                            UUID.fromString("e3a86ea0-fd99-4bfd-a354-0ff8f9f40238"),
+                            CLIENTE_ID,
+                            "Juliana Beauty",
+                            "Ana Esteticista Demo",
+                            "Cabine 1",
+                            "PRESENCIAL",
+                            "CONFIRMADO",
+                            "Confirmado",
+                            Instant.parse("2026-05-25T13:00:00Z"),
+                            Instant.parse("2026-05-25T14:00:00Z"),
+                            "Sessao facial"
+                    )),
+                    List.of(new ServicoBeautyProResult(
+                            UUID.fromString("ed6644e7-8503-4eed-9f41-fd0e62d87766"),
+                            "Limpeza de pele premium",
+                            "Higienizacao, extracao e mascara calmante",
+                            "BEAUTY",
+                            90,
+                            new BigDecimal("220.00"),
+                            true
+                    )),
+                    List.of(new SimulacaoBeautyProResult(
+                            UUID.fromString("9d197a0d-822a-4df0-b227-39327c80790c"),
+                            null,
+                            "Massagem relaxante",
+                            60,
+                            new BigDecimal("120.00"),
+                            new BigDecimal("105.00"),
+                            new BigDecimal("150.00"),
+                            new BigDecimal("15.00"),
+                            new BigDecimal("12.50"),
+                            "MARGEM_BAIXA",
+                            "Margem baixa",
+                            true,
+                            Instant.parse("2026-05-25T09:00:00Z")
+                    ))
+            );
         }
     }
 }

@@ -20,6 +20,7 @@ import {
 
 import {
   atualizarFichaEsteticaBeautyPro,
+  consultarIntegracoesOperacionaisBeautyPro,
   consultarSegurancaOperacionalBeautyPro,
   consultarProntuarioBeautyPro,
   consultarVisaoBeautyPro,
@@ -40,12 +41,16 @@ import {
   type EvidenciaEvolucaoBeautyPro,
   type FichaEsteticaBeautyPro,
   type IndicadorBeautyPro,
+  type AgendaBeautyPro,
+  type IntegracoesOperacionaisBeautyPro,
   type ObjetivoEsteticoBeautyPro,
   type ProdutoBeautyEstoque,
   type ProdutoUtilizadoBeautyPro,
   type ProtocoloBeautyPro,
   type RegistrarSessaoProtocoloBeautyProInput,
   type SalvarFichaEsteticaBeautyProInput,
+  type ServicoBeautyPro,
+  type SimulacaoBeautyPro,
   type TermoConsentimentoBeautyPro,
   type TipoPlaceholderEvolucaoBeautyPro,
   type TipoProtocoloBeautyPro,
@@ -54,6 +59,7 @@ import {
 import { cn } from "@/lib/utils";
 
 type Icone = typeof Scissors;
+type EtapaOperacionalBeauty = "ficha" | "protocolos" | "seguranca" | "integracoes";
 
 type FormularioFichaBeauty = {
   objetivo: ObjetivoEsteticoBeautyPro;
@@ -222,9 +228,17 @@ const tiposPlaceholder: Array<{ value: TipoPlaceholderEvolucaoBeautyPro; label: 
   { value: "TEXTUAL", label: "Registro textual" }
 ];
 
+const etapasOperacionais: Array<{ value: EtapaOperacionalBeauty; label: string; descricao: string; icon: Icone }> = [
+  { value: "ficha", label: "Ficha", descricao: "Anamnese e segurança", icon: ClipboardList },
+  { value: "protocolos", label: "Protocolos", descricao: "Pacotes e sessões", icon: Sparkles },
+  { value: "seguranca", label: "Termos", descricao: "Evidências e lotes", icon: FileText },
+  { value: "integracoes", label: "Agenda e preços", descricao: "Agenda, serviços e margem", icon: Gauge }
+];
+
 export function BeautyProOperacionalView({ empresaId }: { empresaId: string }) {
   const [buscaCliente, setBuscaCliente] = useState("");
   const [clienteSelecionadoId, setClienteSelecionadoId] = useState<string | null>(null);
+  const [etapaAtiva, setEtapaAtiva] = useState<EtapaOperacionalBeauty>("ficha");
 
   const visaoQuery = useQuery({
     queryKey: ["beauty-pro-visao", empresaId],
@@ -310,9 +324,36 @@ export function BeautyProOperacionalView({ empresaId }: { empresaId: string }) {
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
         <section className="grid gap-4">
-          <FichaEsteticaBeautyPainel empresaId={empresaId} clienteId={clienteSelecionadoId} />
-          <ProtocolosBeautyPainel empresaId={empresaId} clienteId={clienteSelecionadoId} />
-          <SegurancaOperacionalBeautyPainel empresaId={empresaId} clienteId={clienteSelecionadoId} />
+          <nav className="grid gap-2 rounded-lg border bg-white p-2 shadow-sm sm:grid-cols-2 xl:grid-cols-4" aria-label="Fluxo operacional Beauty Pro">
+            {etapasOperacionais.map((etapa) => {
+              const Icon = etapa.icon;
+              const ativo = etapaAtiva === etapa.value;
+              return (
+                <button
+                  key={etapa.value}
+                  type="button"
+                  onClick={() => setEtapaAtiva(etapa.value)}
+                  className={cn(
+                    "flex min-h-16 items-center gap-3 rounded-md border px-3 py-2 text-left transition hover:border-rose-300 hover:bg-rose-50",
+                    ativo ? "border-rose-500 bg-rose-50 shadow-sm" : "bg-background"
+                  )}
+                >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-white text-rose-900">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold text-card-foreground">{etapa.label}</span>
+                    <span className="mt-1 block text-xs leading-5 text-muted-foreground">{etapa.descricao}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </nav>
+
+          {etapaAtiva === "ficha" ? <FichaEsteticaBeautyPainel empresaId={empresaId} clienteId={clienteSelecionadoId} /> : null}
+          {etapaAtiva === "protocolos" ? <ProtocolosBeautyPainel empresaId={empresaId} clienteId={clienteSelecionadoId} /> : null}
+          {etapaAtiva === "seguranca" ? <SegurancaOperacionalBeautyPainel empresaId={empresaId} clienteId={clienteSelecionadoId} /> : null}
+          {etapaAtiva === "integracoes" ? <IntegracoesOperacionaisBeautyPainel empresaId={empresaId} /> : null}
 
           <div className="rounded-lg border bg-white p-4 shadow-sm">
             <div className="flex flex-col gap-2 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
@@ -1075,6 +1116,79 @@ function SegurancaOperacionalBeautyPainel({ empresaId, clienteId }: { empresaId:
   );
 }
 
+function IntegracoesOperacionaisBeautyPainel({ empresaId }: { empresaId: string }) {
+  const [busca, setBusca] = useState("");
+  const [filtroMargem, setFiltroMargem] = useState<"TODAS" | "ALERTA">("TODAS");
+
+  const integracoesQuery = useQuery({
+    queryKey: ["beauty-pro-integracoes", empresaId],
+    queryFn: () => consultarIntegracoesOperacionaisBeautyPro(empresaId),
+    enabled: Boolean(empresaId)
+  });
+
+  const integracoes = integracoesQuery.data;
+  const termo = busca.trim().toLowerCase();
+  const servicos = filtrarServicosBeauty(integracoes?.servicos ?? [], termo);
+  const simulacoes = filtrarSimulacoesBeauty(integracoes?.simulacoes ?? [], termo, filtroMargem);
+  const agenda = filtrarAgendaBeauty(integracoes?.agenda ?? [], termo);
+
+  return (
+    <section className="rounded-lg border bg-white p-4 shadow-sm">
+      <div className="flex flex-col gap-2 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-rose-900">Agenda, serviços e precificação</p>
+          <p className="text-sm leading-6 text-muted-foreground">Fluxo integrado para sair do cliente, passar por protocolo/sessão e revisar agenda, serviço e margem.</p>
+        </div>
+        <span className="w-fit rounded-md border bg-rose-50 px-2 py-1 text-xs font-semibold text-rose-900">Beauty Pro conectado</span>
+      </div>
+
+      <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px]">
+        <label className="grid gap-1 text-sm font-medium text-card-foreground">
+          Busca operacional
+          <input
+            value={busca}
+            onChange={(event) => setBusca(event.target.value)}
+            className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+            placeholder="Cliente, serviço, sala, procedimento"
+          />
+        </label>
+        <label className="grid gap-1 text-sm font-medium text-card-foreground">
+          Margem
+          <select value={filtroMargem} onChange={(event) => setFiltroMargem(event.target.value as "TODAS" | "ALERTA")} className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring">
+            <option value="TODAS">Todas</option>
+            <option value="ALERTA">Somente alertas</option>
+          </select>
+        </label>
+      </div>
+
+      {integracoesQuery.isLoading ? (
+        <div className="mt-4 flex min-h-32 items-center justify-center rounded-lg border bg-background text-sm text-muted-foreground">
+          <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+          Carregando integrações Beauty
+        </div>
+      ) : integracoesQuery.isError || !integracoes ? (
+        <EstadoBeautyPro titulo="Integrações indisponíveis" descricao="Não foi possível carregar agenda, serviços e precificação agora." alerta />
+      ) : (
+        <div className="mt-4 grid gap-4">
+          <div className="grid gap-3 md:grid-cols-3">
+            <ResumoFichaBeauty rotulo="Agenda 14 dias" valor={agenda.length} />
+            <ResumoFichaBeauty rotulo="Serviços Beauty" valor={servicos.length} />
+            <ResumoFichaBeauty rotulo="Alertas margem" valor={simulacoes.filter((simulacao) => simulacao.alerta).length} destaque={simulacoes.some((simulacao) => simulacao.alerta)} />
+          </div>
+
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+            <div className="grid gap-4">
+              <ListaAgendaBeauty agenda={agenda} />
+              <ListaServicosBeauty servicos={servicos} />
+            </div>
+            <ListaSimulacoesBeauty simulacoes={simulacoes} />
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
 async function invalidarSegurancaBeauty(queryClient: ReturnType<typeof useQueryClient>, empresaId: string, clienteId: string | null) {
   await Promise.all([
     queryClient.invalidateQueries({ queryKey: ["beauty-pro-seguranca", empresaId, clienteId] }),
@@ -1173,6 +1287,95 @@ function HistoricoProdutosBeauty({ produtos, estoque }: { produtos: ProdutoUtili
           Existem produtos do estoque com validade próxima ou estoque baixo. Vincule com atenção antes de registrar sessões.
         </div>
       ) : null}
+    </div>
+  );
+}
+
+function ListaAgendaBeauty({ agenda }: { agenda: AgendaBeautyPro[] }) {
+  return (
+    <div className="rounded-lg border bg-background p-3">
+      <p className="text-sm font-semibold text-card-foreground">Agenda Beauty</p>
+      <div className="mt-3 grid max-h-72 gap-2 overflow-y-auto pr-1">
+        {agenda.length ? (
+          agenda.map((compromisso) => (
+            <article key={compromisso.id} className="rounded-md border bg-white p-3">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-card-foreground">{compromisso.clienteNome ?? "Cliente não informado"}</p>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    {formatarDataHora(compromisso.inicio)} • {compromisso.profissionalNome ?? "Profissional não informado"} {compromisso.sala ? `• ${compromisso.sala}` : ""}
+                  </p>
+                </div>
+                <span className={cn("w-fit rounded-md border px-2 py-1 text-xs font-semibold", classeStatusAgenda(compromisso.status))}>{compromisso.statusRotulo}</span>
+              </div>
+              {compromisso.observacoes ? <p className="mt-2 text-xs leading-5 text-muted-foreground">{compromisso.observacoes}</p> : null}
+            </article>
+          ))
+        ) : (
+          <div className="rounded-md border bg-white p-3 text-sm text-muted-foreground">Nenhum compromisso Beauty encontrado para o período.</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ListaServicosBeauty({ servicos }: { servicos: ServicoBeautyPro[] }) {
+  return (
+    <div className="rounded-lg border bg-background p-3">
+      <p className="text-sm font-semibold text-card-foreground">Serviços e procedimentos</p>
+      <div className="mt-3 grid max-h-72 gap-2 overflow-y-auto pr-1">
+        {servicos.length ? (
+          servicos.map((servico) => (
+            <article key={servico.id} className="rounded-md border bg-white p-3">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-card-foreground">{servico.nome}</p>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    {servico.duracaoMinutos} min • {formatarMoeda(servico.precoBase)}
+                  </p>
+                </div>
+                <span className={cn("w-fit rounded-md border px-2 py-1 text-xs font-semibold", servico.ativo ? "bg-emerald-50 text-emerald-800" : "bg-slate-50 text-slate-700")}>{servico.ativo ? "Ativo" : "Inativo"}</span>
+              </div>
+              {servico.descricao ? <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">{servico.descricao}</p> : null}
+            </article>
+          ))
+        ) : (
+          <div className="rounded-md border bg-white p-3 text-sm text-muted-foreground">Nenhum serviço Beauty encontrado.</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ListaSimulacoesBeauty({ simulacoes }: { simulacoes: SimulacaoBeautyPro[] }) {
+  return (
+    <div className="rounded-lg border bg-background p-3">
+      <p className="text-sm font-semibold text-card-foreground">Precificação Beauty</p>
+      <div className="mt-3 grid max-h-[600px] gap-2 overflow-y-auto pr-1">
+        {simulacoes.length ? (
+          simulacoes.map((simulacao) => (
+            <article key={simulacao.id} className={cn("rounded-md border bg-white p-3", simulacao.alerta ? "border-amber-300 bg-amber-50/60" : "border-emerald-200")}>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-card-foreground">{simulacao.nomeProcedimento}</p>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    Venda {formatarMoeda(simulacao.precoVenda)} • Recomendado {formatarMoeda(simulacao.precoRecomendado)}
+                  </p>
+                </div>
+                <span className={cn("w-fit rounded-md border px-2 py-1 text-xs font-semibold", classeStatusMargem(simulacao.statusMargem))}>{simulacao.statusRotulo}</span>
+              </div>
+              <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                <ResumoFichaBeauty rotulo="Custo" valor={formatarMoeda(simulacao.custoTotal)} texto />
+                <ResumoFichaBeauty rotulo="Lucro" valor={formatarMoeda(simulacao.lucroEstimado)} texto destaque={simulacao.lucroEstimado < 0} />
+                <ResumoFichaBeauty rotulo="Margem" valor={`${formatarNumero(simulacao.margemRealPercentual)}%`} texto destaque={simulacao.alerta} />
+              </div>
+              {simulacao.alerta ? <p className="mt-2 text-xs font-medium text-amber-900">Revise custo, duração, preço praticado ou margem antes de repetir este procedimento.</p> : null}
+            </article>
+          ))
+        ) : (
+          <div className="rounded-md border bg-white p-3 text-sm text-muted-foreground">Nenhuma simulação Beauty encontrada para o filtro atual.</div>
+        )}
+      </div>
     </div>
   );
 }
@@ -1399,6 +1602,28 @@ function classeStatusPacote(status: string) {
   return classes[status] ?? "border bg-background text-muted-foreground";
 }
 
+function classeStatusAgenda(status: string) {
+  const classes: Record<string, string> = {
+    AGENDADO: "border-sky-200 bg-sky-50 text-sky-800",
+    CONFIRMADO: "border-emerald-200 bg-emerald-50 text-emerald-800",
+    REALIZADO: "border-indigo-200 bg-indigo-50 text-indigo-800",
+    REMARCADO: "border-amber-200 bg-amber-50 text-amber-900",
+    FALTOU: "border-red-200 bg-red-50 text-red-800",
+    CANCELADO: "border-slate-200 bg-slate-50 text-slate-700"
+  };
+  return classes[status] ?? "border bg-background text-muted-foreground";
+}
+
+function classeStatusMargem(status: string) {
+  const classes: Record<string, string> = {
+    SAUDAVEL: "border-emerald-200 bg-emerald-50 text-emerald-800",
+    EQUILIBRIO: "border-sky-200 bg-sky-50 text-sky-800",
+    MARGEM_BAIXA: "border-amber-200 bg-amber-50 text-amber-900",
+    PREJUIZO: "border-red-200 bg-red-50 text-red-800"
+  };
+  return classes[status] ?? "border bg-background text-muted-foreground";
+}
+
 function rotuloStatus(status: string) {
   const rotulos: Record<string, string> = {
     OPERACIONAL: "Operacional",
@@ -1439,6 +1664,13 @@ function formatarNumero(valor: number) {
   return new Intl.NumberFormat("pt-BR").format(valor);
 }
 
+function formatarMoeda(valor: number) {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  }).format(valor);
+}
+
 function formatarDataHora(valor: string) {
   return new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
@@ -1454,4 +1686,34 @@ function formatarDataCurta(valor: string) {
     month: "2-digit",
     year: "numeric"
   }).format(new Date(`${valor}T00:00:00`));
+}
+
+function filtrarAgendaBeauty(agenda: AgendaBeautyPro[], termo: string) {
+  if (!termo) {
+    return agenda;
+  }
+  return agenda.filter((compromisso) =>
+    [compromisso.clienteNome, compromisso.profissionalNome, compromisso.sala, compromisso.statusRotulo, compromisso.observacoes]
+      .filter(Boolean)
+      .some((valor) => valor?.toLowerCase().includes(termo))
+  );
+}
+
+function filtrarServicosBeauty(servicos: ServicoBeautyPro[], termo: string) {
+  if (!termo) {
+    return servicos;
+  }
+  return servicos.filter((servico) =>
+    [servico.nome, servico.descricao, servico.area]
+      .filter(Boolean)
+      .some((valor) => valor?.toLowerCase().includes(termo))
+  );
+}
+
+function filtrarSimulacoesBeauty(simulacoes: SimulacaoBeautyPro[], termo: string, filtroMargem: "TODAS" | "ALERTA") {
+  return simulacoes.filter((simulacao) => {
+    const passaMargem = filtroMargem === "TODAS" || simulacao.alerta;
+    const passaBusca = !termo || [simulacao.nomeProcedimento, simulacao.statusRotulo].some((valor) => valor.toLowerCase().includes(termo));
+    return passaMargem && passaBusca;
+  });
 }

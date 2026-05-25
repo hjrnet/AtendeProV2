@@ -213,6 +213,52 @@ export type SegurancaOperacionalBeautyPro = {
   produtosEstoque: ProdutoBeautyEstoque[];
 };
 
+export type AgendaBeautyPro = {
+  id: string;
+  clienteId: string | null;
+  clienteNome: string | null;
+  profissionalNome: string | null;
+  sala: string | null;
+  tipo: string;
+  status: string;
+  statusRotulo: string;
+  inicio: string;
+  fim: string;
+  observacoes: string | null;
+};
+
+export type ServicoBeautyPro = {
+  id: string;
+  nome: string;
+  descricao: string | null;
+  area: string;
+  duracaoMinutos: number;
+  precoBase: number;
+  ativo: boolean;
+};
+
+export type SimulacaoBeautyPro = {
+  id: string;
+  servicoProcedimentoId: string | null;
+  nomeProcedimento: string;
+  duracaoMinutos: number;
+  precoVenda: number;
+  custoTotal: number;
+  precoRecomendado: number;
+  lucroEstimado: number;
+  margemRealPercentual: number;
+  statusMargem: "PREJUIZO" | "EQUILIBRIO" | "MARGEM_BAIXA" | "SAUDAVEL";
+  statusRotulo: string;
+  alerta: boolean;
+  atualizadoEm: string;
+};
+
+export type IntegracoesOperacionaisBeautyPro = {
+  agenda: AgendaBeautyPro[];
+  servicos: ServicoBeautyPro[];
+  simulacoes: SimulacaoBeautyPro[];
+};
+
 export type CriarProtocoloBeautyProInput = {
   servicoProcedimentoId?: string | null;
   nome: string;
@@ -295,6 +341,12 @@ const beautyProApi = criarApiClient({
 
 export function consultarVisaoBeautyPro(empresaId: string) {
   return beautyProApi.get<VisaoBeautyPro>("/api/beauty-pro/visao", {
+    query: { empresaId }
+  });
+}
+
+export function consultarIntegracoesOperacionaisBeautyPro(empresaId: string) {
+  return beautyProApi.get<IntegracoesOperacionaisBeautyPro>("/api/beauty-pro/integracoes-operacionais", {
     query: { empresaId }
   });
 }

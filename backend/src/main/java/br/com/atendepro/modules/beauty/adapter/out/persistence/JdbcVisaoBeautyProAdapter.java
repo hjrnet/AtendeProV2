@@ -19,6 +19,7 @@ import br.com.atendepro.modules.beauty.application.port.out.AtualizarFichaEsteti
 import br.com.atendepro.modules.beauty.application.port.out.AtualizarProtocoloBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarClienteBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarFichaEsteticaBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.CarregarIntegracoesOperacionaisBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarProtocoloBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarVisaoBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.ListarClientesBeautyProPort;
@@ -37,8 +38,12 @@ import br.com.atendepro.modules.beauty.application.port.out.SalvarSessaoProtocol
 import br.com.atendepro.modules.beauty.application.port.out.SalvarTermoConsentimentoBeautyProPort;
 import br.com.atendepro.modules.beauty.application.result.ClienteBeautyProntuarioResult;
 import br.com.atendepro.modules.beauty.application.result.ClienteBeautyResumoResult;
+import br.com.atendepro.modules.beauty.application.result.AgendaBeautyProResult;
+import br.com.atendepro.modules.beauty.application.result.IntegracoesOperacionaisBeautyProResult;
 import br.com.atendepro.modules.beauty.application.result.MetricasBeautyProResult;
 import br.com.atendepro.modules.beauty.application.result.ProdutoBeautyEstoqueResult;
+import br.com.atendepro.modules.beauty.application.result.ServicoBeautyProResult;
+import br.com.atendepro.modules.beauty.application.result.SimulacaoBeautyProResult;
 import br.com.atendepro.modules.beauty.domain.model.EvidenciaEvolucaoBeautyPro;
 import br.com.atendepro.modules.beauty.domain.model.FichaEsteticaBeautyPro;
 import br.com.atendepro.modules.beauty.domain.model.ObjetivoEsteticoBeautyPro;
@@ -55,6 +60,7 @@ import br.com.atendepro.modules.beauty.domain.model.TipoProtocoloBeautyPro;
 @Profile("!test")
 public class JdbcVisaoBeautyProAdapter implements
         CarregarVisaoBeautyProPort,
+        CarregarIntegracoesOperacionaisBeautyProPort,
         ListarClientesBeautyProPort,
         CarregarClienteBeautyProPort,
         CarregarFichaEsteticaBeautyProPort,
@@ -108,6 +114,15 @@ public class JdbcVisaoBeautyProAdapter implements
                           and (alerta_validade = true or alerta_estoque_baixo = true)
                         """, empresaId),
                 listarClientesRecentes(empresaId)
+        );
+    }
+
+    @Override
+    public IntegracoesOperacionaisBeautyProResult carregarIntegracoesOperacionais(UUID empresaId, LocalDate hoje) {
+        return new IntegracoesOperacionaisBeautyProResult(
+                listarAgendaBeauty(empresaId, hoje, hoje.plusDays(14)),
+                listarServicosBeauty(empresaId),
+                listarSimulacoesBeauty(empresaId)
         );
     }
 
@@ -498,6 +513,74 @@ public class JdbcVisaoBeautyProAdapter implements
                 """, (rs, rowNum) -> mapearProdutoEstoqueBeauty(rs, hoje), empresaId);
     }
 
+    private List<AgendaBeautyProResult> listarAgendaBeauty(UUID empresaId, LocalDate inicio, LocalDate fim) {
+        return jdbcTemplate.query("""
+                select agenda.id,
+                       agenda.cliente_paciente_id,
+                       cliente.nome as cliente_nome,
+                       agenda.profissional_nome,
+                       agenda.sala,
+                       agenda.tipo,
+                       agenda.status,
+                       agenda.inicio,
+                       agenda.fim,
+                       agenda.observacoes
+                from agenda_compromissos agenda
+                left join clientes_pacientes cliente on cliente.id = agenda.cliente_paciente_id
+                where agenda.empresa_id = ?
+                  and agenda.status <> 'CANCELADO'
+                  and agenda.inicio::date between ? and ?
+                  and (cliente.area = ? or agenda.profissional_nome ilike '%estetic%')
+                order by agenda.inicio asc
+                limit 20
+                """, this::mapearAgendaBeauty, empresaId, inicio, fim, AREA_BEAUTY);
+    }
+
+    private List<ServicoBeautyProResult> listarServicosBeauty(UUID empresaId) {
+        return jdbcTemplate.query("""
+                select id, nome, descricao, area, duracao_minutos, preco_base, ativo
+                from servicos_procedimentos
+                where empresa_id = ?
+                  and area = ?
+                order by ativo desc, nome
+                limit 30
+                """, this::mapearServicoBeauty, empresaId, AREA_BEAUTY);
+    }
+
+    private List<SimulacaoBeautyProResult> listarSimulacoesBeauty(UUID empresaId) {
+        return jdbcTemplate.query("""
+                select simulacao.id,
+                       simulacao.servico_procedimento_id,
+                       simulacao.nome_procedimento,
+                       simulacao.duracao_minutos,
+                       simulacao.preco_venda,
+                       simulacao.custo_total,
+                       simulacao.preco_recomendado,
+                       simulacao.lucro_estimado,
+                       simulacao.margem_real_percentual,
+                       simulacao.status_margem,
+                       simulacao.atualizado_em
+                from precificacao_simulacoes simulacao
+                left join servicos_procedimentos servico on servico.id = simulacao.servico_procedimento_id
+                where simulacao.empresa_id = ?
+                  and simulacao.ativo = true
+                  and (
+                    servico.area = ?
+                    or simulacao.nome_procedimento ilike '%pele%'
+                    or simulacao.nome_procedimento ilike '%massagem%'
+                    or simulacao.nome_procedimento ilike '%peeling%'
+                    or simulacao.nome_procedimento ilike '%estet%'
+                  )
+                order by
+                  case when simulacao.status_margem = 'PREJUIZO' then 0
+                       when simulacao.status_margem = 'MARGEM_BAIXA' then 1
+                       else 2
+                  end,
+                  simulacao.atualizado_em desc
+                limit 20
+                """, this::mapearSimulacaoBeauty, empresaId, AREA_BEAUTY);
+    }
+
     private String carregarNomeEmpresa(UUID empresaId) {
         String nome = jdbcTemplate.queryForObject("select nome_fantasia from empresas where id = ?", String.class, empresaId);
         if (nome == null || nome.isBlank()) {
@@ -698,6 +781,76 @@ public class JdbcVisaoBeautyProAdapter implements
                 quantidadeAtual != null && estoqueMinimo != null && quantidadeAtual.compareTo(estoqueMinimo) <= 0,
                 validade != null && !validade.isAfter(hoje.plusDays(30))
         );
+    }
+
+    private AgendaBeautyProResult mapearAgendaBeauty(ResultSet rs, int rowNum) throws SQLException {
+        String status = rs.getString("status");
+        return new AgendaBeautyProResult(
+                rs.getObject("id", UUID.class),
+                rs.getObject("cliente_paciente_id", UUID.class),
+                rs.getString("cliente_nome"),
+                rs.getString("profissional_nome"),
+                rs.getString("sala"),
+                rs.getString("tipo"),
+                status,
+                rotuloStatusAgenda(status),
+                rs.getTimestamp("inicio").toInstant(),
+                rs.getTimestamp("fim").toInstant(),
+                rs.getString("observacoes")
+        );
+    }
+
+    private ServicoBeautyProResult mapearServicoBeauty(ResultSet rs, int rowNum) throws SQLException {
+        return new ServicoBeautyProResult(
+                rs.getObject("id", UUID.class),
+                rs.getString("nome"),
+                rs.getString("descricao"),
+                rs.getString("area"),
+                rs.getInt("duracao_minutos"),
+                rs.getBigDecimal("preco_base"),
+                rs.getBoolean("ativo")
+        );
+    }
+
+    private SimulacaoBeautyProResult mapearSimulacaoBeauty(ResultSet rs, int rowNum) throws SQLException {
+        String status = rs.getString("status_margem");
+        return new SimulacaoBeautyProResult(
+                rs.getObject("id", UUID.class),
+                rs.getObject("servico_procedimento_id", UUID.class),
+                rs.getString("nome_procedimento"),
+                rs.getInt("duracao_minutos"),
+                rs.getBigDecimal("preco_venda"),
+                rs.getBigDecimal("custo_total"),
+                rs.getBigDecimal("preco_recomendado"),
+                rs.getBigDecimal("lucro_estimado"),
+                rs.getBigDecimal("margem_real_percentual"),
+                status,
+                rotuloStatusMargem(status),
+                !"SAUDAVEL".equalsIgnoreCase(status),
+                rs.getTimestamp("atualizado_em").toInstant()
+        );
+    }
+
+    private String rotuloStatusAgenda(String status) {
+        return switch (status) {
+            case "AGENDADO" -> "Agendado";
+            case "CONFIRMADO" -> "Confirmado";
+            case "REALIZADO" -> "Realizado";
+            case "CANCELADO" -> "Cancelado";
+            case "FALTOU" -> "Faltou";
+            case "REMARCADO" -> "Remarcado";
+            default -> status;
+        };
+    }
+
+    private String rotuloStatusMargem(String status) {
+        return switch (status) {
+            case "PREJUIZO" -> "Prejuízo";
+            case "MARGEM_BAIXA" -> "Margem baixa";
+            case "EQUILIBRIO" -> "Equilíbrio";
+            case "SAUDAVEL" -> "Saudável";
+            default -> status;
+        };
     }
 
     private Integer idade(LocalDate dataNascimento, LocalDate hoje) {

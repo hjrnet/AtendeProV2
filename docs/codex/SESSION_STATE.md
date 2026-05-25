@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R10 — Nutri Pro, Beauty Pro e comercial.
 
 ## Última task concluída
-TASK-BEAUTY-004 — Criar termos, fotos placeholder, produtos/lotes e dashboard Beauty Pro.
+TASK-BEAUTY-005 — Integrar Beauty Pro com agenda, precificação e experiência web.
 
 ## Próxima task recomendada
-TASK-BEAUTY-005 — Integrar Beauty Pro com agenda, precificação e experiência web.
+TASK-1001 — Landing page pública.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-BEAUTY-005 concluida em modo autopilot multiagente release R10.
+- Beauty Pro ganhou consulta operacional integrada em `/api/beauty-pro/integracoes-operacionais`, agregando agenda dos próximos 14 dias, serviços/procedimentos Beauty e simulações de precificação do tenant sem expor persistência.
+- Backend manteve arquitetura hexagonal com Command, Result, UseCase/InputPort, OutputPort e adapter JDBC para a integração de agenda, serviços e precificação.
+- Web Beauty Pro passou a ter navegação interna por etapas e aba `Agenda e preços`, com busca operacional, filtro de margem, agenda Beauty, serviços e simulações com alerta visível de margem baixa/prejuízo.
+- Validação confirmou `mvn test` com 290 testes, `pnpm typecheck`, `pnpm lint`, `pnpm build`, Docker Compose, backend/web locais ativos, API com Ana demo e Browser em Verticais > Beauty Pro sem erros de console.
 - TASK-BEAUTY-004 concluida em modo autopilot multiagente release R10.
 - Beauty Pro ganhou tabelas `beauty_termos_consentimento`, `beauty_evidencias_evolucao` e `beauty_produtos_utilizados`, com vinculo tenant-scoped a cliente, protocolo, sessao e produto de estoque quando aplicavel.
 - API operacional adicionou consulta de seguranca operacional e criacao de termos, evidencias seguras sem foto real e produtos/lotes em `/api/beauty-pro/clientes/{clienteId}`.
