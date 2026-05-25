@@ -4,6 +4,9 @@ import java.net.URI;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,7 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.atendepro.modules.documento.application.port.in.CriarDocumentoProfissionalUseCase;
 import br.com.atendepro.modules.documento.application.port.in.DetalharDocumentoProfissionalUseCase;
+import br.com.atendepro.modules.documento.application.port.in.GerarPdfDocumentoProfissionalUseCase;
 import br.com.atendepro.modules.documento.application.port.in.ListarDocumentosProfissionaisUseCase;
+import br.com.atendepro.modules.documento.application.result.DocumentoProfissionalPdfResult;
 import br.com.atendepro.modules.documento.domain.model.StatusDocumentoProfissional;
 import br.com.atendepro.modules.documento.domain.model.TipoDocumentoProfissional;
 import br.com.atendepro.shared.application.pagination.Paginacao;
@@ -29,15 +34,18 @@ public class DocumentoProfissionalController {
     private final CriarDocumentoProfissionalUseCase criarDocumentoProfissionalUseCase;
     private final DetalharDocumentoProfissionalUseCase detalharDocumentoProfissionalUseCase;
     private final ListarDocumentosProfissionaisUseCase listarDocumentosProfissionaisUseCase;
+    private final GerarPdfDocumentoProfissionalUseCase gerarPdfDocumentoProfissionalUseCase;
 
     public DocumentoProfissionalController(
             CriarDocumentoProfissionalUseCase criarDocumentoProfissionalUseCase,
             DetalharDocumentoProfissionalUseCase detalharDocumentoProfissionalUseCase,
-            ListarDocumentosProfissionaisUseCase listarDocumentosProfissionaisUseCase
+            ListarDocumentosProfissionaisUseCase listarDocumentosProfissionaisUseCase,
+            GerarPdfDocumentoProfissionalUseCase gerarPdfDocumentoProfissionalUseCase
     ) {
         this.criarDocumentoProfissionalUseCase = criarDocumentoProfissionalUseCase;
         this.detalharDocumentoProfissionalUseCase = detalharDocumentoProfissionalUseCase;
         this.listarDocumentosProfissionaisUseCase = listarDocumentosProfissionaisUseCase;
+        this.gerarPdfDocumentoProfissionalUseCase = gerarPdfDocumentoProfissionalUseCase;
     }
 
     @PostMapping
@@ -56,6 +64,22 @@ public class DocumentoProfissionalController {
                 .map(DocumentoProfissionalResponse::de)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping(value = "/{documentoId}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> gerarPdf(
+            @PathVariable UUID documentoId,
+            @RequestParam(required = false) UUID carimboId
+    ) {
+        DocumentoProfissionalPdfResult pdf = gerarPdfDocumentoProfissionalUseCase.gerarPdf(documentoId, carimboId);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(pdf.contentType()))
+                .contentLength(pdf.conteudo().length)
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline()
+                        .filename(pdf.nomeArquivo())
+                        .build()
+                        .toString())
+                .body(pdf.conteudo());
     }
 
     @GetMapping

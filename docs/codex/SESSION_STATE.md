@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R6 — Documentos profissionais e carimbo.
 
 ## Última task concluída
-TASK-0602 — Carimbo profissional.
+TASK-0603 — Geração de PDF.
 
 ## Próxima task recomendada
-TASK-0603 — Geração de PDF.
+TASK-0604 — QR Code de validação.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0603 concluida em modo autopilot multiagente release R6.
+- Geracao de PDF de documentos profissionais criada em `/api/documentos-profissionais/{documentoId}/pdf`, com `carimboId` opcional para compor dados do carimbo profissional.
+- PDFBox ficou isolado em adapter de saida `PdfBoxDocumentoProfissionalAdapter`, por porta `GerarPdfDocumentoProfissionalPort`; o controller apenas retorna bytes `application/pdf`.
+- O PDF inicial inclui metadados do documento, conteudo, profissional e carimbo textual quando informado; QR, marca d'agua e modelos permanecem para as tasks oficiais seguintes.
+- Validacao confirmou `mvn test` com 225 testes, Docker Compose saudavel, backend local `UP` e PDF real com assinatura `%PDF`.
 - TASK-0602 concluida em modo autopilot multiagente release R6.
 - Carimbo profissional criado dentro do modulo `documento`, com dominio `CarimboProfissional`, enum `ConselhoProfissional`, Command/Result, UseCases, OutputPorts, adapter JDBC e controller fino em `/api/documentos-profissionais/carimbos`.
 - A base do carimbo registra profissional, conselho, UF, numero de registro, assinatura textual e clinica, sem antecipar upload de imagem, storage externo ou geracao de PDF.
