@@ -6,7 +6,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
-| TASK-0001 | Configurar estrutura inicial do repositório | Criar base de arquivos, padrões e validação inicial. | PENDENTE |
+| TASK-0001 | Configurar estrutura inicial do repositório | Criar base de arquivos, padrões e validação inicial. | CONCLUIDA |
 | TASK-0002 | Validar Harness Profissional | Garantir AGENTS, comandos curtos, protocolo e status. | PENDENTE |
 | TASK-0003 | Configurar Docker Compose com PostgreSQL | Subir PostgreSQL local e Mailpit. | PENDENTE |
 | TASK-0004 | Criar backend Spring Boot base | Criar app Spring Boot com dependências base. | PENDENTE |
