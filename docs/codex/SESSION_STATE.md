@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R4 — Custo real, precificação e relatórios.
 
 ## Última task concluída
-TASK-0406 — Simulador de preço web.
+TASK-0407 — Histórico de simulações.
 
 ## Próxima task recomendada
-TASK-0407 — Histórico de simulações.
+TASK-0408 — Relatório imprimível/PDF.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0407 concluida em modo autopilot multiagente release R4.
+- Historico de simulacoes de precificacao persistido em `precificacao_simulacoes`, com migration Liquibase, dominio `SimulacaoPrecificacao`, Command/Result, UseCases, OutputPorts e adapter JDBC.
+- API `/api/precificacao/simulacoes` permite salvar, listar, buscar e editar simulacoes tenant-scoped sem expor persistencia.
+- Web `features/precificacao` passou a salvar, editar, buscar e paginar simulacoes salvas, mantendo simulador e resultado no painel `/app`.
+- Validacao confirmou `mvn test` com 168 testes, `pnpm lint`, `pnpm typecheck`, `pnpm build`, Docker Compose saudavel, API real de criar/listar/editar simulacao e Browser em `/app`.
 - TASK-0406 concluida em modo autopilot multiagente release R4.
 - Feature web `features/precificacao` criada com client dedicado, schema Zod e tela mobile-first de simulador no painel `/app`.
 - O simulador chama `/api/precificacao/calculos/preco-recomendado` e `/api/precificacao/calculos/margem-lucro`, exibindo custo real, preco minimo, preco recomendado, margem real, lucro estimado e alertas.

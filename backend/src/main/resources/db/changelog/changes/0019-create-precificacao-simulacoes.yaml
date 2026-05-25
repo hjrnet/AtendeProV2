@@ -1,0 +1,149 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0019-create-precificacao-simulacoes
+      author: codex
+      changes:
+        - createTable:
+            tableName: precificacao_simulacoes
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: empresa_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: servico_procedimento_id
+                  type: uuid
+              - column:
+                  name: nome_procedimento
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: duracao_minutos
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: custo_insumos
+                  type: numeric(12,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: custo_sala_por_hora
+                  type: numeric(12,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: valor_hora_profissional
+                  type: numeric(12,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: custo_deslocamento
+                  type: numeric(12,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: custo_alimentacao
+                  type: numeric(12,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: taxas
+                  type: numeric(12,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: margem_desejada_percentual
+                  type: numeric(6,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: preco_venda
+                  type: numeric(12,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: custo_total
+                  type: numeric(12,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: preco_minimo
+                  type: numeric(12,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: preco_recomendado
+                  type: numeric(12,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: lucro_estimado
+                  type: numeric(12,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: margem_real_percentual
+                  type: numeric(6,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status_margem
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ativo
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: precificacao_simulacoes
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_precificacao_simulacoes_empresas
+        - addForeignKeyConstraint:
+            baseTableName: precificacao_simulacoes
+            baseColumnNames: servico_procedimento_id
+            referencedTableName: servicos_procedimentos
+            referencedColumnNames: id
+            constraintName: fk_precificacao_simulacoes_servicos
+        - createIndex:
+            tableName: precificacao_simulacoes
+            indexName: idx_precificacao_simulacoes_empresa_nome
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: nome_procedimento
+        - createIndex:
+            tableName: precificacao_simulacoes
+            indexName: idx_precificacao_simulacoes_empresa_criado
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: criado_em

@@ -27,10 +27,18 @@ import br.com.atendepro.modules.precificacao.application.command.CalcularPrecoMi
 import br.com.atendepro.modules.precificacao.application.command.CalcularPrecoRecomendadoCommand;
 import br.com.atendepro.modules.precificacao.application.command.CalcularPrecificacaoBaseCommand;
 import br.com.atendepro.modules.precificacao.application.command.ItemCustoPrecificacaoCommand;
+import br.com.atendepro.modules.precificacao.application.command.SalvarSimulacaoPrecificacaoCommand;
 import br.com.atendepro.modules.precificacao.application.port.out.CarregarServicoParaPrecificacaoPort;
+import br.com.atendepro.modules.precificacao.application.port.out.SalvarSimulacaoPrecificacaoPort;
 import br.com.atendepro.modules.precificacao.application.result.ServicoPrecificacaoResult;
+import br.com.atendepro.modules.precificacao.domain.model.AnaliseMargemLucroPrecificacao;
 import br.com.atendepro.modules.precificacao.domain.model.CategoriaItemPrecificacao;
+import br.com.atendepro.modules.precificacao.domain.model.CustoRealPrecificacao;
+import br.com.atendepro.modules.precificacao.domain.model.PrecoMinimoPrecificacao;
+import br.com.atendepro.modules.precificacao.domain.model.PrecoRecomendadoPrecificacao;
+import br.com.atendepro.modules.precificacao.domain.model.SimulacaoPrecificacao;
 import br.com.atendepro.modules.precificacao.domain.model.StatusMargemPrecificacao;
+import br.com.atendepro.shared.application.pagination.ResultadoPaginado;
 import br.com.atendepro.shared.domain.exception.BusinessException;
 
 class PrecificacaoServiceTest {
@@ -220,9 +228,62 @@ class PrecificacaoServiceTest {
         assertThat(result.alertas()).extracting("codigo").containsExactly("MARGEM_BAIXA");
     }
 
+    @Test
+    void deveSalvarSimulacaoPrecificacao() {
+        TenantContextHolder.definir(new TenantContext(EMPRESA_ID, UUID.randomUUID(), Set.of(PerfilAcesso.EMPRESA_ADMIN)));
+        SalvarSimulacaoFake salvarFake = new SalvarSimulacaoFake();
+        PrecificacaoService service = service((empresaId, servicoProcedimentoId) -> Optional.empty(), salvarFake);
+
+        var result = service.salvarSimulacao(simulacaoCommand("Simulacao inicial", new BigDecimal("240.00")));
+
+        assertThat(result.empresaId()).isEqualTo(EMPRESA_ID);
+        assertThat(result.nomeProcedimento()).isEqualTo("Simulacao inicial");
+        assertThat(result.precoRecomendado()).isEqualByComparingTo("240.00");
+        assertThat(salvarFake.simulacaoSalva.id()).isEqualTo(result.id());
+    }
+
+    @Test
+    void deveAtualizarSimulacaoPrecificacaoExistente() {
+        TenantContextHolder.definir(new TenantContext(EMPRESA_ID, UUID.randomUUID(), Set.of(PerfilAcesso.EMPRESA_ADMIN)));
+        UUID simulacaoId = UUID.fromString("96df0c0f-0d09-432f-9b51-805d1f9698d2");
+        SimulacaoPrecificacao simulacaoAtual = simulacao(simulacaoId, "Simulacao atual");
+        AtualizarSimulacaoFake atualizarFake = new AtualizarSimulacaoFake();
+        PrecificacaoService service = new PrecificacaoService(
+                (empresaId, servicoProcedimentoId) -> Optional.empty(),
+                simulacao -> {
+                },
+                atualizarFake::atualizarSimulacao,
+                id -> Optional.of(simulacaoAtual),
+                (empresaId, paginacao, busca) -> new ResultadoPaginado<>(List.of(simulacaoAtual), 1, paginacao.pagina(), paginacao.tamanho()),
+                new TenantAccessService(),
+                new PermissaoAcessoService(),
+                CLOCK
+        );
+
+        var result = service.atualizarSimulacao(simulacaoId, simulacaoCommand("Simulacao editada", new BigDecimal("250.00")));
+
+        assertThat(result.id()).isEqualTo(simulacaoId);
+        assertThat(result.nomeProcedimento()).isEqualTo("Simulacao editada");
+        assertThat(result.precoVenda()).isEqualByComparingTo("250.00");
+        assertThat(atualizarFake.simulacaoAtualizada.id()).isEqualTo(simulacaoId);
+    }
+
     private PrecificacaoService service(CarregarServicoParaPrecificacaoPort carregarPort) {
+        return service(carregarPort, simulacao -> {
+        });
+    }
+
+    private PrecificacaoService service(
+            CarregarServicoParaPrecificacaoPort carregarPort,
+            SalvarSimulacaoPrecificacaoPort salvarPort
+    ) {
         return new PrecificacaoService(
                 carregarPort,
+                salvarPort,
+                simulacao -> {
+                },
+                id -> Optional.empty(),
+                (empresaId, paginacao, busca) -> new ResultadoPaginado<>(List.of(), 0, paginacao.pagina(), paginacao.tamanho()),
                 new TenantAccessService(),
                 new PermissaoAcessoService(),
                 CLOCK
@@ -247,5 +308,90 @@ class PrecificacaoServiceTest {
                         )
                 )
         );
+    }
+
+    private SalvarSimulacaoPrecificacaoCommand simulacaoCommand(String nomeProcedimento, BigDecimal precoVenda) {
+        return new SalvarSimulacaoPrecificacaoCommand(
+                null,
+                null,
+                nomeProcedimento,
+                60,
+                new BigDecimal("168.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                new BigDecimal("30.00"),
+                precoVenda
+        );
+    }
+
+    private SimulacaoPrecificacao simulacao(UUID id, String nomeProcedimento) {
+        CustoRealPrecificacao custoReal = CustoRealPrecificacao.calcular(
+                EMPRESA_ID,
+                null,
+                nomeProcedimento,
+                60,
+                new BigDecimal("168.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                Instant.parse("2026-05-25T00:00:00Z")
+        );
+        PrecoMinimoPrecificacao precoMinimo = PrecoMinimoPrecificacao.calcular(custoReal);
+        PrecoRecomendadoPrecificacao precoRecomendado = PrecoRecomendadoPrecificacao.calcular(
+                precoMinimo,
+                new BigDecimal("30.00")
+        );
+        AnaliseMargemLucroPrecificacao analise = AnaliseMargemLucroPrecificacao.analisar(
+                precoMinimo,
+                new BigDecimal("240.00")
+        );
+        return new SimulacaoPrecificacao(
+                id,
+                EMPRESA_ID,
+                null,
+                nomeProcedimento,
+                60,
+                new BigDecimal("168.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                new BigDecimal("30.00"),
+                new BigDecimal("240.00"),
+                custoReal.custoTotal(),
+                precoMinimo.precoMinimo(),
+                precoRecomendado.precoRecomendado(),
+                analise.lucroEstimado(),
+                analise.margemRealPercentual(),
+                analise.status(),
+                true,
+                Instant.parse("2026-05-25T00:00:00Z"),
+                Instant.parse("2026-05-25T00:00:00Z")
+        );
+    }
+
+    private static class SalvarSimulacaoFake implements SalvarSimulacaoPrecificacaoPort {
+
+        private SimulacaoPrecificacao simulacaoSalva;
+
+        @Override
+        public void salvarSimulacao(SimulacaoPrecificacao simulacao) {
+            this.simulacaoSalva = simulacao;
+        }
+    }
+
+    private static class AtualizarSimulacaoFake {
+
+        private SimulacaoPrecificacao simulacaoAtualizada;
+
+        private void atualizarSimulacao(SimulacaoPrecificacao simulacao) {
+            this.simulacaoAtualizada = simulacao;
+        }
     }
 }

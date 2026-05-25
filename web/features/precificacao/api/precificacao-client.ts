@@ -30,6 +30,11 @@ export type CalculoMargemLucroRequest = Omit<CalculoPrecoRecomendadoRequest, "ma
   precoVenda: number;
 };
 
+export type SalvarSimulacaoPrecificacaoRequest = CalculoPrecoRecomendadoRequest & {
+  servicoProcedimentoId?: string | null;
+  precoVenda: number;
+};
+
 export type PrecoRecomendadoResponse = {
   empresaId: string;
   servicoProcedimentoId: string | null;
@@ -61,6 +66,39 @@ export type MargemLucroResponse = {
   calculadoEm: string;
 };
 
+export type SimulacaoPrecificacao = {
+  id: string;
+  empresaId: string;
+  servicoProcedimentoId: string | null;
+  nomeProcedimento: string;
+  duracaoMinutos: number;
+  custoInsumos: number;
+  custoSalaPorHora: number;
+  valorHoraProfissional: number;
+  custoDeslocamento: number;
+  custoAlimentacao: number;
+  taxas: number;
+  margemDesejadaPercentual: number;
+  precoVenda: number;
+  custoTotal: number;
+  precoMinimo: number;
+  precoRecomendado: number;
+  lucroEstimado: number;
+  margemRealPercentual: number;
+  statusMargem: MargemLucroResponse["status"];
+  ativo: boolean;
+  criadoEm: string;
+  atualizadoEm: string;
+};
+
+export type SimulacoesPrecificacaoPaginadas = {
+  itens: SimulacaoPrecificacao[];
+  totalItens: number;
+  pagina: number;
+  tamanho: number;
+  totalPaginas: number;
+};
+
 const precificacaoApi = criarApiClient({
   getAccessToken: () => carregarSessaoAutenticada()?.accessToken ?? null,
   onUnauthorized: () => limparSessaoAutenticada()
@@ -72,4 +110,23 @@ export function calcularPrecoRecomendado(request: CalculoPrecoRecomendadoRequest
 
 export function calcularMargemLucro(request: CalculoMargemLucroRequest) {
   return precificacaoApi.post<MargemLucroResponse>("/api/precificacao/calculos/margem-lucro", request);
+}
+
+export function listarSimulacoesPrecificacao(params: { empresaId: string; pagina: number; tamanho: number; busca?: string }) {
+  return precificacaoApi.get<SimulacoesPrecificacaoPaginadas>("/api/precificacao/simulacoes", {
+    query: {
+      empresaId: params.empresaId,
+      pagina: params.pagina,
+      tamanho: params.tamanho,
+      busca: params.busca || undefined
+    }
+  });
+}
+
+export function salvarSimulacaoPrecificacao(request: SalvarSimulacaoPrecificacaoRequest) {
+  return precificacaoApi.post<SimulacaoPrecificacao>("/api/precificacao/simulacoes", request);
+}
+
+export function atualizarSimulacaoPrecificacao(simulacaoId: string, request: SalvarSimulacaoPrecificacaoRequest) {
+  return precificacaoApi.put<SimulacaoPrecificacao>(`/api/precificacao/simulacoes/${simulacaoId}`, request);
 }
