@@ -1,0 +1,59 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0005-create-empresas
+      author: codex
+      changes:
+        - createTable:
+            tableName: empresas
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: nome_fantasia
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: razao_social
+                  type: varchar(180)
+              - column:
+                  name: documento
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: email
+                  type: varchar(180)
+              - column:
+                  name: telefone
+                  type: varchar(40)
+              - column:
+                  name: ativo
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: empresas
+            indexName: idx_empresas_documento
+            columns:
+              - column:
+                  name: documento

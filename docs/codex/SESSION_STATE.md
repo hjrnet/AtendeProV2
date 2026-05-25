@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R1 — Auth, tenant e segurança.
 
 ## Última task concluída
-TASK-0105 — Recuperação de senha.
+TASK-0106 — Criar módulo Empresa/Tenant.
 
 ## Próxima task recomendada
-TASK-0106 — Criar módulo Empresa/Tenant.
+TASK-0107 — Criar usuário administrador da empresa.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0106 concluida em modo autopilot multiagente release R1.
+- Modulo Empresa/Tenant criado com dominio, Command/Result, UseCases, portas, adapter JDBC e API `/api/empresas`.
+- Base de isolamento definida com `empresas.id` como identificador de tenant para vinculacoes futuras.
+- Validacao local confirmou migration `empresas`, cadastro, busca por id e listagem paginada.
 - TASK-0105 concluida em modo autopilot multiagente release R1.
 - Recuperacao de senha criada com token aleatorio, hash SHA-256 persistido em `auth_password_reset_tokens`, expiracao curta, uso unico e resposta generica.
 - Token de recuperacao so e exposto por configuracao local para teste sem provedor externo.
