@@ -45,3 +45,7 @@ A regra de isolamento por `tenant_id` fica na camada de aplicação por `TenantA
 ## Perfis e permissões
 
 Perfis de acesso mapeiam permissões de negócio em `PermissaoAcesso`, com strings de authority publicadas no JWT e na resposta de login. A validação backend inicial acontece por `PermissaoAcessoService` quando existe contexto de tenant; chamadas sem contexto seguem permitidas temporariamente para bootstrap e validação local até a proteção de rotas web/backend avançar.
+
+## Login web
+
+O login web fica em `features/auth`, com página raiz fina, schema Zod e client dedicado para `/api/auth/login`. A sessão usa `sessionStorage` nesta fase para evitar persistência permanente em `localStorage`, com fallback para ambientes de teste que bloqueiam storage. O backend aplica CORS em `/api/**` a partir de `app.cors.allowed-origins` para suportar o desenvolvimento local web + API.

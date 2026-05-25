@@ -33,7 +33,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-0108 | Contexto de tenant | Resolver tenant por token e request. | CONCLUIDA |
 | TASK-0109 | Isolamento por tenant_id | Aplicar filtros e validações de tenant. | CONCLUIDA |
 | TASK-0110 | Perfis e permissões | Roles e authorities base. | CONCLUIDA |
-| TASK-0111 | Tela de login web | Login, botão demo e armazenamento seguro de token. | PENDENTE |
+| TASK-0111 | Tela de login web | Login, botão demo e armazenamento seguro de token. | CONCLUIDA |
 | TASK-0112 | Proteção de rotas web | Guardas e redirecionamento. | PENDENTE |
 
 ## R2 — Admin SaaS, planos e assinaturas

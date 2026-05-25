@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R1 — Auth, tenant e segurança.
 
 ## Última task concluída
-TASK-0110 — Perfis e permissões.
+TASK-0111 — Tela de login web.
 
 ## Próxima task recomendada
-TASK-0111 — Tela de login web.
+TASK-0112 — Proteção de rotas web.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0111 concluida em modo autopilot multiagente release R1.
+- Tela de login web criada como feature `auth`, com schema Zod, formulario validado, botao demo e pagina raiz fina.
+- Sessao autenticada e armazenada em `sessionStorage` quando disponivel, com fallback resiliente para ambientes que bloqueiam storage.
+- CORS backend configurado para `/api/**`, usando `app.cors.allowed-origins`, para permitir login web local.
+- Validacao local confirmou login demo real no navegador, sessao ativa, lint/typecheck/build web e testes backend.
 - TASK-0110 concluida em modo autopilot multiagente release R1.
 - Perfis de acesso agora mapeiam permissoes base e authorities, publicadas no JWT e na resposta de login.
 - `PermissaoAcessoService` valida permissoes quando ha contexto de tenant; chamadas sem contexto continuam permitidas nesta fase local/bootstrap ate a protecao de rotas.
