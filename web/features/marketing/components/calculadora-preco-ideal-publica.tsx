@@ -80,10 +80,10 @@ export function CalculadoraPrecoIdealPublica() {
               AtendePro
             </Link>
             <Link
-              href="/planos"
+              href="/contato"
               className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#a8cbc4] bg-white px-4 text-sm font-semibold text-[#123c3a] shadow-sm hover:bg-[#f8fcfb] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f766e]"
             >
-              Planos
+              Contato
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </header>

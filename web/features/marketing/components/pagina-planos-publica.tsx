@@ -63,10 +63,10 @@ export function PaginaPlanosPublica() {
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
-                href="/login"
+                href="/contato"
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#0f766e] px-5 text-sm font-semibold text-white shadow-lg shadow-[#0f766e]/20 transition hover:bg-[#0d625c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f766e]"
               >
-                Iniciar demonstração
+                Solicitar contato
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
               <Link

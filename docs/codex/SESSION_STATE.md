@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R10 — Nutri Pro, Beauty Pro e comercial.
+R11 — IA, automações e integrações.
 
 ## Última task concluída
-TASK-1004 — Calculadora gratuita.
+TASK-1005 — Formulário de lead.
 
 ## Próxima task recomendada
-TASK-1005 — Formulário de lead.
+TASK-1101 — IA de precificação.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-1005 concluida em modo autopilot multiagente release R10.
+- R10 foi concluida com Nutri Pro operacional, Beauty Pro operacional e camada comercial pública: landing, páginas por vertical, planos, calculadora gratuita e formulário de lead.
+- Backend ganhou módulo `marketing` com arquitetura hexagonal para leads públicos, incluindo `LeadMarketing`, Command, Result, UseCase/InputPort, OutputPort, adapter JDBC, controller fino e migration `0035-create-marketing-leads.yaml`.
+- Web ganhou rota `/contato` com formulário público de interesse, client de API, validação HTML, estados de envio e mensagem clara de que CRM/e-mail externo ficam fora do escopo.
+- Validação confirmou `mvn test` com 292 testes, `pnpm typecheck`, `pnpm lint`, `pnpm build`, Docker Compose saudável, backend/web locais ativos, API `POST /api/marketing/leads` registrando lead fictício com status `NOVO` e Browser em `/contato` sem erros de console.
 - TASK-1004 concluida em modo autopilot multiagente release R10.
 - Marketing público ganhou a rota `/calculadora-preco-ideal`, com calculadora gratuita de custo real, preço mínimo, preço recomendado, lucro estimado e alerta de margem, sem captura de lead.
 - A calculadora usa cálculo local no frontend, mantendo a task como lead magnet público e deixando formulário/captação para a TASK-1005.

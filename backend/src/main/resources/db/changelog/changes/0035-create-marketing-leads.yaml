@@ -1,0 +1,70 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0035-create-marketing-leads
+      author: codex
+      changes:
+        - createTable:
+            tableName: marketing_leads
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: nome
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(180)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: telefone
+                  type: varchar(40)
+              - column:
+                  name: area_interesse
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tamanho_operacao
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: origem
+                  type: varchar(80)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: mensagem
+                  type: text
+              - column:
+                  name: status
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamp with time zone
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: marketing_leads
+            indexName: idx_marketing_leads_email
+            columns:
+              - column:
+                  name: email
+        - createIndex:
+            tableName: marketing_leads
+            indexName: idx_marketing_leads_status_criado
+            columns:
+              - column:
+                  name: status
+              - column:
+                  name: criado_em

@@ -67,3 +67,5 @@ databaseChangeLog:
       file: db/changelog/changes/0033-create-beauty-protocolos-sessoes.yaml
   - include:
       file: db/changelog/changes/0034-create-beauty-seguranca-produtos.yaml
+  - include:
+      file: db/changelog/changes/0035-create-marketing-leads.yaml

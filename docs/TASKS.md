@@ -164,7 +164,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-1002 | Páginas por vertical | Nutri, Estética, Biomed, Fisio, Spaces. | CONCLUIDA |
 | TASK-1003 | Página de planos | Comparação e trial 30 dias. | CONCLUIDA |
 | TASK-1004 | Calculadora gratuita | Lead magnet de preço ideal. | CONCLUIDA |
-| TASK-1005 | Formulário de lead | Captação de interessados. | PENDENTE |
+| TASK-1005 | Formulário de lead | Captação de interessados. | CONCLUIDA |
 
 ## R11 — IA, automações e integrações
 

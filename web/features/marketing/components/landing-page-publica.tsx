@@ -140,10 +140,10 @@ export function LandingPagePublica() {
             </p>
           </div>
           <Link
-            href="/app"
+            href="/contato"
             className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#0f766e] px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0d625c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f766e]"
           >
-            Abrir painel
+            Solicitar contato
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         </div>
@@ -251,6 +251,9 @@ function HeroSection() {
               className="rounded-md px-3 py-2 text-sm font-medium text-[#34504c] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f766e]"
             >
               Calculadora
+            </Link>
+            <Link href="/contato" className="rounded-md px-3 py-2 text-sm font-medium text-[#34504c] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f766e]">
+              Contato
             </Link>
             <Link
               href="/login"
