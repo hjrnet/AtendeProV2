@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R0 — Fundação técnica profissional.
 
 ## Última task concluída
-TASK-0010 — Criar padrão global de erros.
+TASK-0011 — Criar padrão de testes backend.
 
 ## Próxima task recomendada
-TASK-0011 — Criar padrão de testes backend.
+TASK-0012 — Criar padrão de API client web.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,8 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0011 concluida em modo autopilot release R0.
+- Padrao de testes backend criado com JUnit 5, Mockito via Spring Boot Test, Testcontainers PostgreSQL e smoke tests.
 - TASK-0010 concluida em modo autopilot release R0.
 - Padrao global de erros criado com `BusinessException`, `ValidationException`, `GlobalExceptionHandler` e DTOs de erro.
 - TASK-0009 concluida em modo autopilot release R0.

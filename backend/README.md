@@ -45,3 +45,11 @@ Value objects e utilitarios compartilhados ficam em `br.com.atendepro.shared`, i
 ## Erros de API
 
 Erros globais sao tratados por `GlobalExceptionHandler`, com respostas padronizadas por `ErroApiResponse`.
+
+## Testes
+
+```bash
+mvn test
+```
+
+O padrao de testes usa JUnit 5, AssertJ, Mockito via Spring Boot Test e Testcontainers para PostgreSQL.

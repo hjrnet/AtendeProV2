@@ -20,6 +20,8 @@ mvn test
 mvn spring-boot:run
 ```
 
+`mvn test` pode iniciar Testcontainers e exige Docker local disponivel.
+
 ## Web
 
 ```bash
