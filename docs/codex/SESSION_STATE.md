@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R2 — Admin SaaS, planos e assinaturas.
 
 ## Última task concluída
-TASK-0112 — Proteção de rotas web.
+TASK-0201 — Criar módulo Admin SaaS.
 
 ## Próxima task recomendada
-TASK-0201 — Criar módulo Admin SaaS.
+TASK-0202 — Dashboard Admin SaaS.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0201 concluida em modo autopilot multiagente release R2.
+- Modulo Admin SaaS criado no backend com UseCase, Result, Service, Controller e Response para `/api/admin-saas/status`.
+- Permissao `ACESSAR_ADMIN_SAAS` adicionada aos perfis globais `SUPER_ADMIN` e `SUPORTE`.
+- Validacao local confirmou status do Admin SaaS com Bearer JWT real do super admin.
 - TASK-0112 concluida em modo autopilot multiagente release R1.
 - Web agora possui rota publica `/login`, rota protegida `/app` e redirecionamento raiz para o painel protegido.
 - `RotaProtegida` valida sessao no cliente e redireciona para `/login?redirectTo=...`; `RotaPublica` envia usuario autenticado para `/app`.

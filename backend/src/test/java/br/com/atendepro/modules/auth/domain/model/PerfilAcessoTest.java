@@ -12,6 +12,7 @@ class PerfilAcessoTest {
                 .contains(
                         PermissaoAcesso.CADASTRAR_EMPRESA,
                         PermissaoAcesso.CADASTRAR_ADMINISTRADOR_EMPRESA,
+                        PermissaoAcesso.ACESSAR_ADMIN_SAAS,
                         PermissaoAcesso.ACESSAR_SUPORTE
                 );
     }

@@ -6,6 +6,7 @@ public enum PermissaoAcesso {
     VISUALIZAR_EMPRESA("empresa:visualizar"),
     CADASTRAR_ADMINISTRADOR_EMPRESA("empresa:administrador:cadastrar"),
     GERENCIAR_USUARIOS("usuarios:gerenciar"),
+    ACESSAR_ADMIN_SAAS("admin-saas:acessar"),
     ACESSAR_SUPORTE("suporte:acessar");
 
     private final String authority;

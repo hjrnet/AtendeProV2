@@ -40,7 +40,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
-| TASK-0201 | Criar módulo Admin SaaS | Base para gestão da plataforma. | PENDENTE |
+| TASK-0201 | Criar módulo Admin SaaS | Base para gestão da plataforma. | CONCLUIDA |
 | TASK-0202 | Dashboard Admin SaaS | MRR, empresas, trials e chamados. | PENDENTE |
 | TASK-0203 | Gestão de empresas | Listar, detalhar, bloquear e observar empresas. | PENDENTE |
 | TASK-0204 | Criar módulo de planos | Entidade Plano e regras de módulos. | PENDENTE |

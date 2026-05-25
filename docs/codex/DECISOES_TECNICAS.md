@@ -53,3 +53,7 @@ O login web fica em `features/auth`, com página raiz fina, schema Zod e client 
 ## Proteção de rotas web
 
 A proteção web inicial é client-side porque a sessão atual vive no navegador. `/app` usa `RotaProtegida` e redireciona para `/login?redirectTo=...` quando não há sessão. `/login` usa `RotaPublica` e envia usuários autenticados para `/app`. A raiz `/` redireciona para `/app`, deixando o guarda decidir o destino final.
+
+## Admin SaaS
+
+O módulo Admin SaaS começa em backend hexagonal com permissão dedicada `ACESSAR_ADMIN_SAAS`, use case de status e controller fino em `/api/admin-saas/status`. O acesso inicial fica restrito aos perfis globais `SUPER_ADMIN` e `SUPORTE`; dashboards, gestão de empresas e planos evoluem nas tasks seguintes da R2.

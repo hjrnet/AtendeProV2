@@ -9,11 +9,13 @@ public enum PerfilAcesso {
             PermissaoAcesso.VISUALIZAR_EMPRESA,
             PermissaoAcesso.CADASTRAR_ADMINISTRADOR_EMPRESA,
             PermissaoAcesso.GERENCIAR_USUARIOS,
+            PermissaoAcesso.ACESSAR_ADMIN_SAAS,
             PermissaoAcesso.ACESSAR_SUPORTE
     )),
     SUPORTE(Set.of(
             PermissaoAcesso.LISTAR_EMPRESAS,
             PermissaoAcesso.VISUALIZAR_EMPRESA,
+            PermissaoAcesso.ACESSAR_ADMIN_SAAS,
             PermissaoAcesso.ACESSAR_SUPORTE
     )),
     EMPRESA_ADMIN(Set.of(
