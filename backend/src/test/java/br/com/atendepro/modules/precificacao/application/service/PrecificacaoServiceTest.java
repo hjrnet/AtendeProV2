@@ -22,6 +22,7 @@ import br.com.atendepro.modules.empresa.application.context.TenantAccessService;
 import br.com.atendepro.modules.empresa.application.context.TenantContext;
 import br.com.atendepro.modules.empresa.application.context.TenantContextHolder;
 import br.com.atendepro.modules.precificacao.application.command.CalcularCustoRealCommand;
+import br.com.atendepro.modules.precificacao.application.command.CalcularMargemLucroCommand;
 import br.com.atendepro.modules.precificacao.application.command.CalcularPrecoMinimoCommand;
 import br.com.atendepro.modules.precificacao.application.command.CalcularPrecoRecomendadoCommand;
 import br.com.atendepro.modules.precificacao.application.command.CalcularPrecificacaoBaseCommand;
@@ -29,6 +30,7 @@ import br.com.atendepro.modules.precificacao.application.command.ItemCustoPrecif
 import br.com.atendepro.modules.precificacao.application.port.out.CarregarServicoParaPrecificacaoPort;
 import br.com.atendepro.modules.precificacao.application.result.ServicoPrecificacaoResult;
 import br.com.atendepro.modules.precificacao.domain.model.CategoriaItemPrecificacao;
+import br.com.atendepro.modules.precificacao.domain.model.StatusMargemPrecificacao;
 import br.com.atendepro.shared.domain.exception.BusinessException;
 
 class PrecificacaoServiceTest {
@@ -191,6 +193,31 @@ class PrecificacaoServiceTest {
         assertThat(result.precoMinimo()).isEqualByComparingTo("168.00");
         assertThat(result.precoRecomendado()).isEqualByComparingTo("240.00");
         assertThat(result.margemDesejadaPercentual()).isEqualByComparingTo("30.00");
+    }
+
+    @Test
+    void deveCalcularMargemLucroEAlertas() {
+        TenantContextHolder.definir(new TenantContext(EMPRESA_ID, UUID.randomUUID(), Set.of(PerfilAcesso.EMPRESA_ADMIN)));
+        PrecificacaoService service = service((empresaId, servicoProcedimentoId) -> Optional.empty());
+
+        var result = service.calcularMargemLucro(new CalcularMargemLucroCommand(
+                null,
+                null,
+                "Procedimento",
+                60,
+                new BigDecimal("168.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                new BigDecimal("200.00")
+        ));
+
+        assertThat(result.lucroEstimado()).isEqualByComparingTo("32.00");
+        assertThat(result.margemRealPercentual()).isEqualByComparingTo("16.00");
+        assertThat(result.status()).isEqualTo(StatusMargemPrecificacao.MARGEM_BAIXA);
+        assertThat(result.alertas()).extracting("codigo").containsExactly("MARGEM_BAIXA");
     }
 
     private PrecificacaoService service(CarregarServicoParaPrecificacaoPort carregarPort) {

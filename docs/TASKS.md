@@ -74,7 +74,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-0402 | Calculadora de custo real | Insumos, sala, tempo, deslocamento, alimentação, taxas. | CONCLUIDA |
 | TASK-0403 | Preço mínimo | Preço para não operar no prejuízo. | CONCLUIDA |
 | TASK-0404 | Preço recomendado | Cálculo por margem desejada. | CONCLUIDA |
-| TASK-0405 | Margem e lucro | Margem real, lucro estimado e alertas. | PENDENTE |
+| TASK-0405 | Margem e lucro | Margem real, lucro estimado e alertas. | CONCLUIDA |
 | TASK-0406 | Simulador de preço web | Tela completa com resultado. | PENDENTE |
 | TASK-0407 | Histórico de simulações | Salvar e editar simulações. | PENDENTE |
 | TASK-0408 | Relatório imprimível/PDF | PDF de precificação e composição de custos. | PENDENTE |

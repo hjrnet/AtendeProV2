@@ -107,3 +107,5 @@ A TASK-0402 adiciona `/api/precificacao/calculos/custo-real`. O custo real soma 
 A TASK-0403 define preco minimo como ponto de equilibrio: `precoMinimo = custoRealTotal`. O endpoint `/api/precificacao/calculos/preco-minimo` reutiliza os mesmos componentes do custo real e nao calcula margem desejada, lucro estimado ou alertas, preservando esses comportamentos para as tasks oficiais seguintes.
 
 A TASK-0404 calcula preco recomendado por margem desejada sobre o preco de venda: `precoRecomendado = custoTotal / (1 - margemDesejadaPercentual / 100)`. A margem deve ficar entre 0 e 99.99, e o arredondamento usa teto em centavos para evitar recomendar preco que fique abaixo da margem alvo.
+
+A TASK-0405 adiciona analise de margem e lucro em `/api/precificacao/calculos/margem-lucro`. A margem real e calculada como `lucroEstimado / precoVenda * 100`, com lucro estimado igual a `precoVenda - custoTotal`. Alertas iniciais usam regras explicitas: preco abaixo do minimo e critico, preco no ponto de equilibrio exige atencao e margem positiva abaixo de 20% tambem exige atencao.

@@ -13,20 +13,24 @@ import br.com.atendepro.modules.auth.application.permission.PermissaoAcessoServi
 import br.com.atendepro.modules.auth.domain.model.PermissaoAcesso;
 import br.com.atendepro.modules.empresa.application.context.TenantAccessService;
 import br.com.atendepro.modules.precificacao.application.command.CalcularCustoRealCommand;
+import br.com.atendepro.modules.precificacao.application.command.CalcularMargemLucroCommand;
 import br.com.atendepro.modules.precificacao.application.command.CalcularPrecoMinimoCommand;
 import br.com.atendepro.modules.precificacao.application.command.CalcularPrecoRecomendadoCommand;
 import br.com.atendepro.modules.precificacao.application.command.CalcularPrecificacaoBaseCommand;
 import br.com.atendepro.modules.precificacao.application.command.ItemCustoPrecificacaoCommand;
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularCustoRealUseCase;
+import br.com.atendepro.modules.precificacao.application.port.in.CalcularMargemLucroUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecoMinimoUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecoRecomendadoUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecificacaoBaseUseCase;
 import br.com.atendepro.modules.precificacao.application.port.out.CarregarServicoParaPrecificacaoPort;
 import br.com.atendepro.modules.precificacao.application.result.CalculoPrecificacaoBaseResult;
 import br.com.atendepro.modules.precificacao.application.result.CustoRealPrecificacaoResult;
+import br.com.atendepro.modules.precificacao.application.result.MargemLucroPrecificacaoResult;
 import br.com.atendepro.modules.precificacao.application.result.PrecoMinimoPrecificacaoResult;
 import br.com.atendepro.modules.precificacao.application.result.PrecoRecomendadoPrecificacaoResult;
 import br.com.atendepro.modules.precificacao.application.result.ServicoPrecificacaoResult;
+import br.com.atendepro.modules.precificacao.domain.model.AnaliseMargemLucroPrecificacao;
 import br.com.atendepro.modules.precificacao.domain.model.CalculoPrecificacao;
 import br.com.atendepro.modules.precificacao.domain.model.CustoRealPrecificacao;
 import br.com.atendepro.modules.precificacao.domain.model.ItemCustoPrecificacao;
@@ -40,7 +44,8 @@ public class PrecificacaoService implements
         CalcularPrecificacaoBaseUseCase,
         CalcularCustoRealUseCase,
         CalcularPrecoMinimoUseCase,
-        CalcularPrecoRecomendadoUseCase {
+        CalcularPrecoRecomendadoUseCase,
+        CalcularMargemLucroUseCase {
 
     private final CarregarServicoParaPrecificacaoPort carregarServicoParaPrecificacaoPort;
     private final TenantAccessService tenantAccessService;
@@ -148,6 +153,34 @@ public class PrecificacaoService implements
                 command.margemDesejadaPercentual()
         );
         return PrecoRecomendadoPrecificacaoResult.de(precoRecomendado, servico);
+    }
+
+    @Override
+    public MargemLucroPrecificacaoResult calcularMargemLucro(CalcularMargemLucroCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        ServicoPrecificacaoResult servico = carregarServico(command.servicoProcedimentoId(), empresaId);
+        String nomeProcedimento = nomeProcedimento(command.nomeProcedimento(), servico);
+        int duracaoMinutos = duracaoMinutos(command.duracaoMinutos(), servico);
+        CustoRealPrecificacao custoReal = CustoRealPrecificacao.calcular(
+                empresaId,
+                command.servicoProcedimentoId(),
+                nomeProcedimento,
+                duracaoMinutos,
+                command.custoInsumos(),
+                command.custoSalaPorHora(),
+                command.valorHoraProfissional(),
+                command.custoDeslocamento(),
+                command.custoAlimentacao(),
+                command.taxas(),
+                Instant.now(clock)
+        );
+        PrecoMinimoPrecificacao precoMinimo = PrecoMinimoPrecificacao.calcular(custoReal);
+        AnaliseMargemLucroPrecificacao analise = AnaliseMargemLucroPrecificacao.analisar(
+                precoMinimo,
+                command.precoVenda()
+        );
+        return MargemLucroPrecificacaoResult.de(analise, servico);
     }
 
     private ServicoPrecificacaoResult carregarServico(UUID servicoProcedimentoId, UUID empresaId) {

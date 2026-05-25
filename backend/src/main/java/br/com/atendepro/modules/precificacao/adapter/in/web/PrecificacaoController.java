@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularCustoRealUseCase;
+import br.com.atendepro.modules.precificacao.application.port.in.CalcularMargemLucroUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecoMinimoUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecoRecomendadoUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecificacaoBaseUseCase;
@@ -22,17 +23,20 @@ public class PrecificacaoController {
     private final CalcularCustoRealUseCase calcularCustoRealUseCase;
     private final CalcularPrecoMinimoUseCase calcularPrecoMinimoUseCase;
     private final CalcularPrecoRecomendadoUseCase calcularPrecoRecomendadoUseCase;
+    private final CalcularMargemLucroUseCase calcularMargemLucroUseCase;
 
     public PrecificacaoController(
             CalcularPrecificacaoBaseUseCase calcularPrecificacaoBaseUseCase,
             CalcularCustoRealUseCase calcularCustoRealUseCase,
             CalcularPrecoMinimoUseCase calcularPrecoMinimoUseCase,
-            CalcularPrecoRecomendadoUseCase calcularPrecoRecomendadoUseCase
+            CalcularPrecoRecomendadoUseCase calcularPrecoRecomendadoUseCase,
+            CalcularMargemLucroUseCase calcularMargemLucroUseCase
     ) {
         this.calcularPrecificacaoBaseUseCase = calcularPrecificacaoBaseUseCase;
         this.calcularCustoRealUseCase = calcularCustoRealUseCase;
         this.calcularPrecoMinimoUseCase = calcularPrecoMinimoUseCase;
         this.calcularPrecoRecomendadoUseCase = calcularPrecoRecomendadoUseCase;
+        this.calcularMargemLucroUseCase = calcularMargemLucroUseCase;
     }
 
     @PostMapping("/calculos/base")
@@ -68,6 +72,15 @@ public class PrecificacaoController {
     ) {
         return ResponseEntity.ok(PrecoRecomendadoPrecificacaoResponse.de(
                 calcularPrecoRecomendadoUseCase.calcularPrecoRecomendado(request.paraCommand())
+        ));
+    }
+
+    @PostMapping("/calculos/margem-lucro")
+    public ResponseEntity<MargemLucroPrecificacaoResponse> calcularMargemLucro(
+            @Valid @RequestBody CalcularMargemLucroRequest request
+    ) {
+        return ResponseEntity.ok(MargemLucroPrecificacaoResponse.de(
+                calcularMargemLucroUseCase.calcularMargemLucro(request.paraCommand())
         ));
     }
 }
