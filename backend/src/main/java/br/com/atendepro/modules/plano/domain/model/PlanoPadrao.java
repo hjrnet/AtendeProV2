@@ -11,6 +11,8 @@ public enum PlanoPadrao {
             1,
             30,
             1,
+            true,
+            "Uso academico - Plano Estudante AtendePro",
             modulosComuns(ModuloPlano.CLIENTES, ModuloPlano.AGENDA, ModuloPlano.PROCEDIMENTOS, ModuloPlano.DOCUMENTOS)
     ),
     START(
@@ -20,6 +22,8 @@ public enum PlanoPadrao {
             2,
             100,
             1,
+            false,
+            null,
             modulosComuns(ModuloPlano.CLIENTES, ModuloPlano.AGENDA, ModuloPlano.PROCEDIMENTOS)
     ),
     CARE(
@@ -29,6 +33,8 @@ public enum PlanoPadrao {
             5,
             500,
             5,
+            false,
+            null,
             modulosComuns(ModuloPlano.CLIENTES, ModuloPlano.AGENDA, ModuloPlano.PROCEDIMENTOS,
                     ModuloPlano.CUSTOS, ModuloPlano.PRECIFICACAO, ModuloPlano.DOCUMENTOS, ModuloPlano.SUPORTE)
     ),
@@ -39,6 +45,8 @@ public enum PlanoPadrao {
             5,
             1000,
             5,
+            false,
+            null,
             modulosComuns(ModuloPlano.CLIENTES, ModuloPlano.AGENDA, ModuloPlano.PROCEDIMENTOS,
                     ModuloPlano.CUSTOS, ModuloPlano.PRECIFICACAO, ModuloPlano.DOCUMENTOS, ModuloPlano.NUTRI_PRO)
     ),
@@ -49,6 +57,8 @@ public enum PlanoPadrao {
             5,
             1000,
             5,
+            false,
+            null,
             modulosComuns(ModuloPlano.CLIENTES, ModuloPlano.AGENDA, ModuloPlano.PROCEDIMENTOS,
                     ModuloPlano.CUSTOS, ModuloPlano.PRECIFICACAO, ModuloPlano.ESTOQUE,
                     ModuloPlano.EQUIPAMENTOS, ModuloPlano.BEAUTY_PRO)
@@ -60,6 +70,8 @@ public enum PlanoPadrao {
             5,
             1000,
             5,
+            false,
+            null,
             modulosComuns(ModuloPlano.CLIENTES, ModuloPlano.AGENDA, ModuloPlano.PROCEDIMENTOS,
                     ModuloPlano.CUSTOS, ModuloPlano.PRECIFICACAO, ModuloPlano.ESTOQUE,
                     ModuloPlano.EQUIPAMENTOS, ModuloPlano.BIOMED_PRO)
@@ -71,6 +83,8 @@ public enum PlanoPadrao {
             5,
             1000,
             5,
+            false,
+            null,
             modulosComuns(ModuloPlano.CLIENTES, ModuloPlano.AGENDA, ModuloPlano.PROCEDIMENTOS,
                     ModuloPlano.CUSTOS, ModuloPlano.PRECIFICACAO, ModuloPlano.DOCUMENTOS, ModuloPlano.FISIO_PRO)
     ),
@@ -81,6 +95,8 @@ public enum PlanoPadrao {
             15,
             5000,
             15,
+            false,
+            null,
             modulosComuns(ModuloPlano.CLIENTES, ModuloPlano.AGENDA, ModuloPlano.PROCEDIMENTOS,
                     ModuloPlano.CUSTOS, ModuloPlano.PRECIFICACAO, ModuloPlano.ESTOQUE,
                     ModuloPlano.EQUIPAMENTOS, ModuloPlano.DOCUMENTOS, ModuloPlano.SUPORTE)
@@ -92,6 +108,8 @@ public enum PlanoPadrao {
             20,
             5000,
             30,
+            false,
+            null,
             modulosComuns(ModuloPlano.CLIENTES, ModuloPlano.AGENDA, ModuloPlano.DASHBOARD,
                     ModuloPlano.SUBLOCACAO, ModuloPlano.SPACES, ModuloPlano.SUPORTE)
     ),
@@ -102,6 +120,8 @@ public enum PlanoPadrao {
             50,
             100000,
             50,
+            false,
+            null,
             modulosComuns(ModuloPlano.CLIENTES, ModuloPlano.AGENDA, ModuloPlano.PROCEDIMENTOS,
                     ModuloPlano.CUSTOS, ModuloPlano.PRECIFICACAO, ModuloPlano.ESTOQUE,
                     ModuloPlano.EQUIPAMENTOS, ModuloPlano.DOCUMENTOS, ModuloPlano.SUBLOCACAO,
@@ -115,6 +135,8 @@ public enum PlanoPadrao {
     private final int limiteUsuarios;
     private final int limiteClientes;
     private final int limiteProfissionais;
+    private final boolean estudante;
+    private final String marcaDaguaAcademica;
     private final Set<ModuloPlano> modulos;
 
     PlanoPadrao(
@@ -124,6 +146,8 @@ public enum PlanoPadrao {
             int limiteUsuarios,
             int limiteClientes,
             int limiteProfissionais,
+            boolean estudante,
+            String marcaDaguaAcademica,
             Set<ModuloPlano> modulos
     ) {
         this.nome = nome;
@@ -132,6 +156,8 @@ public enum PlanoPadrao {
         this.limiteUsuarios = limiteUsuarios;
         this.limiteClientes = limiteClientes;
         this.limiteProfissionais = limiteProfissionais;
+        this.estudante = estudante;
+        this.marcaDaguaAcademica = marcaDaguaAcademica;
         this.modulos = modulos;
     }
 
@@ -161,6 +187,14 @@ public enum PlanoPadrao {
 
     public int limiteProfissionais() {
         return limiteProfissionais;
+    }
+
+    public boolean estudante() {
+        return estudante;
+    }
+
+    public String marcaDaguaAcademica() {
+        return marcaDaguaAcademica;
     }
 
     public Set<ModuloPlano> modulos() {

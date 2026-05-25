@@ -45,9 +45,9 @@ public class JdbcPlanoAdapter implements
                 """
                 insert into planos (
                     id, codigo, nome, descricao, valor_mensal, limite_usuarios, limite_clientes,
-                    limite_profissionais, ativo, criado_em, atualizado_em
+                    limite_profissionais, ativo, estudante, marca_dagua_academica, criado_em, atualizado_em
                 )
-                values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 plano.id(),
                 plano.codigo(),
@@ -58,6 +58,8 @@ public class JdbcPlanoAdapter implements
                 plano.limiteClientes(),
                 plano.limiteProfissionais(),
                 plano.ativo(),
+                plano.estudante(),
+                plano.marcaDaguaAcademica(),
                 Timestamp.from(plano.criadoEm()),
                 Timestamp.from(plano.atualizadoEm())
         );
@@ -78,6 +80,8 @@ public class JdbcPlanoAdapter implements
                     limite_clientes = ?,
                     limite_profissionais = ?,
                     ativo = ?,
+                    estudante = ?,
+                    marca_dagua_academica = ?,
                     atualizado_em = ?
                 where id = ?
                 """,
@@ -89,6 +93,8 @@ public class JdbcPlanoAdapter implements
                 plano.limiteClientes(),
                 plano.limiteProfissionais(),
                 plano.ativo(),
+                plano.estudante(),
+                plano.marcaDaguaAcademica(),
                 Timestamp.from(plano.atualizadoEm()),
                 plano.id()
         );
@@ -101,7 +107,7 @@ public class JdbcPlanoAdapter implements
         return carregarPlano(
                 """
                 select id, codigo, nome, descricao, valor_mensal, limite_usuarios, limite_clientes,
-                       limite_profissionais, ativo, criado_em, atualizado_em
+                       limite_profissionais, ativo, estudante, marca_dagua_academica, criado_em, atualizado_em
                 from planos
                 where id = ?
                 """,
@@ -114,7 +120,7 @@ public class JdbcPlanoAdapter implements
         return carregarPlano(
                 """
                 select id, codigo, nome, descricao, valor_mensal, limite_usuarios, limite_clientes,
-                       limite_profissionais, ativo, criado_em, atualizado_em
+                       limite_profissionais, ativo, estudante, marca_dagua_academica, criado_em, atualizado_em
                 from planos
                 where codigo = ?
                 """,
@@ -138,7 +144,7 @@ public class JdbcPlanoAdapter implements
         var planos = jdbcTemplate.query(
                 """
                 select id, codigo, nome, descricao, valor_mensal, limite_usuarios, limite_clientes,
-                       limite_profissionais, ativo, criado_em, atualizado_em
+                       limite_profissionais, ativo, estudante, marca_dagua_academica, criado_em, atualizado_em
                 from planos
                 %s
                 order by valor_mensal asc, nome asc
@@ -154,6 +160,8 @@ public class JdbcPlanoAdapter implements
                         rs.getInt("limite_clientes"),
                         rs.getInt("limite_profissionais"),
                         rs.getBoolean("ativo"),
+                        rs.getBoolean("estudante"),
+                        rs.getString("marca_dagua_academica"),
                         carregarModulos(rs.getObject("id", UUID.class)),
                         rs.getTimestamp("criado_em").toInstant(),
                         rs.getTimestamp("atualizado_em").toInstant()
@@ -177,6 +185,8 @@ public class JdbcPlanoAdapter implements
                             rs.getInt("limite_clientes"),
                             rs.getInt("limite_profissionais"),
                             rs.getBoolean("ativo"),
+                            rs.getBoolean("estudante"),
+                            rs.getString("marca_dagua_academica"),
                             carregarModulos(rs.getObject("id", UUID.class)),
                             rs.getTimestamp("criado_em").toInstant(),
                             rs.getTimestamp("atualizado_em").toInstant()

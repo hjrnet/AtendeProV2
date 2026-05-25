@@ -18,6 +18,8 @@ public record PlanoResult(
         int limiteClientes,
         int limiteProfissionais,
         boolean ativo,
+        boolean estudante,
+        String marcaDaguaAcademica,
         Set<ModuloPlano> modulos,
         Instant criadoEm,
         Instant atualizadoEm
@@ -34,6 +36,8 @@ public record PlanoResult(
                 plano.limiteClientes(),
                 plano.limiteProfissionais(),
                 plano.ativo(),
+                plano.estudante(),
+                plano.marcaDaguaAcademica(),
                 plano.modulos(),
                 plano.criadoEm(),
                 plano.atualizadoEm()

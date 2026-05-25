@@ -91,6 +91,8 @@ class PlanoServiceTest {
                 500,
                 4,
                 true,
+                false,
+                null,
                 Set.of(ModuloPlano.CLIENTES, ModuloPlano.AGENDA, ModuloPlano.PROCEDIMENTOS)
         ));
 
@@ -135,6 +137,8 @@ class PlanoServiceTest {
                 100,
                 2,
                 true,
+                false,
+                null,
                 Set.of(ModuloPlano.CLIENTES, ModuloPlano.AGENDA)
         );
     }

@@ -24,6 +24,8 @@ class PlanoAssinaturaTest {
                 200,
                 2,
                 true,
+                false,
+                null,
                 Set.of(ModuloPlano.deCodigo("agenda"), ModuloPlano.deCodigo("NUTRI_PRO")),
                 Instant.parse("2026-05-25T10:00:00Z"),
                 Instant.parse("2026-05-25T10:00:00Z")
@@ -48,10 +50,54 @@ class PlanoAssinaturaTest {
                 20,
                 1,
                 true,
+                false,
+                null,
                 Set.of(),
                 Instant.parse("2026-05-25T10:00:00Z"),
                 Instant.parse("2026-05-25T10:00:00Z")
         )).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("plano deve possuir ao menos um modulo");
+    }
+
+    @Test
+    void deveExigirMarcaDaguaAcademicaNoPlanoEstudante() {
+        assertThatThrownBy(() -> new PlanoAssinatura(
+                UUID.randomUUID(),
+                "ESTUDANTE",
+                "Estudante",
+                null,
+                new BigDecimal("29.90"),
+                1,
+                30,
+                1,
+                true,
+                true,
+                null,
+                Set.of(ModuloPlano.CLIENTES, ModuloPlano.DASHBOARD),
+                Instant.parse("2026-05-25T10:00:00Z"),
+                Instant.parse("2026-05-25T10:00:00Z")
+        )).isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("plano estudante exige marca d'agua academica");
+    }
+
+    @Test
+    void naoDevePermitirPlanoEstudanteAcimaDosLimitesAcademicos() {
+        assertThatThrownBy(() -> new PlanoAssinatura(
+                UUID.randomUUID(),
+                "ESTUDANTE",
+                "Estudante",
+                null,
+                new BigDecimal("29.90"),
+                2,
+                31,
+                2,
+                true,
+                true,
+                "Uso academico",
+                Set.of(ModuloPlano.CLIENTES, ModuloPlano.DASHBOARD),
+                Instant.parse("2026-05-25T10:00:00Z"),
+                Instant.parse("2026-05-25T10:00:00Z")
+        )).isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("plano estudante excede limites academicos");
     }
 }

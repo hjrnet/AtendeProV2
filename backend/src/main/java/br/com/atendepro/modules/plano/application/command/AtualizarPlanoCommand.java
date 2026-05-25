@@ -16,6 +16,8 @@ public record AtualizarPlanoCommand(
         int limiteClientes,
         int limiteProfissionais,
         boolean ativo,
+        boolean estudante,
+        String marcaDaguaAcademica,
         Set<ModuloPlano> modulos
 ) {
 

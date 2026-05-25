@@ -82,6 +82,8 @@ public class PlanoService implements CriarPlanoUseCase, AtualizarPlanoUseCase, B
                             command.limiteClientes(),
                             command.limiteProfissionais(),
                             command.ativo(),
+                            command.estudante(),
+                            command.marcaDaguaAcademica(),
                             command.modulos(),
                             planoAtual.criadoEm(),
                             Instant.now(clock)
@@ -121,6 +123,8 @@ public class PlanoService implements CriarPlanoUseCase, AtualizarPlanoUseCase, B
                 command.limiteClientes(),
                 command.limiteProfissionais(),
                 command.ativo(),
+                command.estudante(),
+                command.marcaDaguaAcademica(),
                 command.modulos(),
                 criadoEm,
                 atualizadoEm

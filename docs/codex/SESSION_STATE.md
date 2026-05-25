@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R2 — Admin SaaS, planos e assinaturas.
 
 ## Última task concluída
-TASK-0205 — Planos padrão.
+TASK-0206 — Plano Estudante.
 
 ## Próxima task recomendada
-TASK-0206 — Plano Estudante.
+TASK-0207 — Trial 30 dias.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0206 concluida em modo autopilot multiagente release R2.
+- Plano Estudante ganhou regras explicitas de dominio: limites maximos 1 usuario, 30 clientes e 1 profissional.
+- `planos` recebeu os campos `estudante` e `marca_dagua_academica`; a API Admin SaaS retorna esses dados para aplicacao futura da marca d'agua.
+- Validacao local confirmou `ESTUDANTE` com marca d'agua academica e limites 1/30/1.
 - TASK-0205 concluida em modo autopilot multiagente release R2.
 - Catalogo `PlanoPadrao` criado com Estudante, Start, Care, Nutri Pro, Beauty Pro, Biomed Pro, Fisio Pro, Business, Spaces e Premium.
 - Liquibase passou a inserir os 10 planos padrao e seus modulos em `planos` e `plano_modulos`, com `on conflict` para idempotencia local.

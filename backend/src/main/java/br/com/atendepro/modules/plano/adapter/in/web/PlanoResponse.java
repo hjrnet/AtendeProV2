@@ -19,6 +19,8 @@ public record PlanoResponse(
         int limiteClientes,
         int limiteProfissionais,
         boolean ativo,
+        boolean estudante,
+        String marcaDaguaAcademica,
         List<String> modulos,
         Instant criadoEm,
         Instant atualizadoEm
@@ -35,6 +37,8 @@ public record PlanoResponse(
                 result.limiteClientes(),
                 result.limiteProfissionais(),
                 result.ativo(),
+                result.estudante(),
+                result.marcaDaguaAcademica(),
                 result.modulos().stream().map(ModuloPlano::codigo).sorted(Comparator.naturalOrder()).toList(),
                 result.criadoEm(),
                 result.atualizadoEm()

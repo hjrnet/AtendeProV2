@@ -65,3 +65,5 @@ A gestao Admin SaaS de empresas fica sob `/api/admin-saas/empresas`, separada do
 O modulo de planos usa a entidade de dominio `PlanoAssinatura` e o enum `ModuloPlano` para representar regras de acesso por modulo. A persistencia fica nas tabelas `planos` e `plano_modulos`, com API Admin SaaS em `/api/admin-saas/planos` para criar, listar, detalhar e atualizar. A TASK-0204 nao cadastra planos padrao; isso permanece reservado para a TASK-0205.
 
 Os planos padrao da R2 ficam registrados no catalogo `PlanoPadrao` e persistidos por Liquibase: Estudante, Start, Care, Nutri Pro, Beauty Pro, Biomed Pro, Fisio Pro, Business, Spaces e Premium. A seed usa codigos estaveis e `on conflict` para evitar duplicacao em ambientes locais ja inicializados.
+
+O Plano Estudante possui regra de dominio dedicada: maximo de 1 usuario, 30 clientes e 1 profissional, alem de marca d'agua academica obrigatoria. A informacao e persistida em `planos.estudante` e `planos.marca_dagua_academica`, ficando disponivel pela API de planos para aplicacao nos documentos e telas futuras.

@@ -15,6 +15,8 @@ public record PlanoAssinatura(
         int limiteClientes,
         int limiteProfissionais,
         boolean ativo,
+        boolean estudante,
+        String marcaDaguaAcademica,
         Set<ModuloPlano> modulos,
         Instant criadoEm,
         Instant atualizadoEm
@@ -39,6 +41,9 @@ public record PlanoAssinatura(
         if (modulos == null || modulos.isEmpty()) {
             throw new IllegalArgumentException("plano deve possuir ao menos um modulo");
         }
+        if (estudante) {
+            validarPlanoEstudante(limiteUsuarios, limiteClientes, limiteProfissionais, marcaDaguaAcademica);
+        }
         if (criadoEm == null) {
             throw new IllegalArgumentException("data de criacao do plano e obrigatoria");
         }
@@ -48,6 +53,7 @@ public record PlanoAssinatura(
         codigo = normalizarCodigo(codigo);
         nome = nome.trim();
         descricao = textoOpcional(descricao);
+        marcaDaguaAcademica = textoOpcional(marcaDaguaAcademica);
         valorMensal = valorMensal.setScale(2, java.math.RoundingMode.HALF_UP);
         modulos = Set.copyOf(modulos);
     }
@@ -61,5 +67,19 @@ public record PlanoAssinatura(
             return null;
         }
         return valor.trim();
+    }
+
+    private static void validarPlanoEstudante(
+            int limiteUsuarios,
+            int limiteClientes,
+            int limiteProfissionais,
+            String marcaDaguaAcademica
+    ) {
+        if (limiteUsuarios > 1 || limiteClientes > 30 || limiteProfissionais > 1) {
+            throw new IllegalArgumentException("plano estudante excede limites academicos");
+        }
+        if (marcaDaguaAcademica == null || marcaDaguaAcademica.isBlank()) {
+            throw new IllegalArgumentException("plano estudante exige marca d'agua academica");
+        }
     }
 }

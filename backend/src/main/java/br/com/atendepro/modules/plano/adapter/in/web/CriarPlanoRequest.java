@@ -21,6 +21,8 @@ public record CriarPlanoRequest(
         @Min(0) int limiteClientes,
         @Min(0) int limiteProfissionais,
         Boolean ativo,
+        Boolean estudante,
+        String marcaDaguaAcademica,
         @NotEmpty Set<String> modulos
 ) {
 
@@ -34,6 +36,8 @@ public record CriarPlanoRequest(
                 limiteClientes,
                 limiteProfissionais,
                 ativo == null || ativo,
+                estudante != null && estudante,
+                marcaDaguaAcademica,
                 mapearModulos()
         );
     }

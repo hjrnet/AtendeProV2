@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0009-add-plano-estudante-regras
+      author: codex
+      changes:
+        - addColumn:
+            tableName: planos
+            columns:
+              - column:
+                  name: estudante
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: marca_dagua_academica
+                  type: varchar(180)
+        - sql:
+            splitStatements: true
+            stripComments: true
+            sql: |
+              update planos
+              set estudante = true,
+                  marca_dagua_academica = 'Uso academico - Plano Estudante AtendePro',
+                  limite_usuarios = 1,
+                  limite_clientes = 30,
+                  limite_profissionais = 1,
+                  atualizado_em = now()
+              where codigo = 'ESTUDANTE';
+        - createIndex:
+            tableName: planos
+            indexName: idx_planos_estudante
+            columns:
+              - column:
+                  name: estudante

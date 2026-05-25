@@ -36,4 +36,13 @@ class PlanoPadraoTest {
                     .contains(ModuloPlano.TENANT_EMPRESA, ModuloPlano.USUARIOS_PERMISSOES, ModuloPlano.DASHBOARD);
         });
     }
+
+    @Test
+    void planoEstudanteDeveTerMarcaDaguaAcademicaELimitesReduzidos() {
+        assertThat(PlanoPadrao.ESTUDANTE.estudante()).isTrue();
+        assertThat(PlanoPadrao.ESTUDANTE.marcaDaguaAcademica()).contains("Uso academico");
+        assertThat(PlanoPadrao.ESTUDANTE.limiteUsuarios()).isEqualTo(1);
+        assertThat(PlanoPadrao.ESTUDANTE.limiteClientes()).isEqualTo(30);
+        assertThat(PlanoPadrao.ESTUDANTE.limiteProfissionais()).isEqualTo(1);
+    }
 }
