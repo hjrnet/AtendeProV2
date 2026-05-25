@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R3 — Núcleo operacional comum.
 
 ## Última task concluída
-TASK-0308 — Dashboard da empresa.
+TASK-0309 — Busca e filtros globais.
 
 ## Próxima task recomendada
-TASK-0309 — Busca e filtros globais.
+TASK-0310 — UX premium operacional.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0309 concluida em modo autopilot multiagente release R3.
+- Modulo `busca` criado no backend com endpoint `/api/busca/global`, UseCase, Result, OutputPort, adapter JDBC e controller fino.
+- A busca global consulta clientes/pacientes, agenda, servicos, custos, estoque e equipamentos, com filtros por empresa, termo, categoria e status.
+- Status `ATIVO`/`INATIVO` filtra cadastros operacionais; status proprio filtra agenda.
+- Validacao local confirmou busca real por equipamento e estoque; `mvn test` passou com 143 testes.
 - TASK-0308 concluida em modo autopilot multiagente release R3.
 - Modulo `dashboard` criado no backend para `/api/dashboard/empresa`, com UseCase, Result, OutputPort, adapter JDBC e controller fino.
 - Indicadores iniciais usam dados reais de clientes, agenda, servicos, estoque, equipamentos e custos operacionais ja existentes.
