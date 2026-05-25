@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R0 — Fundação técnica profissional.
 
 ## Última task concluída
-TASK-0004 — Criar backend Spring Boot base.
+TASK-0005 — Criar frontend Next.js base.
 
 ## Próxima task recomendada
-TASK-0005 — Criar frontend Next.js base.
+TASK-0006 — Criar padrões de ambiente.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,9 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0005 concluida em modo autopilot release R0.
+- Frontend Next.js base criado com App Router, Tailwind, TypeScript, base shadcn/ui e validacao `pnpm lint`, `pnpm typecheck` e `pnpm build`.
+- Instalacao web validada com override de proxy npm local: `corepack pnpm --config.proxy=null --config.https-proxy=null install`.
 - Harness Profissional atualizado para permitir autopilot por release com comandos como `autopilot release`, `autopilot release R1 até 5 tasks`, `autopilot release R1 até concluir` e `autopilot release até falhar`.
 - Limite padrão definido: `autopilot release` executa no máximo 3 tasks da release atual.
 - TASK-0005 iniciada em modo autopilot multiagente, mas nao concluida por falha de acesso ao npm registry (`ECONNREFUSED`) durante `corepack pnpm install`.
