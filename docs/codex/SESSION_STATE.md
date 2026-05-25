@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R2 — Admin SaaS, planos e assinaturas.
 
 ## Última task concluída
-TASK-0208 — Assinaturas.
+TASK-0209 — Tela Admin de planos.
 
 ## Próxima task recomendada
-TASK-0209 — Tela Admin de planos.
+TASK-0210 — Dashboard de vendas.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0209 concluida em modo autopilot multiagente release R2.
+- Tela web Admin de planos criada em `features/admin-planos`, usando client dedicado, React Query, formulario validado por Zod e arquitetura por feature.
+- `/app` passou a exibir o CRUD de planos com busca, paginacao, estados de carregamento/vazio, criacao, edicao e alternancia de ativo sem chamada direta de API na pagina.
+- Validacao local confirmou `/app` com 11 planos, formulario funcional, `pnpm lint`, `pnpm typecheck`, `pnpm build` e console sem warnings novos apos reload.
 - TASK-0208 concluida em modo autopilot multiagente release R2.
 - Assinaturas pagas criadas no modulo `assinatura`, com status `ATIVA`, `BLOQUEADA` e `CANCELADA`.
 - API Admin SaaS `/api/admin-saas/assinaturas` permite criar, listar, consultar, alterar plano, bloquear, desbloquear e cancelar.

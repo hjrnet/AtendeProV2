@@ -71,3 +71,5 @@ O Plano Estudante possui regra de dominio dedicada: maximo de 1 usuario, 30 clie
 Trials ficam no modulo `assinatura`, em `assinatura_trials`, com validade fixa de 30 dias calculada no dominio `TrialAssinatura`. A conversao da TASK-0207 muda o trial para `CONVERTIDO`; a criacao e gestao de assinaturas pagas completas permanece na TASK-0208.
 
 Assinaturas pagas ficam em `assinaturas`, com status `ATIVA`, `BLOQUEADA` e `CANCELADA`. Upgrade e downgrade usam a mesma operacao de troca de plano, preservando a assinatura e registrando o novo `plano_id`. Bloqueio e cancelamento sao status de assinatura; desbloqueio retorna uma assinatura bloqueada para ativa.
+
+A tela Admin de planos fica em `features/admin-planos`, com client dedicado para `/api/admin-saas/planos`, React Query para cache/invalidation e formulario validado por Zod. A pagina `/app` permanece fina e compoe a feature protegida; o CRUD web nao chama API diretamente dentro da pagina e preserva busca, paginacao e estados de carregamento/vazio.

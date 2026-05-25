@@ -2,13 +2,15 @@
 
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Building2, CalendarDays, LayoutDashboard, LogOut, ShieldCheck, Users } from "lucide-react";
+import { Building2, CalendarDays, LayoutDashboard, LogOut, PackageCheck, ShieldCheck, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { AdminPlanosView } from "@/features/admin-planos/components/admin-planos-view";
 import { limparSessaoAutenticada, type SessaoAutenticada } from "@/features/auth/lib/auth-storage";
 
 const atalhos = [
   { nome: "Empresas", detalhe: "Tenant ativo", icone: Building2 },
+  { nome: "Planos", detalhe: "Admin SaaS", icone: PackageCheck },
   { nome: "Usuarios", detalhe: "Permissoes base", icone: Users },
   { nome: "Agenda", detalhe: "Proxima release", icone: CalendarDays }
 ];
@@ -77,7 +79,7 @@ export function PainelProtegidoView({ sessao }: PainelProtegidoViewProps) {
           </div>
         </section>
 
-        <section className="grid gap-3 sm:grid-cols-3">
+        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {atalhos.map((atalho) => {
             const Icone = atalho.icone;
 
@@ -96,6 +98,8 @@ export function PainelProtegidoView({ sessao }: PainelProtegidoViewProps) {
             );
           })}
         </section>
+
+        <AdminPlanosView />
       </div>
     </main>
   );
