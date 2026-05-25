@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R0 — Fundação técnica profissional.
 
 ## Última task concluída
-TASK-0005 — Criar frontend Next.js base.
+TASK-0006 — Criar padrões de ambiente.
 
 ## Próxima task recomendada
-TASK-0006 — Criar padrões de ambiente.
+TASK-0007 — Configurar Liquibase.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,8 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0006 concluida em modo autopilot release R0.
+- Padroes de ambiente criados com profiles `local` e `test`, exemplos `.env` e documentacao em `docs/deploy/ENVIRONMENT.md`.
 - TASK-0005 concluida em modo autopilot release R0.
 - Frontend Next.js base criado com App Router, Tailwind, TypeScript, base shadcn/ui e validacao `pnpm lint`, `pnpm typecheck` e `pnpm build`.
 - Instalacao web validada com override de proxy npm local: `corepack pnpm --config.proxy=null --config.https-proxy=null install`.

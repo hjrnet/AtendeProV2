@@ -1,0 +1,11 @@
+spring:
+  main:
+    banner-mode: off
+
+app:
+  cors:
+    allowed-origins: http://localhost:3000
+  security:
+    jwt-secret: teste-local-sem-valor-real
+    jwt-expiracao-minutos: 60
+    jwt-refresh-expiracao-dias: 7

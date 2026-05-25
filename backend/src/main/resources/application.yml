@@ -3,6 +3,8 @@ spring:
     name: atendepro-backend
   profiles:
     default: local
+  main:
+    banner-mode: console
 
 server:
   port: ${BACKEND_PORT:8080}

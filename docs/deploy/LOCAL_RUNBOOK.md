@@ -10,22 +10,24 @@ docker compose ps
 
 O Compose nao fixa `container_name`; os nomes ficam sob controle do projeto Docker Compose para evitar conflito entre clones ou ambientes locais diferentes.
 
-## Backend futuro
+Detalhes de variaveis e profiles ficam em `docs/deploy/ENVIRONMENT.md`.
+
+## Backend
 
 ```bash
 cd backend
-./mvnw test
-./mvnw spring-boot:run
+mvn test
+mvn spring-boot:run
 ```
 
-## Web futura
+## Web
 
 ```bash
 cd web
-pnpm install
-pnpm lint
-pnpm build
-pnpm dev --host 0.0.0.0
+corepack pnpm install
+corepack pnpm lint
+corepack pnpm build
+corepack pnpm dev --host 0.0.0.0
 ```
 
 ## Teste no celular
