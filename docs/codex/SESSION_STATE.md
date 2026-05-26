@@ -18,6 +18,9 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-1007 adicionada oficialmente na R10 para redesenhar o workspace profissional logado com navegação por perfil/vertical, começando por Nutri Pro e usando o mesmo padrão para Beauty Pro e demais áreas.
+- Diagnóstico da TASK-1007: usuário de nutrição não deve ver Fono, Odonto e verticais sem relação como catálogo operacional principal; essas áreas devem ficar ocultas ou separadas em marketplace/admin, conforme perfil e plano.
+- A experiência interna atual ainda apresenta conteúdo abrindo abaixo, múltiplos scrolls internos, cards desalinhados e paleta muito monocromática; a task deve propor shell moderno 2026 com navegação real, painel central ativo, seções por rota/estado, cor semântica e responsividade por breakpoint.
 - TASK-1006 adicionada oficialmente na R10 para corrigir o desalinhamento responsivo do hero público visto na print anexada pelo usuário.
 - A R10 permanece em andamento até a TASK-1006 ser executada; a R11 volta a ser a próxima release recomendada após essa correção visual.
 - TASK-1005 concluida em modo autopilot multiagente release R10.

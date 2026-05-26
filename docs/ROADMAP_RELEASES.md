@@ -142,6 +142,7 @@
 - **TASK-1004 — Calculadora gratuita**: Lead magnet de preço ideal.
 - **TASK-1005 — Formulário de lead**: Captação de interessados.
 - **TASK-1006 — Corrigir responsividade do hero e painel operacional público**: Ajuste visual da landing para eliminar sobreposição/desalinhamento do painel operacional em mudanças de viewport.
+- **TASK-1007 — Redesenhar workspace profissional Nutri Pro e navegação por perfil**: Refatoração da área logada para exibir workspace por profissão/plano, navegação real sem scroll/empilhamento, layout responsivo premium e padrão reaplicável às demais verticais.
 
 ## R11 — IA, automações e integrações
 
