@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R11 — IA, automações e integrações.
+R10 — Nutri Pro, Beauty Pro e comercial.
 
 ## Última task concluída
 TASK-1007 — Redesenhar workspace profissional Nutri Pro e navegação por perfil.
 
 ## Próxima task recomendada
-TASK-1101 — IA de precificação.
+TASK-1008 — Refatorar UX Nutri Pro com telas dedicadas e submenus limpos.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-1008 adicionada oficialmente na R10 após validação visual do usuário no workspace Nutri Pro.
+- Diagnóstico da TASK-1008: Início, Agenda, Pacientes e Prontuário ainda reaproveitam a mesma tela; Agenda não mostra agenda real; Plano alimentar e Avaliações permanecem poluídos, desalinhados e com conteúdo abrindo ao lado/abaixo.
+- Direção da TASK-1008: separar cada item do menu em tela dedicada, criar submenus internos para prontuário, plano alimentar e avaliações, reduzir cards simultâneos e remover o padrão de abrir fluxos grandes no lado/embaixo da mesma página.
+- A R10 foi reaberta para concluir a TASK-1008 antes de avançar para R11.
 - TASK-1007 concluida em modo autopilot multiagente release R10.
 - Shell logado passou a resolver workspace profissional por perfil: Karol Nutricionista Demo entra em Nutri Pro como área principal, sem catálogo operacional de Fono, Odonto e verticais sem relação.
 - Menu do usuário Nutri Pro passou a ter seções de trabalho: Início, Agenda, Pacientes, Prontuário, Plano alimentar, Avaliações, Exames e documentos, Precificação e Busca global.
