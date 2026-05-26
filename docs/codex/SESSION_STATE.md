@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R11 — IA, automações e integrações.
+R10 — Nutri Pro, Beauty Pro e comercial.
 
 ## Última task concluída
 TASK-1010 — Ativar ações operacionais do Nutri Pro, cadastro de paciente e criação de agenda.
 
 ## Próxima task recomendada
-TASK-1101 — IA de precificação.
+TASK-1011 — Ajustar espaçamento vertical excessivo do hero público.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-1011 adicionada oficialmente na R10 após validação visual do usuário na landing pública.
+- Diagnóstico da TASK-1011: o hero público ainda apresenta espaçamento vertical excessivo acima e abaixo do bloco principal, deixando o conteúdo central distante da navegação e da próxima seção em telas desktop.
+- Direção da TASK-1011: reduzir os espaços verticais destacados na print, preservar a composição premium com texto e painel operacional, manter a primeira dobra equilibrada e validar desktop, tablet e mobile sem sobreposição.
+- A R10 foi reaberta para concluir a TASK-1011 antes de avançar para R11.
 - TASK-1010 concluida em modo autopilot multiagente release R10.
 - Atalhos prioritários do Início Nutri passaram a trocar o conteúdo ativo para Avaliações, Exames/documentos e Plano alimentar, sem abrir formulários gigantes na home.
 - Cards de Próximas evoluções do Nutri Pro agora direcionam para Prontuário nutricional, Avaliação/gasto energético e Documentos com CRN, com status `Disponível`.
