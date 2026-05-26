@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R11 — IA, automações e integrações.
+R10 — Nutri Pro, Beauty Pro e comercial.
 
 ## Última task concluída
 TASK-1005 — Formulário de lead.
 
 ## Próxima task recomendada
-TASK-1101 — IA de precificação.
+TASK-1006 — Corrigir responsividade do hero e painel operacional público.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,8 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-1006 adicionada oficialmente na R10 para corrigir o desalinhamento responsivo do hero público visto na print anexada pelo usuário.
+- A R10 permanece em andamento até a TASK-1006 ser executada; a R11 volta a ser a próxima release recomendada após essa correção visual.
 - TASK-1005 concluida em modo autopilot multiagente release R10.
-- R10 foi concluida com Nutri Pro operacional, Beauty Pro operacional e camada comercial pública: landing, páginas por vertical, planos, calculadora gratuita e formulário de lead.
+- Até a TASK-1005, a R10 havia sido concluida com Nutri Pro operacional, Beauty Pro operacional e camada comercial pública: landing, páginas por vertical, planos, calculadora gratuita e formulário de lead.
 - Backend ganhou módulo `marketing` com arquitetura hexagonal para leads públicos, incluindo `LeadMarketing`, Command, Result, UseCase/InputPort, OutputPort, adapter JDBC, controller fino e migration `0035-create-marketing-leads.yaml`.
 - Web ganhou rota `/contato` com formulário público de interesse, client de API, validação HTML, estados de envio e mensagem clara de que CRM/e-mail externo ficam fora do escopo.
 - Validação confirmou `mvn test` com 292 testes, `pnpm typecheck`, `pnpm lint`, `pnpm build`, Docker Compose saudável, backend/web locais ativos, API `POST /api/marketing/leads` registrando lead fictício com status `NOVO` e Browser em `/contato` sem erros de console.

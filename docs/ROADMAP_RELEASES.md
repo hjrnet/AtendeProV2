@@ -141,6 +141,7 @@
 - **TASK-1003 — Página de planos**: Comparação e trial 30 dias.
 - **TASK-1004 — Calculadora gratuita**: Lead magnet de preço ideal.
 - **TASK-1005 — Formulário de lead**: Captação de interessados.
+- **TASK-1006 — Corrigir responsividade do hero e painel operacional público**: Ajuste visual da landing para eliminar sobreposição/desalinhamento do painel operacional em mudanças de viewport.
 
 ## R11 — IA, automações e integrações
 
