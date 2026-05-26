@@ -246,7 +246,7 @@ export type DocumentosProfissionaisNutriPro = {
 
 export type StatusAgendaNutriPro = "AGENDADO" | "CONFIRMADO" | "REALIZADO" | "CANCELADO" | "FALTOU" | "REMARCADO";
 
-export type TipoAgendaNutriPro = "PRESENCIAL" | "ONLINE" | "DOMICILIAR" | "SUBLOCACAO" | "INTERNO";
+export type TipoAgendaNutriPro = "ATENDIMENTO" | "RETORNO" | "AVALIACAO" | "BLOQUEIO" | "OUTRO";
 
 export type CompromissoAgendaNutriPro = {
   id: string;
@@ -270,6 +270,43 @@ export type AgendaNutriPro = {
   pagina: number;
   tamanho: number;
   totalPaginas: number;
+};
+
+export type ClientePacienteNutriPro = {
+  id: string;
+  empresaId: string;
+  nome: string;
+  tipo: "CLIENTE" | "PACIENTE" | "CLIENTE_PACIENTE";
+  area: "GERAL" | "NUTRI" | "BEAUTY" | "BIOMED" | "FISIO" | "SPACES" | "PSICO" | "FONO" | "FARMACIA_CLINICA" | "ODONTO" | "TERAPIAS_INTEGRATIVAS";
+  documento: string | null;
+  email: string | null;
+  telefone: string | null;
+  dataNascimento: string | null;
+  observacoes: string | null;
+  ativo: boolean;
+  criadoEm: string;
+  atualizadoEm: string;
+};
+
+export type CadastrarPacienteNutriProInput = {
+  empresaId: string;
+  nome: string;
+  telefone?: string | null;
+  email?: string | null;
+  dataNascimento?: string | null;
+  observacoes?: string | null;
+};
+
+export type CriarCompromissoAgendaNutriProInput = {
+  empresaId: string;
+  clientePacienteId?: string | null;
+  profissionalId?: string | null;
+  profissionalNome?: string | null;
+  sala?: string | null;
+  tipo: TipoAgendaNutriPro;
+  inicio: string;
+  fim: string;
+  observacoes?: string | null;
 };
 
 export type CriarDocumentoProfissionalNutriProInput = {
@@ -313,6 +350,19 @@ export function listarPacientesNutriPro(params: { empresaId: string; busca?: str
       empresaId: params.empresaId,
       busca: params.busca || undefined
     }
+  });
+}
+
+export function cadastrarPacienteNutriPro(dados: CadastrarPacienteNutriProInput) {
+  return nutriProApi.post<ClientePacienteNutriPro>("/api/clientes-pacientes", {
+    empresaId: dados.empresaId,
+    nome: dados.nome,
+    tipo: "PACIENTE",
+    area: "NUTRI",
+    email: dados.email || null,
+    telefone: dados.telefone || null,
+    dataNascimento: dados.dataNascimento || null,
+    observacoes: dados.observacoes || null
   });
 }
 
@@ -403,6 +453,10 @@ export function listarAgendaNutriPro(params: {
       tamanho: 30
     }
   });
+}
+
+export function criarCompromissoAgendaNutriPro(dados: CriarCompromissoAgendaNutriProInput) {
+  return nutriProApi.post<CompromissoAgendaNutriPro>("/api/agenda/compromissos", dados);
 }
 
 export function caminhoPdfDocumentoNutriPro(documentoId: string) {

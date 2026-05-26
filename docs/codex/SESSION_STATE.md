@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R10 — Nutri Pro, Beauty Pro e comercial.
+R11 — IA, automações e integrações.
 
 ## Última task concluída
-TASK-1009 — Refatorar UX Beauty Pro com telas dedicadas e submenus limpos.
+TASK-1010 — Ativar ações operacionais do Nutri Pro, cadastro de paciente e criação de agenda.
 
 ## Próxima task recomendada
-TASK-1010 — Ativar ações operacionais do Nutri Pro, cadastro de paciente e criação de agenda.
+TASK-1101 — IA de precificação.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,13 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-1010 concluida em modo autopilot multiagente release R10.
+- Atalhos prioritários do Início Nutri passaram a trocar o conteúdo ativo para Avaliações, Exames/documentos e Plano alimentar, sem abrir formulários gigantes na home.
+- Cards de Próximas evoluções do Nutri Pro agora direcionam para Prontuário nutricional, Avaliação/gasto energético e Documentos com CRN, com status `Disponível`.
+- Pacientes Nutri ganhou ação `Adicionar paciente`, formulário responsivo e gravação pelo núcleo comum de clientes/pacientes com área `NUTRI`.
+- Agenda Nutri ganhou ação `Criar agendamento`, formulário responsivo e gravação pelo núcleo comum de agenda usando tipos reais `ATENDIMENTO`, `RETORNO`, `AVALIACAO`, `BLOQUEIO` e `OUTRO`.
+- Validação confirmou `npm run typecheck`, `npm run lint`, `npm run build`, `mvn test` com Java 21, Docker Compose com Postgres/Mailpit saudáveis, login da Karol no Browser, atalhos clicáveis, cadastro de paciente via UI, criação de agenda via UI e breakpoints 320, 375, 430, 768, 1024 e 1280 sem overflow horizontal em Início, Pacientes e Agenda.
+- R10 concluida; próxima release recomendada é R11.
 - TASK-1010 adicionada oficialmente na R10 após validação visual do usuário no workspace Nutri Pro.
 - Diagnóstico da TASK-1010: ações prioritárias do Início Nutri parecem clicáveis, mas não executam fluxo claro; Pacientes Nutri não tem ação evidente para cadastrar novo paciente; Agenda Nutri não tem ação evidente para criar agendamento; cards de Próximas evoluções precisam virar prioridades acionáveis para Prontuário nutricional, Avaliação antropométrica e Documentos com CRN.
 - Direção da TASK-1010: ativar CTAs e cadastros essenciais usando telas/drawers/submenus focados, sem empilhar formulários no Início Nutri e sem voltar ao layout poluído que foi corrigido na TASK-1008.

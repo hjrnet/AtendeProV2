@@ -13,16 +13,21 @@ import {
   FileText,
   Gauge,
   LoaderCircle,
+  Plus,
+  Save,
   Sparkles,
   Stethoscope,
+  X,
   Users
 } from "lucide-react";
 
 import {
+  cadastrarPacienteNutriPro,
   consultarProntuarioNutriPro,
   consultarVisaoNutriPro,
   caminhoPdfDocumentoNutriPro,
   criarAvaliacaoAntropometricaNutriPro,
+  criarCompromissoAgendaNutriPro,
   criarDocumentoProfissionalNutriPro,
   criarPlanoAlimentarNutriPro,
   listarAgendaNutriPro,
@@ -44,6 +49,7 @@ import {
   type ProntuarioNutriPro,
   type SexoBiologicoNutriPro,
   type StatusAgendaNutriPro,
+  type TipoAgendaNutriPro,
   type VisaoNutriPro
 } from "@/features/nutri-pro/api/nutri-pro-client";
 import { carregarSessaoAutenticada } from "@/features/auth/lib/auth-storage";
@@ -52,6 +58,7 @@ import { cn } from "@/lib/utils";
 type NutriProOperacionalViewProps = {
   empresaId: string;
   focoWorkspace?: FocoWorkspaceNutriPro;
+  onNavegar?: (secao: FocoWorkspaceNutriPro) => void;
 };
 
 type FocoWorkspaceNutriPro =
@@ -72,6 +79,25 @@ type FormularioAvaliacaoNutri = {
   sexo: SexoBiologicoNutriPro;
   objetivo: ObjetivoNutricionalNutriPro;
   fatorAtividade: string;
+  observacoes: string;
+};
+
+type FormularioPacienteNutri = {
+  nome: string;
+  telefone: string;
+  email: string;
+  dataNascimento: string;
+  observacoes: string;
+};
+
+type FormularioAgendaNutri = {
+  pacienteId: string;
+  data: string;
+  horario: string;
+  duracaoMinutos: string;
+  tipo: TipoAgendaNutriPro;
+  sala: string;
+  profissionalNome: string;
   observacoes: string;
 };
 
@@ -129,7 +155,7 @@ const iconesAtalhos: Record<string, Icone> = {
   documentos: FileText
 };
 
-export function NutriProOperacionalView({ empresaId, focoWorkspace = "nutri-inicio" }: NutriProOperacionalViewProps) {
+export function NutriProOperacionalView({ empresaId, focoWorkspace = "nutri-inicio", onNavegar }: NutriProOperacionalViewProps) {
   const [buscaPaciente, setBuscaPaciente] = useState("");
   const [pacienteSelecionadoId, setPacienteSelecionadoId] = useState<string | null>(null);
   const intervaloAgenda = useMemo(() => criarIntervaloAgendaNutri(), []);
@@ -197,12 +223,22 @@ export function NutriProOperacionalView({ empresaId, focoWorkspace = "nutri-inic
   const visao = visaoQuery.data;
 
   if (focoWorkspace === "nutri-agenda") {
-    return <TelaAgendaNutriPro agenda={agendaQuery.data?.itens ?? []} carregando={agendaQuery.isLoading} />;
+    return (
+      <TelaAgendaNutriPro
+        empresaId={empresaId}
+        agenda={agendaQuery.data?.itens ?? []}
+        pacientes={pacientes}
+        pacienteSelecionadoId={pacienteSelecionadoId}
+        carregando={agendaQuery.isLoading}
+        onSelecionarPaciente={setPacienteSelecionadoId}
+      />
+    );
   }
 
   if (focoWorkspace === "nutri-pacientes") {
     return (
       <TelaPacientesNutriPro
+        empresaId={empresaId}
         buscaPaciente={buscaPaciente}
         pacientes={pacientes}
         pacienteSelecionadoId={pacienteSelecionadoId}
@@ -239,6 +275,7 @@ export function NutriProOperacionalView({ empresaId, focoWorkspace = "nutri-inic
       pacientes={pacientes}
       pacienteSelecionadoId={pacienteSelecionadoId}
       onSelecionarPaciente={setPacienteSelecionadoId}
+      onNavegar={onNavegar}
     />
   );
 }
@@ -251,7 +288,8 @@ function TelaInicioNutriPro({
   agendaCarregando,
   pacientes,
   pacienteSelecionadoId,
-  onSelecionarPaciente
+  onSelecionarPaciente,
+  onNavegar
 }: {
   visao: VisaoNutriPro;
   indicadoresPrincipais: IndicadorNutriPro[];
@@ -261,7 +299,12 @@ function TelaInicioNutriPro({
   pacientes: PacienteNutriResumo[];
   pacienteSelecionadoId: string | null;
   onSelecionarPaciente: (pacienteId: string) => void;
+  onNavegar?: (secao: FocoWorkspaceNutriPro) => void;
 }) {
+  function acionarAtalho(atalho: AtalhoNutriPro) {
+    onNavegar?.(resolverSecaoAtalhoNutri(atalho.codigo));
+  }
+
   return (
     <section className="grid min-w-0 gap-4">
       <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
@@ -296,7 +339,7 @@ function TelaInicioNutriPro({
             </div>
             <div className="mt-4 grid gap-3 md:grid-cols-3">
               {visao.atalhosPrioritarios.map((atalho) => (
-                <CardAtalhoNutri key={atalho.codigo} atalho={atalho} principal />
+                <CardAtalhoNutri key={atalho.codigo} atalho={atalho} principal onClick={() => acionarAtalho(atalho)} />
               ))}
             </div>
           </div>
@@ -307,7 +350,7 @@ function TelaInicioNutriPro({
               <p className="text-sm font-semibold text-card-foreground">Próximas evoluções</p>
               <div className="mt-3 grid gap-2">
                 {visao.proximasEvolucoes.slice(0, 3).map((atalho) => (
-                  <CardAtalhoNutri key={atalho.codigo} atalho={atalho} />
+                  <CardAtalhoNutri key={atalho.codigo} atalho={atalho} onClick={() => acionarAtalho(atalho)} />
                 ))}
               </div>
             </div>
@@ -351,11 +394,92 @@ function TelaInicioNutriPro({
   );
 }
 
-function TelaAgendaNutriPro({ agenda, carregando }: { agenda: CompromissoAgendaNutriPro[]; carregando: boolean }) {
+function TelaAgendaNutriPro({
+  empresaId,
+  agenda,
+  pacientes,
+  pacienteSelecionadoId,
+  carregando,
+  onSelecionarPaciente
+}: {
+  empresaId: string;
+  agenda: CompromissoAgendaNutriPro[];
+  pacientes: PacienteNutriResumo[];
+  pacienteSelecionadoId: string | null;
+  carregando: boolean;
+  onSelecionarPaciente: (pacienteId: string) => void;
+}) {
+  const queryClient = useQueryClient();
+  const sessao = carregarSessaoAutenticada();
+  const profissionalNomePadrao = sessao?.usuario.nome ?? "Profissional Nutri";
+  const profissionalId = sessao?.usuario.id ?? null;
   const [buscaAgenda, setBuscaAgenda] = useState("");
   const [statusAgenda, setStatusAgenda] = useState<StatusAgendaNutriPro | "TODOS">("TODOS");
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [mensagemAgenda, setMensagemAgenda] = useState<string | null>(null);
+  const [formulario, setFormulario] = useState<FormularioAgendaNutri>(() =>
+    criarFormularioAgendaNutri(pacienteSelecionadoId ?? pacientes[0]?.id ?? "", profissionalNomePadrao)
+  );
   const agendaFiltrada = filtrarAgendaNutri(agenda, buscaAgenda, statusAgenda);
   const compromissosHoje = agenda.filter((compromisso) => ehMesmoDia(new Date(compromisso.inicio), new Date())).length;
+
+  useEffect(() => {
+    setFormulario((estadoAtual) => ({
+      ...estadoAtual,
+      pacienteId: estadoAtual.pacienteId || pacienteSelecionadoId || pacientes[0]?.id || "",
+      profissionalNome: estadoAtual.profissionalNome || profissionalNomePadrao
+    }));
+  }, [pacienteSelecionadoId, pacientes, profissionalNomePadrao]);
+
+  const criarAgendaMutation = useMutation({
+    mutationFn: () => {
+      const intervalo = calcularIntervaloAgendaNutri(formulario.data, formulario.horario, formulario.duracaoMinutos);
+
+      return criarCompromissoAgendaNutriPro({
+        empresaId,
+        clientePacienteId: formulario.pacienteId,
+        profissionalId,
+        profissionalNome: formulario.profissionalNome.trim() || profissionalNomePadrao,
+        sala: formulario.sala.trim() || null,
+        tipo: formulario.tipo,
+        inicio: intervalo.inicio,
+        fim: intervalo.fim,
+        observacoes: formulario.observacoes.trim() || null
+      });
+    },
+    onSuccess: (compromisso) => {
+      setMensagemAgenda("Agendamento criado com sucesso.");
+      setMostrarFormulario(false);
+      if (compromisso.clientePacienteId) {
+        onSelecionarPaciente(compromisso.clientePacienteId);
+        queryClient.invalidateQueries({ queryKey: ["nutri-pro-prontuario", empresaId, compromisso.clientePacienteId] });
+      }
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-agenda", empresaId] });
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-visao", empresaId] });
+      setFormulario(criarFormularioAgendaNutri(compromisso.clientePacienteId ?? pacienteSelecionadoId ?? pacientes[0]?.id ?? "", profissionalNomePadrao));
+    },
+    onError: (error) => {
+      setMensagemAgenda(error instanceof Error ? error.message : "Não foi possível criar o agendamento.");
+    }
+  });
+
+  function salvarAgendamentoNutri() {
+    setMensagemAgenda(null);
+    if (!formulario.pacienteId) {
+      setMensagemAgenda("Selecione ou cadastre um paciente antes de criar o agendamento.");
+      return;
+    }
+    if (!formulario.data || !formulario.horario) {
+      setMensagemAgenda("Informe data e horário para criar o agendamento.");
+      return;
+    }
+    criarAgendaMutation.mutate();
+  }
+
+  function enviarFormularioAgenda(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    salvarAgendamentoNutri();
+  }
 
   return (
     <section className="grid min-w-0 gap-4">
@@ -372,7 +496,7 @@ function TelaAgendaNutriPro({ agenda, carregando }: { agenda: CompromissoAgendaN
             <h4 className="mt-1 text-xl font-semibold text-card-foreground">Atendimentos e retornos</h4>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Lista dedicada de compromissos do núcleo comum, sem carregar prontuário ou plano alimentar junto.</p>
           </div>
-          <div className="grid gap-2 sm:grid-cols-[minmax(220px,1fr)_180px]">
+          <div className="grid gap-2 sm:grid-cols-[minmax(220px,1fr)_180px] lg:min-w-[560px]">
             <label className="grid gap-1 text-sm font-medium text-card-foreground">
               Busca
               <input
@@ -398,8 +522,147 @@ function TelaAgendaNutriPro({ agenda, carregando }: { agenda: CompromissoAgendaN
                 <option value="REMARCADO">Remarcado</option>
               </select>
             </label>
+            <button
+              type="button"
+              onClick={() => {
+                setMensagemAgenda(null);
+                setMostrarFormulario((valorAtual) => !valorAtual);
+              }}
+              className="inline-flex h-10 items-center justify-center gap-2 self-end rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:col-span-2"
+            >
+              {mostrarFormulario ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+              {mostrarFormulario ? "Fechar cadastro" : "Criar agendamento"}
+            </button>
           </div>
         </div>
+
+        {mensagemAgenda ? (
+          <div className="mt-4 rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-sm leading-6 text-sky-900">{mensagemAgenda}</div>
+        ) : null}
+
+        {mostrarFormulario ? (
+          <form onSubmit={enviarFormularioAgenda} className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50/45 p-4">
+            <div className="flex flex-col gap-2 border-b border-emerald-100 pb-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-emerald-900">Novo agendamento</p>
+                <p className="mt-1 text-xs leading-5 text-emerald-950/70">Crie um compromisso nutricional sem misturar prontuário, plano ou documentos nesta tela.</p>
+              </div>
+              <span className="w-fit rounded-md border border-emerald-200 bg-white px-2 py-1 text-xs font-semibold text-emerald-800">Agenda comum</span>
+            </div>
+
+            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <label className="grid gap-1 text-sm font-medium text-card-foreground md:col-span-2">
+                Paciente
+                <select
+                  value={formulario.pacienteId}
+                  onChange={(event) => {
+                    setFormulario((estadoAtual) => ({ ...estadoAtual, pacienteId: event.target.value }));
+                    if (event.target.value) {
+                      onSelecionarPaciente(event.target.value);
+                    }
+                  }}
+                  className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                  required
+                >
+                  <option value="">Selecione um paciente</option>
+                  {pacientes.map((paciente) => (
+                    <option key={paciente.id} value={paciente.id}>{paciente.nome}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Tipo
+                <select
+                  value={formulario.tipo}
+                  onChange={(event) => setFormulario((estadoAtual) => ({ ...estadoAtual, tipo: event.target.value as TipoAgendaNutriPro }))}
+                  className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                >
+                  <option value="ATENDIMENTO">Atendimento</option>
+                  <option value="RETORNO">Retorno</option>
+                  <option value="AVALIACAO">Avaliação</option>
+                  <option value="OUTRO">Outro</option>
+                </select>
+              </label>
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Duração
+                <input
+                  value={formulario.duracaoMinutos}
+                  onChange={(event) => setFormulario((estadoAtual) => ({ ...estadoAtual, duracaoMinutos: event.target.value }))}
+                  type="number"
+                  min="15"
+                  step="15"
+                  className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                />
+              </label>
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Data
+                <input
+                  value={formulario.data}
+                  onChange={(event) => setFormulario((estadoAtual) => ({ ...estadoAtual, data: event.target.value }))}
+                  type="date"
+                  className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                  required
+                />
+              </label>
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Horário
+                <input
+                  value={formulario.horario}
+                  onChange={(event) => setFormulario((estadoAtual) => ({ ...estadoAtual, horario: event.target.value }))}
+                  type="time"
+                  className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                  required
+                />
+              </label>
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Sala
+                <input
+                  value={formulario.sala}
+                  onChange={(event) => setFormulario((estadoAtual) => ({ ...estadoAtual, sala: event.target.value }))}
+                  className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                  placeholder="Consultório Nutri 1"
+                />
+              </label>
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Profissional
+                <input
+                  value={formulario.profissionalNome}
+                  onChange={(event) => setFormulario((estadoAtual) => ({ ...estadoAtual, profissionalNome: event.target.value }))}
+                  className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                  placeholder="Nome do profissional"
+                />
+              </label>
+              <label className="grid gap-1 text-sm font-medium text-card-foreground md:col-span-2 xl:col-span-4">
+                Observações
+                <textarea
+                  value={formulario.observacoes}
+                  onChange={(event) => setFormulario((estadoAtual) => ({ ...estadoAtual, observacoes: event.target.value }))}
+                  className="min-h-24 rounded-md border bg-white px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                  placeholder="Objetivo do atendimento, retorno ou observação rápida."
+                />
+              </label>
+            </div>
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setMostrarFormulario(false)}
+                className="inline-flex h-10 items-center justify-center rounded-md border bg-white px-4 text-sm font-semibold text-card-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={salvarAgendamentoNutri}
+                disabled={criarAgendaMutation.isPending}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {criarAgendaMutation.isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                Salvar agendamento
+              </button>
+            </div>
+          </form>
+        ) : null}
+
         <ListaAgendaNutri agenda={agendaFiltrada} carregando={carregando} vazio="Nenhum compromisso encontrado para os filtros atuais." />
       </section>
     </section>
@@ -407,6 +670,7 @@ function TelaAgendaNutriPro({ agenda, carregando }: { agenda: CompromissoAgendaN
 }
 
 function TelaPacientesNutriPro({
+  empresaId,
   buscaPaciente,
   pacientes,
   pacienteSelecionadoId,
@@ -414,6 +678,7 @@ function TelaPacientesNutriPro({
   onBuscar,
   onSelecionar
 }: {
+  empresaId: string;
   buscaPaciente: string;
   pacientes: PacienteNutriResumo[];
   pacienteSelecionadoId: string | null;
@@ -421,7 +686,46 @@ function TelaPacientesNutriPro({
   onBuscar: (valor: string) => void;
   onSelecionar: (pacienteId: string) => void;
 }) {
+  const queryClient = useQueryClient();
   const pacienteSelecionado = pacientes.find((paciente) => paciente.id === pacienteSelecionadoId) ?? pacientes[0] ?? null;
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [mensagemPaciente, setMensagemPaciente] = useState<string | null>(null);
+  const [formulario, setFormulario] = useState<FormularioPacienteNutri>(criarFormularioPacienteNutri);
+
+  const cadastrarPacienteMutation = useMutation({
+    mutationFn: () =>
+      cadastrarPacienteNutriPro({
+        empresaId,
+        nome: formulario.nome.trim(),
+        telefone: formulario.telefone.trim() || null,
+        email: formulario.email.trim() || null,
+        dataNascimento: formulario.dataNascimento || null,
+        observacoes: formulario.observacoes.trim() || null
+      }),
+    onSuccess: (paciente) => {
+      setMensagemPaciente("Paciente cadastrado com sucesso.");
+      setMostrarFormulario(false);
+      setFormulario(criarFormularioPacienteNutri());
+      onBuscar("");
+      onSelecionar(paciente.id);
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-pacientes", empresaId] });
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-visao", empresaId] });
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-prontuario", empresaId, paciente.id] });
+    },
+    onError: (error) => {
+      setMensagemPaciente(error instanceof Error ? error.message : "Não foi possível cadastrar o paciente.");
+    }
+  });
+
+  function enviarFormularioPaciente(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setMensagemPaciente(null);
+    if (!formulario.nome.trim()) {
+      setMensagemPaciente("Informe o nome do paciente.");
+      return;
+    }
+    cadastrarPacienteMutation.mutate();
+  }
 
   return (
     <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
@@ -432,16 +736,116 @@ function TelaPacientesNutriPro({
             <h4 className="mt-1 text-xl font-semibold text-card-foreground">Lista de pacientes</h4>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Busque e selecione pacientes sem abrir o prontuário completo automaticamente.</p>
           </div>
-          <label className="grid gap-1 text-sm font-medium text-card-foreground lg:min-w-80">
-            Busca
-            <input
-              value={buscaPaciente}
-              onChange={(event) => onBuscar(event.target.value)}
-              className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
-              placeholder="Nome, email ou telefone"
-            />
-          </label>
+          <div className="grid gap-2 lg:min-w-[420px]">
+            <label className="grid gap-1 text-sm font-medium text-card-foreground">
+              Busca
+              <input
+                value={buscaPaciente}
+                onChange={(event) => onBuscar(event.target.value)}
+                className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                placeholder="Nome, email ou telefone"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={() => {
+                setMensagemPaciente(null);
+                setMostrarFormulario((valorAtual) => !valorAtual);
+              }}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {mostrarFormulario ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+              {mostrarFormulario ? "Fechar cadastro" : "Adicionar paciente"}
+            </button>
+          </div>
         </div>
+
+        {mensagemPaciente ? (
+          <div className="mt-4 rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-sm leading-6 text-sky-900">{mensagemPaciente}</div>
+        ) : null}
+
+        {mostrarFormulario ? (
+          <form onSubmit={enviarFormularioPaciente} className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50/45 p-4">
+            <div className="flex flex-col gap-2 border-b border-emerald-100 pb-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-emerald-900">Novo paciente Nutri</p>
+                <p className="mt-1 text-xs leading-5 text-emerald-950/70">Cadastro básico para aparecer na lista, abrir prontuário e usar nos fluxos nutricionais.</p>
+              </div>
+              <span className="w-fit rounded-md border border-emerald-200 bg-white px-2 py-1 text-xs font-semibold text-emerald-800">Área Nutri</span>
+            </div>
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              <label className="grid gap-1 text-sm font-medium text-card-foreground md:col-span-2">
+                Nome
+                <input
+                  value={formulario.nome}
+                  onChange={(event) => setFormulario((estadoAtual) => ({ ...estadoAtual, nome: event.target.value }))}
+                  className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                  placeholder="Nome completo do paciente"
+                  maxLength={160}
+                  required
+                />
+              </label>
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Telefone
+                <input
+                  value={formulario.telefone}
+                  onChange={(event) => setFormulario((estadoAtual) => ({ ...estadoAtual, telefone: event.target.value }))}
+                  className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                  placeholder="(21) 99999-9999"
+                  maxLength={40}
+                />
+              </label>
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Data de nascimento
+                <input
+                  value={formulario.dataNascimento}
+                  onChange={(event) => setFormulario((estadoAtual) => ({ ...estadoAtual, dataNascimento: event.target.value }))}
+                  type="date"
+                  className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                />
+              </label>
+              <label className="grid gap-1 text-sm font-medium text-card-foreground md:col-span-2">
+                Email
+                <input
+                  value={formulario.email}
+                  onChange={(event) => setFormulario((estadoAtual) => ({ ...estadoAtual, email: event.target.value }))}
+                  type="email"
+                  className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                  placeholder="paciente@email.com"
+                  maxLength={160}
+                />
+              </label>
+              <label className="grid gap-1 text-sm font-medium text-card-foreground md:col-span-2">
+                Observações
+                <textarea
+                  value={formulario.observacoes}
+                  onChange={(event) => setFormulario((estadoAtual) => ({ ...estadoAtual, observacoes: event.target.value }))}
+                  className="min-h-24 rounded-md border bg-white px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                  placeholder="Objetivo inicial, preferência de contato ou contexto breve."
+                  maxLength={1000}
+                />
+              </label>
+            </div>
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setMostrarFormulario(false)}
+                className="inline-flex h-10 items-center justify-center rounded-md border bg-white px-4 text-sm font-semibold text-card-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={cadastrarPacienteMutation.isPending}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {cadastrarPacienteMutation.isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                Salvar paciente
+              </button>
+            </div>
+          </form>
+        ) : null}
+
         <div className="mt-4 grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
           {carregando ? (
             <div className="flex min-h-32 items-center justify-center rounded-md border bg-background text-sm text-muted-foreground md:col-span-2 2xl:col-span-3">
@@ -1178,12 +1582,21 @@ function GrupoNutri({ titulo, itens }: { titulo: string; itens: IndicadorNutriPr
   );
 }
 
-function CardAtalhoNutri({ atalho, principal = false }: { atalho: AtalhoNutriPro; principal?: boolean }) {
+function CardAtalhoNutri({
+  atalho,
+  principal = false,
+  onClick
+}: {
+  atalho: AtalhoNutriPro;
+  principal?: boolean;
+  onClick?: () => void;
+}) {
   const Icon = iconesAtalhos[atalho.codigo] ?? Sparkles;
 
   return (
     <button
       type="button"
+      onClick={onClick}
       className={cn(
         "group min-h-24 rounded-lg border bg-background p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         principal ? "border-emerald-300 bg-emerald-50/70 hover:border-emerald-500" : "hover:border-primary/45"
@@ -1912,6 +2325,72 @@ function EstadoNutriPro({ titulo, descricao, alerta = false }: { titulo: string;
   );
 }
 
+function resolverSecaoAtalhoNutri(codigo: string): FocoWorkspaceNutriPro {
+  const atalhos: Record<string, FocoWorkspaceNutriPro> = {
+    agenda: "nutri-agenda",
+    pacientes: "nutri-pacientes",
+    prontuario: "nutri-prontuario",
+    anamnese: "nutri-prontuario",
+    metas: "nutri-prontuario",
+    "gasto-energetico": "nutri-avaliacoes",
+    avaliacao: "nutri-avaliacoes",
+    "avaliacao-antropometrica": "nutri-avaliacoes",
+    "exames-laboratoriais": "nutri-documentos",
+    documentos: "nutri-documentos",
+    prescricoes: "nutri-documentos",
+    "plano-alimentar": "nutri-plano"
+  };
+
+  return atalhos[codigo] ?? "nutri-prontuario";
+}
+
+function criarFormularioPacienteNutri(): FormularioPacienteNutri {
+  return {
+    nome: "",
+    telefone: "",
+    email: "",
+    dataNascimento: "",
+    observacoes: ""
+  };
+}
+
+function criarFormularioAgendaNutri(pacienteId: string, profissionalNome: string): FormularioAgendaNutri {
+  const dataPadrao = new Date();
+  dataPadrao.setDate(dataPadrao.getDate() + 1);
+  dataPadrao.setHours(9, 0, 0, 0);
+
+  return {
+    pacienteId,
+    data: formatarDataParaInput(dataPadrao),
+    horario: "09:00",
+    duracaoMinutos: "50",
+    tipo: "RETORNO",
+    sala: "Consultório Nutri 1",
+    profissionalNome,
+    observacoes: ""
+  };
+}
+
+function calcularIntervaloAgendaNutri(data: string, horario: string, duracaoMinutos: string) {
+  const [ano, mes, dia] = data.split("-").map(Number);
+  const [hora, minuto] = horario.split(":").map(Number);
+  const duracao = Math.max(15, Number(duracaoMinutos) || 50);
+  const inicio = new Date(ano, (mes ?? 1) - 1, dia ?? 1, hora ?? 9, minuto ?? 0, 0, 0);
+  const fim = new Date(inicio.getTime() + duracao * 60 * 1000);
+
+  return {
+    inicio: inicio.toISOString(),
+    fim: fim.toISOString()
+  };
+}
+
+function formatarDataParaInput(data: Date) {
+  const ano = data.getFullYear();
+  const mes = String(data.getMonth() + 1).padStart(2, "0");
+  const dia = String(data.getDate()).padStart(2, "0");
+  return `${ano}-${mes}-${dia}`;
+}
+
 function classeStatusIndicador(status: string) {
   if (status === "ALERTA") {
     return "border-amber-300 bg-amber-50";
@@ -1956,11 +2435,11 @@ function rotuloStatusAgenda(status: StatusAgendaNutriPro) {
 
 function rotuloTipoAgenda(tipo: string) {
   const rotulos: Record<string, string> = {
-    PRESENCIAL: "Presencial",
-    ONLINE: "Online",
-    DOMICILIAR: "Domiciliar",
-    SUBLOCACAO: "Sublocação",
-    INTERNO: "Interno"
+    ATENDIMENTO: "Atendimento",
+    RETORNO: "Retorno",
+    AVALIACAO: "Avaliação",
+    BLOQUEIO: "Bloqueio",
+    OUTRO: "Outro"
   };
   return rotulos[tipo] ?? tipo;
 }

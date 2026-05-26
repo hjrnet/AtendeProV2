@@ -16,17 +16,23 @@ type PainelConteudoAtivoProps = {
   secaoAtiva: SecaoPrincipal;
   empresaId: string;
   sessao: SessaoAutenticada;
+  definirSecaoAtiva: (secao: SecaoPrincipal) => void;
 };
 
-export function PainelConteudoAtivo({ secaoAtiva, empresaId, sessao }: PainelConteudoAtivoProps) {
+export function PainelConteudoAtivo({ secaoAtiva, empresaId, sessao, definirSecaoAtiva }: PainelConteudoAtivoProps) {
   return (
     <section className="px-4 py-5 sm:px-6 lg:px-8">
-      {renderizarSecaoAtiva(secaoAtiva, empresaId, sessao)}
+      {renderizarSecaoAtiva(secaoAtiva, empresaId, sessao, definirSecaoAtiva)}
     </section>
   );
 }
 
-function renderizarSecaoAtiva(secaoAtiva: SecaoPrincipal, empresaId: string, sessao: SessaoAutenticada) {
+function renderizarSecaoAtiva(
+  secaoAtiva: SecaoPrincipal,
+  empresaId: string,
+  sessao: SessaoAutenticada,
+  definirSecaoAtiva: (secao: SecaoPrincipal) => void
+) {
   switch (secaoAtiva) {
     case "nutri-inicio":
     case "nutri-agenda":
@@ -35,7 +41,7 @@ function renderizarSecaoAtiva(secaoAtiva: SecaoPrincipal, empresaId: string, ses
     case "nutri-plano":
     case "nutri-avaliacoes":
     case "nutri-documentos":
-      return <NutriProOperacionalView empresaId={empresaId} focoWorkspace={secaoAtiva} />;
+      return <NutriProOperacionalView empresaId={empresaId} focoWorkspace={secaoAtiva} onNavegar={(secao) => definirSecaoAtiva(secao)} />;
     case "beauty-inicio":
     case "beauty-agenda":
     case "beauty-clientes":

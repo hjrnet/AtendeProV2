@@ -80,6 +80,8 @@ Clientes/Pacientes ficam no modulo `cliente`, tenant-scoped pela `empresa_id` e 
 
 A agenda operacional fica no modulo `agenda`, tenant-scoped por `empresa_id` e exposta em `/api/agenda/compromissos`. A base de R3 usa `CompromissoAgenda` com profissional opcional, nome do profissional e sala textual para evitar antecipar modulos futuros de equipe/salas. A aplicacao bloqueia conflitos quando ha sobreposicao de horario para o mesmo `profissional_id` ou para a mesma sala na empresa.
 
+As verticais profissionais devem reaproveitar o nucleo comum de clientes/pacientes e agenda sempre que a regra existente atender ao fluxo. No Nutri Pro, cadastro de paciente usa `/api/clientes-pacientes` com `area=NUTRI`, e agenda usa `/api/agenda/compromissos` com os tipos reais do nucleo (`ATENDIMENTO`, `RETORNO`, `AVALIACAO`, `BLOQUEIO`, `OUTRO`), evitando duplicar dominio dentro da vertical.
+
 Servicos/Procedimentos ficam no modulo `servico`, tenant-scoped por `empresa_id` e expostos em `/api/servicos-procedimentos`. O dominio `ServicoProcedimento` registra nome, descricao, area, duracao em minutos e preco base com `BigDecimal`; custos reais, margem e preco recomendado permanecem reservados para R4.
 
 Custos gerais ficam no modulo `custo`, tenant-scoped por `empresa_id` e expostos em `/api/custos/gerais`. A TASK-0304 cobre somente custos `FIXO`, `VARIAVEL` e `EVENTUAL`, com categoria textual, valor em `BigDecimal` e competencia opcional no formato `YearMonth`. Alimentacao e transporte seguem separados para TASK-0305.

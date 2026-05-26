@@ -267,7 +267,7 @@ public class NutriProService implements
 
     private List<AtalhoNutriProResult> atalhosPrioritarios() {
         return List.of(
-                atalho("gasto-energetico", "Adicionar gasto energético", "Preparar TMB, GEB e GET do paciente na próxima etapa.", "PLANEJADO_R10", "nutri-pro/gasto-energetico"),
+                atalho("gasto-energetico", "Adicionar gasto energético", "Registrar avaliação e estimar TMB, GEB e GET do paciente.", "DISPONIVEL", "nutri-pro/gasto-energetico"),
                 atalho("exames-laboratoriais", "Adicionar exames laboratoriais", "Criar solicitação e histórico de exames em documento profissional.", "DISPONIVEL", "nutri-pro/exames"),
                 atalho("plano-alimentar", "Adicionar plano alimentar", "Criar plano com refeições, alimentos, suplementos e macros iniciais.", "DISPONIVEL", "nutri-pro/plano-alimentar")
         );
@@ -275,8 +275,8 @@ public class NutriProService implements
 
     private List<AtalhoNutriProResult> proximasEvolucoes() {
         return List.of(
-                atalho("prontuario", "Prontuário nutricional", "Perfil nutricional com resumo, histórico e menu rápido funcional.", "PROXIMA_TASK", "nutri-pro/prontuario"),
-                atalho("avaliacao", "Avaliação antropométrica", "Peso, altura, IMC, objetivos e evolução corporal.", "PLANEJADO_R10", "nutri-pro/avaliacao"),
+                atalho("prontuario", "Prontuário nutricional", "Perfil nutricional com resumo, histórico e menu rápido funcional.", "DISPONIVEL", "nutri-pro/prontuario"),
+                atalho("avaliacao", "Avaliação antropométrica", "Peso, altura, IMC, objetivos e evolução corporal.", "DISPONIVEL", "nutri-pro/avaliacao"),
                 atalho("documentos", "Documentos com CRN", "Solicitações, prescrições e carimbo profissional.", "DISPONIVEL", "nutri-pro/documentos")
         );
     }

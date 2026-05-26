@@ -295,7 +295,7 @@ export function ShellAtendePro({ sessao }: ShellAtendeProProps) {
             onEmpresaChange={setEmpresaSelecionadaId}
             onSair={sair}
           />
-          <PainelConteudoAtivo secaoAtiva={secaoAtiva} empresaId={empresaAtivaId} sessao={sessao} />
+          <PainelConteudoAtivo secaoAtiva={secaoAtiva} empresaId={empresaAtivaId} sessao={sessao} definirSecaoAtiva={definirSecaoAtiva} />
         </div>
       </div>
 

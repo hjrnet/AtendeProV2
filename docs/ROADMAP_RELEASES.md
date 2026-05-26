@@ -145,6 +145,7 @@
 - **TASK-1007 — Redesenhar workspace profissional Nutri Pro e navegação por perfil**: Refatoração da área logada para exibir workspace por profissão/plano, navegação real sem scroll/empilhamento, layout responsivo premium e padrão reaplicável às demais verticais.
 - **TASK-1008 — Refatorar UX Nutri Pro com telas dedicadas e submenus limpos**: Reduzir poluição visual e criar conteúdo específico por seção, com submenus para plano alimentar, avaliações, agenda, pacientes, prontuário e documentos.
 - **TASK-1009 — Refatorar UX Beauty Pro com telas dedicadas e submenus limpos**: Aplicar o padrão aprovado no Nutri Pro ao workspace de estética, separando ficha, protocolos, termos/evidências/produtos, agenda/preços, clientes e precificação em telas e submenus próprios.
+- **TASK-1010 — Ativar ações operacionais do Nutri Pro, cadastro de paciente e criação de agenda**: Tornar atalhos do Início Nutri e próximas evoluções acionáveis, cadastrar paciente Nutri e criar agendamento usando o núcleo comum.
 
 ## R11 — IA, automações e integrações
 
