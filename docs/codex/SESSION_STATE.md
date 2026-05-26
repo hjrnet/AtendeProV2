@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R10 — Nutri Pro, Beauty Pro e comercial.
+R11 — IA, automações e integrações.
 
 ## Última task concluída
-TASK-1006 — Corrigir responsividade do hero e painel operacional público.
+TASK-1007 — Redesenhar workspace profissional Nutri Pro e navegação por perfil.
 
 ## Próxima task recomendada
-TASK-1007 — Redesenhar workspace profissional Nutri Pro e navegação por perfil.
+TASK-1101 — IA de precificação.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,13 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-1007 concluida em modo autopilot multiagente release R10.
+- Shell logado passou a resolver workspace profissional por perfil: Karol Nutricionista Demo entra em Nutri Pro como área principal, sem catálogo operacional de Fono, Odonto e verticais sem relação.
+- Menu do usuário Nutri Pro passou a ter seções de trabalho: Início, Agenda, Pacientes, Prontuário, Plano alimentar, Avaliações, Exames e documentos, Precificação e Busca global.
+- O painel Nutri Pro foi reposicionado fora do catálogo de verticais, com layout menos espremido, stack em larguras menores, painel de ação ao lado em desktop e navegação mobile horizontal para mais itens.
+- A paleta do workspace ganhou mais separação visual com superfícies brancas, área de pacientes em azul leve e painel de ação em azul suave, reduzindo a sensação monocromática sem alterar regra de negócio.
+- Validação confirmou `corepack pnpm typecheck`, `corepack pnpm lint`, `corepack pnpm build`, Docker Compose com Postgres/Mailpit saudáveis, backend/web locais `200`, Browser com login da Karol por fluxo local, ausência de Fono/Odonto/Catálogo no workspace, clique em `Plano alimentar` abrindo painel ativo e breakpoints 320, 375, 430, 768, 1024 e 1280 sem overflow horizontal.
+- R10 concluida após TASK-1006 e TASK-1007; próxima release recomendada é R11.
 - TASK-1006 concluida em modo autopilot multiagente release R10.
 - Landing pública deixou de usar painel operacional absoluto, largo e rotacionado no hero; a cena visual agora vive no grid normal da seção, empilha em mobile/tablet e fica ao lado do texto apenas em desktop amplo.
 - Validação confirmou `corepack pnpm typecheck`, `corepack pnpm lint`, `corepack pnpm build`, web local `200` em `/`, Browser sem erros de console e breakpoints 320, 375, 430, 768, 1024 e 1280 sem overflow horizontal nem sobreposição entre título/CTA e painel.

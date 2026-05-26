@@ -4,6 +4,8 @@ import { Search } from "lucide-react";
 
 import type { SessaoAutenticada } from "@/features/auth/lib/auth-storage";
 import { SecaoAdminSaas } from "@/features/admin-planos/components/secao-admin-saas";
+import { BeautyProOperacionalView } from "@/features/beauty-pro/components/beauty-pro-operacional-view";
+import { NutriProOperacionalView } from "@/features/nutri-pro/components/nutri-pro-operacional-view";
 import { SecaoBuscaGlobal } from "@/features/operacional/components/secao-busca-global";
 import { SecaoOperacao } from "@/features/operacional/components/secao-operacao";
 import { SecaoPrecificacao } from "@/features/precificacao/components/secao-precificacao";
@@ -26,6 +28,17 @@ export function PainelConteudoAtivo({ secaoAtiva, empresaId, sessao }: PainelCon
 
 function renderizarSecaoAtiva(secaoAtiva: SecaoPrincipal, empresaId: string, sessao: SessaoAutenticada) {
   switch (secaoAtiva) {
+    case "nutri-inicio":
+    case "nutri-agenda":
+    case "nutri-pacientes":
+    case "nutri-prontuario":
+    case "nutri-plano":
+    case "nutri-avaliacoes":
+    case "nutri-documentos":
+      return <NutriProOperacionalView empresaId={empresaId} focoWorkspace={secaoAtiva} />;
+    case "beauty-inicio":
+    case "beauty-agenda":
+      return <BeautyProOperacionalView empresaId={empresaId} />;
     case "operacao":
       return <SecaoOperacao empresaId={empresaId} sessao={sessao} />;
     case "verticais":

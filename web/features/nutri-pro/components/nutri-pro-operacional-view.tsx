@@ -46,7 +46,17 @@ import { cn } from "@/lib/utils";
 
 type NutriProOperacionalViewProps = {
   empresaId: string;
+  focoWorkspace?: FocoWorkspaceNutriPro;
 };
+
+type FocoWorkspaceNutriPro =
+  | "nutri-inicio"
+  | "nutri-agenda"
+  | "nutri-pacientes"
+  | "nutri-prontuario"
+  | "nutri-plano"
+  | "nutri-avaliacoes"
+  | "nutri-documentos";
 
 type Icone = typeof Apple;
 
@@ -81,9 +91,10 @@ const iconesAtalhos: Record<string, Icone> = {
   documentos: FileText
 };
 
-export function NutriProOperacionalView({ empresaId }: NutriProOperacionalViewProps) {
+export function NutriProOperacionalView({ empresaId, focoWorkspace = "nutri-inicio" }: NutriProOperacionalViewProps) {
   const [buscaPaciente, setBuscaPaciente] = useState("");
   const [pacienteSelecionadoId, setPacienteSelecionadoId] = useState<string | null>(null);
+  const acaoInicial = acaoInicialPorFoco(focoWorkspace);
 
   const visaoQuery = useQuery({
     queryKey: ["nutri-pro-visao", empresaId],
@@ -142,10 +153,10 @@ export function NutriProOperacionalView({ empresaId }: NutriProOperacionalViewPr
   const visao = visaoQuery.data;
 
   return (
-    <section className="grid gap-4 rounded-lg border border-emerald-200 bg-emerald-50/45 p-4">
+    <section className="grid gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-emerald-800">Nutri Pro operacional</p>
+          <p className="text-sm font-semibold text-emerald-800">Workspace Nutri Pro</p>
           <h4 className="mt-1 text-xl font-semibold text-card-foreground">{visao.empresaNome}</h4>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">{visao.mensagemStatus}</p>
         </div>
@@ -161,9 +172,9 @@ export function NutriProOperacionalView({ empresaId }: NutriProOperacionalViewPr
         ))}
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_380px]">
         <section className="grid gap-4">
-          <ProntuarioNutriProPainel empresaId={empresaId} pacienteId={pacienteSelecionadoId} />
+          <ProntuarioNutriProPainel empresaId={empresaId} pacienteId={pacienteSelecionadoId} acaoInicial={acaoInicial} />
 
           <div className="rounded-lg border bg-white p-4 shadow-sm">
             <div className="flex flex-col gap-2 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
@@ -180,7 +191,7 @@ export function NutriProOperacionalView({ empresaId }: NutriProOperacionalViewPr
             </div>
           </div>
 
-          <div className="grid gap-3 lg:grid-cols-2">
+          <div className="grid gap-3 xl:grid-cols-2">
             <GrupoNutri titulo="Indicadores de apoio" itens={indicadoresApoio} />
             <div className="rounded-lg border bg-white p-4 shadow-sm">
               <p className="text-sm font-semibold text-card-foreground">Próximas evoluções</p>
@@ -193,7 +204,7 @@ export function NutriProOperacionalView({ empresaId }: NutriProOperacionalViewPr
           </div>
         </section>
 
-        <section className="rounded-lg border bg-white p-4 shadow-sm">
+        <section className="rounded-lg border border-sky-100 bg-sky-50/45 p-4 shadow-sm">
           <div className="flex items-center justify-between gap-3 border-b pb-4">
             <div>
               <p className="text-sm font-semibold text-card-foreground">Pacientes Nutri</p>
@@ -210,7 +221,7 @@ export function NutriProOperacionalView({ empresaId }: NutriProOperacionalViewPr
               placeholder="Nome, email ou telefone"
             />
           </label>
-          <div className="mt-3 grid max-h-[420px] gap-2 overflow-y-auto pr-1">
+          <div className="mt-3 grid max-h-[520px] gap-2 overflow-y-auto pr-1">
             {pacientesQuery.isLoading ? (
               <div className="flex min-h-24 items-center justify-center rounded-md border bg-background text-sm text-muted-foreground">
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -235,7 +246,15 @@ export function NutriProOperacionalView({ empresaId }: NutriProOperacionalViewPr
   );
 }
 
-function ProntuarioNutriProPainel({ empresaId, pacienteId }: { empresaId: string; pacienteId: string | null }) {
+function ProntuarioNutriProPainel({
+  empresaId,
+  pacienteId,
+  acaoInicial
+}: {
+  empresaId: string;
+  pacienteId: string | null;
+  acaoInicial: string | null;
+}) {
   const [acaoAtiva, setAcaoAtiva] = useState<string | null>(null);
 
   const prontuarioQuery = useQuery({
@@ -245,8 +264,8 @@ function ProntuarioNutriProPainel({ empresaId, pacienteId }: { empresaId: string
   });
 
   useEffect(() => {
-    setAcaoAtiva(null);
-  }, [pacienteId]);
+    setAcaoAtiva(acaoInicial);
+  }, [acaoInicial, pacienteId]);
 
   if (!pacienteId) {
     return <EstadoNutriPro titulo="Selecione um paciente" descricao="Escolha um paciente na lista para abrir o prontuário nutricional." />;
@@ -285,26 +304,32 @@ function ProntuarioNutriProPainel({ empresaId, pacienteId }: { empresaId: string
         </span>
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <ResumoProntuarioCard label="Consultas futuras" value={prontuario.resumo.consultasFuturas} />
-        <ResumoProntuarioCard label="Documentos" value={prontuario.resumo.documentos} />
-        <ResumoProntuarioCard label="Simulações Nutri" value={prontuario.resumo.simulacoesPrecificacao} />
-        <ResumoProntuarioCard label="Planos ativos" value={prontuario.resumo.planosAlimentaresAtivos} />
-      </div>
+      <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(340px,1.05fr)]">
+        <div className="grid min-w-0 gap-3">
+          <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
+            <ResumoProntuarioCard label="Consultas futuras" value={prontuario.resumo.consultasFuturas} />
+            <ResumoProntuarioCard label="Documentos" value={prontuario.resumo.documentos} />
+            <ResumoProntuarioCard label="Simulações Nutri" value={prontuario.resumo.simulacoesPrecificacao} />
+            <ResumoProntuarioCard label="Planos ativos" value={prontuario.resumo.planosAlimentaresAtivos} />
+          </div>
 
-      <div className="mt-4 grid gap-3 md:grid-cols-3">
-        {prontuario.acoesRapidas.filter((acao) => acao.destaque).map((acao) => (
-          <CardAcaoProntuario key={acao.codigo} acao={acao} ativo={acao.codigo === acaoAtiva} onSelecionar={() => setAcaoAtiva(acao.codigo)} />
-        ))}
-      </div>
+          <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
+            {prontuario.acoesRapidas.filter((acao) => acao.destaque).map((acao) => (
+              <CardAcaoProntuario key={acao.codigo} acao={acao} ativo={acao.codigo === acaoAtiva} onSelecionar={() => setAcaoAtiva(acao.codigo)} />
+            ))}
+          </div>
 
-      <div className="mt-3 grid gap-2 lg:grid-cols-3">
-        {prontuario.acoesRapidas.filter((acao) => !acao.destaque).map((acao) => (
-          <CardAcaoProntuario key={acao.codigo} acao={acao} ativo={acao.codigo === acaoAtiva} onSelecionar={() => setAcaoAtiva(acao.codigo)} compacto />
-        ))}
-      </div>
+          <div className="grid gap-2 sm:grid-cols-2 2xl:grid-cols-3">
+            {prontuario.acoesRapidas.filter((acao) => !acao.destaque).map((acao) => (
+              <CardAcaoProntuario key={acao.codigo} acao={acao} ativo={acao.codigo === acaoAtiva} onSelecionar={() => setAcaoAtiva(acao.codigo)} compacto />
+            ))}
+          </div>
+        </div>
 
-      <PainelAcaoProntuario empresaId={empresaId} prontuario={prontuario} acao={acaoSelecionada} />
+        <div className="min-w-0 xl:sticky xl:top-32 xl:self-start">
+          <PainelAcaoProntuario empresaId={empresaId} prontuario={prontuario} acao={acaoSelecionada} />
+        </div>
+      </div>
     </section>
   );
 }
@@ -421,14 +446,14 @@ function CardAcaoProntuario({
 function PainelAcaoProntuario({ empresaId, prontuario, acao }: { empresaId: string; prontuario: ProntuarioNutriPro; acao: AcaoProntuarioNutriPro | null }) {
   if (!acao) {
     return (
-      <div className="mt-4 rounded-lg border bg-emerald-50/70 p-4 text-sm leading-6 text-muted-foreground">
+      <div className="rounded-lg border border-emerald-200 bg-emerald-50/70 p-4 text-sm leading-6 text-muted-foreground">
         Selecione uma ação rápida para abrir o fluxo preparado do paciente. Gastos energéticos, exames laboratoriais e plano alimentar estão em destaque para a rotina da Karol.
       </div>
     );
   }
 
   return (
-    <div className="mt-4 rounded-lg border bg-background p-4">
+    <div className="rounded-lg border border-sky-100 bg-sky-50/45 p-4">
       <div className="flex flex-col gap-2 border-b pb-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-semibold text-card-foreground">{acao.titulo}</p>
@@ -1405,4 +1430,14 @@ function textoPaciente(prontuario: ProntuarioNutriPro) {
   ].filter(Boolean);
 
   return partes.length ? partes.join(" · ") : "Dados básicos do paciente nutricional.";
+}
+
+function acaoInicialPorFoco(foco: FocoWorkspaceNutriPro) {
+  const acoesPorFoco: Partial<Record<FocoWorkspaceNutriPro, string>> = {
+    "nutri-plano": "plano-alimentar",
+    "nutri-avaliacoes": "gasto-energetico",
+    "nutri-documentos": "exames-laboratoriais"
+  };
+
+  return acoesPorFoco[foco] ?? null;
 }

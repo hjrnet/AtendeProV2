@@ -3,7 +3,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { BadgeDollarSign, LayoutDashboard, PackageCheck, Search, Stethoscope } from "lucide-react";
+import {
+  Apple,
+  BadgeDollarSign,
+  CalendarDays,
+  ClipboardList,
+  FileText,
+  Gauge,
+  LayoutDashboard,
+  PackageCheck,
+  Search,
+  Sparkles,
+  Stethoscope,
+  Users
+} from "lucide-react";
 
 import { limparSessaoAutenticada, type SessaoAutenticada } from "@/features/auth/lib/auth-storage";
 import { listarEmpresas } from "@/features/operacional/api/operacional-client";
@@ -12,6 +25,7 @@ import { MenuPrincipal } from "@/features/shell/components/menu-principal";
 import { NavegacaoMobile } from "@/features/shell/components/navegacao-mobile";
 import { PainelConteudoAtivo } from "@/features/shell/components/painel-conteudo-ativo";
 import type { SecaoPrincipal, SecaoPrincipalConfig } from "@/features/shell/types";
+import { resolverWorkspacePorPerfil } from "@/features/workspace/lib/resolver-workspace-por-perfil";
 
 type ShellAtendeProProps = {
   sessao: SessaoAutenticada;
@@ -60,9 +74,130 @@ const secoesPrincipais: SecaoPrincipalConfig[] = [
   }
 ];
 
+const secoesNutriPro: SecaoPrincipalConfig[] = [
+  {
+    id: "nutri-inicio",
+    label: "Início Nutri",
+    labelCurto: "Início",
+    titulo: "Nutri Pro",
+    descricao: "Workspace da nutricionista para acompanhar pacientes, agenda, plano alimentar, exames e documentos.",
+    icon: Apple
+  },
+  {
+    id: "nutri-agenda",
+    label: "Agenda",
+    labelCurto: "Agenda",
+    titulo: "Agenda Nutri",
+    descricao: "Atendimentos nutricionais, retornos e próximos compromissos do acompanhamento.",
+    icon: CalendarDays
+  },
+  {
+    id: "nutri-pacientes",
+    label: "Pacientes",
+    labelCurto: "Pacientes",
+    titulo: "Pacientes Nutri",
+    descricao: "Lista, busca e seleção de pacientes para abrir o prontuário nutricional.",
+    icon: Users
+  },
+  {
+    id: "nutri-prontuario",
+    label: "Prontuário",
+    labelCurto: "Pront.",
+    titulo: "Prontuário nutricional",
+    descricao: "Central do paciente com resumo, ações rápidas e histórico nutricional.",
+    icon: ClipboardList
+  },
+  {
+    id: "nutri-plano",
+    label: "Plano alimentar",
+    labelCurto: "Plano",
+    titulo: "Plano alimentar",
+    descricao: "Fluxo de criação, histórico, refeições, alimentos e resumo de macronutrientes.",
+    icon: Apple
+  },
+  {
+    id: "nutri-avaliacoes",
+    label: "Avaliações",
+    labelCurto: "Aval.",
+    titulo: "Avaliação e gasto energético",
+    descricao: "Avaliação antropométrica, IMC, TMB, GEB, GET e apoio à conduta profissional.",
+    icon: Gauge
+  },
+  {
+    id: "nutri-documentos",
+    label: "Exames e documentos",
+    labelCurto: "Docs",
+    titulo: "Exames, prescrições e documentos",
+    descricao: "Solicitações, prescrições, PDFs e documentos profissionais com carimbo CRN.",
+    icon: FileText
+  },
+  {
+    id: "precificacao",
+    label: "Precificação",
+    labelCurto: "Preço",
+    titulo: "Precificação Nutri",
+    descricao: "Simulador de custo real e margem para serviços nutricionais.",
+    icon: BadgeDollarSign
+  },
+  {
+    id: "busca",
+    label: "Busca global",
+    labelCurto: "Busca",
+    titulo: "Busca global",
+    descricao: "Localize pacientes, agenda, documentos, serviços e custos sem perder o contexto do Nutri Pro.",
+    icon: Search
+  }
+];
+
+const secoesBeautyPro: SecaoPrincipalConfig[] = [
+  {
+    id: "beauty-inicio",
+    label: "Beauty Pro",
+    labelCurto: "Beauty",
+    titulo: "Beauty Pro",
+    descricao: "Workspace profissional para estética, protocolos, sessões, produtos e documentos.",
+    icon: Sparkles
+  },
+  {
+    id: "beauty-agenda",
+    label: "Agenda e preços",
+    labelCurto: "Agenda",
+    titulo: "Agenda e precificação Beauty",
+    descricao: "Atendimentos, serviços, protocolos e simulações da operação Beauty Pro.",
+    icon: CalendarDays
+  },
+  {
+    id: "precificacao",
+    label: "Precificação",
+    labelCurto: "Preço",
+    titulo: "Precificação Beauty",
+    descricao: "Simulador de custo real e margem para estética e beleza.",
+    icon: BadgeDollarSign
+  },
+  {
+    id: "busca",
+    label: "Busca global",
+    labelCurto: "Busca",
+    titulo: "Busca global",
+    descricao: "Localize clientes, agenda, serviços, estoque, equipamentos e custos.",
+    icon: Search
+  }
+];
+
 export function ShellAtendePro({ sessao }: ShellAtendeProProps) {
   const router = useRouter();
-  const [secaoAtiva, definirSecaoAtiva] = useState<SecaoPrincipal>("operacao");
+  const workspaceProfissional = resolverWorkspacePorPerfil(sessao.usuario);
+  const secoesDisponiveis = useMemo(() => {
+    if (workspaceProfissional?.tipo === "NUTRI_PRO") {
+      return secoesNutriPro;
+    }
+    if (workspaceProfissional?.tipo === "BEAUTY_PRO") {
+      return secoesBeautyPro;
+    }
+    return secoesPrincipais;
+  }, [workspaceProfissional?.tipo]);
+
+  const [secaoAtiva, definirSecaoAtiva] = useState<SecaoPrincipal>(() => secoesDisponiveis[0].id);
   const [empresaSelecionadaId, setEmpresaSelecionadaId] = useState(sessao.usuario.empresaId ?? "");
 
   const perfilPrincipal = useMemo(() => normalizarPerfil(sessao.usuario.perfis.at(0)), [sessao]);
@@ -80,11 +215,17 @@ export function ShellAtendePro({ sessao }: ShellAtendeProProps) {
     }
   }, [empresaSelecionadaId, empresasQuery.data]);
 
+  useEffect(() => {
+    if (!secoesDisponiveis.some((secao) => secao.id === secaoAtiva)) {
+      definirSecaoAtiva(secoesDisponiveis[0].id);
+    }
+  }, [secaoAtiva, secoesDisponiveis]);
+
   const empresaAtivaId = sessao.usuario.empresaId ?? empresaSelecionadaId;
   const empresas = empresasQuery.data?.itens ?? [];
   const empresaSelecionada = empresas.find((empresa) => empresa.id === empresaAtivaId);
   const empresaAtualNome = empresaSelecionada?.nomeFantasia ?? (sessao.usuario.empresaId ? "Empresa atual" : "Admin SaaS");
-  const secaoAtual = secoesPrincipais.find((secao) => secao.id === secaoAtiva) ?? secoesPrincipais[0];
+  const secaoAtual = secoesDisponiveis.find((secao) => secao.id === secaoAtiva) ?? secoesDisponiveis[0];
 
   function sair() {
     limparSessaoAutenticada();
@@ -100,13 +241,13 @@ export function ShellAtendePro({ sessao }: ShellAtendeProProps) {
               <Stethoscope className="h-5 w-5" />
             </span>
             <div className="hidden xl:block">
-              <p className="text-sm font-semibold text-card-foreground">AtendePro</p>
-              <p className="text-xs font-medium text-muted-foreground">SaaS profissional</p>
+              <p className="text-sm font-semibold text-card-foreground">{workspaceProfissional?.nome ?? "AtendePro"}</p>
+              <p className="text-xs font-medium text-muted-foreground">{workspaceProfissional ? "Workspace profissional" : "SaaS profissional"}</p>
             </div>
           </div>
 
           <div className="mt-8">
-            <MenuPrincipal secoes={secoesPrincipais} secaoAtiva={secaoAtiva} definirSecaoAtiva={definirSecaoAtiva} />
+            <MenuPrincipal secoes={secoesDisponiveis} secaoAtiva={secaoAtiva} definirSecaoAtiva={definirSecaoAtiva} />
           </div>
         </aside>
 
@@ -126,7 +267,7 @@ export function ShellAtendePro({ sessao }: ShellAtendeProProps) {
         </div>
       </div>
 
-      <NavegacaoMobile secoes={secoesPrincipais} secaoAtiva={secaoAtiva} definirSecaoAtiva={definirSecaoAtiva} />
+      <NavegacaoMobile secoes={secoesDisponiveis} secaoAtiva={secaoAtiva} definirSecaoAtiva={definirSecaoAtiva} />
     </main>
   );
 }
