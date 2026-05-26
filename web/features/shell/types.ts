@@ -14,7 +14,11 @@ export type SecaoPrincipal =
   | "nutri-avaliacoes"
   | "nutri-documentos"
   | "beauty-inicio"
-  | "beauty-agenda";
+  | "beauty-agenda"
+  | "beauty-clientes"
+  | "beauty-ficha"
+  | "beauty-protocolos"
+  | "beauty-termos";
 
 export type SecaoPrincipalConfig = {
   id: SecaoPrincipal;

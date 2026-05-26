@@ -38,7 +38,11 @@ function renderizarSecaoAtiva(secaoAtiva: SecaoPrincipal, empresaId: string, ses
       return <NutriProOperacionalView empresaId={empresaId} focoWorkspace={secaoAtiva} />;
     case "beauty-inicio":
     case "beauty-agenda":
-      return <BeautyProOperacionalView empresaId={empresaId} />;
+    case "beauty-clientes":
+    case "beauty-ficha":
+    case "beauty-protocolos":
+    case "beauty-termos":
+      return <BeautyProOperacionalView empresaId={empresaId} focoWorkspace={secaoAtiva} />;
     case "operacao":
       return <SecaoOperacao empresaId={empresaId} sessao={sessao} />;
     case "verticais":

@@ -152,8 +152,8 @@ const secoesNutriPro: SecaoPrincipalConfig[] = [
 const secoesBeautyPro: SecaoPrincipalConfig[] = [
   {
     id: "beauty-inicio",
-    label: "Beauty Pro",
-    labelCurto: "Beauty",
+    label: "Início Beauty",
+    labelCurto: "Início",
     titulo: "Beauty Pro",
     descricao: "Workspace profissional para estética, protocolos, sessões, produtos e documentos.",
     icon: Sparkles
@@ -165,6 +165,38 @@ const secoesBeautyPro: SecaoPrincipalConfig[] = [
     titulo: "Agenda e precificação Beauty",
     descricao: "Atendimentos, serviços, protocolos e simulações da operação Beauty Pro.",
     icon: CalendarDays
+  },
+  {
+    id: "beauty-clientes",
+    label: "Clientes",
+    labelCurto: "Clientes",
+    titulo: "Clientes Beauty",
+    descricao: "Lista, busca e seleção de clientes para abrir ficha estética e histórico profissional.",
+    icon: Users
+  },
+  {
+    id: "beauty-ficha",
+    label: "Ficha estética",
+    labelCurto: "Ficha",
+    titulo: "Ficha estética",
+    descricao: "Anamnese, contraindicações, segurança e histórico estético do cliente.",
+    icon: ClipboardList
+  },
+  {
+    id: "beauty-protocolos",
+    label: "Protocolos e sessões",
+    labelCurto: "Protocolos",
+    titulo: "Protocolos e sessões",
+    descricao: "Pacotes estéticos, execução de sessões, evolução e histórico por cliente.",
+    icon: Sparkles
+  },
+  {
+    id: "beauty-termos",
+    label: "Termos e produtos",
+    labelCurto: "Termos",
+    titulo: "Termos, evidências e produtos",
+    descricao: "Consentimentos, evidências seguras, produtos/lotes e rastreabilidade operacional.",
+    icon: FileText
   },
   {
     id: "precificacao",

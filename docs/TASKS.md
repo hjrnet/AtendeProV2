@@ -168,7 +168,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-1006 | Corrigir responsividade do hero e painel operacional público | Ajustar layout da landing para evitar sobreposição/desalinhamento do painel operacional ao mudar tamanho da tela, mantendo experiência premium em mobile, tablet e desktop. | CONCLUIDA |
 | TASK-1007 | Redesenhar workspace profissional Nutri Pro e navegação por perfil | Refatorar a experiência interna do profissional para abrir Nutri Pro como área principal do usuário de nutrição, ocultar verticais sem sentido para o perfil, trocar conteúdo por navegação real e corrigir desalinhamentos do painel operacional. | CONCLUIDA |
 | TASK-1008 | Refatorar UX Nutri Pro com telas dedicadas e submenus limpos | Separar Início, Agenda, Pacientes, Prontuário, Plano alimentar, Avaliações e Documentos em telas reais, com submenus, menos poluição visual, sem conteúdo abrindo ao lado/abaixo e com layout responsivo organizado. | CONCLUIDA |
-| TASK-1009 | Refatorar UX Beauty Pro com telas dedicadas e submenus limpos | Aplicar ao Beauty Pro a mesma organização aprovada no Nutri Pro, separando início, agenda/preços, clientes, ficha estética, protocolos/sessões, termos/evidências/produtos, precificação e busca em telas focadas, com submenus e layout responsivo sem empilhamento vertical poluído. | PENDENTE |
+| TASK-1009 | Refatorar UX Beauty Pro com telas dedicadas e submenus limpos | Aplicar ao Beauty Pro a mesma organização aprovada no Nutri Pro, separando início, agenda/preços, clientes, ficha estética, protocolos/sessões, termos/evidências/produtos, precificação e busca em telas focadas, com submenus e layout responsivo sem empilhamento vertical poluído. | CONCLUIDA |
 
 ## R11 — IA, automações e integrações
 

@@ -6,6 +6,7 @@ import {
   AlertTriangle,
   CalendarDays,
   CheckCircle2,
+  ChevronRight,
   ClipboardList,
   FileText,
   Gauge,
@@ -13,6 +14,7 @@ import {
   PackageCheck,
   Save,
   Scissors,
+  Search,
   Sparkles,
   UserRoundCheck,
   Wrench
@@ -58,8 +60,26 @@ import {
 } from "@/features/beauty-pro/api/beauty-pro-client";
 import { cn } from "@/lib/utils";
 
+type BeautyProOperacionalViewProps = {
+  empresaId: string;
+  focoWorkspace?: FocoWorkspaceBeautyPro;
+};
+
+type FocoWorkspaceBeautyPro =
+  | "beauty-inicio"
+  | "beauty-agenda"
+  | "beauty-clientes"
+  | "beauty-ficha"
+  | "beauty-protocolos"
+  | "beauty-termos";
+
 type Icone = typeof Scissors;
-type EtapaOperacionalBeauty = "ficha" | "protocolos" | "seguranca" | "integracoes";
+
+type AbaFichaBeauty = "resumo" | "anamnese" | "contraindicacoes" | "procedimentos" | "historico" | "alertas";
+
+type AbaProtocolosBeauty = "visao" | "ativos" | "novo" | "sessao" | "evolucao" | "historico";
+
+type AbaSegurancaBeauty = "termos" | "evidencias" | "produtos" | "historico" | "seguranca";
 
 type FormularioFichaBeauty = {
   objetivo: ObjetivoEsteticoBeautyPro;
@@ -228,17 +248,35 @@ const tiposPlaceholder: Array<{ value: TipoPlaceholderEvolucaoBeautyPro; label: 
   { value: "TEXTUAL", label: "Registro textual" }
 ];
 
-const etapasOperacionais: Array<{ value: EtapaOperacionalBeauty; label: string; descricao: string; icon: Icone }> = [
-  { value: "ficha", label: "Ficha", descricao: "Anamnese e segurança", icon: ClipboardList },
-  { value: "protocolos", label: "Protocolos", descricao: "Pacotes e sessões", icon: Sparkles },
-  { value: "seguranca", label: "Termos", descricao: "Evidências e lotes", icon: FileText },
-  { value: "integracoes", label: "Agenda e preços", descricao: "Agenda, serviços e margem", icon: Gauge }
+const abasFichaBeauty: Array<{ id: AbaFichaBeauty; label: string }> = [
+  { id: "resumo", label: "Resumo" },
+  { id: "anamnese", label: "Anamnese" },
+  { id: "contraindicacoes", label: "Contraindicações" },
+  { id: "procedimentos", label: "Procedimentos" },
+  { id: "historico", label: "Histórico" },
+  { id: "alertas", label: "Alertas" }
 ];
 
-export function BeautyProOperacionalView({ empresaId }: { empresaId: string }) {
+const abasProtocolosBeauty: Array<{ id: AbaProtocolosBeauty; label: string }> = [
+  { id: "visao", label: "Visão geral" },
+  { id: "ativos", label: "Protocolos ativos" },
+  { id: "novo", label: "Novo protocolo" },
+  { id: "sessao", label: "Registrar sessão" },
+  { id: "evolucao", label: "Evolução" },
+  { id: "historico", label: "Histórico" }
+];
+
+const abasSegurancaBeauty: Array<{ id: AbaSegurancaBeauty; label: string }> = [
+  { id: "termos", label: "Termos" },
+  { id: "evidencias", label: "Evidências" },
+  { id: "produtos", label: "Produtos e lotes" },
+  { id: "historico", label: "Histórico" },
+  { id: "seguranca", label: "Segurança" }
+];
+
+export function BeautyProOperacionalView({ empresaId, focoWorkspace = "beauty-inicio" }: BeautyProOperacionalViewProps) {
   const [buscaCliente, setBuscaCliente] = useState("");
   const [clienteSelecionadoId, setClienteSelecionadoId] = useState<string | null>(null);
-  const [etapaAtiva, setEtapaAtiva] = useState<EtapaOperacionalBeauty>("ficha");
 
   const visaoQuery = useQuery({
     queryKey: ["beauty-pro-visao", empresaId],
@@ -250,6 +288,12 @@ export function BeautyProOperacionalView({ empresaId }: { empresaId: string }) {
     queryKey: ["beauty-pro-clientes", empresaId, buscaCliente],
     queryFn: () => listarClientesBeautyPro({ empresaId, busca: buscaCliente }),
     enabled: Boolean(empresaId)
+  });
+
+  const integracoesQuery = useQuery({
+    queryKey: ["beauty-pro-integracoes", empresaId],
+    queryFn: () => consultarIntegracoesOperacionaisBeautyPro(empresaId),
+    enabled: Boolean(empresaId && focoWorkspace === "beauty-inicio")
   });
 
   const clientes = clientesQuery.data?.itens ?? [];
@@ -302,80 +346,120 @@ export function BeautyProOperacionalView({ empresaId }: { empresaId: string }) {
 
   const visao = visaoQuery.data;
 
+  if (focoWorkspace === "beauty-agenda") {
+    return <IntegracoesOperacionaisBeautyPainel empresaId={empresaId} />;
+  }
+
+  if (focoWorkspace === "beauty-clientes") {
+    return (
+      <TelaClientesBeautyPro
+        buscaCliente={buscaCliente}
+        clientes={clientes}
+        clienteSelecionadoId={clienteSelecionadoId}
+        carregando={clientesQuery.isLoading}
+        onBuscar={setBuscaCliente}
+        onSelecionar={setClienteSelecionadoId}
+      />
+    );
+  }
+
+  if (focoWorkspace === "beauty-ficha") {
+    return <FichaEsteticaBeautyPainel empresaId={empresaId} clienteId={clienteSelecionadoId} />;
+  }
+
+  if (focoWorkspace === "beauty-protocolos") {
+    return <ProtocolosBeautyPainel empresaId={empresaId} clienteId={clienteSelecionadoId} />;
+  }
+
+  if (focoWorkspace === "beauty-termos") {
+    return <SegurancaOperacionalBeautyPainel empresaId={empresaId} clienteId={clienteSelecionadoId} />;
+  }
+
   return (
-    <section className="grid gap-4 rounded-lg border border-rose-200 bg-rose-50/45 p-4">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-rose-900">Beauty Pro operacional</p>
-          <h4 className="mt-1 text-xl font-semibold text-card-foreground">{visao.empresaNome}</h4>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">{visao.mensagemStatus}</p>
+    <TelaInicioBeautyPro
+      visao={visao}
+      indicadoresPrincipais={indicadoresPrincipais}
+      indicadoresApoio={indicadoresApoio}
+      clientes={clientes}
+      clienteSelecionadoId={clienteSelecionadoId}
+      agenda={integracoesQuery.data?.agenda ?? []}
+      agendaCarregando={integracoesQuery.isLoading}
+      onSelecionarCliente={setClienteSelecionadoId}
+    />
+  );
+}
+
+function TelaInicioBeautyPro({
+  visao,
+  indicadoresPrincipais,
+  indicadoresApoio,
+  clientes,
+  clienteSelecionadoId,
+  agenda,
+  agendaCarregando,
+  onSelecionarCliente
+}: {
+  visao: {
+    empresaNome: string;
+    mensagemStatus: string;
+    statusOperacional: string;
+    statusOperacionalRotulo: string;
+    atalhosPrioritarios: AtalhoBeautyPro[];
+    proximasEvolucoes: AtalhoBeautyPro[];
+  };
+  indicadoresPrincipais: IndicadorBeautyPro[];
+  indicadoresApoio: IndicadorBeautyPro[];
+  clientes: ClienteBeautyResumo[];
+  clienteSelecionadoId: string | null;
+  agenda: AgendaBeautyPro[];
+  agendaCarregando: boolean;
+  onSelecionarCliente: (clienteId: string) => void;
+}) {
+  return (
+    <section className="grid min-w-0 gap-4">
+      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-rose-900">Workspace Beauty Pro</p>
+            <h4 className="mt-1 text-xl font-semibold text-card-foreground">{visao.empresaNome}</h4>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">{visao.mensagemStatus}</p>
+          </div>
+          <span className={cn("inline-flex w-fit items-center gap-2 rounded-md border px-3 py-2 text-xs font-semibold", visao.statusOperacional === "OPERACIONAL" ? "border-rose-200 bg-rose-50 text-rose-900" : "border-amber-200 bg-amber-50 text-amber-800")}>
+            <Sparkles className="h-4 w-4" />
+            {visao.statusOperacionalRotulo}
+          </span>
         </div>
-        <span className={cn("inline-flex w-fit items-center gap-2 rounded-md border px-3 py-2 text-xs font-semibold", visao.statusOperacional === "OPERACIONAL" ? "border-rose-200 bg-white text-rose-900" : "border-amber-200 bg-amber-50 text-amber-800")}>
-          <Sparkles className="h-4 w-4" />
-          {visao.statusOperacionalRotulo}
-        </span>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {indicadoresPrincipais.map((indicador) => (
-          <CardIndicadorBeauty key={indicador.codigo} indicador={indicador} />
+        {indicadoresPrincipais.slice(0, 4).map((indicador) => (
+          <CardIndicadorBeauty key={indicador.codigo} indicador={indicador} compacto />
         ))}
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <section className="grid gap-4">
-          <nav className="grid gap-2 rounded-lg border bg-white p-2 shadow-sm sm:grid-cols-2 xl:grid-cols-4" aria-label="Fluxo operacional Beauty Pro">
-            {etapasOperacionais.map((etapa) => {
-              const Icon = etapa.icon;
-              const ativo = etapaAtiva === etapa.value;
-              return (
-                <button
-                  key={etapa.value}
-                  type="button"
-                  onClick={() => setEtapaAtiva(etapa.value)}
-                  className={cn(
-                    "flex min-h-16 items-center gap-3 rounded-md border px-3 py-2 text-left transition hover:border-rose-300 hover:bg-rose-50",
-                    ativo ? "border-rose-500 bg-rose-50 shadow-sm" : "bg-background"
-                  )}
-                >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-white text-rose-900">
-                    <Icon className="h-5 w-5" />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block text-sm font-semibold text-card-foreground">{etapa.label}</span>
-                    <span className="mt-1 block text-xs leading-5 text-muted-foreground">{etapa.descricao}</span>
-                  </span>
-                </button>
-              );
-            })}
-          </nav>
-
-          {etapaAtiva === "ficha" ? <FichaEsteticaBeautyPainel empresaId={empresaId} clienteId={clienteSelecionadoId} /> : null}
-          {etapaAtiva === "protocolos" ? <ProtocolosBeautyPainel empresaId={empresaId} clienteId={clienteSelecionadoId} /> : null}
-          {etapaAtiva === "seguranca" ? <SegurancaOperacionalBeautyPainel empresaId={empresaId} clienteId={clienteSelecionadoId} /> : null}
-          {etapaAtiva === "integracoes" ? <IntegracoesOperacionaisBeautyPainel empresaId={empresaId} /> : null}
-
+      <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <section className="grid min-w-0 gap-4">
           <div className="rounded-lg border bg-white p-4 shadow-sm">
             <div className="flex flex-col gap-2 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-semibold text-card-foreground">Contratos operacionais preparados</p>
-                <p className="text-sm leading-6 text-muted-foreground">A base da vertical já aponta os próximos fluxos reais: protocolos, sessões, termos e rastreabilidade.</p>
+                <p className="text-sm font-semibold text-card-foreground">Ações prioritárias Beauty</p>
+                <p className="text-sm leading-6 text-muted-foreground">Atalhos compactos para ficha, protocolos, termos e rastreabilidade.</p>
               </div>
-              <span className="w-fit rounded-md border bg-rose-50 px-2 py-1 text-xs font-semibold text-rose-900">R10 em construção</span>
+              <span className="w-fit rounded-md border border-rose-200 bg-rose-50 px-2 py-1 text-xs font-semibold text-rose-900">Menu Beauty</span>
             </div>
             <div className="mt-4 grid gap-3 md:grid-cols-3">
-              {visao.atalhosPrioritarios.map((atalho) => (
+              {visao.atalhosPrioritarios.slice(0, 3).map((atalho) => (
                 <CardAtalhoBeauty key={atalho.codigo} atalho={atalho} principal />
               ))}
             </div>
           </div>
 
           <div className="grid gap-3 lg:grid-cols-2">
-            <GrupoBeauty titulo="Indicadores de apoio" itens={indicadoresApoio} />
+            <GrupoBeauty titulo="Indicadores de apoio" itens={indicadoresApoio.slice(0, 6)} />
             <div className="rounded-lg border bg-white p-4 shadow-sm">
               <p className="text-sm font-semibold text-card-foreground">Próximas evoluções</p>
               <div className="mt-3 grid gap-2">
-                {visao.proximasEvolucoes.map((atalho) => (
+                {visao.proximasEvolucoes.slice(0, 3).map((atalho) => (
                   <CardAtalhoBeauty key={atalho.codigo} atalho={atalho} />
                 ))}
               </div>
@@ -383,43 +467,107 @@ export function BeautyProOperacionalView({ empresaId }: { empresaId: string }) {
           </div>
         </section>
 
-        <section className="rounded-lg border bg-white p-4 shadow-sm">
-          <div className="flex items-center justify-between gap-3 border-b pb-4">
-            <div>
-              <p className="text-sm font-semibold text-card-foreground">Clientes Beauty</p>
-              <p className="text-xs font-medium text-muted-foreground">Selecione para abrir a ficha estética</p>
+        <aside className="grid gap-4">
+          <section className="rounded-lg border border-rose-100 bg-rose-50/35 p-4 shadow-sm">
+            <div className="mb-3 flex items-start justify-between gap-3 border-b border-rose-100 pb-3">
+              <div>
+                <p className="text-sm font-semibold text-card-foreground">Agenda resumida</p>
+                <p className="text-xs text-muted-foreground">Próximos atendimentos Beauty.</p>
+              </div>
+              <CalendarDays className="h-5 w-5 text-rose-900" />
             </div>
-            <UserRoundCheck className="h-5 w-5 text-rose-900" />
+            <ListaAgendaBeautyCompacta agenda={agenda.slice(0, 4)} carregando={agendaCarregando} />
+          </section>
+
+          <section className="rounded-lg border bg-white p-4 shadow-sm">
+            <div className="mb-3 flex items-start justify-between gap-3 border-b pb-3">
+              <div>
+                <p className="text-sm font-semibold text-card-foreground">Clientes recentes</p>
+                <p className="text-xs text-muted-foreground">Selecione para manter o contexto do cliente.</p>
+              </div>
+              <UserRoundCheck className="h-5 w-5 text-rose-900" />
+            </div>
+            <div className="grid gap-2">
+              {clientes.slice(0, 4).map((cliente) => (
+                <LinhaClienteBeauty key={cliente.id} cliente={cliente} selecionado={cliente.id === clienteSelecionadoId} onSelecionar={() => onSelecionarCliente(cliente.id)} />
+              ))}
+              {!clientes.length ? <div className="rounded-md border bg-background p-3 text-sm text-muted-foreground">Nenhum cliente Beauty encontrado.</div> : null}
+            </div>
+          </section>
+        </aside>
+      </div>
+    </section>
+  );
+}
+
+function TelaClientesBeautyPro({
+  buscaCliente,
+  clientes,
+  clienteSelecionadoId,
+  carregando,
+  onBuscar,
+  onSelecionar
+}: {
+  buscaCliente: string;
+  clientes: ClienteBeautyResumo[];
+  clienteSelecionadoId: string | null;
+  carregando: boolean;
+  onBuscar: (valor: string) => void;
+  onSelecionar: (clienteId: string) => void;
+}) {
+  const clienteSelecionado = clientes.find((cliente) => cliente.id === clienteSelecionadoId) ?? clientes[0] ?? null;
+
+  return (
+    <section className="grid min-w-0 gap-4">
+      <div className="rounded-lg border bg-white p-4 shadow-sm">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-rose-900">Clientes Beauty</p>
+            <h4 className="mt-1 text-xl font-semibold text-card-foreground">Lista de clientes</h4>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Busque, selecione e abra o contexto de atendimento sem carregar a ficha completa automaticamente.</p>
           </div>
-          <label className="mt-3 grid gap-1 text-sm font-medium text-card-foreground">
+          <label className="grid w-full gap-1 text-sm font-medium text-card-foreground lg:max-w-sm">
             Busca
-            <input
-              value={buscaCliente}
-              onChange={(event) => setBuscaCliente(event.target.value)}
-              className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
-              placeholder="Nome, email ou telefone"
-            />
+            <span className="relative">
+              <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <input value={buscaCliente} onChange={(event) => onBuscar(event.target.value)} className="h-10 w-full rounded-md border bg-background pl-9 pr-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" placeholder="Nome, email ou telefone" />
+            </span>
           </label>
-          <div className="mt-3 grid max-h-[480px] gap-2 overflow-y-auto pr-1">
-            {clientesQuery.isLoading ? (
-              <div className="flex min-h-24 items-center justify-center rounded-md border bg-background text-sm text-muted-foreground">
+        </div>
+      </div>
+
+      <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <section className="rounded-lg border bg-white p-4 shadow-sm">
+          <div className="grid max-h-[640px] gap-2 overflow-y-auto pr-1">
+            {carregando ? (
+              <div className="flex min-h-32 items-center justify-center rounded-md border bg-background text-sm text-muted-foreground">
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                 Carregando clientes
               </div>
             ) : clientes.length ? (
-              clientes.map((cliente) => (
-                <LinhaClienteBeauty
-                  key={cliente.id}
-                  cliente={cliente}
-                  selecionado={cliente.id === clienteSelecionadoId}
-                  onSelecionar={() => setClienteSelecionadoId(cliente.id)}
-                />
-              ))
+              clientes.map((cliente) => <LinhaClienteBeauty key={cliente.id} cliente={cliente} selecionado={cliente.id === clienteSelecionadoId} onSelecionar={() => onSelecionar(cliente.id)} />)
             ) : (
               <div className="rounded-md border bg-background p-4 text-sm text-muted-foreground">Nenhum cliente Beauty encontrado nesta empresa.</div>
             )}
           </div>
         </section>
+
+        <aside className="rounded-lg border border-rose-100 bg-rose-50/35 p-4 shadow-sm">
+          <p className="text-sm font-semibold text-card-foreground">Cliente selecionado</p>
+          {clienteSelecionado ? (
+            <div className="mt-3 rounded-lg border bg-white p-4">
+              <p className="text-base font-semibold text-card-foreground">{clienteSelecionado.nome}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{clienteSelecionado.telefone ?? "Sem telefone cadastrado"}</p>
+              {clienteSelecionado.observacoes ? <p className="mt-3 text-sm leading-6 text-muted-foreground">{clienteSelecionado.observacoes}</p> : null}
+              <div className="mt-4 grid gap-2">
+                <span className={cn("w-fit rounded-md border px-2 py-1 text-xs font-semibold", clienteSelecionado.ativo ? "bg-emerald-50 text-emerald-800" : "bg-slate-50 text-slate-700")}>{clienteSelecionado.ativo ? "Ativo" : "Inativo"}</span>
+                <p className="text-xs text-muted-foreground">Use o menu lateral para abrir ficha, protocolos ou termos deste cliente.</p>
+              </div>
+            </div>
+          ) : (
+            <div className="mt-3 rounded-md border bg-white p-4 text-sm text-muted-foreground">Selecione um cliente na lista.</div>
+          )}
+        </aside>
       </div>
     </section>
   );
@@ -427,6 +575,7 @@ export function BeautyProOperacionalView({ empresaId }: { empresaId: string }) {
 
 function FichaEsteticaBeautyPainel({ empresaId, clienteId }: { empresaId: string; clienteId: string | null }) {
   const queryClient = useQueryClient();
+  const [submenuFichaAtivo, setSubmenuFichaAtivo] = useState<AbaFichaBeauty>("resumo");
   const [formulario, setFormulario] = useState<FormularioFichaBeauty>(fichaVazia);
   const [mensagem, setMensagem] = useState<string | null>(null);
 
@@ -510,7 +659,7 @@ function FichaEsteticaBeautyPainel({ empresaId, clienteId }: { empresaId: string
   }
 
   return (
-    <section className="rounded-lg border bg-white p-4 shadow-sm">
+    <section className="grid max-w-full min-w-0 gap-4 overflow-hidden rounded-lg border bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-3 border-b pb-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-sm font-semibold text-rose-900">Ficha estética e anamnese</p>
@@ -526,6 +675,42 @@ function FichaEsteticaBeautyPainel({ empresaId, clienteId }: { empresaId: string
         </div>
       </div>
 
+      <AbasBeauty abas={abasFichaBeauty} abaAtiva={submenuFichaAtivo} onChange={setSubmenuFichaAtivo} ariaLabel="Submenu da ficha estética" />
+
+      {submenuFichaAtivo === "resumo" ? (
+        <div className="grid gap-3 lg:grid-cols-3">
+          <ResumoFichaBeauty rotulo="Fichas" valor={prontuario.resumo.fichasEsteticas} />
+          <ResumoFichaBeauty rotulo="Consultas futuras" valor={prontuario.resumo.consultasFuturas} />
+          <ResumoFichaBeauty rotulo="Documentos" valor={prontuario.resumo.documentos} />
+          <div className="rounded-lg border bg-background p-4 lg:col-span-3">
+            <p className="text-sm font-semibold text-card-foreground">Resumo do cliente</p>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              {fichaAtual
+                ? `${fichaAtual.objetivoRotulo}: ${fichaAtual.queixaPrincipal}`
+                : "Nenhuma ficha estética registrada. Abra Anamnese para criar a primeira avaliação do cliente."}
+            </p>
+          </div>
+        </div>
+      ) : null}
+
+      {submenuFichaAtivo === "contraindicacoes" ? (
+        <PainelAlertaFichaBeauty ficha={fichaAtual} />
+      ) : null}
+
+      {submenuFichaAtivo === "procedimentos" ? (
+        <div className="rounded-lg border bg-background p-4">
+          <p className="text-sm font-semibold text-card-foreground">Procedimentos recentes</p>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">{fichaAtual?.procedimentosRecentes ?? "Nenhum procedimento recente registrado na ficha atual."}</p>
+          {fichaAtual?.observacoes ? <p className="mt-3 rounded-md border bg-white p-3 text-sm leading-6 text-muted-foreground">{fichaAtual.observacoes}</p> : null}
+        </div>
+      ) : null}
+
+      {submenuFichaAtivo === "alertas" ? (
+        <PainelAlertaFichaBeauty ficha={fichaAtual} detalhado />
+      ) : null}
+
+      {submenuFichaAtivo === "anamnese" ? (
+        <>
       {fichaAtual?.possuiAlertaContraindicacao ? (
         <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
           <div className="flex items-start gap-2">
@@ -609,8 +794,11 @@ function FichaEsteticaBeautyPainel({ empresaId, clienteId }: { empresaId: string
           </button>
         </div>
       </form>
+        </>
+      ) : null}
 
-      <div className="mt-4 rounded-lg border bg-background p-4">
+      {submenuFichaAtivo === "historico" ? (
+      <div className="rounded-lg border bg-background p-4">
         <p className="text-sm font-semibold text-card-foreground">Histórico de avaliações</p>
         <div className="mt-3 grid gap-2">
           {fichasQuery.isLoading ? (
@@ -625,12 +813,14 @@ function FichaEsteticaBeautyPainel({ empresaId, clienteId }: { empresaId: string
           )}
         </div>
       </div>
+      ) : null}
     </section>
   );
 }
 
 function ProtocolosBeautyPainel({ empresaId, clienteId }: { empresaId: string; clienteId: string | null }) {
   const queryClient = useQueryClient();
+  const [submenuProtocolosAtivo, setSubmenuProtocolosAtivo] = useState<AbaProtocolosBeauty>("visao");
   const [protocoloSelecionadoId, setProtocoloSelecionadoId] = useState<string | null>(null);
   const [formularioProtocolo, setFormularioProtocolo] = useState<FormularioProtocoloBeauty>(protocoloVazio);
   const [formularioSessao, setFormularioSessao] = useState<FormularioSessaoBeauty>(sessaoVazia);
@@ -720,7 +910,7 @@ function ProtocolosBeautyPainel({ empresaId, clienteId }: { empresaId: string; c
   }
 
   return (
-    <section className="rounded-lg border bg-white p-4 shadow-sm">
+    <section className="grid min-w-0 gap-4 rounded-lg border bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-2 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-semibold text-rose-900">Protocolos, sessões e evolução</p>
@@ -729,8 +919,44 @@ function ProtocolosBeautyPainel({ empresaId, clienteId }: { empresaId: string; c
         <span className="w-fit rounded-md border bg-rose-50 px-2 py-1 text-xs font-semibold text-rose-900">Operacional</span>
       </div>
 
-      <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <form className="grid gap-3 rounded-lg border bg-background p-3" onSubmit={criarProtocolo}>
+      <AbasBeauty abas={abasProtocolosBeauty} abaAtiva={submenuProtocolosAtivo} onChange={setSubmenuProtocolosAtivo} ariaLabel="Submenu de protocolos Beauty" />
+
+      {submenuProtocolosAtivo === "visao" ? (
+        <div className="grid gap-3 lg:grid-cols-3">
+          <ResumoFichaBeauty rotulo="Protocolos" valor={protocolos.length} />
+          <ResumoFichaBeauty rotulo="Sessões realizadas" valor={protocolos.reduce((total, protocolo) => total + protocolo.sessoesRealizadas, 0)} />
+          <ResumoFichaBeauty rotulo="Em andamento" valor={protocolos.filter((protocolo) => protocolo.status === "ATIVO").length} />
+          <div className="rounded-lg border bg-background p-4 lg:col-span-3">
+            <p className="text-sm font-semibold text-card-foreground">Fluxo recomendado</p>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">Acompanhe protocolos ativos, registre sessões e consulte evolução sem misturar a ficha estética ou os formulários de termo na mesma tela.</p>
+          </div>
+        </div>
+      ) : null}
+
+      {submenuProtocolosAtivo === "ativos" || submenuProtocolosAtivo === "historico" ? (
+        <div className="grid gap-2">
+          {protocolosQuery.isLoading ? (
+            <div className="flex min-h-24 items-center justify-center rounded-md border bg-background text-sm text-muted-foreground">
+              <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+              Carregando protocolos
+            </div>
+          ) : protocolos.length ? (
+            protocolos.map((protocolo) => (
+              <LinhaProtocoloBeauty
+                key={protocolo.id}
+                protocolo={protocolo}
+                selecionado={protocolo.id === protocoloSelecionadoId}
+                onSelecionar={() => setProtocoloSelecionadoId(protocolo.id)}
+              />
+            ))
+          ) : (
+            <div className="rounded-md border bg-background p-4 text-sm text-muted-foreground">Nenhum protocolo criado para este cliente.</div>
+          )}
+        </div>
+      ) : null}
+
+      {submenuProtocolosAtivo === "novo" ? (
+        <form className="grid gap-3 rounded-lg border bg-background p-4" onSubmit={criarProtocolo}>
           <p className="text-sm font-semibold text-card-foreground">Novo protocolo</p>
           <label className="grid gap-1 text-sm font-medium text-card-foreground">
             Nome
@@ -781,30 +1007,11 @@ function ProtocolosBeautyPainel({ empresaId, clienteId }: { empresaId: string; c
             Criar protocolo
           </button>
         </form>
+      ) : null}
 
-        <div className="grid gap-3">
-          <div className="grid max-h-[360px] gap-2 overflow-y-auto pr-1">
-            {protocolosQuery.isLoading ? (
-              <div className="flex min-h-24 items-center justify-center rounded-md border bg-background text-sm text-muted-foreground">
-                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                Carregando protocolos
-              </div>
-            ) : protocolos.length ? (
-              protocolos.map((protocolo) => (
-                <LinhaProtocoloBeauty
-                  key={protocolo.id}
-                  protocolo={protocolo}
-                  selecionado={protocolo.id === protocoloSelecionadoId}
-                  onSelecionar={() => setProtocoloSelecionadoId(protocolo.id)}
-                />
-              ))
-            ) : (
-              <div className="rounded-md border bg-background p-4 text-sm text-muted-foreground">Nenhum protocolo criado para este cliente.</div>
-            )}
-          </div>
-
-          {protocoloSelecionado ? (
-            <form className="grid gap-3 rounded-lg border bg-background p-3" onSubmit={registrarSessao}>
+      {submenuProtocolosAtivo === "sessao" ? (
+        protocoloSelecionado ? (
+            <form className="grid gap-3 rounded-lg border bg-background p-4" onSubmit={registrarSessao}>
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-sm font-semibold text-card-foreground">Registrar sessão</p>
@@ -831,13 +1038,43 @@ function ProtocolosBeautyPainel({ empresaId, clienteId }: { empresaId: string; c
                 Registrar sessão
               </button>
             </form>
-          ) : null}
+        ) : (
+          <EstadoBeautyPro titulo="Selecione um protocolo" descricao="Abra Protocolos ativos e escolha um pacote para registrar a próxima sessão." />
+        )
+      ) : null}
 
-          <div className="min-h-5 text-sm">
+      {submenuProtocolosAtivo === "evolucao" ? (
+        <div className="grid gap-3">
+          {protocoloSelecionado ? (
+            <>
+              <div className="rounded-lg border bg-background p-4">
+                <p className="text-sm font-semibold text-card-foreground">{protocoloSelecionado.nome}</p>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{protocoloSelecionado.objetivo}</p>
+              </div>
+              {protocoloSelecionado.sessoes.length ? (
+                protocoloSelecionado.sessoes.map((sessao) => (
+                  <article key={sessao.id} className="rounded-lg border bg-background p-4">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                      <p className="text-sm font-semibold text-card-foreground">Sessão {sessao.numeroSessao}</p>
+                      <span className="w-fit rounded-md border bg-white px-2 py-1 text-xs font-semibold text-muted-foreground">{formatarDataHora(sessao.realizadaEm)}</span>
+                    </div>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{sessao.descricaoExecucao}</p>
+                    {sessao.evolucaoCliente ? <p className="mt-2 rounded-md border bg-white p-3 text-sm leading-6 text-muted-foreground">{sessao.evolucaoCliente}</p> : null}
+                  </article>
+                ))
+              ) : (
+                <div className="rounded-md border bg-background p-4 text-sm text-muted-foreground">Nenhuma sessão registrada para o protocolo selecionado.</div>
+              )}
+            </>
+          ) : (
+            <EstadoBeautyPro titulo="Selecione um protocolo" descricao="Abra Protocolos ativos e escolha um pacote para ver a evolução." />
+          )}
+        </div>
+      ) : null}
+
+      <div className="min-h-5 text-sm">
             {mensagem ? <span className="font-medium text-emerald-700">{mensagem}</span> : null}
             {criarProtocoloMutation.isError || registrarSessaoMutation.isError ? <span className="font-medium text-destructive">Não foi possível salvar protocolo ou sessão.</span> : null}
-          </div>
-        </div>
       </div>
     </section>
   );
@@ -845,6 +1082,7 @@ function ProtocolosBeautyPainel({ empresaId, clienteId }: { empresaId: string; c
 
 function SegurancaOperacionalBeautyPainel({ empresaId, clienteId }: { empresaId: string; clienteId: string | null }) {
   const queryClient = useQueryClient();
+  const [submenuSegurancaAtivo, setSubmenuSegurancaAtivo] = useState<AbaSegurancaBeauty>("termos");
   const [formularioTermo, setFormularioTermo] = useState<FormularioTermoBeauty>(termoVazio);
   const [formularioEvidencia, setFormularioEvidencia] = useState<FormularioEvidenciaBeauty>(evidenciaVazia);
   const [formularioProduto, setFormularioProduto] = useState<FormularioProdutoBeauty>(produtoVazio);
@@ -969,7 +1207,7 @@ function SegurancaOperacionalBeautyPainel({ empresaId, clienteId }: { empresaId:
   }
 
   return (
-    <section className="rounded-lg border bg-white p-4 shadow-sm">
+    <section className="grid min-w-0 gap-4 rounded-lg border bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-2 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-semibold text-rose-900">Termos, evidências e produtos</p>
@@ -978,21 +1216,24 @@ function SegurancaOperacionalBeautyPainel({ empresaId, clienteId }: { empresaId:
         <span className="w-fit rounded-md border bg-rose-50 px-2 py-1 text-xs font-semibold text-rose-900">Segurança operacional</span>
       </div>
 
+      <AbasBeauty abas={abasSegurancaBeauty} abaAtiva={submenuSegurancaAtivo} onChange={setSubmenuSegurancaAtivo} ariaLabel="Submenu de termos e produtos Beauty" />
+
       {segurancaQuery.isLoading ? (
-        <div className="mt-4 flex min-h-32 items-center justify-center rounded-lg border bg-background text-sm text-muted-foreground">
+        <div className="flex min-h-32 items-center justify-center rounded-lg border bg-background text-sm text-muted-foreground">
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
           Carregando segurança operacional
         </div>
       ) : (
-        <div className="mt-4 grid gap-4">
+        <div className="grid gap-4">
           <div className="grid gap-3 md:grid-cols-3">
             <ResumoFichaBeauty rotulo="Termos" valor={seguranca?.termos.length ?? 0} />
             <ResumoFichaBeauty rotulo="Evidências" valor={seguranca?.evidencias.length ?? 0} />
             <ResumoFichaBeauty rotulo="Produtos" valor={seguranca?.produtosUtilizados.length ?? 0} destaque={(seguranca?.produtosUtilizados ?? []).some((produto) => produto.alertaValidade || produto.alertaEstoqueBaixo)} />
           </div>
 
-          <div className="grid gap-4 xl:grid-cols-3">
-            <form className="grid gap-3 rounded-lg border bg-background p-3" onSubmit={criarTermo}>
+          <div className="grid gap-4">
+            {submenuSegurancaAtivo === "termos" ? (
+            <form className="grid gap-3 rounded-lg border bg-background p-4" onSubmit={criarTermo}>
               <p className="text-sm font-semibold text-card-foreground">Novo termo</p>
               <SelecaoProtocoloBeauty value={formularioTermo.protocoloId} protocolos={protocolos} onChange={(value) => setFormularioTermo((atual) => ({ ...atual, protocoloId: value }))} />
               <label className="grid gap-1 text-sm font-medium text-card-foreground">
@@ -1011,8 +1252,10 @@ function SegurancaOperacionalBeautyPainel({ empresaId, clienteId }: { empresaId:
                 Registrar termo
               </button>
             </form>
+            ) : null}
 
-            <form className="grid gap-3 rounded-lg border bg-background p-3" onSubmit={criarEvidencia}>
+            {submenuSegurancaAtivo === "evidencias" ? (
+            <form className="grid gap-3 rounded-lg border bg-background p-4" onSubmit={criarEvidencia}>
               <p className="text-sm font-semibold text-card-foreground">Evidência segura</p>
               <SelecaoProtocoloBeauty value={formularioEvidencia.protocoloId} protocolos={protocolos} onChange={(value) => setFormularioEvidencia((atual) => ({ ...atual, protocoloId: value }))} />
               <label className="grid gap-1 text-sm font-medium text-card-foreground">
@@ -1045,8 +1288,10 @@ function SegurancaOperacionalBeautyPainel({ empresaId, clienteId }: { empresaId:
                 Registrar evidência
               </button>
             </form>
+            ) : null}
 
-            <form className="grid gap-3 rounded-lg border bg-background p-3" onSubmit={vincularProduto}>
+            {submenuSegurancaAtivo === "produtos" ? (
+            <form className="grid gap-3 rounded-lg border bg-background p-4" onSubmit={vincularProduto}>
               <p className="text-sm font-semibold text-card-foreground">Produto e lote</p>
               <SelecaoProtocoloBeauty value={formularioProduto.protocoloId} protocolos={protocolos} onChange={(value) => setFormularioProduto((atual) => ({ ...atual, protocoloId: value }))} />
               <label className="grid gap-1 text-sm font-medium text-card-foreground">
@@ -1098,13 +1343,28 @@ function SegurancaOperacionalBeautyPainel({ empresaId, clienteId }: { empresaId:
                 Vincular produto
               </button>
             </form>
+            ) : null}
           </div>
 
+          {submenuSegurancaAtivo === "historico" ? (
           <div className="grid gap-3 lg:grid-cols-3">
             <HistoricoTermosBeauty termos={seguranca?.termos ?? []} />
             <HistoricoEvidenciasBeauty evidencias={seguranca?.evidencias ?? []} />
             <HistoricoProdutosBeauty produtos={seguranca?.produtosUtilizados ?? []} estoque={seguranca?.produtosEstoque ?? []} />
           </div>
+          ) : null}
+
+          {submenuSegurancaAtivo === "seguranca" ? (
+            <div className="rounded-lg border bg-background p-4">
+              <p className="text-sm font-semibold text-card-foreground">Segurança operacional</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">Use termos, evidências seguras e rastreabilidade de produtos para manter histórico claro sem armazenar imagem real sem consentimento formal.</p>
+              {(seguranca?.produtosEstoque ?? []).some((produto) => produto.estoqueBaixo || produto.validadeEmAlerta) ? (
+                <div className="mt-3 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm leading-6 text-amber-900">Existem produtos do estoque com validade próxima ou estoque baixo. Revise antes de vincular ao atendimento.</div>
+              ) : (
+                <div className="mt-3 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm leading-6 text-emerald-900">Nenhum alerta crítico de produto no momento.</div>
+              )}
+            </div>
+          ) : null}
 
           <div className="min-h-5 text-sm">
             {mensagem ? <span className="font-medium text-emerald-700">{mensagem}</span> : null}
@@ -1186,6 +1446,117 @@ function IntegracoesOperacionaisBeautyPainel({ empresaId }: { empresaId: string 
         </div>
       )}
     </section>
+  );
+}
+
+function AbasBeauty<T extends string>({
+  abas,
+  abaAtiva,
+  onChange,
+  ariaLabel
+}: {
+  abas: Array<{ id: T; label: string }>;
+  abaAtiva: T;
+  onChange: (aba: T) => void;
+  ariaLabel: string;
+}) {
+  return (
+    <nav className="w-full max-w-full min-w-0 overflow-x-auto pb-1" aria-label={ariaLabel}>
+      <div className="flex min-w-max gap-2">
+        {abas.map((aba) => {
+          const ativo = aba.id === abaAtiva;
+          return (
+            <button
+              key={aba.id}
+              type="button"
+              onClick={() => onChange(aba.id)}
+              className={cn(
+                "inline-flex min-h-10 shrink-0 items-center rounded-md border px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                ativo ? "border-rose-700 bg-rose-900 text-white shadow-sm" : "bg-background text-muted-foreground hover:border-rose-200 hover:bg-rose-50 hover:text-rose-900"
+              )}
+            >
+              {aba.label}
+            </button>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+
+function PainelAlertaFichaBeauty({ ficha, detalhado = false }: { ficha: FichaEsteticaBeautyPro | null; detalhado?: boolean }) {
+  if (!ficha) {
+    return (
+      <div className="rounded-lg border bg-background p-4">
+        <p className="text-sm font-semibold text-card-foreground">Sem ficha estética</p>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">Crie a anamnese para registrar contraindicações, histórico estético e cuidados obrigatórios.</p>
+      </div>
+    );
+  }
+
+  if (!ficha.possuiAlertaContraindicacao) {
+    return (
+      <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+        <div className="flex items-start gap-2">
+          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+          <div>
+            <p className="font-semibold">Sem contraindicações registradas</p>
+            <p className="mt-1 leading-6">A ficha atual não possui alerta crítico. Mantenha a avaliação profissional antes de cada procedimento.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+      <div className="flex items-start gap-2">
+        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+        <div>
+          <p className="font-semibold">Contraindicações e alertas registrados</p>
+          <p className="mt-1 leading-6">{ficha.alertaContraindicacoes}</p>
+          {detalhado ? (
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              <ResumoFichaBeauty rotulo="Gestante" valor={ficha.gestante ? "Sim" : "Não"} texto destaque={ficha.gestante} />
+              <ResumoFichaBeauty rotulo="Lactante" valor={ficha.lactante ? "Sim" : "Não"} texto destaque={ficha.lactante} />
+              <ResumoFichaBeauty rotulo="Pele sensível" valor={ficha.sensibilidadePele ? "Sim" : "Não"} texto destaque={ficha.sensibilidadePele} />
+              <ResumoFichaBeauty rotulo="Usa ácidos" valor={ficha.usaAcidos ? "Sim" : "Não"} texto destaque={ficha.usaAcidos} />
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ListaAgendaBeautyCompacta({ agenda, carregando }: { agenda: AgendaBeautyPro[]; carregando: boolean }) {
+  if (carregando) {
+    return (
+      <div className="flex min-h-24 items-center justify-center rounded-md border bg-white text-sm text-muted-foreground">
+        <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+        Carregando agenda
+      </div>
+    );
+  }
+
+  if (!agenda.length) {
+    return <div className="rounded-md border bg-white p-3 text-sm text-muted-foreground">Nenhum atendimento Beauty nos próximos dias.</div>;
+  }
+
+  return (
+    <div className="grid gap-2">
+      {agenda.map((compromisso) => (
+        <article key={compromisso.id} className="rounded-md border bg-white p-3">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-card-foreground">{compromisso.clienteNome ?? "Cliente não informado"}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{formatarDataHora(compromisso.inicio)}</p>
+            </div>
+            <span className={cn("shrink-0 rounded-md border px-2 py-1 text-xs font-semibold", classeStatusAgenda(compromisso.status))}>{compromisso.statusRotulo}</span>
+          </div>
+        </article>
+      ))}
+    </div>
   );
 }
 
@@ -1380,7 +1751,7 @@ function ListaSimulacoesBeauty({ simulacoes }: { simulacoes: SimulacaoBeautyPro[
   );
 }
 
-function CardIndicadorBeauty({ indicador }: { indicador: IndicadorBeautyPro }) {
+function CardIndicadorBeauty({ indicador, compacto = false }: { indicador: IndicadorBeautyPro; compacto?: boolean }) {
   const Icon = iconesIndicadores[indicador.codigo] ?? Sparkles;
 
   return (
@@ -1391,9 +1762,9 @@ function CardIndicadorBeauty({ indicador }: { indicador: IndicadorBeautyPro }) {
         </span>
         <span className="rounded-md border bg-white px-2 py-1 text-xs font-semibold text-muted-foreground">{rotuloStatus(indicador.status)}</span>
       </div>
-      <p className="mt-4 text-sm font-medium text-muted-foreground">{indicador.titulo}</p>
+      <p className={cn("text-sm font-medium text-muted-foreground", compacto ? "mt-3" : "mt-4")}>{indicador.titulo}</p>
       <p className="mt-1 text-2xl font-semibold text-card-foreground">{formatarNumero(indicador.valor)}</p>
-      <p className="mt-2 text-xs leading-5 text-muted-foreground">{indicador.descricao}</p>
+      <p className={cn("mt-2 text-xs leading-5 text-muted-foreground", compacto ? "line-clamp-2" : "")}>{indicador.descricao}</p>
     </article>
   );
 }
@@ -1434,7 +1805,10 @@ function CardAtalhoBeauty({ atalho, principal = false }: { atalho: AtalhoBeautyP
         <span className="flex h-10 w-10 items-center justify-center rounded-md bg-white text-rose-900">
           <Icon className="h-5 w-5" />
         </span>
-        <span className="rounded-md border bg-white px-2 py-1 text-xs font-semibold text-rose-900">{rotuloStatusAtalho(atalho.status)}</span>
+        <span className="inline-flex items-center gap-1 rounded-md border bg-white px-2 py-1 text-xs font-semibold text-rose-900">
+          {rotuloStatusAtalho(atalho.status)}
+          <ChevronRight className="h-3 w-3" />
+        </span>
       </span>
       <span className="mt-3 block text-sm font-semibold text-card-foreground">{atalho.titulo}</span>
       <span className="mt-2 block text-xs leading-5 text-muted-foreground">{atalho.descricao}</span>
@@ -1586,8 +1960,14 @@ function classeStatusIndicador(status: string) {
   if (status === "ALERTA") {
     return "border-amber-300 bg-amber-50";
   }
-  if (status === "SAUDAVEL" || status === "OPERACIONAL") {
-    return "border-rose-200 bg-rose-50";
+  if (status === "SAUDAVEL") {
+    return "border-emerald-200 bg-emerald-50";
+  }
+  if (status === "OPERACIONAL") {
+    return "border-slate-200 bg-white";
+  }
+  if (status === "PREPARADO") {
+    return "border-sky-200 bg-sky-50";
   }
   return "border bg-background";
 }
