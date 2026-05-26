@@ -5,8 +5,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
   Apple,
+  Activity,
   CalendarDays,
   ChevronRight,
+  Clock,
   ClipboardList,
   FileText,
   Gauge,
@@ -23,11 +25,12 @@ import {
   criarAvaliacaoAntropometricaNutriPro,
   criarDocumentoProfissionalNutriPro,
   criarPlanoAlimentarNutriPro,
+  listarAgendaNutriPro,
   listarAvaliacoesAntropometricasNutriPro,
   listarDocumentosProfissionaisNutriPro,
   listarPacientesNutriPro,
   listarPlanosAlimentaresNutriPro,
-  type AcaoProntuarioNutriPro,
+  type CompromissoAgendaNutriPro,
   type AtalhoNutriPro,
   type AvaliacaoAntropometricaNutriPro,
   type CriarAvaliacaoAntropometricaNutriProInput,
@@ -39,7 +42,9 @@ import {
   type PacienteNutriResumo,
   type PlanoAlimentarNutriPro,
   type ProntuarioNutriPro,
-  type SexoBiologicoNutriPro
+  type SexoBiologicoNutriPro,
+  type StatusAgendaNutriPro,
+  type VisaoNutriPro
 } from "@/features/nutri-pro/api/nutri-pro-client";
 import { carregarSessaoAutenticada } from "@/features/auth/lib/auth-storage";
 import { cn } from "@/lib/utils";
@@ -70,6 +75,39 @@ type FormularioAvaliacaoNutri = {
   observacoes: string;
 };
 
+type AbaProntuarioNutriPro = "resumo" | "anamnese" | "avaliacoes" | "plano" | "exames" | "prescricoes" | "documentos" | "historico";
+
+type AbaPlanoNutriPro = "visao" | "planos" | "refeicoes" | "macros" | "pdf" | "historico";
+
+type AbaAvaliacaoNutriPro = "antropometria" | "gasto" | "historico" | "evolucao";
+
+const abasProntuarioNutri: Array<{ id: AbaProntuarioNutriPro; label: string }> = [
+  { id: "resumo", label: "Resumo" },
+  { id: "anamnese", label: "Anamnese" },
+  { id: "avaliacoes", label: "Avaliações" },
+  { id: "plano", label: "Plano" },
+  { id: "exames", label: "Exames" },
+  { id: "prescricoes", label: "Prescrições" },
+  { id: "documentos", label: "Documentos" },
+  { id: "historico", label: "Histórico" }
+];
+
+const abasPlanoNutri: Array<{ id: AbaPlanoNutriPro; label: string }> = [
+  { id: "visao", label: "Visão geral" },
+  { id: "planos", label: "Planos ativos" },
+  { id: "refeicoes", label: "Refeições" },
+  { id: "macros", label: "Macros" },
+  { id: "pdf", label: "PDF" },
+  { id: "historico", label: "Histórico" }
+];
+
+const abasAvaliacoesNutri: Array<{ id: AbaAvaliacaoNutriPro; label: string }> = [
+  { id: "antropometria", label: "Antropometria" },
+  { id: "gasto", label: "Gasto energético" },
+  { id: "historico", label: "Histórico" },
+  { id: "evolucao", label: "Evolução futura" }
+];
+
 const iconesIndicadores: Record<string, Icone> = {
   pacientes: Users,
   agendaHoje: CalendarDays,
@@ -94,7 +132,7 @@ const iconesAtalhos: Record<string, Icone> = {
 export function NutriProOperacionalView({ empresaId, focoWorkspace = "nutri-inicio" }: NutriProOperacionalViewProps) {
   const [buscaPaciente, setBuscaPaciente] = useState("");
   const [pacienteSelecionadoId, setPacienteSelecionadoId] = useState<string | null>(null);
-  const acaoInicial = acaoInicialPorFoco(focoWorkspace);
+  const intervaloAgenda = useMemo(() => criarIntervaloAgendaNutri(), []);
 
   const visaoQuery = useQuery({
     queryKey: ["nutri-pro-visao", empresaId],
@@ -106,6 +144,12 @@ export function NutriProOperacionalView({ empresaId, focoWorkspace = "nutri-inic
     queryKey: ["nutri-pro-pacientes", empresaId, buscaPaciente],
     queryFn: () => listarPacientesNutriPro({ empresaId, busca: buscaPaciente }),
     enabled: Boolean(empresaId)
+  });
+
+  const agendaQuery = useQuery({
+    queryKey: ["nutri-pro-agenda", empresaId, intervaloAgenda.inicio, intervaloAgenda.fim],
+    queryFn: () => listarAgendaNutriPro({ empresaId, inicio: intervaloAgenda.inicio, fim: intervaloAgenda.fim }),
+    enabled: Boolean(empresaId && ["nutri-inicio", "nutri-agenda"].includes(focoWorkspace))
   });
 
   const pacientes = pacientesQuery.data?.itens ?? [];
@@ -152,18 +196,86 @@ export function NutriProOperacionalView({ empresaId, focoWorkspace = "nutri-inic
 
   const visao = visaoQuery.data;
 
+  if (focoWorkspace === "nutri-agenda") {
+    return <TelaAgendaNutriPro agenda={agendaQuery.data?.itens ?? []} carregando={agendaQuery.isLoading} />;
+  }
+
+  if (focoWorkspace === "nutri-pacientes") {
+    return (
+      <TelaPacientesNutriPro
+        buscaPaciente={buscaPaciente}
+        pacientes={pacientes}
+        pacienteSelecionadoId={pacienteSelecionadoId}
+        carregando={pacientesQuery.isLoading}
+        onBuscar={setBuscaPaciente}
+        onSelecionar={setPacienteSelecionadoId}
+      />
+    );
+  }
+
+  if (focoWorkspace === "nutri-prontuario") {
+    return <TelaPacienteSelecionadoNutriPro empresaId={empresaId} pacienteId={pacienteSelecionadoId} modo="prontuario" />;
+  }
+
+  if (focoWorkspace === "nutri-plano") {
+    return <TelaPacienteSelecionadoNutriPro empresaId={empresaId} pacienteId={pacienteSelecionadoId} modo="plano" />;
+  }
+
+  if (focoWorkspace === "nutri-avaliacoes") {
+    return <TelaPacienteSelecionadoNutriPro empresaId={empresaId} pacienteId={pacienteSelecionadoId} modo="avaliacoes" />;
+  }
+
+  if (focoWorkspace === "nutri-documentos") {
+    return <TelaPacienteSelecionadoNutriPro empresaId={empresaId} pacienteId={pacienteSelecionadoId} modo="documentos" />;
+  }
+
   return (
-    <section className="grid gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-emerald-800">Workspace Nutri Pro</p>
-          <h4 className="mt-1 text-xl font-semibold text-card-foreground">{visao.empresaNome}</h4>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">{visao.mensagemStatus}</p>
+    <TelaInicioNutriPro
+      visao={visao}
+      indicadoresPrincipais={indicadoresPrincipais}
+      indicadoresApoio={indicadoresApoio}
+      agenda={agendaQuery.data?.itens ?? []}
+      agendaCarregando={agendaQuery.isLoading}
+      pacientes={pacientes}
+      pacienteSelecionadoId={pacienteSelecionadoId}
+      onSelecionarPaciente={setPacienteSelecionadoId}
+    />
+  );
+}
+
+function TelaInicioNutriPro({
+  visao,
+  indicadoresPrincipais,
+  indicadoresApoio,
+  agenda,
+  agendaCarregando,
+  pacientes,
+  pacienteSelecionadoId,
+  onSelecionarPaciente
+}: {
+  visao: VisaoNutriPro;
+  indicadoresPrincipais: IndicadorNutriPro[];
+  indicadoresApoio: IndicadorNutriPro[];
+  agenda: CompromissoAgendaNutriPro[];
+  agendaCarregando: boolean;
+  pacientes: PacienteNutriResumo[];
+  pacienteSelecionadoId: string | null;
+  onSelecionarPaciente: (pacienteId: string) => void;
+}) {
+  return (
+    <section className="grid min-w-0 gap-4">
+      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-emerald-800">Workspace Nutri Pro</p>
+            <h4 className="mt-1 text-xl font-semibold text-card-foreground">{visao.empresaNome}</h4>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">{visao.mensagemStatus}</p>
+          </div>
+          <span className={cn("inline-flex w-fit items-center gap-2 rounded-md border px-3 py-2 text-xs font-semibold", visao.statusOperacional === "OPERACIONAL" ? "border-emerald-200 bg-white text-emerald-800" : "border-amber-200 bg-amber-50 text-amber-800")}>
+            <Sparkles className="h-4 w-4" />
+            {visao.statusOperacionalRotulo}
+          </span>
         </div>
-        <span className={cn("inline-flex w-fit items-center gap-2 rounded-md border px-3 py-2 text-xs font-semibold", visao.statusOperacional === "OPERACIONAL" ? "border-emerald-200 bg-white text-emerald-800" : "border-amber-200 bg-amber-50 text-amber-800")}>
-          <Sparkles className="h-4 w-4" />
-          {visao.statusOperacionalRotulo}
-        </span>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -172,17 +284,15 @@ export function NutriProOperacionalView({ empresaId, focoWorkspace = "nutri-inic
         ))}
       </div>
 
-      <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_380px]">
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
         <section className="grid gap-4">
-          <ProntuarioNutriProPainel empresaId={empresaId} pacienteId={pacienteSelecionadoId} acaoInicial={acaoInicial} />
-
           <div className="rounded-lg border bg-white p-4 shadow-sm">
             <div className="flex flex-col gap-2 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-card-foreground">Ações prioritárias</p>
-                <p className="text-sm leading-6 text-muted-foreground">Comece pelos três pontos que mais aparecem no atendimento nutricional.</p>
+                <p className="text-sm leading-6 text-muted-foreground">Use atalhos compactos para iniciar os fluxos mais frequentes do atendimento.</p>
               </div>
-              <span className="w-fit rounded-md border bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-800">R10 em construção</span>
+              <span className="w-fit rounded-md border border-sky-200 bg-sky-50 px-2 py-1 text-xs font-semibold text-sky-800">Menu Nutri</span>
             </div>
             <div className="mt-4 grid gap-3 md:grid-cols-3">
               {visao.atalhosPrioritarios.map((atalho) => (
@@ -196,7 +306,7 @@ export function NutriProOperacionalView({ empresaId, focoWorkspace = "nutri-inic
             <div className="rounded-lg border bg-white p-4 shadow-sm">
               <p className="text-sm font-semibold text-card-foreground">Próximas evoluções</p>
               <div className="mt-3 grid gap-2">
-                {visao.proximasEvolucoes.map((atalho) => (
+                {visao.proximasEvolucoes.slice(0, 3).map((atalho) => (
                   <CardAtalhoNutri key={atalho.codigo} atalho={atalho} />
                 ))}
               </div>
@@ -204,58 +314,198 @@ export function NutriProOperacionalView({ empresaId, focoWorkspace = "nutri-inic
           </div>
         </section>
 
-        <section className="rounded-lg border border-sky-100 bg-sky-50/45 p-4 shadow-sm">
-          <div className="flex items-center justify-between gap-3 border-b pb-4">
-            <div>
-              <p className="text-sm font-semibold text-card-foreground">Pacientes Nutri</p>
-              <p className="text-xs font-medium text-muted-foreground">Selecione para abrir o prontuário</p>
-            </div>
-            <Users className="h-5 w-5 text-emerald-800" />
-          </div>
-          <label className="mt-3 grid gap-1 text-sm font-medium text-card-foreground">
-            Busca
-            <input
-              value={buscaPaciente}
-              onChange={(event) => setBuscaPaciente(event.target.value)}
-              className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
-              placeholder="Nome, email ou telefone"
-            />
-          </label>
-          <div className="mt-3 grid max-h-[520px] gap-2 overflow-y-auto pr-1">
-            {pacientesQuery.isLoading ? (
-              <div className="flex min-h-24 items-center justify-center rounded-md border bg-background text-sm text-muted-foreground">
-                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                Carregando pacientes
+        <aside className="grid gap-4">
+          <section className="rounded-lg border border-sky-100 bg-sky-50/50 p-4 shadow-sm">
+            <div className="mb-3 flex items-start justify-between gap-3 border-b border-sky-100 pb-3">
+              <div>
+                <p className="text-sm font-semibold text-card-foreground">Agenda resumida</p>
+                <p className="text-xs text-muted-foreground">Hoje e próximos compromissos.</p>
               </div>
-            ) : pacientes.length ? (
-              pacientes.map((paciente) => (
+              <CalendarDays className="h-5 w-5 text-sky-800" />
+            </div>
+            <ListaAgendaNutri agenda={agenda.slice(0, 4)} carregando={agendaCarregando} vazio="Nenhum atendimento nutricional no período." compacta />
+          </section>
+
+          <section className="rounded-lg border bg-white p-4 shadow-sm">
+            <div className="mb-3 flex items-start justify-between gap-3 border-b pb-3">
+              <div>
+                <p className="text-sm font-semibold text-card-foreground">Pacientes recentes</p>
+                <p className="text-xs text-muted-foreground">Selecione para manter o contexto do paciente.</p>
+              </div>
+              <Users className="h-5 w-5 text-emerald-800" />
+            </div>
+            <div className="grid gap-2">
+              {pacientes.slice(0, 4).map((paciente) => (
                 <LinhaPacienteNutri
                   key={paciente.id}
                   paciente={paciente}
                   selecionado={paciente.id === pacienteSelecionadoId}
-                  onSelecionar={() => setPacienteSelecionadoId(paciente.id)}
+                  onSelecionar={() => onSelecionarPaciente(paciente.id)}
                 />
-              ))
-            ) : (
-              <div className="rounded-md border bg-background p-4 text-sm text-muted-foreground">Nenhum paciente de nutrição encontrado nesta empresa.</div>
-            )}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        </aside>
       </div>
     </section>
   );
 }
 
-function ProntuarioNutriProPainel({
+function TelaAgendaNutriPro({ agenda, carregando }: { agenda: CompromissoAgendaNutriPro[]; carregando: boolean }) {
+  const [buscaAgenda, setBuscaAgenda] = useState("");
+  const [statusAgenda, setStatusAgenda] = useState<StatusAgendaNutriPro | "TODOS">("TODOS");
+  const agendaFiltrada = filtrarAgendaNutri(agenda, buscaAgenda, statusAgenda);
+  const compromissosHoje = agenda.filter((compromisso) => ehMesmoDia(new Date(compromisso.inicio), new Date())).length;
+
+  return (
+    <section className="grid min-w-0 gap-4">
+      <div className="grid gap-3 md:grid-cols-3">
+        <ResumoAgendaNutri icon={CalendarDays} label="Hoje" value={compromissosHoje} description="Atendimentos nutricionais previstos para hoje." />
+        <ResumoAgendaNutri icon={Clock} label="Próximos 7 dias" value={agenda.length} description="Compromissos carregados no período." />
+        <ResumoAgendaNutri icon={Activity} label="Lista ativa" value={agendaFiltrada.length} description="Resultado após busca e filtro." />
+      </div>
+
+      <section className="rounded-lg border bg-white p-4 shadow-sm">
+        <div className="flex flex-col gap-3 border-b pb-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-emerald-800">Agenda nutricional</p>
+            <h4 className="mt-1 text-xl font-semibold text-card-foreground">Atendimentos e retornos</h4>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Lista dedicada de compromissos do núcleo comum, sem carregar prontuário ou plano alimentar junto.</p>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-[minmax(220px,1fr)_180px]">
+            <label className="grid gap-1 text-sm font-medium text-card-foreground">
+              Busca
+              <input
+                value={buscaAgenda}
+                onChange={(event) => setBuscaAgenda(event.target.value)}
+                className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                placeholder="Profissional, sala ou observação"
+              />
+            </label>
+            <label className="grid gap-1 text-sm font-medium text-card-foreground">
+              Status
+              <select
+                value={statusAgenda}
+                onChange={(event) => setStatusAgenda(event.target.value as StatusAgendaNutriPro | "TODOS")}
+                className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+              >
+                <option value="TODOS">Todos</option>
+                <option value="AGENDADO">Agendado</option>
+                <option value="CONFIRMADO">Confirmado</option>
+                <option value="REALIZADO">Realizado</option>
+                <option value="CANCELADO">Cancelado</option>
+                <option value="FALTOU">Faltou</option>
+                <option value="REMARCADO">Remarcado</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <ListaAgendaNutri agenda={agendaFiltrada} carregando={carregando} vazio="Nenhum compromisso encontrado para os filtros atuais." />
+      </section>
+    </section>
+  );
+}
+
+function TelaPacientesNutriPro({
+  buscaPaciente,
+  pacientes,
+  pacienteSelecionadoId,
+  carregando,
+  onBuscar,
+  onSelecionar
+}: {
+  buscaPaciente: string;
+  pacientes: PacienteNutriResumo[];
+  pacienteSelecionadoId: string | null;
+  carregando: boolean;
+  onBuscar: (valor: string) => void;
+  onSelecionar: (pacienteId: string) => void;
+}) {
+  const pacienteSelecionado = pacientes.find((paciente) => paciente.id === pacienteSelecionadoId) ?? pacientes[0] ?? null;
+
+  return (
+    <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+      <section className="rounded-lg border bg-white p-4 shadow-sm">
+        <div className="flex flex-col gap-3 border-b pb-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-emerald-800">Pacientes Nutri</p>
+            <h4 className="mt-1 text-xl font-semibold text-card-foreground">Lista de pacientes</h4>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Busque e selecione pacientes sem abrir o prontuário completo automaticamente.</p>
+          </div>
+          <label className="grid gap-1 text-sm font-medium text-card-foreground lg:min-w-80">
+            Busca
+            <input
+              value={buscaPaciente}
+              onChange={(event) => onBuscar(event.target.value)}
+              className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+              placeholder="Nome, email ou telefone"
+            />
+          </label>
+        </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
+          {carregando ? (
+            <div className="flex min-h-32 items-center justify-center rounded-md border bg-background text-sm text-muted-foreground md:col-span-2 2xl:col-span-3">
+              <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+              Carregando pacientes
+            </div>
+          ) : pacientes.length ? (
+            pacientes.map((paciente) => (
+              <LinhaPacienteNutri
+                key={paciente.id}
+                paciente={paciente}
+                selecionado={paciente.id === pacienteSelecionadoId}
+                onSelecionar={() => onSelecionar(paciente.id)}
+              />
+            ))
+          ) : (
+            <div className="rounded-md border bg-background p-4 text-sm text-muted-foreground md:col-span-2 2xl:col-span-3">Nenhum paciente de nutrição encontrado nesta empresa.</div>
+          )}
+        </div>
+      </section>
+
+      <aside className="rounded-lg border border-sky-100 bg-sky-50/55 p-4 shadow-sm">
+        <p className="text-sm font-semibold text-card-foreground">Paciente selecionado</p>
+        {pacienteSelecionado ? (
+          <div className="mt-4 rounded-lg border bg-white p-4">
+            <p className="text-lg font-semibold text-card-foreground">{pacienteSelecionado.nome}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{pacienteSelecionado.telefone ?? "Sem telefone cadastrado"}</p>
+            {pacienteSelecionado.observacoes ? <p className="mt-3 text-sm leading-6 text-muted-foreground">{pacienteSelecionado.observacoes}</p> : null}
+            <p className="mt-4 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-xs leading-5 text-emerald-900">
+              Para abrir dados clínicos, use o menu Prontuário. Para plano, avaliação ou documentos, use a área dedicada no menu lateral.
+            </p>
+          </div>
+        ) : (
+          <div className="mt-4 rounded-md border bg-white p-4 text-sm text-muted-foreground">Selecione um paciente na lista.</div>
+        )}
+      </aside>
+    </section>
+  );
+}
+
+function TelaPacienteSelecionadoNutriPro({
   empresaId,
   pacienteId,
-  acaoInicial
+  modo
 }: {
   empresaId: string;
   pacienteId: string | null;
-  acaoInicial: string | null;
+  modo: "prontuario" | "plano" | "avaliacoes" | "documentos";
 }) {
-  const [acaoAtiva, setAcaoAtiva] = useState<string | null>(null);
+  return <ProntuarioNutriProPainel empresaId={empresaId} pacienteId={pacienteId} modo={modo} />;
+}
+
+function ProntuarioNutriProPainel({
+  empresaId,
+  pacienteId,
+  modo
+}: {
+  empresaId: string;
+  pacienteId: string | null;
+  modo: "prontuario" | "plano" | "avaliacoes" | "documentos";
+}) {
+  const [submenuProntuarioAtivo, definirSubmenuProntuarioAtivo] = useState<AbaProntuarioNutriPro>("resumo");
+  const [submenuPlanoAtivo, definirSubmenuPlanoAtivo] = useState<AbaPlanoNutriPro>("visao");
+  const [submenuAvaliacaoAtivo, definirSubmenuAvaliacaoAtivo] = useState<AbaAvaliacaoNutriPro>("antropometria");
 
   const prontuarioQuery = useQuery({
     queryKey: ["nutri-pro-prontuario", empresaId, pacienteId],
@@ -264,11 +514,13 @@ function ProntuarioNutriProPainel({
   });
 
   useEffect(() => {
-    setAcaoAtiva(acaoInicial);
-  }, [acaoInicial, pacienteId]);
+    definirSubmenuProntuarioAtivo("resumo");
+    definirSubmenuPlanoAtivo("visao");
+    definirSubmenuAvaliacaoAtivo("antropometria");
+  }, [modo, pacienteId]);
 
   if (!pacienteId) {
-    return <EstadoNutriPro titulo="Selecione um paciente" descricao="Escolha um paciente na lista para abrir o prontuário nutricional." />;
+    return <EstadoNutriPro titulo="Selecione um paciente" descricao="Escolha um paciente na tela Pacientes para abrir esta área com contexto clínico." />;
   }
 
   if (prontuarioQuery.isLoading) {
@@ -287,48 +539,594 @@ function ProntuarioNutriProPainel({
   }
 
   const prontuario = prontuarioQuery.data;
-  const acaoSelecionada = prontuario.acoesRapidas.find((acao) => acao.codigo === acaoAtiva) ?? null;
 
   return (
-    <section className="rounded-lg border bg-white p-4 shadow-sm">
-      <div className="flex flex-col gap-3 border-b pb-4 lg:flex-row lg:items-start lg:justify-between">
+    <section className="grid gap-4">
+      <CabecalhoPacienteNutri prontuario={prontuario} modo={modo} />
+
+      {modo === "prontuario" ? (
+        <section className="min-w-0 overflow-hidden rounded-lg border bg-white p-4 shadow-sm">
+          <AbasNutri<AbaProntuarioNutriPro> abas={abasProntuarioNutri} ativa={submenuProntuarioAtivo} onSelecionar={definirSubmenuProntuarioAtivo} />
+          <div className="mt-4">
+            <ConteudoProntuarioNutri empresaId={empresaId} prontuario={prontuario} aba={submenuProntuarioAtivo} />
+          </div>
+        </section>
+      ) : null}
+
+      {modo === "plano" ? (
+        <AreaPlanoAlimentarNutri empresaId={empresaId} prontuario={prontuario} abaAtiva={submenuPlanoAtivo} onSelecionarAba={definirSubmenuPlanoAtivo} />
+      ) : null}
+
+      {modo === "avaliacoes" ? (
+        <AreaAvaliacoesNutri empresaId={empresaId} prontuario={prontuario} abaAtiva={submenuAvaliacaoAtivo} onSelecionarAba={definirSubmenuAvaliacaoAtivo} />
+      ) : null}
+
+      {modo === "documentos" ? <AreaDocumentosNutri empresaId={empresaId} prontuario={prontuario} /> : null}
+    </section>
+  );
+}
+
+function CabecalhoPacienteNutri({ prontuario, modo }: { prontuario: ProntuarioNutriPro; modo: "prontuario" | "plano" | "avaliacoes" | "documentos" }) {
+  const titulos: Record<typeof modo, { titulo: string; descricao: string; cor: string }> = {
+    prontuario: {
+      titulo: "Prontuário nutricional",
+      descricao: "Central do paciente com resumo e submenus clínicos.",
+      cor: "border-emerald-200 bg-emerald-50"
+    },
+    plano: {
+      titulo: "Plano alimentar",
+      descricao: "Planos, refeições, macronutrientes, PDF e histórico em área própria.",
+      cor: "border-lime-200 bg-lime-50"
+    },
+    avaliacoes: {
+      titulo: "Avaliações",
+      descricao: "Antropometria, gasto energético, histórico e evolução sem misturar outros fluxos.",
+      cor: "border-amber-200 bg-amber-50"
+    },
+    documentos: {
+      titulo: "Exames e documentos",
+      descricao: "Solicitações, prescrições, PDFs e documentos profissionais do paciente.",
+      cor: "border-sky-200 bg-sky-50"
+    }
+  };
+  const contexto = titulos[modo];
+
+  return (
+    <section className={cn("min-w-0 overflow-hidden rounded-lg border p-4 shadow-sm", contexto.cor)}>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-emerald-800">Prontuário nutricional</p>
-          <h5 className="mt-1 text-xl font-semibold text-card-foreground">{prontuario.paciente.nome}</h5>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            {textoPaciente(prontuario)}
+          <p className="text-sm font-semibold text-emerald-800">{contexto.titulo}</p>
+          <h4 className="mt-1 text-2xl font-semibold text-card-foreground">{prontuario.paciente.nome}</h4>
+          <p className="mt-2 max-w-3xl break-words text-sm leading-6 text-muted-foreground">
+            {textoPaciente(prontuario)} · {contexto.descricao}
           </p>
         </div>
-        <span className={cn("w-fit rounded-md border px-3 py-2 text-xs font-semibold", prontuario.paciente.ativo ? "bg-emerald-50 text-emerald-800" : "bg-slate-50 text-slate-700")}>
+        <span className={cn("w-fit rounded-md border bg-white px-3 py-2 text-xs font-semibold", prontuario.paciente.ativo ? "text-emerald-800" : "text-slate-700")}>
           {prontuario.paciente.ativo ? "Paciente ativo" : "Paciente inativo"}
         </span>
       </div>
+    </section>
+  );
+}
 
-      <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(340px,1.05fr)]">
-        <div className="grid min-w-0 gap-3">
-          <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
-            <ResumoProntuarioCard label="Consultas futuras" value={prontuario.resumo.consultasFuturas} />
-            <ResumoProntuarioCard label="Documentos" value={prontuario.resumo.documentos} />
-            <ResumoProntuarioCard label="Simulações Nutri" value={prontuario.resumo.simulacoesPrecificacao} />
-            <ResumoProntuarioCard label="Planos ativos" value={prontuario.resumo.planosAlimentaresAtivos} />
+function AbasNutri<T extends string>({
+  abas,
+  ativa,
+  onSelecionar
+}: {
+  abas: Array<{ id: T; label: string }>;
+  ativa: T;
+  onSelecionar: (aba: T) => void;
+}) {
+  return (
+    <div className="flex w-full min-w-0 max-w-full gap-2 overflow-x-auto pb-1" role="tablist">
+      {abas.map((aba) => (
+        <button
+          key={aba.id}
+          type="button"
+          role="tab"
+          aria-selected={ativa === aba.id}
+          onClick={() => onSelecionar(aba.id)}
+          className={cn(
+            "h-10 shrink-0 rounded-md border px-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            ativa === aba.id ? "border-primary bg-primary text-primary-foreground shadow-sm" : "bg-background text-muted-foreground hover:border-primary/50 hover:text-card-foreground"
+          )}
+        >
+          {aba.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function ConteudoProntuarioNutri({ empresaId, prontuario, aba }: { empresaId: string; prontuario: ProntuarioNutriPro; aba: AbaProntuarioNutriPro }) {
+  if (aba === "anamnese") {
+    return <PainelSimplesNutri titulo="Anamnese" descricao="Registro preparado para queixas, rotina, preferências, sintomas e contexto do acompanhamento." icon={ClipboardList} />;
+  }
+
+  if (aba === "avaliacoes") {
+    return <FluxoAvaliacaoEGastoEnergetico empresaId={empresaId} prontuario={prontuario} />;
+  }
+
+  if (aba === "plano") {
+    return <AreaPlanoAlimentarNutri empresaId={empresaId} prontuario={prontuario} abaAtiva="visao" onSelecionarAba={() => undefined} semAbas />;
+  }
+
+  if (aba === "exames") {
+    return <FluxoExamesLaboratoriais empresaId={empresaId} prontuario={prontuario} />;
+  }
+
+  if (aba === "prescricoes") {
+    return <FluxoPrescricoes empresaId={empresaId} prontuario={prontuario} />;
+  }
+
+  if (aba === "documentos") {
+    return <DocumentosGeraisNutri empresaId={empresaId} prontuario={prontuario} />;
+  }
+
+  if (aba === "historico") {
+    return (
+      <div className="grid gap-3 md:grid-cols-2">
+        <ResumoProntuarioCard label="Consultas futuras" value={prontuario.resumo.consultasFuturas} />
+        <ResumoProntuarioCard label="Documentos emitidos" value={prontuario.resumo.documentos} />
+        <ResumoProntuarioCard label="Simulações Nutri" value={prontuario.resumo.simulacoesPrecificacao} />
+        <ResumoProntuarioCard label="Planos ativos" value={prontuario.resumo.planosAlimentaresAtivos} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(300px,0.6fr)]">
+      <section className="rounded-lg border bg-background p-4">
+        <p className="text-sm font-semibold text-card-foreground">Resumo do paciente</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <ResumoProntuarioCard label="Consultas futuras" value={prontuario.resumo.consultasFuturas} />
+          <ResumoProntuarioCard label="Documentos" value={prontuario.resumo.documentos} />
+          <ResumoProntuarioCard label="Planos ativos" value={prontuario.resumo.planosAlimentaresAtivos} />
+          <ResumoProntuarioCard label="Simulações Nutri" value={prontuario.resumo.simulacoesPrecificacao} />
+        </div>
+      </section>
+      <section className="rounded-lg border border-sky-100 bg-sky-50/60 p-4">
+        <p className="text-sm font-semibold text-card-foreground">Ações organizadas por menu</p>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          Plano alimentar, avaliações, exames e documentos agora ficam nas áreas dedicadas do menu lateral. O prontuário mostra o contexto do paciente sem empilhar todos os fluxos.
+        </p>
+      </section>
+    </div>
+  );
+}
+
+function AreaPlanoAlimentarNutri({
+  empresaId,
+  prontuario,
+  abaAtiva,
+  onSelecionarAba,
+  semAbas = false
+}: {
+  empresaId: string;
+  prontuario: ProntuarioNutriPro;
+  abaAtiva: AbaPlanoNutriPro;
+  onSelecionarAba: (aba: AbaPlanoNutriPro) => void;
+  semAbas?: boolean;
+}) {
+  const queryClient = useQueryClient();
+  const planosQuery = useQuery({
+    queryKey: ["nutri-pro-planos-alimentares", empresaId, prontuario.paciente.id],
+    queryFn: () => listarPlanosAlimentaresNutriPro({ empresaId, pacienteId: prontuario.paciente.id }),
+    enabled: Boolean(empresaId && prontuario.paciente.id)
+  });
+  const documentosPlanoQuery = useQuery({
+    queryKey: ["nutri-pro-documentos", empresaId, prontuario.paciente.id, "PLANO_ALIMENTAR"],
+    queryFn: () => listarDocumentosProfissionaisNutriPro({ empresaId, pacienteId: prontuario.paciente.id, tipo: "PLANO_ALIMENTAR" }),
+    enabled: Boolean(empresaId && prontuario.paciente.id)
+  });
+  const criarPlanoMutation = useMutation({
+    mutationFn: () =>
+      criarPlanoAlimentarNutriPro({
+        empresaId,
+        pacienteId: prontuario.paciente.id,
+        dados: criarPlanoAlimentarInicial()
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-planos-alimentares", empresaId, prontuario.paciente.id] });
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-prontuario", empresaId, prontuario.paciente.id] });
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-visao", empresaId] });
+    }
+  });
+
+  const planos = planosQuery.data?.itens ?? [];
+  const planoEmFoco = criarPlanoMutation.data ?? planos[0] ?? null;
+  const documentosPlano = documentosPlanoQuery.data?.itens ?? [];
+
+  const criarDocumentoPlanoMutation = useMutation({
+    mutationFn: () => {
+      if (!planoEmFoco) {
+        throw new Error("Plano alimentar não selecionado.");
+      }
+      return criarDocumentoProfissionalNutriPro(criarDocumentoPlanoAlimentar(empresaId, prontuario, planoEmFoco));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-documentos", empresaId, prontuario.paciente.id] });
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-prontuario", empresaId, prontuario.paciente.id] });
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-visao", empresaId] });
+    }
+  });
+
+  const abaRenderizada = semAbas ? "visao" : abaAtiva;
+
+  return (
+    <section className="min-w-0 overflow-hidden rounded-lg border bg-white p-4 shadow-sm">
+      <div className="flex flex-col gap-3 border-b pb-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-lime-800">Área de plano alimentar</p>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">Cada submenu mostra somente uma parte do fluxo para evitar tela poluída.</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => criarPlanoMutation.mutate()}
+          disabled={criarPlanoMutation.isPending}
+          className="inline-flex h-10 shrink-0 items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {criarPlanoMutation.isPending ? "Criando plano" : "Criar plano inicial"}
+        </button>
+      </div>
+      {!semAbas ? <div className="mt-4"><AbasNutri<AbaPlanoNutriPro> abas={abasPlanoNutri} ativa={abaAtiva} onSelecionar={onSelecionarAba} /></div> : null}
+      <div className="mt-4">
+        <ConteudoPlanoNutri
+          aba={abaRenderizada}
+          plano={planoEmFoco}
+          planos={planos}
+          documentosPlano={documentosPlano}
+          carregando={planosQuery.isLoading || documentosPlanoQuery.isLoading}
+          criandoDocumento={criarDocumentoPlanoMutation.isPending}
+          documentoCriado={criarDocumentoPlanoMutation.data ?? null}
+          erroDocumento={criarDocumentoPlanoMutation.isError}
+          onCriarDocumento={() => criarDocumentoPlanoMutation.mutate()}
+        />
+      </div>
+    </section>
+  );
+}
+
+function ConteudoPlanoNutri({
+  aba,
+  plano,
+  planos,
+  documentosPlano,
+  carregando,
+  criandoDocumento,
+  documentoCriado,
+  erroDocumento,
+  onCriarDocumento
+}: {
+  aba: AbaPlanoNutriPro;
+  plano: PlanoAlimentarNutriPro | null;
+  planos: PlanoAlimentarNutriPro[];
+  documentosPlano: DocumentoProfissionalNutriPro[];
+  carregando: boolean;
+  criandoDocumento: boolean;
+  documentoCriado: DocumentoProfissionalNutriPro | null;
+  erroDocumento: boolean;
+  onCriarDocumento: () => void;
+}) {
+  if (carregando) {
+    return <EstadoCarregandoNutri texto="Carregando planos alimentares" />;
+  }
+
+  if (!plano && aba !== "historico" && aba !== "planos") {
+    return <EstadoNutriPro titulo="Nenhum plano alimentar" descricao="Crie o primeiro plano para liberar refeições, macros e PDF." />;
+  }
+
+  if (aba === "planos" || aba === "historico") {
+    return <ListaPlanosNutri planos={planos} />;
+  }
+
+  if (aba === "refeicoes" && plano) {
+    return <ListaRefeicoesPlano plano={plano} />;
+  }
+
+  if (aba === "macros" && plano) {
+    return <ResumoMacrosPlano plano={plano} />;
+  }
+
+  if (aba === "pdf") {
+    return (
+      <section className="rounded-lg border bg-background p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-card-foreground">Documento e PDF</p>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">Gere o documento profissional do plano com carimbo CRN pelo módulo de documentos.</p>
           </div>
+          <button
+            type="button"
+            onClick={onCriarDocumento}
+            disabled={criandoDocumento || !plano}
+            className="inline-flex h-10 shrink-0 items-center justify-center rounded-md border bg-white px-4 text-sm font-semibold text-card-foreground transition-colors hover:border-primary/50 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {criandoDocumento ? "Gerando documento" : "Gerar documento do plano"}
+          </button>
+        </div>
+        {erroDocumento ? <p className="mt-3 text-sm font-medium text-destructive">Não foi possível gerar o documento do plano.</p> : null}
+        {documentoCriado ? <ResumoDocumentoNutri documento={documentoCriado} compacto /> : null}
+        {!documentoCriado && documentosPlano[0] ? <ResumoDocumentoNutri documento={documentosPlano[0]} compacto /> : null}
+        <ListaDocumentosNutri titulo="Histórico de PDFs do plano" documentos={documentosPlano} carregando={false} vazio="Nenhum PDF de plano alimentar registrado ainda." />
+      </section>
+    );
+  }
 
-          <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
-            {prontuario.acoesRapidas.filter((acao) => acao.destaque).map((acao) => (
-              <CardAcaoProntuario key={acao.codigo} acao={acao} ativo={acao.codigo === acaoAtiva} onSelecionar={() => setAcaoAtiva(acao.codigo)} />
+  return plano ? <ResumoPlanoCompacto plano={plano} /> : <ListaPlanosNutri planos={planos} />;
+}
+
+function AreaAvaliacoesNutri({
+  empresaId,
+  prontuario,
+  abaAtiva,
+  onSelecionarAba
+}: {
+  empresaId: string;
+  prontuario: ProntuarioNutriPro;
+  abaAtiva: AbaAvaliacaoNutriPro;
+  onSelecionarAba: (aba: AbaAvaliacaoNutriPro) => void;
+}) {
+  return (
+    <section className="min-w-0 overflow-hidden rounded-lg border bg-white p-4 shadow-sm">
+      <div className="border-b pb-4">
+        <p className="text-sm font-semibold text-amber-800">Área de avaliações</p>
+        <p className="mt-1 text-sm leading-6 text-muted-foreground">Antropometria e gasto energético ficam em tela própria, sem plano alimentar e documentos ao lado.</p>
+      </div>
+      <div className="mt-4">
+        <AbasNutri<AbaAvaliacaoNutriPro> abas={abasAvaliacoesNutri} ativa={abaAtiva} onSelecionar={onSelecionarAba} />
+      </div>
+      <div className="mt-4">
+        {abaAtiva === "antropometria" ? <FluxoAvaliacaoEGastoEnergetico empresaId={empresaId} prontuario={prontuario} /> : null}
+        {abaAtiva === "gasto" ? <PainelSimplesNutri titulo="Gasto energético" descricao="Use a aba Antropometria para registrar peso, altura e fator de atividade. O resultado estimado exibe TMB, GEB, GET e meta energética." icon={Gauge} /> : null}
+        {abaAtiva === "historico" ? <HistoricoAvaliacoesNutri empresaId={empresaId} prontuario={prontuario} /> : null}
+        {abaAtiva === "evolucao" ? <PainelSimplesNutri titulo="Evolução futura" descricao="Gráficos comparativos, fotos seguras e análise longitudinal entram em evolução futura do Nutri Pro." icon={Activity} /> : null}
+      </div>
+    </section>
+  );
+}
+
+function AreaDocumentosNutri({ empresaId, prontuario }: { empresaId: string; prontuario: ProntuarioNutriPro }) {
+  const [abaDocumentoAtiva, definirAbaDocumentoAtiva] = useState<"exames" | "prescricoes" | "documentos">("exames");
+  const abasDocumento: Array<{ id: "exames" | "prescricoes" | "documentos"; label: string }> = [
+    { id: "exames", label: "Exames" },
+    { id: "prescricoes", label: "Prescrições" },
+    { id: "documentos", label: "Histórico" }
+  ];
+
+  return (
+    <section className="min-w-0 overflow-hidden rounded-lg border bg-white p-4 shadow-sm">
+      <div className="border-b pb-4">
+        <p className="text-sm font-semibold text-sky-800">Área de documentos</p>
+        <p className="mt-1 text-sm leading-6 text-muted-foreground">Solicitações, prescrições e PDFs ficam organizados por submenu.</p>
+      </div>
+      <div className="mt-4">
+        <AbasNutri abas={abasDocumento} ativa={abaDocumentoAtiva} onSelecionar={definirAbaDocumentoAtiva} />
+      </div>
+      <div className="mt-4">
+        {abaDocumentoAtiva === "exames" ? <FluxoExamesLaboratoriais empresaId={empresaId} prontuario={prontuario} /> : null}
+        {abaDocumentoAtiva === "prescricoes" ? <FluxoPrescricoes empresaId={empresaId} prontuario={prontuario} /> : null}
+        {abaDocumentoAtiva === "documentos" ? <DocumentosGeraisNutri empresaId={empresaId} prontuario={prontuario} /> : null}
+      </div>
+    </section>
+  );
+}
+
+function DocumentosGeraisNutri({ empresaId, prontuario }: { empresaId: string; prontuario: ProntuarioNutriPro }) {
+  const documentosQuery = useQuery({
+    queryKey: ["nutri-pro-documentos", empresaId, prontuario.paciente.id, "TODOS"],
+    queryFn: () => listarDocumentosProfissionaisNutriPro({ empresaId, pacienteId: prontuario.paciente.id }),
+    enabled: Boolean(empresaId && prontuario.paciente.id)
+  });
+  return (
+    <ListaDocumentosNutri
+      titulo="Documentos do paciente"
+      documentos={documentosQuery.data?.itens ?? []}
+      carregando={documentosQuery.isLoading}
+      vazio="Nenhum documento profissional registrado para este paciente."
+    />
+  );
+}
+
+function HistoricoAvaliacoesNutri({ empresaId, prontuario }: { empresaId: string; prontuario: ProntuarioNutriPro }) {
+  const avaliacoesQuery = useQuery({
+    queryKey: ["nutri-pro-avaliacoes-antropometricas", empresaId, prontuario.paciente.id],
+    queryFn: () => listarAvaliacoesAntropometricasNutriPro({ empresaId, pacienteId: prontuario.paciente.id }),
+    enabled: Boolean(empresaId && prontuario.paciente.id)
+  });
+  const avaliacoes = avaliacoesQuery.data?.itens ?? [];
+  return (
+    <section className="rounded-lg border bg-background p-4">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm font-semibold text-card-foreground">Histórico de avaliações</p>
+        {avaliacoesQuery.isLoading ? <LoaderCircle className="h-4 w-4 animate-spin text-muted-foreground" /> : null}
+      </div>
+      <div className="mt-3 grid gap-2">
+        {avaliacoes.length ? avaliacoes.map((avaliacao) => <LinhaAvaliacaoNutri key={avaliacao.id} avaliacao={avaliacao} />) : <div className="rounded-md border bg-white p-3 text-sm text-muted-foreground">Nenhuma avaliação registrada ainda.</div>}
+      </div>
+    </section>
+  );
+}
+
+function ResumoAgendaNutri({ icon: Icon, label, value, description }: { icon: Icone; label: string; value: number; description: string }) {
+  return (
+    <article className="rounded-lg border border-sky-100 bg-sky-50/60 p-4 shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <span className="flex h-10 w-10 items-center justify-center rounded-md bg-white text-sky-800">
+          <Icon className="h-5 w-5" />
+        </span>
+        <span className="rounded-md border bg-white px-2 py-1 text-xs font-semibold text-sky-800">Agenda</span>
+      </div>
+      <p className="mt-4 text-sm font-medium text-muted-foreground">{label}</p>
+      <p className="mt-1 text-2xl font-semibold text-card-foreground">{formatarNumero(value)}</p>
+      <p className="mt-2 text-xs leading-5 text-muted-foreground">{description}</p>
+    </article>
+  );
+}
+
+function ListaAgendaNutri({
+  agenda,
+  carregando,
+  vazio,
+  compacta = false
+}: {
+  agenda: CompromissoAgendaNutriPro[];
+  carregando: boolean;
+  vazio: string;
+  compacta?: boolean;
+}) {
+  if (carregando) {
+    return <EstadoCarregandoNutri texto="Carregando agenda" />;
+  }
+
+  if (!agenda.length) {
+    return <div className="rounded-md border bg-white p-4 text-sm leading-6 text-muted-foreground">{vazio}</div>;
+  }
+
+  return (
+    <div className={cn("mt-4 grid gap-2", compacta ? "" : "md:grid-cols-2")}>
+      {agenda.map((compromisso) => (
+        <article key={compromisso.id} className="rounded-lg border bg-white p-3 text-sm">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="font-semibold text-card-foreground">{formatarAgendaPeriodo(compromisso.inicio, compromisso.fim)}</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">{compromisso.profissionalNome}</p>
+            </div>
+            <span className={cn("shrink-0 rounded-md border px-2 py-1 text-xs font-semibold", classeStatusAgenda(compromisso.status))}>
+              {rotuloStatusAgenda(compromisso.status)}
+            </span>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
+            <span className="rounded-md border bg-background px-2 py-1">{rotuloTipoAgenda(compromisso.tipo)}</span>
+            {compromisso.sala ? <span className="rounded-md border bg-background px-2 py-1">{compromisso.sala}</span> : null}
+          </div>
+          {compromisso.observacoes ? <p className="mt-3 line-clamp-2 text-xs leading-5 text-muted-foreground">{compromisso.observacoes}</p> : null}
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function EstadoCarregandoNutri({ texto }: { texto: string }) {
+  return (
+    <div className="flex min-h-28 items-center justify-center rounded-md border bg-background text-sm text-muted-foreground">
+      <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+      {texto}
+    </div>
+  );
+}
+
+function PainelSimplesNutri({ titulo, descricao, icon: Icon }: { titulo: string; descricao: string; icon: Icone }) {
+  return (
+    <section className="rounded-lg border border-sky-100 bg-sky-50/60 p-4">
+      <span className="flex h-10 w-10 items-center justify-center rounded-md bg-white text-sky-800">
+        <Icon className="h-5 w-5" />
+      </span>
+      <h5 className="mt-4 text-base font-semibold text-card-foreground">{titulo}</h5>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">{descricao}</p>
+    </section>
+  );
+}
+
+function ResumoPlanoCompacto({ plano }: { plano: PlanoAlimentarNutriPro }) {
+  return (
+    <section className="rounded-lg border border-lime-200 bg-lime-50/70 p-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-lime-950">{plano.objetivo}</p>
+          <p className="mt-1 max-w-2xl text-sm leading-6 text-lime-950/80">{plano.descricao ?? "Plano alimentar com refeições e macros calculados automaticamente."}</p>
+        </div>
+        <span className="w-fit rounded-md border border-lime-300 bg-white px-2 py-1 text-xs font-semibold text-lime-800">{plano.statusRotulo}</span>
+      </div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <CampoPreparado label="Energia diária" value={formatarKcal(plano.energiaTotalKcal)} />
+        <CampoPreparado label="Proteínas" value={formatarMacro(plano.proteinasTotal)} />
+        <CampoPreparado label="Carboidratos" value={formatarMacro(plano.carboidratosTotal)} />
+        <CampoPreparado label="Lipídios" value={formatarMacro(plano.lipidiosTotal)} />
+      </div>
+    </section>
+  );
+}
+
+function ListaPlanosNutri({ planos }: { planos: PlanoAlimentarNutriPro[] }) {
+  return (
+    <section className="rounded-lg border bg-background p-4">
+      <p className="text-sm font-semibold text-card-foreground">Planos alimentares</p>
+      <div className="mt-3 grid gap-2">
+        {planos.length ? planos.map((plano) => <LinhaPlanoAlimentar key={plano.id} plano={plano} />) : <div className="rounded-md border bg-white p-3 text-sm text-muted-foreground">Nenhum plano alimentar registrado ainda.</div>}
+      </div>
+    </section>
+  );
+}
+
+function ListaRefeicoesPlano({ plano }: { plano: PlanoAlimentarNutriPro }) {
+  return (
+    <section className="grid gap-3">
+      {plano.refeicoes.map((refeicao) => (
+        <article key={refeicao.id} className="rounded-lg border bg-background p-4">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-card-foreground">
+                {refeicao.nome}
+                {refeicao.horario ? <span className="font-medium text-muted-foreground"> · {refeicao.horario}</span> : null}
+              </p>
+              {refeicao.observacoes ? <p className="mt-1 text-xs leading-5 text-muted-foreground">{refeicao.observacoes}</p> : null}
+            </div>
+            <span className="w-fit rounded-md border bg-white px-2 py-1 text-xs font-semibold text-emerald-800">{formatarKcal(refeicao.energiaTotalKcal)}</span>
+          </div>
+          <div className="mt-3 grid gap-2">
+            {refeicao.itens.map((item) => (
+              <div key={item.id} className="grid gap-2 rounded-md border bg-white p-3 text-sm md:grid-cols-[minmax(0,1fr)_auto]">
+                <div className="min-w-0">
+                  <p className="font-semibold text-card-foreground">
+                    {item.nome}
+                    <span className="ml-2 rounded-md border bg-background px-2 py-0.5 text-xs font-semibold text-muted-foreground">{item.tipoItemRotulo}</span>
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    {formatarDecimal(item.quantidade)} {item.unidadeMedida}
+                    {item.grupo ? ` · ${item.grupo}` : ""}
+                    {item.observacoes ? ` · ${item.observacoes}` : ""}
+                  </p>
+                </div>
+                <p className="text-xs font-semibold text-muted-foreground md:text-right">
+                  {formatarKcal(item.energiaKcal)} · P {formatarMacro(item.proteinas)} · C {formatarMacro(item.carboidratos)} · L {formatarMacro(item.lipidios)}
+                </p>
+              </div>
             ))}
           </div>
+        </article>
+      ))}
+    </section>
+  );
+}
 
-          <div className="grid gap-2 sm:grid-cols-2 2xl:grid-cols-3">
-            {prontuario.acoesRapidas.filter((acao) => !acao.destaque).map((acao) => (
-              <CardAcaoProntuario key={acao.codigo} acao={acao} ativo={acao.codigo === acaoAtiva} onSelecionar={() => setAcaoAtiva(acao.codigo)} compacto />
-            ))}
-          </div>
-        </div>
+function ResumoMacrosPlano({ plano }: { plano: PlanoAlimentarNutriPro }) {
+  const totalMacros = plano.proteinasTotal + plano.carboidratosTotal + plano.lipidiosTotal;
+  const macros = [
+    { label: "Proteínas", valor: plano.proteinasTotal, cor: "bg-emerald-500" },
+    { label: "Carboidratos", valor: plano.carboidratosTotal, cor: "bg-sky-500" },
+    { label: "Lipídios", valor: plano.lipidiosTotal, cor: "bg-amber-500" }
+  ];
 
-        <div className="min-w-0 xl:sticky xl:top-32 xl:self-start">
-          <PainelAcaoProntuario empresaId={empresaId} prontuario={prontuario} acao={acaoSelecionada} />
+  return (
+    <section className="rounded-lg border bg-background p-4">
+      <p className="text-sm font-semibold text-card-foreground">Resumo de macronutrientes</p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <CampoPreparado label="Energia diária" value={formatarKcal(plano.energiaTotalKcal)} />
+        {macros.map((macro) => <CampoPreparado key={macro.label} label={macro.label} value={formatarMacro(macro.valor)} />)}
+      </div>
+      <div className="mt-4 overflow-hidden rounded-full border bg-white">
+        <div className="flex h-4">
+          {macros.map((macro) => (
+            <span key={macro.label} className={macro.cor} style={{ width: `${totalMacros > 0 ? (macro.valor / totalMacros) * 100 : 0}%` }} />
+          ))}
         </div>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {macros.map((macro) => (
+          <span key={macro.label} className="rounded-md border bg-white px-2 py-1 text-xs font-semibold text-muted-foreground">{macro.label}: {formatarMacro(macro.valor)}</span>
+        ))}
       </div>
     </section>
   );
@@ -402,75 +1200,6 @@ function CardAtalhoNutri({ atalho, principal = false }: { atalho: AtalhoNutriPro
       <span className="mt-2 block text-xs leading-5 text-muted-foreground">{atalho.descricao}</span>
       <span className="mt-3 inline-flex rounded-md border bg-white px-2 py-1 text-xs font-semibold text-emerald-800">{rotuloStatusAtalho(atalho.status)}</span>
     </button>
-  );
-}
-
-function CardAcaoProntuario({
-  acao,
-  ativo,
-  compacto = false,
-  onSelecionar
-}: {
-  acao: AcaoProntuarioNutriPro;
-  ativo: boolean;
-  compacto?: boolean;
-  onSelecionar: () => void;
-}) {
-  const Icon = iconesAtalhos[acao.codigo] ?? Sparkles;
-
-  return (
-    <button
-      type="button"
-      onClick={onSelecionar}
-      aria-pressed={ativo}
-      className={cn(
-        "rounded-lg border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        ativo ? "border-emerald-500 bg-emerald-50" : "bg-background hover:border-emerald-300",
-        compacto ? "min-h-20" : "min-h-32"
-      )}
-    >
-      <span className="flex items-start justify-between gap-3">
-        <span className="flex h-10 w-10 items-center justify-center rounded-md bg-white text-emerald-800">
-          <Icon className="h-5 w-5" />
-        </span>
-        <span className={cn("rounded-md border bg-white px-2 py-1 text-xs font-semibold", acao.status === "PROXIMA_TASK" ? "text-amber-800" : "text-emerald-800")}>
-          {acao.statusRotulo}
-        </span>
-      </span>
-      <span className="mt-3 block text-sm font-semibold text-card-foreground">{acao.titulo}</span>
-      {!compacto ? <span className="mt-2 block text-xs leading-5 text-muted-foreground">{acao.descricao}</span> : null}
-    </button>
-  );
-}
-
-function PainelAcaoProntuario({ empresaId, prontuario, acao }: { empresaId: string; prontuario: ProntuarioNutriPro; acao: AcaoProntuarioNutriPro | null }) {
-  if (!acao) {
-    return (
-      <div className="rounded-lg border border-emerald-200 bg-emerald-50/70 p-4 text-sm leading-6 text-muted-foreground">
-        Selecione uma ação rápida para abrir o fluxo preparado do paciente. Gastos energéticos, exames laboratoriais e plano alimentar estão em destaque para a rotina da Karol.
-      </div>
-    );
-  }
-
-  return (
-    <div className="rounded-lg border border-sky-100 bg-sky-50/45 p-4">
-      <div className="flex flex-col gap-2 border-b pb-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-sm font-semibold text-card-foreground">{acao.titulo}</p>
-          <p className="text-sm leading-6 text-muted-foreground">{acao.descricao}</p>
-        </div>
-        <span className="w-fit rounded-md border bg-white px-2 py-1 text-xs font-semibold text-emerald-800">{acao.statusRotulo}</span>
-      </div>
-      <div className="mt-3">
-        {acao.codigo === "gasto-energetico" ? <FluxoAvaliacaoEGastoEnergetico empresaId={empresaId} prontuario={prontuario} /> : null}
-        {acao.codigo === "exames-laboratoriais" ? <FluxoExamesLaboratoriais empresaId={empresaId} prontuario={prontuario} /> : null}
-        {acao.codigo === "plano-alimentar" ? <FluxoPlanoAlimentar empresaId={empresaId} prontuario={prontuario} /> : null}
-        {acao.codigo === "avaliacao-antropometrica" ? <FluxoAvaliacaoEGastoEnergetico empresaId={empresaId} prontuario={prontuario} /> : null}
-        {acao.codigo === "anamnese" ? <FluxoAnamnese /> : null}
-        {acao.codigo === "prescricoes" ? <FluxoPrescricoes empresaId={empresaId} prontuario={prontuario} /> : null}
-        {acao.codigo === "metas" ? <FluxoMetas /> : null}
-      </div>
-    </div>
   );
 }
 
@@ -733,186 +1462,6 @@ function FluxoExamesLaboratoriais({ empresaId, prontuario }: { empresaId: string
       {documentoEmFoco ? <ResumoDocumentoNutri documento={documentoEmFoco} /> : null}
       <ListaDocumentosNutri titulo="Histórico de solicitações" documentos={documentos} carregando={documentosQuery.isLoading} vazio="Nenhuma solicitação de exames registrada ainda." />
     </div>
-  );
-}
-
-function FluxoPlanoAlimentar({ empresaId, prontuario }: { empresaId: string; prontuario: ProntuarioNutriPro }) {
-  const queryClient = useQueryClient();
-
-  const planosQuery = useQuery({
-    queryKey: ["nutri-pro-planos-alimentares", empresaId, prontuario.paciente.id],
-    queryFn: () => listarPlanosAlimentaresNutriPro({ empresaId, pacienteId: prontuario.paciente.id }),
-    enabled: Boolean(empresaId && prontuario.paciente.id)
-  });
-
-  const criarPlanoMutation = useMutation({
-    mutationFn: () =>
-      criarPlanoAlimentarNutriPro({
-        empresaId,
-        pacienteId: prontuario.paciente.id,
-        dados: criarPlanoAlimentarInicial()
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["nutri-pro-planos-alimentares", empresaId, prontuario.paciente.id] });
-      queryClient.invalidateQueries({ queryKey: ["nutri-pro-prontuario", empresaId, prontuario.paciente.id] });
-      queryClient.invalidateQueries({ queryKey: ["nutri-pro-visao", empresaId] });
-    }
-  });
-
-  const documentosPlanoQuery = useQuery({
-    queryKey: ["nutri-pro-documentos", empresaId, prontuario.paciente.id, "PLANO_ALIMENTAR"],
-    queryFn: () => listarDocumentosProfissionaisNutriPro({ empresaId, pacienteId: prontuario.paciente.id, tipo: "PLANO_ALIMENTAR" }),
-    enabled: Boolean(empresaId && prontuario.paciente.id)
-  });
-
-  const planos = planosQuery.data?.itens ?? [];
-  const planoEmFoco = criarPlanoMutation.data ?? planos[0] ?? null;
-  const documentosPlano = documentosPlanoQuery.data?.itens ?? [];
-  const documentoPlanoMaisRecente = documentosPlano[0] ?? null;
-
-  const criarDocumentoPlanoMutation = useMutation({
-    mutationFn: () => {
-      if (!planoEmFoco) {
-        throw new Error("Plano alimentar não selecionado.");
-      }
-      return criarDocumentoProfissionalNutriPro(criarDocumentoPlanoAlimentar(empresaId, prontuario, planoEmFoco));
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["nutri-pro-documentos", empresaId, prontuario.paciente.id] });
-      queryClient.invalidateQueries({ queryKey: ["nutri-pro-prontuario", empresaId, prontuario.paciente.id] });
-      queryClient.invalidateQueries({ queryKey: ["nutri-pro-visao", empresaId] });
-    }
-  });
-
-  return (
-    <div className="grid gap-4">
-      <div className="rounded-lg border border-emerald-200 bg-emerald-50/70 p-4">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <p className="text-sm font-semibold text-emerald-900">Plano alimentar operacional</p>
-            <p className="mt-1 text-sm leading-6 text-emerald-950/80">
-              Crie um plano inicial com refeições, alimentos, suplemento e resumo de macronutrientes para este paciente.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => criarPlanoMutation.mutate()}
-            disabled={criarPlanoMutation.isPending}
-            className="inline-flex h-10 shrink-0 items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {criarPlanoMutation.isPending ? "Criando plano" : "Criar plano alimentar inicial"}
-          </button>
-        </div>
-        {criarPlanoMutation.isError ? <p className="mt-3 text-sm font-medium text-destructive">Não foi possível criar o plano alimentar. Confira a conexão e tente novamente.</p> : null}
-      </div>
-
-      {planoEmFoco ? (
-        <>
-          <ResumoPlanoAlimentar plano={planoEmFoco} />
-          <section className="rounded-lg border bg-white p-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <p className="text-sm font-semibold text-card-foreground">Documento e PDF do plano</p>
-                <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                  Gere um documento profissional com refeições, macros e aviso de responsabilidade. O PDF usa o módulo de documentos e aceita carimbo CRN.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => criarDocumentoPlanoMutation.mutate()}
-                disabled={criarDocumentoPlanoMutation.isPending}
-                className="inline-flex h-10 shrink-0 items-center justify-center rounded-md border bg-background px-4 text-sm font-semibold text-card-foreground transition-colors hover:border-primary/50 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {criarDocumentoPlanoMutation.isPending ? "Gerando documento" : "Gerar documento do plano"}
-              </button>
-            </div>
-            {criarDocumentoPlanoMutation.isError ? <p className="mt-3 text-sm font-medium text-destructive">Não foi possível gerar o documento do plano.</p> : null}
-            {criarDocumentoPlanoMutation.data ? <ResumoDocumentoNutri documento={criarDocumentoPlanoMutation.data} compacto /> : null}
-            {!criarDocumentoPlanoMutation.data && documentoPlanoMaisRecente ? <ResumoDocumentoNutri documento={documentoPlanoMaisRecente} compacto /> : null}
-          </section>
-        </>
-      ) : (
-        <div className="rounded-lg border bg-white p-4 text-sm leading-6 text-muted-foreground">
-          Nenhum plano alimentar criado ainda. Use o botão acima para gerar o primeiro plano operacional do paciente.
-        </div>
-      )}
-
-      <section className="rounded-lg border bg-white p-4">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-sm font-semibold text-card-foreground">Histórico de planos alimentares</p>
-            <p className="text-xs text-muted-foreground">Planos mais recentes do paciente.</p>
-          </div>
-          {planosQuery.isLoading ? <LoaderCircle className="h-4 w-4 animate-spin text-muted-foreground" /> : null}
-        </div>
-        <div className="mt-3 grid gap-2">
-          {planos.length ? (
-            planos.map((plano) => <LinhaPlanoAlimentar key={plano.id} plano={plano} />)
-          ) : (
-            <div className="rounded-md border bg-background p-3 text-sm text-muted-foreground">Nenhum plano alimentar registrado ainda.</div>
-          )}
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function ResumoPlanoAlimentar({ plano }: { plano: PlanoAlimentarNutriPro }) {
-  return (
-    <section className="rounded-lg border bg-white p-4">
-      <div className="flex flex-col gap-2 border-b pb-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-sm font-semibold text-card-foreground">{plano.objetivo}</p>
-          <p className="mt-1 text-xs leading-5 text-muted-foreground">{plano.descricao ?? "Plano alimentar com refeições e macros calculados automaticamente."}</p>
-        </div>
-        <span className="w-fit rounded-md border bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-800">{plano.statusRotulo}</span>
-      </div>
-
-      <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <CampoPreparado label="Energia diária" value={formatarKcal(plano.energiaTotalKcal)} />
-        <CampoPreparado label="Proteínas" value={formatarMacro(plano.proteinasTotal)} />
-        <CampoPreparado label="Carboidratos" value={formatarMacro(plano.carboidratosTotal)} />
-        <CampoPreparado label="Lipídios" value={formatarMacro(plano.lipidiosTotal)} />
-      </div>
-
-      <div className="mt-4 grid gap-3">
-        <p className="text-sm font-semibold text-card-foreground">Refeições do plano</p>
-        {plano.refeicoes.map((refeicao) => (
-          <article key={refeicao.id} className="rounded-lg border bg-background p-3">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <p className="text-sm font-semibold text-card-foreground">
-                  {refeicao.nome}
-                  {refeicao.horario ? <span className="font-medium text-muted-foreground"> · {refeicao.horario}</span> : null}
-                </p>
-                {refeicao.observacoes ? <p className="mt-1 text-xs leading-5 text-muted-foreground">{refeicao.observacoes}</p> : null}
-              </div>
-              <span className="w-fit rounded-md border bg-white px-2 py-1 text-xs font-semibold text-emerald-800">{formatarKcal(refeicao.energiaTotalKcal)}</span>
-            </div>
-            <div className="mt-3 grid gap-2">
-              {refeicao.itens.map((item) => (
-                <div key={item.id} className="grid gap-2 rounded-md border bg-white p-3 text-sm md:grid-cols-[minmax(0,1fr)_auto]">
-                  <div className="min-w-0">
-                    <p className="font-semibold text-card-foreground">
-                      {item.nome}
-                      <span className="ml-2 rounded-md border bg-background px-2 py-0.5 text-xs font-semibold text-muted-foreground">{item.tipoItemRotulo}</span>
-                    </p>
-                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                      {formatarDecimal(item.quantidade)} {item.unidadeMedida}
-                      {item.grupo ? ` · ${item.grupo}` : ""}
-                      {item.observacoes ? ` · ${item.observacoes}` : ""}
-                    </p>
-                  </div>
-                  <p className="text-xs font-semibold text-muted-foreground md:text-right">
-                    {formatarKcal(item.energiaKcal)} · P {formatarMacro(item.proteinas)} · C {formatarMacro(item.carboidratos)} · L {formatarMacro(item.lipidios)}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </article>
-        ))}
-      </div>
-    </section>
   );
 }
 
@@ -1393,6 +1942,91 @@ function rotuloStatusAtalho(status: string) {
   return rotulos[status] ?? status;
 }
 
+function rotuloStatusAgenda(status: StatusAgendaNutriPro) {
+  const rotulos: Record<StatusAgendaNutriPro, string> = {
+    AGENDADO: "Agendado",
+    CONFIRMADO: "Confirmado",
+    REALIZADO: "Realizado",
+    CANCELADO: "Cancelado",
+    FALTOU: "Faltou",
+    REMARCADO: "Remarcado"
+  };
+  return rotulos[status];
+}
+
+function rotuloTipoAgenda(tipo: string) {
+  const rotulos: Record<string, string> = {
+    PRESENCIAL: "Presencial",
+    ONLINE: "Online",
+    DOMICILIAR: "Domiciliar",
+    SUBLOCACAO: "Sublocação",
+    INTERNO: "Interno"
+  };
+  return rotulos[tipo] ?? tipo;
+}
+
+function classeStatusAgenda(status: StatusAgendaNutriPro) {
+  if (status === "CANCELADO" || status === "FALTOU") {
+    return "border-rose-200 bg-rose-50 text-rose-800";
+  }
+  if (status === "REALIZADO" || status === "CONFIRMADO") {
+    return "border-emerald-200 bg-emerald-50 text-emerald-800";
+  }
+  if (status === "REMARCADO") {
+    return "border-amber-200 bg-amber-50 text-amber-800";
+  }
+  return "border-sky-200 bg-sky-50 text-sky-800";
+}
+
+function filtrarAgendaNutri(agenda: CompromissoAgendaNutriPro[], termo: string, status: StatusAgendaNutriPro | "TODOS") {
+  const termoNormalizado = termo.trim().toLowerCase();
+  return agenda.filter((compromisso) => {
+    const combinaStatus = status === "TODOS" || compromisso.status === status;
+    if (!termoNormalizado) {
+      return combinaStatus;
+    }
+    const texto = [compromisso.profissionalNome, compromisso.sala, compromisso.observacoes, compromisso.tipo, compromisso.status].filter(Boolean).join(" ").toLowerCase();
+    return combinaStatus && texto.includes(termoNormalizado);
+  });
+}
+
+function criarIntervaloAgendaNutri() {
+  const inicio = new Date();
+  inicio.setHours(0, 0, 0, 0);
+  const fim = new Date(inicio);
+  fim.setDate(fim.getDate() + 7);
+  fim.setHours(23, 59, 59, 999);
+
+  return {
+    inicio: inicio.toISOString(),
+    fim: fim.toISOString()
+  };
+}
+
+function ehMesmoDia(dataA: Date, dataB: Date) {
+  return dataA.getFullYear() === dataB.getFullYear() && dataA.getMonth() === dataB.getMonth() && dataA.getDate() === dataB.getDate();
+}
+
+function formatarAgendaPeriodo(inicio: string, fim: string) {
+  const inicioData = new Date(inicio);
+  const fimData = new Date(fim);
+  const data = new Intl.DateTimeFormat("pt-BR", {
+    weekday: "short",
+    day: "2-digit",
+    month: "2-digit"
+  }).format(inicioData);
+  const horaInicio = new Intl.DateTimeFormat("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(inicioData);
+  const horaFim = new Intl.DateTimeFormat("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(fimData);
+
+  return `${data} · ${horaInicio} às ${horaFim}`;
+}
+
 function formatarNumero(valor: number) {
   return new Intl.NumberFormat("pt-BR").format(valor);
 }
@@ -1430,14 +2064,4 @@ function textoPaciente(prontuario: ProntuarioNutriPro) {
   ].filter(Boolean);
 
   return partes.length ? partes.join(" · ") : "Dados básicos do paciente nutricional.";
-}
-
-function acaoInicialPorFoco(foco: FocoWorkspaceNutriPro) {
-  const acoesPorFoco: Partial<Record<FocoWorkspaceNutriPro, string>> = {
-    "nutri-plano": "plano-alimentar",
-    "nutri-avaliacoes": "gasto-energetico",
-    "nutri-documentos": "exames-laboratoriais"
-  };
-
-  return acoesPorFoco[foco] ?? null;
 }

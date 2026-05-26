@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R10 — Nutri Pro, Beauty Pro e comercial.
+R11 — IA, automações e integrações.
 
 ## Última task concluída
-TASK-1007 — Redesenhar workspace profissional Nutri Pro e navegação por perfil.
+TASK-1008 — Refatorar UX Nutri Pro com telas dedicadas e submenus limpos.
 
 ## Próxima task recomendada
-TASK-1008 — Refatorar UX Nutri Pro com telas dedicadas e submenus limpos.
+TASK-1101 — IA de precificação.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,12 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-1008 concluida em modo autopilot multiagente release R10.
+- Nutri Pro passou a renderizar telas dedicadas para Inicio, Agenda, Pacientes, Prontuario, Plano alimentar, Avaliacoes e Exames/documentos, sem reaproveitar o mesmo painel gigante em todas as secoes.
+- Agenda Nutri passou a consultar compromissos reais do nucleo comum, com filtros por busca/status e estado vazio proprio.
+- Prontuario, Plano alimentar, Avaliacoes e Documentos ganharam submenus internos que trocam conteudo ativo em vez de empilhar todos os fluxos na tela.
+- Validacao confirmou `corepack pnpm typecheck`, `corepack pnpm lint`, `corepack pnpm build`, `mvn test` com Java 21, Docker Compose com Postgres/Mailpit saudaveis, backend health `UP`, web local `200`, Browser com Karol Nutricionista Demo e breakpoints 320, 375, 430, 768, 1024 e 1280 sem overflow horizontal.
+- R10 concluida; proxima release recomendada e R11.
 - TASK-1008 adicionada oficialmente na R10 após validação visual do usuário no workspace Nutri Pro.
 - Diagnóstico da TASK-1008: Início, Agenda, Pacientes e Prontuário ainda reaproveitam a mesma tela; Agenda não mostra agenda real; Plano alimentar e Avaliações permanecem poluídos, desalinhados e com conteúdo abrindo ao lado/abaixo.
 - Direção da TASK-1008: separar cada item do menu em tela dedicada, criar submenus internos para prontuário, plano alimentar e avaliações, reduzir cards simultâneos e remover o padrão de abrir fluxos grandes no lado/embaixo da mesma página.

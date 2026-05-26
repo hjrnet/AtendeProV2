@@ -244,6 +244,34 @@ export type DocumentosProfissionaisNutriPro = {
   totalPaginas: number;
 };
 
+export type StatusAgendaNutriPro = "AGENDADO" | "CONFIRMADO" | "REALIZADO" | "CANCELADO" | "FALTOU" | "REMARCADO";
+
+export type TipoAgendaNutriPro = "PRESENCIAL" | "ONLINE" | "DOMICILIAR" | "SUBLOCACAO" | "INTERNO";
+
+export type CompromissoAgendaNutriPro = {
+  id: string;
+  empresaId: string;
+  clientePacienteId: string | null;
+  profissionalId: string | null;
+  profissionalNome: string;
+  sala: string | null;
+  tipo: TipoAgendaNutriPro;
+  status: StatusAgendaNutriPro;
+  inicio: string;
+  fim: string;
+  observacoes: string | null;
+  criadoEm: string;
+  atualizadoEm: string;
+};
+
+export type AgendaNutriPro = {
+  itens: CompromissoAgendaNutriPro[];
+  totalItens: number;
+  pagina: number;
+  tamanho: number;
+  totalPaginas: number;
+};
+
 export type CriarDocumentoProfissionalNutriProInput = {
   empresaId: string;
   clientePacienteId: string;
@@ -358,6 +386,23 @@ export function listarDocumentosProfissionaisNutriPro(params: {
 
 export function criarDocumentoProfissionalNutriPro(dados: CriarDocumentoProfissionalNutriProInput) {
   return nutriProApi.post<DocumentoProfissionalNutriPro>("/api/documentos-profissionais", dados);
+}
+
+export function listarAgendaNutriPro(params: {
+  empresaId: string;
+  inicio?: string;
+  fim?: string;
+  status?: StatusAgendaNutriPro;
+}) {
+  return nutriProApi.get<AgendaNutriPro>("/api/agenda/compromissos", {
+    query: {
+      empresaId: params.empresaId,
+      inicio: params.inicio,
+      fim: params.fim,
+      status: params.status,
+      tamanho: 30
+    }
+  });
 }
 
 export function caminhoPdfDocumentoNutriPro(documentoId: string) {
