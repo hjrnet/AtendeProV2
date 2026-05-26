@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R11 — IA, automações e integrações.
+R10 — Nutri Pro, Beauty Pro e comercial.
 
 ## Última task concluída
 TASK-1008 — Refatorar UX Nutri Pro com telas dedicadas e submenus limpos.
 
 ## Próxima task recomendada
-TASK-1101 — IA de precificação.
+TASK-1009 — Refatorar UX Beauty Pro com telas dedicadas e submenus limpos.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,10 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-1009 adicionada oficialmente na R10 para aplicar no Beauty Pro a mesma arrumação de UX aprovada no Nutri Pro.
+- Diagnóstico da TASK-1009: Beauty Pro ainda concentra indicadores, abas, ficha estética, protocolos, termos, evidências, produtos, agenda/preços e lista de clientes em um fluxo vertical poluído, com muito conteúdo competindo no mesmo viewport.
+- Direção da TASK-1009: separar Beauty Pro em telas dedicadas e submenus por rotina de estética, mantendo apenas um contexto ativo por vez e reduzindo empilhamento, scroll excessivo, grids espremidos e excesso de alerta visual.
+- A R10 foi reaberta para concluir a TASK-1009 antes de avançar para R11.
 - TASK-1008 concluida em modo autopilot multiagente release R10.
 - Nutri Pro passou a renderizar telas dedicadas para Inicio, Agenda, Pacientes, Prontuario, Plano alimentar, Avaliacoes e Exames/documentos, sem reaproveitar o mesmo painel gigante em todas as secoes.
 - Agenda Nutri passou a consultar compromissos reais do nucleo comum, com filtros por busca/status e estado vazio proprio.
