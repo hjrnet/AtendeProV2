@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R10 — Nutri Pro, Beauty Pro e comercial.
 
 ## Última task concluída
-TASK-1005 — Formulário de lead.
+TASK-1006 — Corrigir responsividade do hero e painel operacional público.
 
 ## Próxima task recomendada
-TASK-1006 — Corrigir responsividade do hero e painel operacional público.
+TASK-1007 — Redesenhar workspace profissional Nutri Pro e navegação por perfil.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,9 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-1006 concluida em modo autopilot multiagente release R10.
+- Landing pública deixou de usar painel operacional absoluto, largo e rotacionado no hero; a cena visual agora vive no grid normal da seção, empilha em mobile/tablet e fica ao lado do texto apenas em desktop amplo.
+- Validação confirmou `corepack pnpm typecheck`, `corepack pnpm lint`, `corepack pnpm build`, web local `200` em `/`, Browser sem erros de console e breakpoints 320, 375, 430, 768, 1024 e 1280 sem overflow horizontal nem sobreposição entre título/CTA e painel.
 - TASK-1007 adicionada oficialmente na R10 para redesenhar o workspace profissional logado com navegação por perfil/vertical, começando por Nutri Pro e usando o mesmo padrão para Beauty Pro e demais áreas.
 - Diagnóstico da TASK-1007: usuário de nutrição não deve ver Fono, Odonto e verticais sem relação como catálogo operacional principal; essas áreas devem ficar ocultas ou separadas em marketplace/admin, conforme perfil e plano.
 - A experiência interna atual ainda apresenta conteúdo abrindo abaixo, múltiplos scrolls internos, cards desalinhados e paleta muito monocromática; a task deve propor shell moderno 2026 com navegação real, painel central ativo, seções por rota/estado, cor semântica e responsividade por breakpoint.

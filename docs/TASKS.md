@@ -165,7 +165,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-1003 | Página de planos | Comparação e trial 30 dias. | CONCLUIDA |
 | TASK-1004 | Calculadora gratuita | Lead magnet de preço ideal. | CONCLUIDA |
 | TASK-1005 | Formulário de lead | Captação de interessados. | CONCLUIDA |
-| TASK-1006 | Corrigir responsividade do hero e painel operacional público | Ajustar layout da landing para evitar sobreposição/desalinhamento do painel operacional ao mudar tamanho da tela, mantendo experiência premium em mobile, tablet e desktop. | PENDENTE |
+| TASK-1006 | Corrigir responsividade do hero e painel operacional público | Ajustar layout da landing para evitar sobreposição/desalinhamento do painel operacional ao mudar tamanho da tela, mantendo experiência premium em mobile, tablet e desktop. | CONCLUIDA |
 | TASK-1007 | Redesenhar workspace profissional Nutri Pro e navegação por perfil | Refatorar a experiência interna do profissional para abrir Nutri Pro como área principal do usuário de nutrição, ocultar verticais sem sentido para o perfil, trocar conteúdo por navegação real e corrigir desalinhamentos do painel operacional. | PENDENTE |
 
 ## R11 — IA, automações e integrações
