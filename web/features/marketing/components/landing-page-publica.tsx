@@ -155,7 +155,7 @@ export function LandingPagePublica() {
 function HeroSection() {
   return (
     <section className="relative isolate overflow-hidden border-b border-[#cddfda] bg-[#edf7f3]">
-      <div className="mx-auto flex min-h-[88svh] max-w-6xl flex-col px-4 pb-10 pt-5 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-6xl flex-col px-4 pb-8 pt-5 sm:px-6 sm:pb-10 lg:min-h-[min(680px,74svh)] lg:px-8">
         <header className="flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f766e]">
             <span className="flex h-10 w-10 items-center justify-center rounded-md bg-[#0f766e] text-white">
@@ -191,11 +191,13 @@ function HeroSection() {
             </Link>
           </nav>
         </header>
-        <div className="grid flex-1 items-center gap-8 py-8 sm:py-10 xl:grid-cols-[0.76fr_1fr] xl:gap-10">
-          <div className="max-w-2xl xl:pb-8">
-            <p className="inline-flex items-center gap-2 rounded-full border border-[#b9d8d1] bg-white/80 px-3 py-1 text-sm font-semibold text-[#0f766e] shadow-sm">
-              <Sparkles className="h-4 w-4" aria-hidden="true" />
-              SaaS multiárea para saúde, estética e espaços profissionais
+        <div className="grid flex-1 items-center gap-8 py-7 sm:py-9 lg:py-10 xl:grid-cols-[0.76fr_1fr] xl:gap-10">
+          <div className="min-w-0 max-w-2xl">
+            <p className="inline-flex max-w-full items-start gap-2 rounded-full border border-[#b9d8d1] bg-white/80 px-3 py-1 text-xs font-semibold leading-5 text-[#0f766e] shadow-sm sm:items-center sm:text-sm">
+              <Sparkles className="mt-0.5 h-4 w-4 shrink-0 sm:mt-0" aria-hidden="true" />
+              <span className="min-w-0 whitespace-normal">
+                SaaS multiárea para saúde, estética e espaços profissionais
+              </span>
             </p>
             <h1 className="mt-6 text-5xl font-semibold leading-[1.02] text-[#102524] sm:text-6xl">
               AtendePro

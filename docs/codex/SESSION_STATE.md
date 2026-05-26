@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R10 — Nutri Pro, Beauty Pro e comercial.
+R11 — IA, automações e integrações.
 
 ## Última task concluída
-TASK-1010 — Ativar ações operacionais do Nutri Pro, cadastro de paciente e criação de agenda.
+TASK-1011 — Ajustar espaçamento vertical excessivo do hero público.
 
 ## Próxima task recomendada
-TASK-1011 — Ajustar espaçamento vertical excessivo do hero público.
+TASK-1101 — IA de precificação.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-1011 concluida em modo autopilot multiagente release R10.
+- O hero público da landing deixou de usar altura mínima de `88svh` e passou a ter altura limitada em desktop, reduzindo o vazio acima e abaixo do bloco principal.
+- O selo do hero foi ajustado para quebrar linha corretamente em mobile, preservando leitura e evitando overflow horizontal.
+- Validação confirmou `npm run typecheck`, `npm run lint`, `npm run build`, Docker Compose com Postgres/Mailpit saudáveis, web local em `127.0.0.1:3000`, Browser na landing e CDP/Edge em 320, 375, 430, 768, 1024 e 2048 sem overflow horizontal.
+- R10 concluida; próxima release recomendada é R11.
 - TASK-1011 adicionada oficialmente na R10 após validação visual do usuário na landing pública.
 - Diagnóstico da TASK-1011: o hero público ainda apresenta espaçamento vertical excessivo acima e abaixo do bloco principal, deixando o conteúdo central distante da navegação e da próxima seção em telas desktop.
 - Direção da TASK-1011: reduzir os espaços verticais destacados na print, preservar a composição premium com texto e painel operacional, manter a primeira dobra equilibrada e validar desktop, tablet e mobile sem sobreposição.
