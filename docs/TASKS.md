@@ -191,3 +191,9 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-1203 | Backups e restore | Estratégia de banco. | CONCLUIDA |
 | TASK-1204 | Hardening de segurança | Headers, rate limit e auditoria. | CONCLUIDA |
 | TASK-1205 | Deploy produção | Ambiente cloud/VPS. | CONCLUIDA |
+
+## R13 — Portal do cliente web
+
+| Task | Nome | Descrição | Status |
+|---|---|---|---|
+| TASK-0801 | Portal do cliente web | Agenda, documentos e evolução. | CONCLUIDA |

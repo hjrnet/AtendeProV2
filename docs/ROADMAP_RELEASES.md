@@ -163,3 +163,7 @@
 - **TASK-1203 — Backups e restore**: Estratégia de banco.
 - **TASK-1204 — Hardening de segurança**: Headers, rate limit e auditoria.
 - **TASK-1205 — Deploy produção**: Ambiente cloud/VPS.
+
+## R13 — Portal do cliente web
+
+- **TASK-0801 — Portal do cliente web**: Agenda, documentos e evolução.

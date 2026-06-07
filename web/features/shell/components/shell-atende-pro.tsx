@@ -12,6 +12,7 @@ import {
   Gauge,
   LayoutDashboard,
   PackageCheck,
+  UserRound,
   Search,
   Sparkles,
   Stethoscope,
@@ -71,6 +72,14 @@ const secoesPrincipais: SecaoPrincipalConfig[] = [
     titulo: "Admin SaaS",
     descricao: "Área administrativa para planos, limites e evoluções futuras de empresas e assinaturas.",
     icon: PackageCheck
+  },
+  {
+    id: "portal-cliente",
+    label: "Portal do cliente",
+    labelCurto: "Portal",
+    titulo: "Portal do cliente",
+    descricao: "Visualize agenda, documentos e evolução de clientes selecionados.",
+    icon: UserRound
   }
 ];
 

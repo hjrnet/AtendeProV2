@@ -4,6 +4,7 @@ import { Search } from "lucide-react";
 
 import type { SessaoAutenticada } from "@/features/auth/lib/auth-storage";
 import { SecaoAdminSaas } from "@/features/admin-planos/components/secao-admin-saas";
+import { PortalClienteView } from "@/features/portal-cliente/components/portal-cliente-view";
 import { BeautyProOperacionalView } from "@/features/beauty-pro/components/beauty-pro-operacional-view";
 import { NutriProOperacionalView } from "@/features/nutri-pro/components/nutri-pro-operacional-view";
 import { SecaoBuscaGlobal } from "@/features/operacional/components/secao-busca-global";
@@ -59,6 +60,8 @@ function renderizarSecaoAtiva(
       return <SecaoBuscaGlobal empresaId={empresaId} />;
     case "admin":
       return <SecaoAdminSaas empresaId={empresaId} sessao={sessao} />;
+    case "portal-cliente":
+      return <PortalClienteView empresaId={empresaId} />;
     default:
       return (
         <div className="flex min-h-72 flex-col items-center justify-center rounded-lg border bg-card p-8 text-center shadow-sm">

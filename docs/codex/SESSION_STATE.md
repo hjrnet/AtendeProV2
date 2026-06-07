@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R12 — Escala, observabilidade e produção.
+R13 — Portal do cliente web.
 
 ## Última task concluída
-TASK-1205 — Deploy produção.
+TASK-0801 — Portal do cliente web.
 
 ## Próxima task recomendada
-R12 concluída. Aguardar priorização da próxima release.
+TASK-0802 — App Expo base (R8)
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,11 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-0801 foi concluída em modo autopilot release R13, com a integração de:
+  - `portal-cliente-client.ts` (listar clientes, agenda e documentos do cliente);
+  - `portal-cliente-view.tsx` com fluxo de busca/seleção, agenda, documentos e evolução;
+  - integração da seção no shell (`shell/types.ts`, `shell-atende-pro.tsx`, `painel-conteudo-ativo.tsx`);
+  - atualização de `docs/RELEASE_STATUS.yaml`, `docs/ROADMAP_RELEASES.md` e `docs/TASKS.md`.
 - TASK-1201 concluída em modo autopilot release R12.
 - O workflow oficial da release foi criado em `.github/workflows/ci.yml`, executando:
   - `mvn test` com `SPRING_PROFILES_ACTIVE=test` no backend (Java 21 + PostgreSQL em serviço);

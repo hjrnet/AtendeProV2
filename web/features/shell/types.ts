@@ -6,6 +6,7 @@ export type SecaoPrincipal =
   | "precificacao"
   | "busca"
   | "admin"
+  | "portal-cliente"
   | "nutri-inicio"
   | "nutri-agenda"
   | "nutri-pacientes"
