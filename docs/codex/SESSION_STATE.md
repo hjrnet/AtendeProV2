@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R12 — Escala, observabilidade e produção.
 
 ## Última task concluída
-TASK-1105 — Assinatura digital avançada.
+TASK-1205 — Deploy produção.
 
 ## Próxima task recomendada
-TASK-1201 — CI/CD.
+R12 concluída. Aguardar priorização da próxima release.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,23 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-1201 concluída em modo autopilot release R12.
+- O workflow oficial da release foi criado em `.github/workflows/ci.yml`, executando:
+  - `mvn test` com `SPRING_PROFILES_ACTIVE=test` no backend (Java 21 + PostgreSQL em serviço);
+  - `pnpm lint`, `pnpm typecheck` e `pnpm build` no frontend.
+- TASK-1202 concluída em modo autopilot release R12.
+- Observabilidade implementada com:
+  - `micrometer-registry-prometheus` para métricas;
+  - `micrometer-tracing-bridge-brave` para geração de spans;
+  - exposição de `/actuator/metrics` e `/actuator/prometheus`;
+  - logs estruturados por request com `correlationId` e duração.
+- TASK-1203 concluída em modo autopilot release R12.
+- Estratégia de backup/restore implementada em `scripts/backup` com documentação em `docs/deploy/BACKUP_RESTORE.md`.
+- TASK-1204 concluída em modo autopilot release R12.
+- Hardening de segurança implementado com headers HTTP, rate limit e auditoria estruturados em logs.
+- TASK-1205 concluída em modo autopilot release R12.
+- Deploy produção documentado com exemplo de `docker-compose.prod.yml`, nginx e `scripts/deploy/deploy-prod.sh`.
+- TASKS 1203–1205 registrados como concluídos em `docs/TASKS.md` e `docs/RELEASE_STATUS.yaml`; release R12 marcada como `CONCLUIDA`.
 - TASK-1105 concluida em modo autopilot release R11.
 - TASK-1105 adicionada oficialmente após implementar status futuro de assinatura digital (estado, ambiente, próximo passo e fallback de validação de auditoria).
 - TASK-1104 concluida em modo autopilot release R11.

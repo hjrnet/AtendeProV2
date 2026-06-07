@@ -8,21 +8,60 @@ spring:
 
 server:
   port: ${BACKEND_PORT:8080}
+  tomcat:
+    mbeanregistry:
+      enabled: true
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics,prometheus
   endpoint:
     health:
       probes:
         enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+
+logging:
+  pattern:
+    console: >
+      {"timestamp":"%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX}","level":"%level","logger":"%logger{36}","thread":"%thread","correlationId":"%X{correlationId}","traceId":"%X{traceId}","spanId":"%X{spanId}","message":"%replace(%msg){'\n',' '}"}
 
 info:
   app:
     name: AtendePro Backend
     description: SaaS profissional multiempresa e multiárea
+
+app:
+  hardening:
+    enabled: true
+    rate-limit:
+      enabled: true
+      requests-per-minute: 120
+      auth-requests-per-minute: 30
+      window-seconds: 60
+      protected-path-prefixes:
+        - /api/
+      auth-path-prefixes:
+        - /api/auth/login
+        - /api/auth/refresh
+        - /api/auth/password/forgot
+        - /api/auth/password/reset
+    headers:
+      enabled: true
+    audit:
+      enabled: true
+      methods:
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+      ignore-prefixes:
+        - /actuator/health
+        - /actuator/info
 
 springdoc:
   api-docs:

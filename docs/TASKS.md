@@ -186,8 +186,8 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
-| TASK-1201 | CI/CD | GitHub Actions. | PENDENTE |
-| TASK-1202 | Observabilidade | Logs estruturados, métricas e traces. | PENDENTE |
-| TASK-1203 | Backups e restore | Estratégia de banco. | PENDENTE |
-| TASK-1204 | Hardening de segurança | Headers, rate limit e auditoria. | PENDENTE |
-| TASK-1205 | Deploy produção | Ambiente cloud/VPS. | PENDENTE |
+| TASK-1201 | CI/CD | GitHub Actions. | CONCLUIDA |
+| TASK-1202 | Observabilidade | Logs estruturados, métricas e traces. | CONCLUIDA |
+| TASK-1203 | Backups e restore | Estratégia de banco. | CONCLUIDA |
+| TASK-1204 | Hardening de segurança | Headers, rate limit e auditoria. | CONCLUIDA |
+| TASK-1205 | Deploy produção | Ambiente cloud/VPS. | CONCLUIDA |
