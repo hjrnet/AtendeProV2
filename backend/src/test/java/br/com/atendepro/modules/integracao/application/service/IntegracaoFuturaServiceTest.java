@@ -16,7 +16,11 @@ class IntegracaoFuturaServiceTest {
 
     @Test
     void deveConsultarStatusDoWhatsAppFuturoSemCredenciais() {
-        var properties = new IntegracoesFuturasProperties(new IntegracoesFuturasProperties.WhatsApp(false, null, null));
+        var properties = new IntegracoesFuturasProperties(
+                new IntegracoesFuturasProperties.WhatsApp(false, null, null),
+                new IntegracoesFuturasProperties.Pagamentos(false, null, null),
+                new IntegracoesFuturasProperties.AssinaturaDigital(false, null, null)
+        );
         var service = new IntegracaoFuturaService(properties, CLOCK);
 
         var result = service.consultarStatusWhatsApp();
@@ -31,7 +35,11 @@ class IntegracaoFuturaServiceTest {
 
     @Test
     void deveConsultarStatusDoWhatsAppConfigurado() {
-        var properties = new IntegracoesFuturasProperties(new IntegracoesFuturasProperties.WhatsApp(true, "meta", "producao"));
+        var properties = new IntegracoesFuturasProperties(
+                new IntegracoesFuturasProperties.WhatsApp(true, "meta", "producao"),
+                new IntegracoesFuturasProperties.Pagamentos(false, null, null),
+                new IntegracoesFuturasProperties.AssinaturaDigital(false, null, null)
+        );
         var service = new IntegracaoFuturaService(properties, CLOCK);
 
         var result = service.consultarStatusWhatsApp();
@@ -94,7 +102,7 @@ class IntegracaoFuturaServiceTest {
         assertThat(result.provedor()).isEqualTo("parceiro-futuro");
         assertThat(result.ambiente()).isEqualTo("sandbox");
         assertThat(result.proximasEtapas()).hasSize(3);
-        assertThat(result.mensagem()).contains("assinatura digital");
+        assertThat(result.mensagem()).contains("Assinatura digital avancada");
     }
 
     @Test
