@@ -1,8 +1,8 @@
 project: AtendePro
 strategy: professional_complete
-current_release: R11
-last_completed_task: TASK-1011
-next_task: TASK-1101
+current_release: R12
+last_completed_task: TASK-1105
+next_task: TASK-1201
 releases:
   R0:
     name: "R0 — Fundação técnica profissional"
@@ -165,13 +165,13 @@ releases:
       TASK-1011: CONCLUIDA
   R11:
     name: "R11 — IA, automações e integrações"
-    status: PENDENTE
+    status: CONCLUIDA
     tasks:
-      TASK-1101: PENDENTE
-      TASK-1102: PENDENTE
-      TASK-1103: PENDENTE
-      TASK-1104: PENDENTE
-      TASK-1105: PENDENTE
+      TASK-1101: CONCLUIDA
+      TASK-1102: CONCLUIDA
+      TASK-1103: CONCLUIDA
+      TASK-1104: CONCLUIDA
+      TASK-1105: CONCLUIDA
   R12:
     name: "R12 — Escala, observabilidade e produção"
     status: PENDENTE

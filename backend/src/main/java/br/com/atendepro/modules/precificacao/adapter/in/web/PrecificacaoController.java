@@ -25,6 +25,7 @@ import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecoMi
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecoRecomendadoUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.CalcularPrecificacaoBaseUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.ConsultarDashboardPrecificacaoUseCase;
+import br.com.atendepro.modules.precificacao.application.port.in.GerarSugestoesPrecificacaoAssistidaUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.GerarRelatorioPrecificacaoUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.ListarSimulacoesPrecificacaoUseCase;
 import br.com.atendepro.modules.precificacao.application.port.in.SalvarSimulacaoPrecificacaoUseCase;
@@ -48,6 +49,7 @@ public class PrecificacaoController {
     private final ListarSimulacoesPrecificacaoUseCase listarSimulacoesPrecificacaoUseCase;
     private final GerarRelatorioPrecificacaoUseCase gerarRelatorioPrecificacaoUseCase;
     private final ConsultarDashboardPrecificacaoUseCase consultarDashboardPrecificacaoUseCase;
+    private final GerarSugestoesPrecificacaoAssistidaUseCase gerarSugestoesPrecificacaoAssistidaUseCase;
 
     public PrecificacaoController(
             CalcularPrecificacaoBaseUseCase calcularPrecificacaoBaseUseCase,
@@ -60,7 +62,8 @@ public class PrecificacaoController {
             BuscarSimulacaoPrecificacaoUseCase buscarSimulacaoPrecificacaoUseCase,
             ListarSimulacoesPrecificacaoUseCase listarSimulacoesPrecificacaoUseCase,
             GerarRelatorioPrecificacaoUseCase gerarRelatorioPrecificacaoUseCase,
-            ConsultarDashboardPrecificacaoUseCase consultarDashboardPrecificacaoUseCase
+            ConsultarDashboardPrecificacaoUseCase consultarDashboardPrecificacaoUseCase,
+            GerarSugestoesPrecificacaoAssistidaUseCase gerarSugestoesPrecificacaoAssistidaUseCase
     ) {
         this.calcularPrecificacaoBaseUseCase = calcularPrecificacaoBaseUseCase;
         this.calcularCustoRealUseCase = calcularCustoRealUseCase;
@@ -73,6 +76,16 @@ public class PrecificacaoController {
         this.listarSimulacoesPrecificacaoUseCase = listarSimulacoesPrecificacaoUseCase;
         this.gerarRelatorioPrecificacaoUseCase = gerarRelatorioPrecificacaoUseCase;
         this.consultarDashboardPrecificacaoUseCase = consultarDashboardPrecificacaoUseCase;
+        this.gerarSugestoesPrecificacaoAssistidaUseCase = gerarSugestoesPrecificacaoAssistidaUseCase;
+    }
+
+    @GetMapping("/simulacoes/{simulacaoId}/assistente")
+    public ResponseEntity<SugestoesPrecificacaoAssistidaResponse> gerarSugestoes(
+            @PathVariable UUID simulacaoId
+    ) {
+        return ResponseEntity.ok(SugestoesPrecificacaoAssistidaResponse.de(
+                gerarSugestoesPrecificacaoAssistidaUseCase.gerarSugestoes(simulacaoId)
+        ));
     }
 
     @GetMapping("/dashboard")

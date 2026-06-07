@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R11 — IA, automações e integrações.
+R12 — Escala, observabilidade e produção.
 
 ## Última task concluída
-TASK-1011 — Ajustar espaçamento vertical excessivo do hero público.
+TASK-1105 — Assinatura digital avançada.
 
 ## Próxima task recomendada
-TASK-1101 — IA de precificação.
+TASK-1201 — CI/CD.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -18,6 +18,17 @@ economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
 ## Decisões recentes
+- TASK-1105 concluida em modo autopilot release R11.
+- TASK-1105 adicionada oficialmente após implementar status futuro de assinatura digital (estado, ambiente, próximo passo e fallback de validação de auditoria).
+- TASK-1104 concluida em modo autopilot release R11.
+- TASK-1104 adicionada oficialmente após implementar status futuro de pagamentos (estado de gateway, configuração e validações operacionais).
+- TASK-1103 concluida em modo autopilot release R11.
+- TASK-1103 adicionada oficialmente como status inicial de integração WhatsApp (estado de credenciais, próximas etapas e mensagem contextual).
+- TASK-1102 concluida em modo autopilot release R11.
+- TASK-1102 adicionada oficialmente como sugestão assistida de chamado de suporte com classificação de prioridade, categoria e próximas ações.
+- TASK-1101 concluida em modo autopilot release R11.
+- TASK-1101 adicionada oficialmente como sugestão assistida de precificação com resumo e sugestões por faixa de margem.
+- R11 agora marcada como concluída e `docs/RELEASE_STATUS.yaml` segue com `current_release: R12`, `last_completed_task: TASK-1105` e `next_task: TASK-1201`.
 - TASK-1011 concluida em modo autopilot multiagente release R10.
 - O hero público da landing deixou de usar altura mínima de `88svh` e passou a ter altura limitada em desktop, reduzindo o vazio acima e abaixo do bloco principal.
 - O selo do hero foi ajustado para quebrar linha corretamente em mobile, preservando leitura e evitando overflow horizontal.

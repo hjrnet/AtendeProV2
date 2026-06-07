@@ -22,3 +22,16 @@ app:
     jwt-refresh-expiracao-dias: ${JWT_REFRESH_EXPIRACAO_DIAS:7}
     senha-recuperacao-expiracao-minutos: ${SENHA_RECUPERACAO_EXPIRACAO_MINUTOS:30}
     expor-token-recuperacao-local: ${EXPOR_TOKEN_RECUPERACAO_LOCAL:true}
+  integracoes:
+    whatsapp:
+      configurada: ${WHATSAPP_CONFIGURADA:false}
+      provedor: ${WHATSAPP_PROVEDOR:oficial}
+      ambiente: ${WHATSAPP_AMBIENTE:sandbox}
+    pagamentos:
+      configurada: ${PAGAMENTOS_CONFIGURADA:false}
+      provedor: ${PAGAMENTOS_PROVEDOR:gateway-futuro}
+      ambiente: ${PAGAMENTOS_AMBIENTE:sandbox}
+    assinatura-digital:
+      configurada: ${ASSINATURA_DIGITAL_CONFIGURADA:false}
+      provedor: ${ASSINATURA_DIGITAL_PROVEDOR:parceiro-futuro}
+      ambiente: ${ASSINATURA_DIGITAL_AMBIENTE:sandbox}

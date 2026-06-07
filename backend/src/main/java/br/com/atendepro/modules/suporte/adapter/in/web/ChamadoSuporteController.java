@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.atendepro.modules.suporte.application.port.in.AbrirChamadoSuporteUseCase;
 import br.com.atendepro.modules.suporte.application.port.in.AtualizarTriagemChamadoSuporteUseCase;
 import br.com.atendepro.modules.suporte.application.port.in.DetalharChamadoSuporteUseCase;
+import br.com.atendepro.modules.suporte.application.port.in.GerarRespostaAssistidaChamadoSuporteUseCase;
 import br.com.atendepro.modules.suporte.application.port.in.ListarChamadosSuporteUseCase;
 import br.com.atendepro.modules.suporte.application.port.in.RegistrarMensagemChamadoSuporteUseCase;
 import br.com.atendepro.modules.suporte.domain.model.PrioridadeChamadoSuporte;
@@ -34,19 +35,22 @@ public class ChamadoSuporteController {
     private final DetalharChamadoSuporteUseCase detalharChamadoSuporteUseCase;
     private final ListarChamadosSuporteUseCase listarChamadosSuporteUseCase;
     private final RegistrarMensagemChamadoSuporteUseCase registrarMensagemChamadoSuporteUseCase;
+    private final GerarRespostaAssistidaChamadoSuporteUseCase gerarRespostaAssistidaChamadoSuporteUseCase;
 
     public ChamadoSuporteController(
             AbrirChamadoSuporteUseCase abrirChamadoSuporteUseCase,
             AtualizarTriagemChamadoSuporteUseCase atualizarTriagemChamadoSuporteUseCase,
             DetalharChamadoSuporteUseCase detalharChamadoSuporteUseCase,
             ListarChamadosSuporteUseCase listarChamadosSuporteUseCase,
-            RegistrarMensagemChamadoSuporteUseCase registrarMensagemChamadoSuporteUseCase
+            RegistrarMensagemChamadoSuporteUseCase registrarMensagemChamadoSuporteUseCase,
+            GerarRespostaAssistidaChamadoSuporteUseCase gerarRespostaAssistidaChamadoSuporteUseCase
     ) {
         this.abrirChamadoSuporteUseCase = abrirChamadoSuporteUseCase;
         this.atualizarTriagemChamadoSuporteUseCase = atualizarTriagemChamadoSuporteUseCase;
         this.detalharChamadoSuporteUseCase = detalharChamadoSuporteUseCase;
         this.listarChamadosSuporteUseCase = listarChamadosSuporteUseCase;
         this.registrarMensagemChamadoSuporteUseCase = registrarMensagemChamadoSuporteUseCase;
+        this.gerarRespostaAssistidaChamadoSuporteUseCase = gerarRespostaAssistidaChamadoSuporteUseCase;
     }
 
     @PostMapping
@@ -104,6 +108,13 @@ public class ChamadoSuporteController {
     ) {
         return ResponseEntity.ok(DetalheChamadoSuporteResponse.de(
                 atualizarTriagemChamadoSuporteUseCase.atualizarTriagem(request.paraCommand(chamadoId))
+        ));
+    }
+
+    @PostMapping("/{chamadoId}/assistente/resposta")
+    public ResponseEntity<RespostaAssistidaChamadoSuporteResponse> gerarRespostaAssistida(@PathVariable UUID chamadoId) {
+        return ResponseEntity.ok(RespostaAssistidaChamadoSuporteResponse.de(
+                gerarRespostaAssistidaChamadoSuporteUseCase.gerarRespostaAssistida(chamadoId)
         ));
     }
 }

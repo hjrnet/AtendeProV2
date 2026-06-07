@@ -176,11 +176,11 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
-| TASK-1101 | IA de precificação | Sugestões e alertas assistidos. | PENDENTE |
-| TASK-1102 | IA de suporte | Respostas e triagem de chamados. | PENDENTE |
-| TASK-1103 | WhatsApp futuro | Integração oficial quando configurada. | PENDENTE |
-| TASK-1104 | Pagamentos | Integração futura com gateway. | PENDENTE |
-| TASK-1105 | Assinatura digital avançada | ICP-Brasil/ferramenta parceira futura. | PENDENTE |
+| TASK-1101 | IA de precificação | Sugestões e alertas assistidos. | CONCLUIDA |
+| TASK-1102 | IA de suporte | Respostas e triagem de chamados. | CONCLUIDA |
+| TASK-1103 | WhatsApp futuro | Integração oficial quando configurada. | CONCLUIDA |
+| TASK-1104 | Pagamentos | Integração futura com gateway. | CONCLUIDA |
+| TASK-1105 | Assinatura digital avançada | ICP-Brasil/ferramenta parceira futura. | CONCLUIDA |
 
 ## R12 — Escala, observabilidade e produção
 
