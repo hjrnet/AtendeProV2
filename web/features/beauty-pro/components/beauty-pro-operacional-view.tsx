@@ -22,6 +22,7 @@ import {
 
 import {
   atualizarFichaEsteticaBeautyPro,
+  cadastrarProdutoEstoqueBeauty,
   consultarIntegracoesOperacionaisBeautyPro,
   consultarSegurancaOperacionalBeautyPro,
   consultarProntuarioBeautyPro,
@@ -32,10 +33,12 @@ import {
   criarTermoConsentimentoBeautyPro,
   listarClientesBeautyPro,
   listarFichasEsteticasBeautyPro,
+  listarProdutosEstoqueBeauty,
   listarProtocolosBeautyPro,
   registrarSessaoProtocoloBeautyPro,
   vincularProdutoBeautyPro,
   type AtalhoBeautyPro,
+  type CadastrarProdutoEstoqueBeautyInput,
   type ClienteBeautyResumo,
   type CriarEvidenciaEvolucaoBeautyProInput,
   type CriarProtocoloBeautyProInput,
@@ -47,6 +50,7 @@ import {
   type IntegracoesOperacionaisBeautyPro,
   type ObjetivoEsteticoBeautyPro,
   type ProdutoBeautyEstoque,
+  type ProdutoEstoqueBeautyOperacional,
   type ProdutoUtilizadoBeautyPro,
   type ProtocoloBeautyPro,
   type RegistrarSessaoProtocoloBeautyProInput,
@@ -71,6 +75,7 @@ type FocoWorkspaceBeautyPro =
   | "beauty-clientes"
   | "beauty-ficha"
   | "beauty-protocolos"
+  | "beauty-estoque"
   | "beauty-termos";
 
 type Icone = typeof Scissors;
@@ -80,6 +85,8 @@ type AbaFichaBeauty = "resumo" | "anamnese" | "contraindicacoes" | "procedimento
 type AbaProtocolosBeauty = "visao" | "ativos" | "novo" | "sessao" | "evolucao" | "historico";
 
 type AbaSegurancaBeauty = "termos" | "evidencias" | "produtos" | "historico" | "seguranca";
+
+type FiltroEstoqueBeauty = "TODOS" | "VENCIDOS" | "VENCE_7" | "VENCE_30" | "BAIXO";
 
 type FormularioFichaBeauty = {
   objetivo: ObjetivoEsteticoBeautyPro;
@@ -135,6 +142,24 @@ type FormularioProdutoBeauty = {
   validade: string;
   quantidade: string;
   unidade: string;
+  observacoes: string;
+};
+
+type FormularioEstoqueBeauty = {
+  nome: string;
+  categoria: string;
+  lote: string;
+  validade: string;
+  unidade: string;
+  quantidadeAtual: string;
+  custoUnitario: string;
+  estoqueMinimo: string;
+};
+
+type FormularioBaixaEstoqueBeauty = {
+  clienteId: string;
+  produtoEstoqueId: string;
+  quantidade: string;
   observacoes: string;
 };
 
@@ -231,6 +256,45 @@ const produtoVazio: FormularioProdutoBeauty = {
   unidade: "UN",
   observacoes: ""
 };
+
+const estoqueBeautyVazio: FormularioEstoqueBeauty = {
+  nome: "",
+  categoria: "Cosméticos Beauty",
+  lote: "",
+  validade: "",
+  unidade: "UN",
+  quantidadeAtual: "1",
+  custoUnitario: "0",
+  estoqueMinimo: "1"
+};
+
+const baixaEstoqueBeautyVazia: FormularioBaixaEstoqueBeauty = {
+  clienteId: "",
+  produtoEstoqueId: "",
+  quantidade: "1",
+  observacoes: "Baixa operacional Beauty registrada pelo workspace de estoque."
+};
+
+const kitsInsumosBeauty = [
+  {
+    procedimento: "Limpeza de pele premium",
+    produtos: ["Sérum facial", "Máscara calmante", "Espátula descartável"],
+    consumo: "1 un de máscara + 0,25 un de sérum por sessão",
+    alerta: "Bom kit inicial para controlar validade e margem de facial."
+  },
+  {
+    procedimento: "Peeling químico leve",
+    produtos: ["Ácido mandélico", "Neutralizante", "Protetor pós-procedimento"],
+    consumo: "0,20 un de ácido por aplicação",
+    alerta: "Exige validade curta, termo assinado e estoque mínimo revisado."
+  },
+  {
+    procedimento: "Design de sobrancelhas",
+    produtos: ["Henna", "Algodão", "Palito descartável"],
+    consumo: "1 kit descartável por atendimento",
+    alerta: "Ajuda a precificar descartáveis que costumam sumir da margem."
+  }
+];
 
 const tiposProtocolo: Array<{ value: TipoProtocoloBeautyPro; label: string }> = [
   { value: "FACIAL", label: "Facial" },
@@ -369,6 +433,10 @@ export function BeautyProOperacionalView({ empresaId, focoWorkspace = "beauty-in
 
   if (focoWorkspace === "beauty-protocolos") {
     return <ProtocolosBeautyPainel empresaId={empresaId} clienteId={clienteSelecionadoId} />;
+  }
+
+  if (focoWorkspace === "beauty-estoque") {
+    return <EstoqueBeautyPainel empresaId={empresaId} />;
   }
 
   if (focoWorkspace === "beauty-termos") {
@@ -1080,6 +1148,299 @@ function ProtocolosBeautyPainel({ empresaId, clienteId }: { empresaId: string; c
   );
 }
 
+function EstoqueBeautyPainel({ empresaId }: { empresaId: string }) {
+  const queryClient = useQueryClient();
+  const [busca, setBusca] = useState("");
+  const [filtro, setFiltro] = useState<FiltroEstoqueBeauty>("TODOS");
+  const [formulario, setFormulario] = useState<FormularioEstoqueBeauty>(estoqueBeautyVazio);
+  const [formularioBaixa, setFormularioBaixa] = useState<FormularioBaixaEstoqueBeauty>(baixaEstoqueBeautyVazia);
+  const [mensagem, setMensagem] = useState<string | null>(null);
+
+  const produtosQuery = useQuery({
+    queryKey: ["beauty-estoque", empresaId, busca],
+    queryFn: () => listarProdutosEstoqueBeauty({ empresaId, busca, tamanho: 100 }),
+    enabled: Boolean(empresaId)
+  });
+
+  const clientesQuery = useQuery({
+    queryKey: ["beauty-pro-clientes", empresaId, "estoque-baixa"],
+    queryFn: () => listarClientesBeautyPro({ empresaId }),
+    enabled: Boolean(empresaId)
+  });
+
+  const produtosBase = produtosQuery.data?.itens ?? [];
+  const clientes = clientesQuery.data?.itens ?? [];
+  const produtos = useMemo(() => produtosBase.filter((produto) => produtoPassaFiltroEstoqueBeauty(produto, filtro)), [produtosBase, filtro]);
+  const produtoSelecionadoParaBaixa = produtosBase.find((produto) => produto.id === formularioBaixa.produtoEstoqueId) ?? null;
+  const produtosVencidos = produtosBase.filter((produto) => diasAteValidadeBeauty(produto.validade) !== null && (diasAteValidadeBeauty(produto.validade) ?? 0) < 0);
+  const produtosVence7 = produtosBase.filter((produto) => {
+    const dias = diasAteValidadeBeauty(produto.validade);
+    return dias !== null && dias >= 0 && dias <= 7;
+  });
+  const produtosVence30 = produtosBase.filter((produto) => {
+    const dias = diasAteValidadeBeauty(produto.validade);
+    return dias !== null && dias >= 0 && dias <= 30;
+  });
+  const produtosEstoqueBaixo = produtosBase.filter((produto) => produto.quantidadeAtual <= produto.estoqueMinimo);
+  const valorEmEstoque = produtosBase.reduce((total, produto) => total + produto.quantidadeAtual * produto.custoUnitario, 0);
+
+  const cadastrarProdutoMutation = useMutation({
+    mutationFn: (dados: CadastrarProdutoEstoqueBeautyInput) => cadastrarProdutoEstoqueBeauty(dados),
+    onSuccess: async () => {
+      setMensagem("Produto/lote cadastrado no estoque Beauty.");
+      setFormulario(estoqueBeautyVazio);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["beauty-estoque", empresaId] }),
+        queryClient.invalidateQueries({ queryKey: ["beauty-pro-visao", empresaId] })
+      ]);
+    }
+  });
+
+  const registrarBaixaMutation = useMutation({
+    mutationFn: () => {
+      if (!formularioBaixa.clienteId) {
+        throw new Error("Selecione um cliente Beauty.");
+      }
+      if (!produtoSelecionadoParaBaixa) {
+        throw new Error("Selecione um produto do estoque.");
+      }
+      return vincularProdutoBeautyPro({
+        empresaId,
+        clienteId: formularioBaixa.clienteId,
+        dados: {
+          produtoEstoqueId: produtoSelecionadoParaBaixa.id,
+          quantidade: numeroFormulario(formularioBaixa.quantidade),
+          unidade: produtoSelecionadoParaBaixa.unidade,
+          observacoes: textoOuNull(formularioBaixa.observacoes)
+        }
+      });
+    },
+    onSuccess: async () => {
+      setMensagem("Baixa operacional registrada e vinculada ao histórico Beauty.");
+      setFormularioBaixa(baixaEstoqueBeautyVazia);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["beauty-estoque", empresaId] }),
+        queryClient.invalidateQueries({ queryKey: ["beauty-pro-seguranca", empresaId] }),
+        queryClient.invalidateQueries({ queryKey: ["beauty-pro-visao", empresaId] })
+      ]);
+    }
+  });
+
+  function cadastrarProduto(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setMensagem(null);
+    cadastrarProdutoMutation.mutate({
+      empresaId,
+      nome: formulario.nome.trim(),
+      categoria: textoOuNull(formulario.categoria),
+      lote: textoOuNull(formulario.lote),
+      validade: textoOuNull(formulario.validade),
+      unidade: formulario.unidade.trim().toUpperCase(),
+      quantidadeAtual: numeroFormulario(formulario.quantidadeAtual),
+      custoUnitario: numeroFormulario(formulario.custoUnitario),
+      estoqueMinimo: numeroFormulario(formulario.estoqueMinimo)
+    });
+  }
+
+  function registrarBaixa(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setMensagem(null);
+    registrarBaixaMutation.mutate();
+  }
+
+  return (
+    <section className="grid min-w-0 gap-4">
+      <div className="rounded-lg border border-rose-200 bg-gradient-to-br from-white via-rose-50/40 to-amber-50/45 p-4 shadow-sm">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-rose-900">Estoque Beauty</p>
+            <h4 className="mt-1 text-xl font-semibold text-card-foreground">Produtos, validade e margem operacional</h4>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+              Cadastre produtos e lotes, acompanhe vencimento, ruptura, custo parado e registre baixas por cliente para manter rastreabilidade no pós-procedimento.
+            </p>
+          </div>
+          <span className="w-fit rounded-md border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-900">R15 Beauty Pro</span>
+        </div>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-5">
+        <ResumoFichaBeauty rotulo="Produtos" valor={produtosBase.length} />
+        <ResumoFichaBeauty rotulo="Vencidos" valor={produtosVencidos.length} destaque={produtosVencidos.length > 0} />
+        <ResumoFichaBeauty rotulo="Vence 7 dias" valor={produtosVence7.length} destaque={produtosVence7.length > 0} />
+        <ResumoFichaBeauty rotulo="Estoque baixo" valor={produtosEstoqueBaixo.length} destaque={produtosEstoqueBaixo.length > 0} />
+        <ResumoFichaBeauty rotulo="Custo parado" valor={formatarMoeda(valorEmEstoque)} texto />
+      </div>
+
+      <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_390px]">
+        <section className="grid min-w-0 gap-4">
+          <div className="rounded-lg border bg-white p-4 shadow-sm">
+            <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px]">
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Buscar produto, lote ou categoria
+                <span className="relative">
+                  <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <input
+                    value={busca}
+                    onChange={(event) => setBusca(event.target.value)}
+                    className="h-10 w-full rounded-md border bg-background pl-9 pr-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                    placeholder="Ex.: sérum, ácido, DEMO-BEAUTY"
+                  />
+                </span>
+              </label>
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Filtro crítico
+                <select value={filtro} onChange={(event) => setFiltro(event.target.value as FiltroEstoqueBeauty)} className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring">
+                  <option value="TODOS">Todos</option>
+                  <option value="VENCIDOS">Vencidos</option>
+                  <option value="VENCE_7">Vence em 7 dias</option>
+                  <option value="VENCE_30">Vence em 30 dias</option>
+                  <option value="BAIXO">Estoque baixo</option>
+                </select>
+              </label>
+            </div>
+
+            <div className="mt-4 grid max-h-[620px] gap-3 overflow-y-auto pr-1">
+              {produtosQuery.isLoading ? (
+                <div className="flex min-h-32 items-center justify-center rounded-lg border bg-background text-sm text-muted-foreground">
+                  <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                  Carregando estoque Beauty
+                </div>
+              ) : produtos.length ? (
+                produtos.map((produto) => <LinhaProdutoEstoqueBeauty key={produto.id} produto={produto} />)
+              ) : (
+                <EstadoBeautyPro titulo="Nenhum produto encontrado" descricao="Cadastre o primeiro produto Beauty ou ajuste os filtros de busca e validade." />
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-lg border bg-white p-4 shadow-sm">
+            <p className="text-sm font-semibold text-card-foreground">Kits de insumos por procedimento</p>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">Sugestões iniciais para estimar custo, consumo e divergências antes da baixa automática.</p>
+            <div className="mt-4 grid gap-3 lg:grid-cols-3">
+              {kitsInsumosBeauty.map((kit) => (
+                <article key={kit.procedimento} className="rounded-lg border bg-background p-4">
+                  <p className="text-sm font-semibold text-card-foreground">{kit.procedimento}</p>
+                  <p className="mt-2 text-xs leading-5 text-muted-foreground">{kit.consumo}</p>
+                  <div className="mt-3 grid gap-1">
+                    {kit.produtos.map((produtoKit) => {
+                      const disponivel = produtosBase.some((produto) => produto.nome.toLowerCase().includes(produtoKit.toLowerCase().split(" ")[0] ?? produtoKit.toLowerCase()));
+                      return (
+                        <span key={produtoKit} className={cn("rounded-md border px-2 py-1 text-xs font-semibold", disponivel ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-900")}>
+                          {produtoKit} {disponivel ? "disponível" : "a cadastrar"}
+                        </span>
+                      );
+                    })}
+                  </div>
+                  <p className="mt-3 rounded-md border bg-white p-2 text-xs leading-5 text-muted-foreground">{kit.alerta}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <aside className="grid gap-4">
+          <form className="grid gap-3 rounded-lg border bg-white p-4 shadow-sm" onSubmit={cadastrarProduto}>
+            <div>
+              <p className="text-sm font-semibold text-card-foreground">Cadastrar produto/lote</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">Use para entrada de estoque, lote novo ou reposição Beauty.</p>
+            </div>
+            <label className="grid gap-1 text-sm font-medium text-card-foreground">
+              Nome
+              <input value={formulario.nome} onChange={(event) => setFormulario((atual) => ({ ...atual, nome: event.target.value }))} className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" placeholder="Ex.: Máscara calmante" required />
+            </label>
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Categoria
+                <input value={formulario.categoria} onChange={(event) => setFormulario((atual) => ({ ...atual, categoria: event.target.value }))} className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" />
+              </label>
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Lote
+                <input value={formulario.lote} onChange={(event) => setFormulario((atual) => ({ ...atual, lote: event.target.value }))} className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" />
+              </label>
+            </div>
+            <label className="grid gap-1 text-sm font-medium text-card-foreground">
+              Validade
+              <input type="date" value={formulario.validade} onChange={(event) => setFormulario((atual) => ({ ...atual, validade: event.target.value }))} className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" />
+            </label>
+            <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Quantidade
+                <input type="number" min="0" step="0.001" value={formulario.quantidadeAtual} onChange={(event) => setFormulario((atual) => ({ ...atual, quantidadeAtual: event.target.value }))} className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" required />
+              </label>
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Unidade
+                <input value={formulario.unidade} onChange={(event) => setFormulario((atual) => ({ ...atual, unidade: event.target.value }))} className="h-10 rounded-md border bg-background px-3 text-sm uppercase outline-none focus:border-primary focus:ring-2 focus:ring-ring" required />
+              </label>
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Mínimo
+                <input type="number" min="0" step="0.001" value={formulario.estoqueMinimo} onChange={(event) => setFormulario((atual) => ({ ...atual, estoqueMinimo: event.target.value }))} className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" required />
+              </label>
+            </div>
+            <label className="grid gap-1 text-sm font-medium text-card-foreground">
+              Custo unitário
+              <input type="number" min="0" step="0.01" value={formulario.custoUnitario} onChange={(event) => setFormulario((atual) => ({ ...atual, custoUnitario: event.target.value }))} className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" required />
+            </label>
+            <button type="submit" disabled={cadastrarProdutoMutation.isPending} className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-rose-900 px-4 text-sm font-semibold text-white transition hover:bg-rose-950 disabled:opacity-70">
+              {cadastrarProdutoMutation.isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              Salvar produto
+            </button>
+          </form>
+
+          <form className="grid gap-3 rounded-lg border border-rose-100 bg-rose-50/35 p-4 shadow-sm" onSubmit={registrarBaixa}>
+            <div>
+              <p className="text-sm font-semibold text-card-foreground">Baixa operacional</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">Registra saída manual e vincula o produto ao histórico do cliente Beauty.</p>
+            </div>
+            <label className="grid gap-1 text-sm font-medium text-card-foreground">
+              Cliente
+              <select value={formularioBaixa.clienteId} onChange={(event) => setFormularioBaixa((atual) => ({ ...atual, clienteId: event.target.value }))} className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" required>
+                <option value="">Selecione</option>
+                {clientes.map((cliente) => (
+                  <option key={cliente.id} value={cliente.id}>
+                    {cliente.nome}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="grid gap-1 text-sm font-medium text-card-foreground">
+              Produto
+              <select value={formularioBaixa.produtoEstoqueId} onChange={(event) => setFormularioBaixa((atual) => ({ ...atual, produtoEstoqueId: event.target.value }))} className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" required>
+                <option value="">Selecione</option>
+                {produtosBase.map((produto) => (
+                  <option key={produto.id} value={produto.id}>
+                    {produto.nome} {produto.lote ? `- ${produto.lote}` : ""}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="grid gap-1 text-sm font-medium text-card-foreground">
+              Quantidade
+              <input type="number" min="0.001" step="0.001" value={formularioBaixa.quantidade} onChange={(event) => setFormularioBaixa((atual) => ({ ...atual, quantidade: event.target.value }))} className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" required />
+            </label>
+            <CampoTextoBeauty label="Observação da baixa" value={formularioBaixa.observacoes} onChange={(value) => setFormularioBaixa((atual) => ({ ...atual, observacoes: value }))} placeholder="Ex.: sessão facial, ajuste de cabine, consumo de kit." />
+            {produtoSelecionadoParaBaixa ? (
+              <div className="rounded-md border bg-white p-3 text-xs leading-5 text-muted-foreground">
+                Saldo atual: <strong>{formatarQuantidade(produtoSelecionadoParaBaixa.quantidadeAtual)} {produtoSelecionadoParaBaixa.unidade}</strong>. Estoque mínimo: {formatarQuantidade(produtoSelecionadoParaBaixa.estoqueMinimo)} {produtoSelecionadoParaBaixa.unidade}.
+              </div>
+            ) : null}
+            <button type="submit" disabled={registrarBaixaMutation.isPending} className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-rose-900 px-4 text-sm font-semibold text-white transition hover:bg-rose-950 disabled:opacity-70">
+              {registrarBaixaMutation.isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <PackageCheck className="h-4 w-4" />}
+              Registrar baixa
+            </button>
+          </form>
+
+          <div className="min-h-5 text-sm">
+            {mensagem ? <span className="font-medium text-emerald-700">{mensagem}</span> : null}
+            {produtosQuery.isError || cadastrarProdutoMutation.isError || registrarBaixaMutation.isError ? (
+              <span className="font-medium text-destructive">Não foi possível concluir a operação de estoque.</span>
+            ) : null}
+          </div>
+        </aside>
+      </div>
+    </section>
+  );
+}
+
 function SegurancaOperacionalBeautyPainel({ empresaId, clienteId }: { empresaId: string; clienteId: string | null }) {
   const queryClient = useQueryClient();
   const [submenuSegurancaAtivo, setSubmenuSegurancaAtivo] = useState<AbaSegurancaBeauty>("termos");
@@ -1657,8 +2018,40 @@ function HistoricoProdutosBeauty({ produtos, estoque }: { produtos: ProdutoUtili
         <div className="mt-3 rounded-md border border-amber-300 bg-amber-50 p-3 text-xs leading-5 text-amber-900">
           Existem produtos do estoque com validade próxima ou estoque baixo. Vincule com atenção antes de registrar sessões.
         </div>
-      ) : null}
+  ) : null}
     </div>
+  );
+}
+
+function LinhaProdutoEstoqueBeauty({ produto }: { produto: ProdutoEstoqueBeautyOperacional }) {
+  const status = statusEstoqueBeauty(produto);
+  const dias = diasAteValidadeBeauty(produto.validade);
+
+  return (
+    <article className={cn("rounded-lg border bg-background p-4", classeStatusEstoqueBeauty(status))}>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold text-card-foreground">{produto.nome}</p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            {produto.categoria ?? "Sem categoria"} {produto.lote ? `• lote ${produto.lote}` : ""} {produto.validade ? `• validade ${formatarDataCurta(produto.validade)}` : ""}
+          </p>
+        </div>
+        <span className={cn("w-fit shrink-0 rounded-md border px-2 py-1 text-xs font-semibold", classeStatusEstoqueBeauty(status, true))}>{status}</span>
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-4">
+        <ResumoFichaBeauty rotulo="Saldo" valor={`${formatarQuantidade(produto.quantidadeAtual)} ${produto.unidade}`} texto destaque={produto.quantidadeAtual <= produto.estoqueMinimo} />
+        <ResumoFichaBeauty rotulo="Mínimo" valor={`${formatarQuantidade(produto.estoqueMinimo)} ${produto.unidade}`} texto />
+        <ResumoFichaBeauty rotulo="Custo un." valor={formatarMoeda(produto.custoUnitario)} texto />
+        <ResumoFichaBeauty rotulo="Custo lote" valor={formatarMoeda(produto.quantidadeAtual * produto.custoUnitario)} texto />
+      </div>
+      {dias !== null ? (
+        <p className="mt-3 text-xs font-medium text-muted-foreground">
+          {dias < 0 ? `Vencido há ${Math.abs(dias)} dia(s).` : dias === 0 ? "Vence hoje." : `Vence em ${dias} dia(s).`}
+        </p>
+      ) : (
+        <p className="mt-3 text-xs font-medium text-muted-foreground">Sem validade cadastrada. Revise se o produto exigir controle sanitário.</p>
+      )}
+    </article>
   );
 }
 
@@ -1954,6 +2347,71 @@ function formularioDeFicha(ficha: FichaEsteticaBeautyPro): FormularioFichaBeauty
 function textoOuNull(valor: string) {
   const texto = valor.trim();
   return texto.length ? texto : null;
+}
+
+function numeroFormulario(valor: string) {
+  return Number(valor.replace(",", "."));
+}
+
+function formatarQuantidade(valor: number) {
+  return new Intl.NumberFormat("pt-BR", {
+    maximumFractionDigits: 3
+  }).format(valor);
+}
+
+function diasAteValidadeBeauty(validade: string | null) {
+  if (!validade) {
+    return null;
+  }
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  const dataValidade = new Date(`${validade}T00:00:00`);
+  return Math.ceil((dataValidade.getTime() - hoje.getTime()) / 86_400_000);
+}
+
+function produtoPassaFiltroEstoqueBeauty(produto: ProdutoEstoqueBeautyOperacional, filtro: FiltroEstoqueBeauty) {
+  const dias = diasAteValidadeBeauty(produto.validade);
+  if (filtro === "VENCIDOS") {
+    return dias !== null && dias < 0;
+  }
+  if (filtro === "VENCE_7") {
+    return dias !== null && dias >= 0 && dias <= 7;
+  }
+  if (filtro === "VENCE_30") {
+    return dias !== null && dias >= 0 && dias <= 30;
+  }
+  if (filtro === "BAIXO") {
+    return produto.quantidadeAtual <= produto.estoqueMinimo;
+  }
+  return true;
+}
+
+function statusEstoqueBeauty(produto: ProdutoEstoqueBeautyOperacional) {
+  const dias = diasAteValidadeBeauty(produto.validade);
+  if (dias !== null && dias < 0) {
+    return "Vencido";
+  }
+  if (produto.quantidadeAtual <= produto.estoqueMinimo) {
+    return "Estoque baixo";
+  }
+  if (dias !== null && dias <= 7) {
+    return "Vence em 7 dias";
+  }
+  if (dias !== null && dias <= 30) {
+    return "Vence em 30 dias";
+  }
+  return "Saudável";
+}
+
+function classeStatusEstoqueBeauty(status: string, badge = false) {
+  const classes: Record<string, string> = {
+    Vencido: badge ? "border-red-200 bg-red-50 text-red-800" : "border-red-200 bg-red-50/60",
+    "Estoque baixo": badge ? "border-amber-200 bg-amber-50 text-amber-900" : "border-amber-200 bg-amber-50/60",
+    "Vence em 7 dias": badge ? "border-orange-200 bg-orange-50 text-orange-900" : "border-orange-200 bg-orange-50/50",
+    "Vence em 30 dias": badge ? "border-sky-200 bg-sky-50 text-sky-800" : "border-sky-200 bg-sky-50/40",
+    Saudável: badge ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-emerald-100 bg-white"
+  };
+  return classes[status] ?? (badge ? "border bg-white text-muted-foreground" : "border bg-background");
 }
 
 function classeStatusIndicador(status: string) {

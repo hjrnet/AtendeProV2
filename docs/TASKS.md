@@ -206,3 +206,55 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-R14-002 | Inventário técnico de lacunas e estabilização de verticais futuras | Mapear catálogo vs operação real e definir escopo mínimo operacional para Biomed/Fisio e demais verticais não operacionalizadas. | PENDENTE |
 | TASK-R14-003 | Conectar autenticação e shell mobile ao backend real | Implementar login/sessão e contexto real no app Expo, com validação de empresa/tenant quando aplicável. | PENDENTE |
 | TASK-R14-004 | Conectar fluxos mobile a dados reais | Integrar agenda, clientes/pacientes e documentos do app mobile com os endpoints reais e estados de UX robustos. | PENDENTE |
+
+## R15 — Beauty Pro estoque, validade e margem operacional
+
+| Task | Nome | Descrição | Status |
+|---|---|---|---|
+| TASK-BEAUTY-006 | Estoque Beauty completo no workspace | Cadastro e listagem de produtos, lotes, validade, quantidade, custo unitário, estoque mínimo, filtros por vencimento e estado vazio. | CONCLUIDA |
+| TASK-BEAUTY-007 | Movimentações e baixa automática de produtos | Entrada, ajuste, saída manual e baixa por sessão/protocolo, preservando histórico por produto, cliente, profissional e atendimento. | CONCLUIDA |
+| TASK-BEAUTY-008 | Painel de validade, ruptura e consumo | Alertas de produto vencido, vence em 7/15/30 dias, estoque baixo, consumo por procedimento e impacto na margem. | CONCLUIDA |
+| TASK-BEAUTY-009 | Kits de insumos por procedimento | Configurar produtos esperados por protocolo/serviço para estimar custo, sugerir baixa e alertar divergências. | CONCLUIDA |
+| TASK-BEAUTY-010 | Demo Beauty com estoque realista | Produtos, lotes, validades próximas, vencidos, estoque baixo, pacotes e sessões para apresentação comercial. | CONCLUIDA |
+
+## R16 — Pós-venda moderno para Nutri Pro e Beauty Pro
+
+| Task | Nome | Descrição | Status |
+|---|---|---|---|
+| TASK-CRM-001 | Núcleo de relacionamento e pós-venda | Carteira de clientes/pacientes, status de acompanhamento, retorno recomendado, aniversários, faltas e clientes inativos. | PENDENTE |
+| TASK-CRM-002 | Tarefas e lembretes pós-atendimento | Tarefas automáticas por evento de agenda, sessão, plano alimentar, protocolo, retorno e ausência. | PENDENTE |
+| TASK-CRM-003 | Templates de mensagem e WhatsApp-ready | Mensagens manuais com variáveis, link direto de WhatsApp, histórico de contato e preparo para integração oficial futura. | PENDENTE |
+| TASK-CRM-004 | NPS e pesquisa de satisfação | Pesquisa pós-consulta/procedimento, registro de nota, comentário e alerta de insatisfação. | PENDENTE |
+| TASK-CRM-005 | Segmentação e campanhas simples | Filtros por área, serviço, pacote, risco de abandono, produto usado, plano ativo e última consulta. | PENDENTE |
+| TASK-CRM-006 | Dashboard de pós-venda | Retornos pendentes, reativações, faltas, NPS, clientes sem contato e oportunidades de recorrência. | PENDENTE |
+
+## R17 — Nutri Pro experiência do paciente e acompanhamento contínuo
+
+| Task | Nome | Descrição | Status |
+|---|---|---|---|
+| TASK-NUTRI-007 | Publicar plano alimentar no portal/app do paciente | Plano ativo, refeições, horários, suplementos, observações e histórico de versões. | PENDENTE |
+| TASK-NUTRI-008 | Lista de compras do plano alimentar | Geração por plano, agrupamento por categoria, edição e compartilhamento com o paciente. | PENDENTE |
+| TASK-NUTRI-009 | Diário alimentar do paciente | Registro de refeição por texto e evidência segura, status de revisão e visão do nutricionista. | PENDENTE |
+| TASK-NUTRI-010 | Metas, lembretes e evolução do paciente | Hidratação, refeições, peso, medidas, metas semanais e linha do tempo. | PENDENTE |
+| TASK-NUTRI-011 | Recados/chat operacional Nutri | Troca de mensagens assíncronas entre paciente e nutricionista, com status de leitura e contexto do acompanhamento. | PENDENTE |
+| TASK-NUTRI-012 | Acompanhamento Nutri no mobile real | Conectar agenda, plano, diário, mensagens e notificações aos endpoints reais. | PENDENTE |
+
+## R18 — Nutri Pro plano alimentar avançado e produtividade clínica
+
+| Task | Nome | Descrição | Status |
+|---|---|---|---|
+| TASK-NUTRI-013 | Banco de alimentos e suplementos | Alimentos padrão, alimentos personalizados, suplementos, composição nutricional e origem do item. | PENDENTE |
+| TASK-NUTRI-014 | Editor avançado de plano alimentar | Duplicar plano, versionar, arquivar, substituir, reorganizar refeições e salvar modelos. | PENDENTE |
+| TASK-NUTRI-015 | Substituições e equivalências alimentares | Lista de substituições por refeição, por objetivo e por restrição alimentar. | PENDENTE |
+| TASK-NUTRI-016 | Receitas e materiais educativos | Biblioteca de receitas, orientações, materiais por objetivo e anexos ao plano. | PENDENTE |
+| TASK-NUTRI-017 | Antropometria e exames avançados | Circunferências, dobras, bioimpedância, comparação longitudinal e histórico de exames. | PENDENTE |
+| TASK-NUTRI-018 | Relatórios nutricionais gerenciais | Pacientes ativos, evolução, adesão, planos emitidos, retornos e perfil da carteira. | PENDENTE |
+
+## R19 — Growth, inteligência e refinamento comercial das duas verticais
+
+| Task | Nome | Descrição | Status |
+|---|---|---|---|
+| TASK-GROWTH-001 | Funil de leads por vertical | Captação, origem, etapa, conversão em cliente/paciente e vínculo com agenda. | PENDENTE |
+| TASK-GROWTH-002 | IA assistida para pós-venda | Sugestões de mensagem, risco de abandono, retorno recomendado e oportunidade de pacote. | PENDENTE |
+| TASK-GROWTH-003 | Indicadores de negócio por vertical | Faturamento previsto, ocupação, recorrência, margem, recompra e ticket médio. | PENDENTE |
+| TASK-GROWTH-004 | Apresentações demo por perfil | Roteiros e dados demo para Nutri, Beauty, gestor e investidor. | PENDENTE |

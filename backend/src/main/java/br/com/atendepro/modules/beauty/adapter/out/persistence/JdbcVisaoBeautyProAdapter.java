@@ -17,6 +17,7 @@ import org.springframework.stereotype.Repository;
 
 import br.com.atendepro.modules.beauty.application.port.out.AtualizarFichaEsteticaBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.AtualizarProtocoloBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.BaixarProdutoEstoqueBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarClienteBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarFichaEsteticaBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarIntegracoesOperacionaisBeautyProPort;
@@ -79,6 +80,7 @@ public class JdbcVisaoBeautyProAdapter implements
         ListarEvidenciasEvolucaoBeautyProPort,
         SalvarProdutoUtilizadoBeautyProPort,
         ListarProdutosUtilizadosBeautyProPort,
+        BaixarProdutoEstoqueBeautyProPort,
         ListarProdutosEstoqueBeautyProPort {
 
     private static final String AREA_BEAUTY = "BEAUTY";
@@ -483,6 +485,22 @@ public class JdbcVisaoBeautyProAdapter implements
     }
 
     @Override
+    public void baixarProdutoEstoqueBeauty(UUID empresaId, UUID produtoEstoqueId, BigDecimal quantidade, java.time.Instant atualizadoEm) {
+        jdbcTemplate.update("""
+                update estoque_produtos
+                set quantidade_atual = quantidade_atual - ?,
+                    atualizado_em = ?
+                where empresa_id = ?
+                  and id = ?
+                """,
+                quantidade,
+                Timestamp.from(atualizadoEm),
+                empresaId,
+                produtoEstoqueId
+        );
+    }
+
+    @Override
     public List<ProdutoUtilizadoBeautyPro> listarProdutosUtilizados(UUID empresaId, UUID clienteId) {
         return jdbcTemplate.query("""
                 select *
@@ -509,7 +527,7 @@ public class JdbcVisaoBeautyProAdapter implements
                     else 3
                   end,
                   nome
-                limit 50
+                limit 200
                 """, (rs, rowNum) -> mapearProdutoEstoqueBeauty(rs, hoje), empresaId);
     }
 

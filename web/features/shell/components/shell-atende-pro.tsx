@@ -200,6 +200,14 @@ const secoesBeautyPro: SecaoPrincipalConfig[] = [
     icon: Sparkles
   },
   {
+    id: "beauty-estoque",
+    label: "Estoque Beauty",
+    labelCurto: "Estoque",
+    titulo: "Estoque Beauty",
+    descricao: "Produtos, lotes, validade, baixo estoque, baixas e kits por procedimento.",
+    icon: PackageCheck
+  },
+  {
     id: "beauty-termos",
     label: "Termos e produtos",
     labelCurto: "Termos",

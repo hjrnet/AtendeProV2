@@ -48,6 +48,7 @@ function renderizarSecaoAtiva(
     case "beauty-clientes":
     case "beauty-ficha":
     case "beauty-protocolos":
+    case "beauty-estoque":
     case "beauty-termos":
       return <BeautyProOperacionalView empresaId={empresaId} focoWorkspace={secaoAtiva} />;
     case "operacao":

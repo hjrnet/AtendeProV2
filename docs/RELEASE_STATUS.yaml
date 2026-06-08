@@ -194,3 +194,50 @@ releases:
       TASK-R14-002: PENDENTE
       TASK-R14-003: PENDENTE
       TASK-R14-004: PENDENTE
+  R15:
+    name: "R15 — Beauty Pro estoque, validade e margem operacional"
+    status: CONCLUIDA
+    tasks:
+      TASK-BEAUTY-006: CONCLUIDA
+      TASK-BEAUTY-007: CONCLUIDA
+      TASK-BEAUTY-008: CONCLUIDA
+      TASK-BEAUTY-009: CONCLUIDA
+      TASK-BEAUTY-010: CONCLUIDA
+  R16:
+    name: "R16 — Pós-venda moderno para Nutri Pro e Beauty Pro"
+    status: PENDENTE
+    tasks:
+      TASK-CRM-001: PENDENTE
+      TASK-CRM-002: PENDENTE
+      TASK-CRM-003: PENDENTE
+      TASK-CRM-004: PENDENTE
+      TASK-CRM-005: PENDENTE
+      TASK-CRM-006: PENDENTE
+  R17:
+    name: "R17 — Nutri Pro experiência do paciente e acompanhamento contínuo"
+    status: PENDENTE
+    tasks:
+      TASK-NUTRI-007: PENDENTE
+      TASK-NUTRI-008: PENDENTE
+      TASK-NUTRI-009: PENDENTE
+      TASK-NUTRI-010: PENDENTE
+      TASK-NUTRI-011: PENDENTE
+      TASK-NUTRI-012: PENDENTE
+  R18:
+    name: "R18 — Nutri Pro plano alimentar avançado e produtividade clínica"
+    status: PENDENTE
+    tasks:
+      TASK-NUTRI-013: PENDENTE
+      TASK-NUTRI-014: PENDENTE
+      TASK-NUTRI-015: PENDENTE
+      TASK-NUTRI-016: PENDENTE
+      TASK-NUTRI-017: PENDENTE
+      TASK-NUTRI-018: PENDENTE
+  R19:
+    name: "R19 — Growth, inteligência e refinamento comercial das duas verticais"
+    status: PENDENTE
+    tasks:
+      TASK-GROWTH-001: PENDENTE
+      TASK-GROWTH-002: PENDENTE
+      TASK-GROWTH-003: PENDENTE
+      TASK-GROWTH-004: PENDENTE

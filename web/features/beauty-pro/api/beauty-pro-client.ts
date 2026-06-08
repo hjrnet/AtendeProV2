@@ -187,6 +187,42 @@ export type ProdutoBeautyEstoque = {
   validadeEmAlerta: boolean;
 };
 
+export type ProdutoEstoqueBeautyOperacional = {
+  id: string;
+  empresaId: string;
+  nome: string;
+  categoria: string | null;
+  lote: string | null;
+  validade: string | null;
+  unidade: string;
+  quantidadeAtual: number;
+  custoUnitario: number;
+  estoqueMinimo: number;
+  ativo: boolean;
+  criadoEm: string;
+  atualizadoEm: string;
+};
+
+export type ProdutosEstoqueBeautyPaginados = {
+  itens: ProdutoEstoqueBeautyOperacional[];
+  totalItens: number;
+  pagina: number;
+  tamanho: number;
+  totalPaginas: number;
+};
+
+export type CadastrarProdutoEstoqueBeautyInput = {
+  empresaId: string;
+  nome: string;
+  categoria?: string | null;
+  lote?: string | null;
+  validade?: string | null;
+  unidade: string;
+  quantidadeAtual: number;
+  custoUnitario: number;
+  estoqueMinimo: number;
+};
+
 export type ProdutoUtilizadoBeautyPro = {
   id: string;
   empresaId: string;
@@ -349,6 +385,29 @@ export function consultarIntegracoesOperacionaisBeautyPro(empresaId: string) {
   return beautyProApi.get<IntegracoesOperacionaisBeautyPro>("/api/beauty-pro/integracoes-operacionais", {
     query: { empresaId }
   });
+}
+
+export function listarProdutosEstoqueBeauty(params: {
+  empresaId: string;
+  busca?: string;
+  categoria?: string;
+  pagina?: number;
+  tamanho?: number;
+}) {
+  return beautyProApi.get<ProdutosEstoqueBeautyPaginados>("/api/estoque/produtos", {
+    query: {
+      empresaId: params.empresaId,
+      busca: params.busca || undefined,
+      categoria: params.categoria || undefined,
+      ativo: true,
+      pagina: params.pagina ?? 0,
+      tamanho: params.tamanho ?? 80
+    }
+  });
+}
+
+export function cadastrarProdutoEstoqueBeauty(dados: CadastrarProdutoEstoqueBeautyInput) {
+  return beautyProApi.post<ProdutoEstoqueBeautyOperacional>("/api/estoque/produtos", dados);
 }
 
 export function listarClientesBeautyPro(params: { empresaId: string; busca?: string }) {

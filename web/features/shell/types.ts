@@ -19,6 +19,7 @@ export type SecaoPrincipal =
   | "beauty-clientes"
   | "beauty-ficha"
   | "beauty-protocolos"
+  | "beauty-estoque"
   | "beauty-termos";
 
 export type SecaoPrincipalConfig = {

@@ -31,6 +31,7 @@ import br.com.atendepro.modules.beauty.application.command.ConsultarVisaoBeautyP
 import br.com.atendepro.modules.beauty.application.command.VincularProdutoBeautyProCommand;
 import br.com.atendepro.modules.beauty.application.port.out.AtualizarFichaEsteticaBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.AtualizarProtocoloBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.BaixarProdutoEstoqueBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarClienteBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarFichaEsteticaBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarIntegracoesOperacionaisBeautyProPort;
@@ -324,6 +325,7 @@ class BeautyProServiceTest {
                 ports,
                 ports,
                 ports,
+                ports,
                 new TenantAccessService(),
                 new PermissaoAcessoService(),
                 CLOCK
@@ -379,6 +381,7 @@ class BeautyProServiceTest {
             SalvarProdutoUtilizadoBeautyProPort,
             ListarProdutosUtilizadosBeautyProPort,
             ListarProdutosEstoqueBeautyProPort,
+            BaixarProdutoEstoqueBeautyProPort,
             CarregarIntegracoesOperacionaisBeautyProPort {
 
         private final MetricasBeautyProResult metricas;
@@ -542,6 +545,13 @@ class BeautyProServiceTest {
                     false,
                     true
             ));
+        }
+
+        @Override
+        public void baixarProdutoEstoqueBeauty(UUID empresaId, UUID produtoEstoqueId, BigDecimal quantidade, Instant atualizadoEm) {
+            assertThat(empresaId).isEqualTo(EMPRESA_ID);
+            assertThat(quantidade).isPositive();
+            assertThat(atualizadoEm).isEqualTo(Instant.parse("2026-05-25T10:00:00Z"));
         }
 
         @Override

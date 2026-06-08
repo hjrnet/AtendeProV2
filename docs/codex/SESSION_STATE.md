@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R14 — Alinhamento funcional e completude do produto.
 
 ## Última task concluída
-TASK-0801 — Portal do cliente web.
+TASK-BEAUTY-010 — R15 Beauty Pro concluída sob demanda em modo autopilot multiagente.
 
 ## Próxima task recomendada
-TASK-R14-001 — Correção de governança de conclusão e contrato de status de funcionalidades futuras.
+TASK-R14-001 — Retomar governança oficial pendente, ou TASK-CRM-001 se a prioridade imediata for avançar para pós-venda moderno da R16.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -23,6 +23,10 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Critério de sucesso da etapa: `next_task` atualizado, matriz de lacunas publicada e primeiro fluxo mobile autenticado contra backend real.
 
 ## Decisões recentes
+- R15 concluída sob demanda pelo comando `autopilot multiagente R15 ate completar`, mesmo com `current_release` oficial ainda apontando R14.
+- Beauty Pro ganhou seção dedicada `Estoque Beauty` no workspace, com cadastro de produtos/lotes, busca, filtros críticos por validade/ruptura, custo parado, baixa operacional por cliente e kits sugeridos por procedimento.
+- A baixa operacional de produto Beauty passou a descontar o saldo real em `estoque_produtos` quando há vínculo com produto do estoque, bloqueando quantidade maior que o saldo disponível e sinalizando estoque baixo após uso.
+- Dados demo Beauty foram ampliados com produtos vencidos, vencendo, estoque baixo e itens de kits para apresentação comercial.
 - TASK-0803, TASK-0804, TASK-0805 e TASK-0806 concluídas em modo autopilot multiagente na sequência da release R8, com:
   - telas mobile premium completas para rotas cliente/profissional em `mobile/app`;
   - camada visual compartilhada em `mobile/components/ui-shell.tsx`;

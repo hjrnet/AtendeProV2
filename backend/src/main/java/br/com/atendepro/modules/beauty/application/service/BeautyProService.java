@@ -1,5 +1,6 @@
 package br.com.atendepro.modules.beauty.application.service;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -44,6 +45,7 @@ import br.com.atendepro.modules.beauty.application.port.in.RegistrarSessaoProtoc
 import br.com.atendepro.modules.beauty.application.port.in.VincularProdutoBeautyProUseCase;
 import br.com.atendepro.modules.beauty.application.port.out.AtualizarFichaEsteticaBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.AtualizarProtocoloBeautyProPort;
+import br.com.atendepro.modules.beauty.application.port.out.BaixarProdutoEstoqueBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarClienteBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarFichaEsteticaBeautyProPort;
 import br.com.atendepro.modules.beauty.application.port.out.CarregarIntegracoesOperacionaisBeautyProPort;
@@ -128,6 +130,7 @@ public class BeautyProService implements
     private final SalvarProdutoUtilizadoBeautyProPort salvarProdutoUtilizadoBeautyProPort;
     private final ListarProdutosUtilizadosBeautyProPort listarProdutosUtilizadosBeautyProPort;
     private final ListarProdutosEstoqueBeautyProPort listarProdutosEstoqueBeautyProPort;
+    private final BaixarProdutoEstoqueBeautyProPort baixarProdutoEstoqueBeautyProPort;
     private final CarregarIntegracoesOperacionaisBeautyProPort carregarIntegracoesOperacionaisBeautyProPort;
     private final TenantAccessService tenantAccessService;
     private final PermissaoAcessoService permissaoAcessoService;
@@ -154,6 +157,7 @@ public class BeautyProService implements
             SalvarProdutoUtilizadoBeautyProPort salvarProdutoUtilizadoBeautyProPort,
             ListarProdutosUtilizadosBeautyProPort listarProdutosUtilizadosBeautyProPort,
             ListarProdutosEstoqueBeautyProPort listarProdutosEstoqueBeautyProPort,
+            BaixarProdutoEstoqueBeautyProPort baixarProdutoEstoqueBeautyProPort,
             CarregarIntegracoesOperacionaisBeautyProPort carregarIntegracoesOperacionaisBeautyProPort,
             TenantAccessService tenantAccessService,
             PermissaoAcessoService permissaoAcessoService,
@@ -179,6 +183,7 @@ public class BeautyProService implements
         this.salvarProdutoUtilizadoBeautyProPort = salvarProdutoUtilizadoBeautyProPort;
         this.listarProdutosUtilizadosBeautyProPort = listarProdutosUtilizadosBeautyProPort;
         this.listarProdutosEstoqueBeautyProPort = listarProdutosEstoqueBeautyProPort;
+        this.baixarProdutoEstoqueBeautyProPort = baixarProdutoEstoqueBeautyProPort;
         this.carregarIntegracoesOperacionaisBeautyProPort = carregarIntegracoesOperacionaisBeautyProPort;
         this.tenantAccessService = tenantAccessService;
         this.permissaoAcessoService = permissaoAcessoService;
@@ -465,7 +470,9 @@ public class BeautyProService implements
         validarProtocoloBeautySeInformado(empresaId, command.clienteId(), command.protocoloId());
         validarSessaoBeautySeInformada(empresaId, command.protocoloId(), command.sessaoId());
         LocalDate hoje = LocalDate.now(clock);
+        Instant agora = Instant.now(clock);
         ProdutoBeautyEstoqueResult produtoEstoque = resolverProdutoEstoque(empresaId, command.produtoEstoqueId(), hoje);
+        boolean estoqueBaixoAposUso = produtoEstoque != null && estoqueBaixoAposUso(produtoEstoque, command.quantidade());
         ProdutoUtilizadoBeautyPro produto = ProdutoUtilizadoBeautyPro.vincular(
                 empresaId,
                 command.clienteId(),
@@ -477,13 +484,33 @@ public class BeautyProService implements
                 produtoEstoque == null ? command.validade() : produtoEstoque.validade(),
                 command.quantidade(),
                 produtoEstoque == null ? command.unidade() : produtoEstoque.unidade(),
-                produtoEstoque != null && produtoEstoque.estoqueBaixo(),
+                estoqueBaixoAposUso,
                 command.observacoes(),
                 hoje,
-                Instant.now(clock)
+                agora
         );
         salvarProdutoUtilizadoBeautyProPort.salvarProdutoUtilizado(produto);
+        if (produtoEstoque != null) {
+            baixarProdutoEstoqueBeautyProPort.baixarProdutoEstoqueBeauty(empresaId, produtoEstoque.id(), command.quantidade(), agora);
+        }
         return ProdutoUtilizadoBeautyProResult.de(produto);
+    }
+
+    private boolean estoqueBaixoAposUso(ProdutoBeautyEstoqueResult produtoEstoque, BigDecimal quantidadeUsada) {
+        if (quantidadeUsada == null || quantidadeUsada.signum() <= 0) {
+            throw new BusinessException(
+                    "BEAUTY_QUANTIDADE_PRODUTO_INVALIDA",
+                    "Quantidade do produto Beauty deve ser positiva."
+            );
+        }
+        BigDecimal saldoAposUso = produtoEstoque.quantidadeAtual().subtract(quantidadeUsada);
+        if (saldoAposUso.signum() < 0) {
+            throw new BusinessException(
+                    "BEAUTY_ESTOQUE_INSUFICIENTE",
+                    "Quantidade informada excede o saldo disponivel do produto."
+            );
+        }
+        return saldoAposUso.compareTo(produtoEstoque.estoqueMinimo()) <= 0;
     }
 
     private List<IndicadorBeautyProResult> indicadores(MetricasBeautyProResult metricas) {
