@@ -6,7 +6,7 @@ Validacao operacional da TASK-0002 para confirmar que o AtendePro possui o fluxo
 
 ## Itens validados
 
-- `AGENTS.md` define missao, stack, arquitetura, Definition of Done, commit local automatico e push manual.
+- `AGENTS.md` define missao, stack, arquitetura, Definition of Done, commit local e push automático.
 - `docs/codex/COMANDOS_CURTOS.md` define `status`, `planejar`, `seguir`, `auto`, `economico`, `multiagente` e `autopilot`.
 - `docs/codex/PROTOCOLO_CONTINUIDADE.md` define fluxo antes, durante e depois de cada task.
 - `docs/codex/ORDEM_MESTRE.md` define papéis multiagente e limites de execucao.

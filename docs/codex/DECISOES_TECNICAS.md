@@ -36,7 +36,7 @@ O Harness Profissional aceita comandos de autopilot por release, incluindo:
 
 Se a release for informada, usar exatamente a release solicitada. Se não for informada, usar a release atual de `docs/RELEASE_STATUS.yaml` ou `docs/codex/SESSION_STATE.md`. Divergência entre arquivos oficiais bloqueia a execução e exige diagnóstico.
 
-O limite padrão de `autopilot release` é de 3 tasks da release atual. Cada task concluída deve gerar commit local individual com Conventional Commits e referência da task. Push permanece manual.
+O limite padrão de `autopilot release` é de 3 tasks da release atual. Cada task concluída deve gerar commit local individual com Conventional Commits e referência da task. O push automático da branch atual fica habilitado para tasks concluídas sem bloqueios.
 
 ## Isolamento por tenant
 

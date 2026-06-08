@@ -12,7 +12,7 @@ Quando o usuário pedir `autopilot release`, `autopilot release atual`, `autopil
 
 Se a release não for informada, usar a release atual registrada em `docs/RELEASE_STATUS.yaml` ou `docs/codex/SESSION_STATE.md`. Se houver divergência entre arquivos oficiais, parar e diagnosticar.
 
-Cada task deve passar pelo fluxo completo: identificar backlog oficial, executar somente o escopo, testar, validar Docker/local quando aplicável, revisar arquitetura, atualizar status, atualizar sessão, fazer commit local e avançar para a próxima task da mesma release. Nunca fazer push.
+Cada task deve passar pelo fluxo completo: identificar backlog oficial, executar somente o escopo, testar, validar Docker/local quando aplicável, revisar arquitetura, atualizar status, atualizar sessão, fazer commit local e avançar para a próxima task da mesma release. Após validação, commit e push automático da branch atual estão habilitados.
 
 Limite padrão: `autopilot release` executa no máximo 3 tasks da release atual.
 
@@ -31,6 +31,6 @@ Limite padrão: `autopilot release` executa no máximo 3 tasks da release atual.
 ## Nunca
 
 - Não construa o sistema inteiro de uma vez.
-- Não faça push.
+- Push automático habilitado por política, com pausa se houver bloqueio, conflito ou solicitação explícita de revisão.
 - Não ignore testes.
 - Não invente tasks fora do backlog.

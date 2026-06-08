@@ -12,7 +12,7 @@
 
 1. Executar somente a task.
 2. Não implementar task futura.
-3. Não fazer push.
+3. Push automático permitido conforme política de governança para tasks aprovadas.
 4. Manter arquitetura.
 
 ## Depois
@@ -55,7 +55,7 @@ Para cada task pendente da release:
 12. Executar `git status` e confirmar arquivos alterados.
 13. Fazer `git add` dos arquivos da task.
 14. Fazer commit local com Conventional Commits incluindo a task.
-15. Nunca fazer push.
+15. Fazer push automático da branch atual para task aprovada.
 16. Avançar para a próxima task pendente da mesma release.
 
 ### Limites

@@ -594,4 +594,4 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Mobile Expo futuro.
 - Núcleo comum + verticais profissionais.
 - Commit local automático.
-- Push manual.
+- Push automático habilitado por política de governança.
