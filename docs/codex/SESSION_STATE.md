@@ -4,25 +4,41 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R13 — Portal do cliente web.
+R14 — Alinhamento funcional e completude do produto.
 
 ## Última task concluída
 TASK-0801 — Portal do cliente web.
 
 ## Próxima task recomendada
-TASK-0802 — App Expo base (R8)
+TASK-R14-001 — Correção de governança de conclusão e contrato de status de funcionalidades futuras.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
 economico para ajustes simples.
 autopilot release para concluir tasks pendentes de uma release com limite controlado.
 
+## Direção para R14 (multiagente)
+- Iniciar com equipe: Arquitetura, Backend, Frontend/UX, Mobile, QA e DevOps.
+- Objetivo de curto prazo: fechar inconsistências de estado (governança) e iniciar uma base operacional real para mobile.
+- Critério de sucesso da etapa: `next_task` atualizado, matriz de lacunas publicada e primeiro fluxo mobile autenticado contra backend real.
+
 ## Decisões recentes
+- TASK-0803, TASK-0804, TASK-0805 e TASK-0806 concluídas em modo autopilot multiagente na sequência da release R8, com:
+  - telas mobile premium completas para rotas cliente/profissional em `mobile/app`;
+  - camada visual compartilhada em `mobile/components/ui-shell.tsx`;
+  - dados simulados tipados por feature em `mobile/features/*`;
+  - página de notificações (`mobile/app/notificacoes.tsx`) simulando push local e preparação para integração futura;
+  - atualização de `docs/TASKS.md`, `docs/RELEASE_STATUS.yaml` e `docs/codex/SESSION_STATE.md` com status de conclusão de R8.
 - TASK-0801 foi concluída em modo autopilot release R13, com a integração de:
   - `portal-cliente-client.ts` (listar clientes, agenda e documentos do cliente);
   - `portal-cliente-view.tsx` com fluxo de busca/seleção, agenda, documentos e evolução;
   - integração da seção no shell (`shell/types.ts`, `shell-atende-pro.tsx`, `painel-conteudo-ativo.tsx`);
   - atualização de `docs/RELEASE_STATUS.yaml`, `docs/ROADMAP_RELEASES.md` e `docs/TASKS.md`.
+- TASK-0802 concluída em modo autopilot multiagente release R8, com a criação da estrutura base do app Expo:
+  - `mobile/package.json`, `mobile/app.json`, `mobile/app/` com rotas iniciais (`/`, `/auth`, `/cliente/*`, `/profissional/*`);
+  - estrutura base em `mobile/features/*` para `agenda`, `documentos`, `diario`, `evolucao`, `mensagens` e `notificacoes`;
+  - cliente API mínimo em `mobile/lib/api/client.ts` e utilitários iniciais em `mobile/lib/auth.ts`;
+  - atualização de `docs/TASKS.md` e `docs/RELEASE_STATUS.yaml` para nova posição da R8.
 - TASK-1201 concluída em modo autopilot release R12.
 - O workflow oficial da release foi criado em `.github/workflows/ci.yml`, executando:
   - `mvn test` com `SPRING_PROFILES_ACTIVE=test` no backend (Java 21 + PostgreSQL em serviço);

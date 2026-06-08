@@ -1,8 +1,8 @@
 project: AtendePro
 strategy: professional_complete
-current_release: R13
+current_release: R14
 last_completed_task: TASK-0801
-next_task: TASK-0802
+next_task: TASK-R14-001
 releases:
   R0:
     name: "R0 — Fundação técnica profissional"
@@ -119,12 +119,12 @@ releases:
     status: CONCLUIDA
     tasks:
       TASK-UX-001: CONCLUIDA
-      TASK-0801: PENDENTE
-      TASK-0802: PENDENTE
-      TASK-0803: PENDENTE
-      TASK-0804: PENDENTE
-      TASK-0805: PENDENTE
-      TASK-0806: PENDENTE
+      TASK-0801: CONCLUIDA
+      TASK-0802: CONCLUIDA
+      TASK-0803: CONCLUIDA
+      TASK-0804: CONCLUIDA
+      TASK-0805: CONCLUIDA
+      TASK-0806: CONCLUIDA
   R9:
     name: "R9 — Suporte, central de ajuda, comunicação e refinamentos de experiência"
     status: CONCLUIDA
@@ -186,3 +186,11 @@ releases:
     status: CONCLUIDA
     tasks:
       TASK-0801: CONCLUIDA
+  R14:
+    name: "R14 — Alinhamento funcional e completude do produto"
+    status: EM_ANDAMENTO
+    tasks:
+      TASK-R14-001: PENDENTE
+      TASK-R14-002: PENDENTE
+      TASK-R14-003: PENDENTE
+      TASK-R14-004: PENDENTE

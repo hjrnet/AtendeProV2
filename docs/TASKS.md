@@ -125,12 +125,12 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
 | TASK-UX-001 | Redesenhar shell, navegação e experiência responsiva do AtendePro | Shell profissional responsivo, navegação real por área, progressive disclosure e acabamento premium. | CONCLUIDA |
-| TASK-0801 | Portal do cliente web | Agenda, documentos e evolução. | PENDENTE |
-| TASK-0802 | App Expo base | Estrutura mobile. | PENDENTE |
-| TASK-0803 | App do cliente/paciente | Agenda, documentos, diário, fotos e mensagens. | PENDENTE |
-| TASK-0804 | App do profissional | Agenda do dia, mensagens e acompanhamento. | PENDENTE |
-| TASK-0805 | Notificações push | Lembretes e eventos. | PENDENTE |
-| TASK-0806 | Experiência mobile premium | Design app-like. | PENDENTE |
+| TASK-0801 | Portal do cliente web | Agenda, documentos e evolução. | CONCLUIDA |
+| TASK-0802 | App Expo base | Estrutura mobile. | CONCLUIDA |
+| TASK-0803 | App do cliente/paciente | Agenda, documentos, diário, fotos e mensagens. | CONCLUIDA |
+| TASK-0804 | App do profissional | Agenda do dia, mensagens e acompanhamento. | CONCLUIDA |
+| TASK-0805 | Notificações push | Lembretes e eventos. | CONCLUIDA |
+| TASK-0806 | Experiência mobile premium | Design app-like. | CONCLUIDA |
 
 ## R9 — Suporte, central de ajuda, comunicação e refinamentos de experiência
 
@@ -197,3 +197,12 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
 | TASK-0801 | Portal do cliente web | Agenda, documentos e evolução. | CONCLUIDA |
+
+## R14 — Alinhamento funcional e completude do produto
+
+| Task | Nome | Descrição | Status |
+|---|---|---|---|
+| TASK-R14-001 | Correção de governança de conclusão e contrato de status de funcionalidades futuras | Corrigir inconsistências entre plano e estado real de entrega (principalmente tarefas marcadas como concluídas sem implementação concreta). | PENDENTE |
+| TASK-R14-002 | Inventário técnico de lacunas e estabilização de verticais futuras | Mapear catálogo vs operação real e definir escopo mínimo operacional para Biomed/Fisio e demais verticais não operacionalizadas. | PENDENTE |
+| TASK-R14-003 | Conectar autenticação e shell mobile ao backend real | Implementar login/sessão e contexto real no app Expo, com validação de empresa/tenant quando aplicável. | PENDENTE |
+| TASK-R14-004 | Conectar fluxos mobile a dados reais | Integrar agenda, clientes/pacientes e documentos do app mobile com os endpoints reais e estados de UX robustos. | PENDENTE |

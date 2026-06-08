@@ -167,3 +167,10 @@
 ## R13 — Portal do cliente web
 
 - **TASK-0801 — Portal do cliente web**: Agenda, documentos e evolução.
+
+## R14 — Alinhamento funcional e completude do produto
+
+- **TASK-R14-001 — Correção de governança de conclusão e contrato de status de funcionalidades futuras**: revisar e corrigir `RELEASE_STATUS/TASKS/SESSION_STATE` para que `CONCLUIDA` reflita apenas produção real.
+- **TASK-R14-002 — Inventário técnico de lacunas e plano de estabilização de verticais futuras**: mapear o que é catálogo vs operação para Biomed/Fisio/Psico/Fono/Farmácia/Odonto e definir o próximo slice operacional.
+- **TASK-R14-003 — Conectar autenticação e shell mobile ao backend real**: login, sessão persistida, tenant/empresa e telas de recuperação de contexto.
+- **TASK-R14-004 — Conectar os fluxos mobile (cliente/profissional) a dados reais**: agenda, clientes/pacientes e documentos via API real, com estados de vazio/erro/loading.
