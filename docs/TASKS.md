@@ -1,4 +1,4 @@
-# TASKS — AtendePro Profissional
+﻿# TASKS — AtendePro Profissional
 
 Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listadas aqui e com arquivo correspondente em `docs/codex/tasks/`.
 
@@ -221,12 +221,12 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
-| TASK-CRM-001 | Núcleo de relacionamento e pós-venda | Carteira de clientes/pacientes, status de acompanhamento, retorno recomendado, aniversários, faltas e clientes inativos. | PENDENTE |
-| TASK-CRM-002 | Tarefas e lembretes pós-atendimento | Tarefas automáticas por evento de agenda, sessão, plano alimentar, protocolo, retorno e ausência. | PENDENTE |
-| TASK-CRM-003 | Templates de mensagem e WhatsApp-ready | Mensagens manuais com variáveis, link direto de WhatsApp, histórico de contato e preparo para integração oficial futura. | PENDENTE |
-| TASK-CRM-004 | NPS e pesquisa de satisfação | Pesquisa pós-consulta/procedimento, registro de nota, comentário e alerta de insatisfação. | PENDENTE |
-| TASK-CRM-005 | Segmentação e campanhas simples | Filtros por área, serviço, pacote, risco de abandono, produto usado, plano ativo e última consulta. | PENDENTE |
-| TASK-CRM-006 | Dashboard de pós-venda | Retornos pendentes, reativações, faltas, NPS, clientes sem contato e oportunidades de recorrência. | PENDENTE |
+| TASK-CRM-001 | Núcleo de relacionamento e pós-venda | Carteira de clientes/pacientes, status de acompanhamento, retorno recomendado, aniversários, faltas e clientes inativos. | CONCLUIDA |
+| TASK-CRM-002 | Tarefas e lembretes pós-atendimento | Tarefas automáticas por evento de agenda, sessão, plano alimentar, protocolo, retorno e ausência. | CONCLUIDA |
+| TASK-CRM-003 | Templates de mensagem e WhatsApp-ready | Mensagens manuais com variáveis, link direto de WhatsApp, histórico de contato e preparo para integração oficial futura. | CONCLUIDA |
+| TASK-CRM-004 | NPS e pesquisa de satisfação | Pesquisa pós-consulta/procedimento, registro de nota, comentário e alerta de insatisfação. | CONCLUIDA |
+| TASK-CRM-005 | Segmentação e campanhas simples | Filtros por área, serviço, pacote, risco de abandono, produto usado, plano ativo e última consulta. | CONCLUIDA |
+| TASK-CRM-006 | Dashboard de pós-venda | Retornos pendentes, reativações, faltas, NPS, clientes sem contato e oportunidades de recorrência. | CONCLUIDA |
 
 ## R17 — Nutri Pro experiência do paciente e acompanhamento contínuo
 
@@ -258,3 +258,4 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-GROWTH-002 | IA assistida para pós-venda | Sugestões de mensagem, risco de abandono, retorno recomendado e oportunidade de pacote. | PENDENTE |
 | TASK-GROWTH-003 | Indicadores de negócio por vertical | Faturamento previsto, ocupação, recorrência, margem, recompra e ticket médio. | PENDENTE |
 | TASK-GROWTH-004 | Apresentações demo por perfil | Roteiros e dados demo para Nutri, Beauty, gestor e investidor. | PENDENTE |
+

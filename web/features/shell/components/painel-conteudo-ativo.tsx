@@ -10,6 +10,7 @@ import { NutriProOperacionalView } from "@/features/nutri-pro/components/nutri-p
 import { SecaoBuscaGlobal } from "@/features/operacional/components/secao-busca-global";
 import { SecaoOperacao } from "@/features/operacional/components/secao-operacao";
 import { SecaoPrecificacao } from "@/features/precificacao/components/secao-precificacao";
+import { PosVendaOperacionalView } from "@/features/relacionamento/components/pos-venda-operacional-view";
 import type { SecaoPrincipal } from "@/features/shell/types";
 import { VerticaisProfissionaisView } from "@/features/verticais/components/verticais-profissionais-view";
 
@@ -43,6 +44,8 @@ function renderizarSecaoAtiva(
     case "nutri-avaliacoes":
     case "nutri-documentos":
       return <NutriProOperacionalView empresaId={empresaId} focoWorkspace={secaoAtiva} onNavegar={(secao) => definirSecaoAtiva(secao)} />;
+    case "nutri-pos-venda":
+      return <PosVendaOperacionalView empresaId={empresaId} area="NUTRI" />;
     case "beauty-inicio":
     case "beauty-agenda":
     case "beauty-clientes":
@@ -51,6 +54,8 @@ function renderizarSecaoAtiva(
     case "beauty-estoque":
     case "beauty-termos":
       return <BeautyProOperacionalView empresaId={empresaId} focoWorkspace={secaoAtiva} />;
+    case "beauty-pos-venda":
+      return <PosVendaOperacionalView empresaId={empresaId} area="BEAUTY" />;
     case "operacao":
       return <SecaoOperacao empresaId={empresaId} sessao={sessao} />;
     case "verticais":

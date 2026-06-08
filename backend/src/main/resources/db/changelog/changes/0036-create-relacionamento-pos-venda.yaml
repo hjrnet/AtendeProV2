@@ -1,0 +1,100 @@
+﻿databaseChangeLog:
+  - changeSet:
+      id: 0036-create-relacionamento-pos-venda
+      author: codex
+      changes:
+        - createTable:
+            tableName: relacionamento_contatos
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: empresa_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: cliente_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: area, type: varchar(40), constraints: { nullable: false } }
+              - column: { name: canal, type: varchar(30), constraints: { nullable: false } }
+              - column: { name: template_codigo, type: varchar(80) }
+              - column: { name: mensagem, type: text, constraints: { nullable: false } }
+              - column: { name: observacoes, type: text }
+              - column: { name: criado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+        - createTable:
+            tableName: relacionamento_nps
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: empresa_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: cliente_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: area, type: varchar(40), constraints: { nullable: false } }
+              - column: { name: nota, type: int, constraints: { nullable: false } }
+              - column: { name: comentario, type: text }
+              - column: { name: origem, type: varchar(80) }
+              - column: { name: criado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+        - createTable:
+            tableName: relacionamento_tarefas
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: empresa_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: cliente_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: area, type: varchar(40), constraints: { nullable: false } }
+              - column: { name: tipo, type: varchar(40), constraints: { nullable: false } }
+              - column: { name: titulo, type: varchar(180), constraints: { nullable: false } }
+              - column: { name: descricao, type: text }
+              - column: { name: data_recomendada, type: date }
+              - column: { name: status, type: varchar(30), constraints: { nullable: false } }
+              - column: { name: origem, type: varchar(80) }
+              - column: { name: criado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+              - column: { name: atualizado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+        - addForeignKeyConstraint:
+            baseTableName: relacionamento_contatos
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_relacionamento_contatos_empresas
+        - addForeignKeyConstraint:
+            baseTableName: relacionamento_contatos
+            baseColumnNames: cliente_id
+            referencedTableName: clientes_pacientes
+            referencedColumnNames: id
+            constraintName: fk_relacionamento_contatos_clientes
+        - addForeignKeyConstraint:
+            baseTableName: relacionamento_nps
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_relacionamento_nps_empresas
+        - addForeignKeyConstraint:
+            baseTableName: relacionamento_nps
+            baseColumnNames: cliente_id
+            referencedTableName: clientes_pacientes
+            referencedColumnNames: id
+            constraintName: fk_relacionamento_nps_clientes
+        - addForeignKeyConstraint:
+            baseTableName: relacionamento_tarefas
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_relacionamento_tarefas_empresas
+        - addForeignKeyConstraint:
+            baseTableName: relacionamento_tarefas
+            baseColumnNames: cliente_id
+            referencedTableName: clientes_pacientes
+            referencedColumnNames: id
+            constraintName: fk_relacionamento_tarefas_clientes
+        - createIndex:
+            tableName: relacionamento_contatos
+            indexName: idx_relacionamento_contatos_empresa_cliente_criado
+            columns:
+              - column: { name: empresa_id }
+              - column: { name: cliente_id }
+              - column: { name: criado_em }
+        - createIndex:
+            tableName: relacionamento_nps
+            indexName: idx_relacionamento_nps_empresa_cliente_criado
+            columns:
+              - column: { name: empresa_id }
+              - column: { name: cliente_id }
+              - column: { name: criado_em }
+        - createIndex:
+            tableName: relacionamento_tarefas
+            indexName: idx_relacionamento_tarefas_empresa_status_data
+            columns:
+              - column: { name: empresa_id }
+              - column: { name: status }
+              - column: { name: data_recomendada }

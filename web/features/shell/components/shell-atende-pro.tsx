@@ -10,6 +10,7 @@ import {
   ClipboardList,
   FileText,
   Gauge,
+  HeartHandshake,
   LayoutDashboard,
   PackageCheck,
   UserRound,
@@ -141,6 +142,14 @@ const secoesNutriPro: SecaoPrincipalConfig[] = [
     icon: FileText
   },
   {
+    id: "nutri-pos-venda",
+    label: "Pós-venda",
+    labelCurto: "Pós",
+    titulo: "Pós-venda Nutri",
+    descricao: "Retornos, adesão ao plano, check-ins, NPS, campanhas e reativação de pacientes.",
+    icon: HeartHandshake
+  },
+  {
     id: "precificacao",
     label: "Precificação",
     labelCurto: "Preço",
@@ -206,6 +215,14 @@ const secoesBeautyPro: SecaoPrincipalConfig[] = [
     titulo: "Estoque Beauty",
     descricao: "Produtos, lotes, validade, baixo estoque, baixas e kits por procedimento.",
     icon: PackageCheck
+  },
+  {
+    id: "beauty-pos-venda",
+    label: "Pós-venda",
+    labelCurto: "Pós",
+    titulo: "Pós-venda Beauty",
+    descricao: "Pós-procedimento, manutenção, pacotes, NPS, campanhas e recorrência em estética.",
+    icon: HeartHandshake
   },
   {
     id: "beauty-termos",

@@ -7,10 +7,10 @@ AtendePro — SaaS profissional completo.
 R14 — Alinhamento funcional e completude do produto.
 
 ## Última task concluída
-TASK-BEAUTY-010 — R15 Beauty Pro concluída sob demanda em modo autopilot multiagente.
+TASK-CRM-006 — R16 Pós-venda moderno para Nutri Pro e Beauty Pro concluída sob demanda em modo autopilot multiagente.
 
 ## Próxima task recomendada
-TASK-R14-001 — Retomar governança oficial pendente, ou TASK-CRM-001 se a prioridade imediata for avançar para pós-venda moderno da R16.
+TASK-NUTRI-007 — Iniciar R17 experiência do paciente Nutri, ou TASK-R14-001 para retomar governança oficial pendente.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -23,6 +23,10 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Critério de sucesso da etapa: `next_task` atualizado, matriz de lacunas publicada e primeiro fluxo mobile autenticado contra backend real.
 
 ## Decisões recentes
+
+- R16 concluída sob demanda com pós-venda moderno para Nutri Pro e Beauty Pro.
+- Pós-venda ganhou módulo backend de relacionamento com contatos, tarefas, NPS, segmentação e indicadores.
+- Workspaces Nutri e Beauty ganharam entrada operacional de Pós-venda com templates WhatsApp-ready e carteira priorizada.
 - R15 concluída sob demanda pelo comando `autopilot multiagente R15 ate completar`, mesmo com `current_release` oficial ainda apontando R14.
 - Beauty Pro ganhou seção dedicada `Estoque Beauty` no workspace, com cadastro de produtos/lotes, busca, filtros críticos por validade/ruptura, custo parado, baixa operacional por cliente e kits sugeridos por procedimento.
 - A baixa operacional de produto Beauty passou a descontar o saldo real em `estoque_produtos` quando há vínculo com produto do estoque, bloqueando quantidade maior que o saldo disponível e sinalizando estoque baixo após uso.
@@ -599,3 +603,4 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Núcleo comum + verticais profissionais.
 - Commit local automático.
 - Push automático habilitado por política de governança.
+

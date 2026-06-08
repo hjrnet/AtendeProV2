@@ -205,14 +205,14 @@ releases:
       TASK-BEAUTY-010: CONCLUIDA
   R16:
     name: "R16 — Pós-venda moderno para Nutri Pro e Beauty Pro"
-    status: PENDENTE
+    status: CONCLUIDA
     tasks:
-      TASK-CRM-001: PENDENTE
-      TASK-CRM-002: PENDENTE
-      TASK-CRM-003: PENDENTE
-      TASK-CRM-004: PENDENTE
-      TASK-CRM-005: PENDENTE
-      TASK-CRM-006: PENDENTE
+      TASK-CRM-001: CONCLUIDA
+      TASK-CRM-002: CONCLUIDA
+      TASK-CRM-003: CONCLUIDA
+      TASK-CRM-004: CONCLUIDA
+      TASK-CRM-005: CONCLUIDA
+      TASK-CRM-006: CONCLUIDA
   R17:
     name: "R17 — Nutri Pro experiência do paciente e acompanhamento contínuo"
     status: PENDENTE
@@ -241,3 +241,4 @@ releases:
       TASK-GROWTH-002: PENDENTE
       TASK-GROWTH-003: PENDENTE
       TASK-GROWTH-004: PENDENTE
+
