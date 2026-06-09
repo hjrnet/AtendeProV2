@@ -283,10 +283,146 @@ class NutriProServiceTest {
                     assertThat(pacienteId).isEqualTo(PACIENTE_ID);
                     return Optional.of(planoExistente());
                 },
+                experienciaPacientePort(),
                 new TenantAccessService(),
                 new PermissaoAcessoService(),
                 CLOCK
         );
+    }
+
+    private br.com.atendepro.modules.nutri.application.port.out.ExperienciaPacienteNutriProPort experienciaPacientePort() {
+        return new br.com.atendepro.modules.nutri.application.port.out.ExperienciaPacienteNutriProPort() {
+            @Override
+            public Optional<PlanoAlimentarNutriPro> publicarPlanoAlimentar(UUID empresaId, UUID pacienteId, UUID planoId) {
+                return Optional.of(planoExistente());
+            }
+
+            @Override
+            public Optional<PlanoAlimentarNutriPro> carregarPlanoPublicado(UUID empresaId, UUID pacienteId) {
+                return Optional.of(planoExistente());
+            }
+
+            @Override
+            public Optional<br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.ListaComprasResult> consultarListaCompras(
+                    UUID empresaId,
+                    UUID pacienteId,
+                    Clock clock
+            ) {
+                return Optional.empty();
+            }
+
+            @Override
+            public List<br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.RegistroDiarioResult> listarDiarioAlimentar(
+                    UUID empresaId,
+                    UUID pacienteId
+            ) {
+                return List.of();
+            }
+
+            @Override
+            public br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.RegistroDiarioResult criarRegistroDiario(
+                    UUID id,
+                    UUID empresaId,
+                    UUID pacienteId,
+                    UUID planoId,
+                    String refeicaoNome,
+                    String texto,
+                    String evidenciaUrl,
+                    String criadoPor,
+                    Clock clock
+            ) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public Optional<br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.RegistroDiarioResult> revisarRegistroDiario(
+                    UUID empresaId,
+                    UUID pacienteId,
+                    UUID registroId,
+                    String parecerProfissional
+            ) {
+                return Optional.empty();
+            }
+
+            @Override
+            public List<br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.MetaAcompanhamentoResult> listarMetas(
+                    UUID empresaId,
+                    UUID pacienteId
+            ) {
+                return List.of();
+            }
+
+            @Override
+            public br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.MetaAcompanhamentoResult criarMeta(
+                    UUID id,
+                    UUID empresaId,
+                    UUID pacienteId,
+                    String tipo,
+                    String descricao,
+                    BigDecimal valorMeta,
+                    String unidade,
+                    LocalDate dataAlvo,
+                    Clock clock
+            ) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public List<br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.LembreteAcompanhamentoResult> listarLembretes(
+                    UUID empresaId,
+                    UUID pacienteId
+            ) {
+                return List.of();
+            }
+
+            @Override
+            public br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.LembreteAcompanhamentoResult criarLembrete(
+                    UUID id,
+                    UUID empresaId,
+                    UUID pacienteId,
+                    String titulo,
+                    String descricao,
+                    String horario,
+                    String frequencia,
+                    Clock clock
+            ) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public List<br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.MensagemAcompanhamentoResult> listarMensagens(
+                    UUID empresaId,
+                    UUID pacienteId
+            ) {
+                return List.of();
+            }
+
+            @Override
+            public br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.MensagemAcompanhamentoResult enviarMensagem(
+                    UUID id,
+                    UUID empresaId,
+                    UUID pacienteId,
+                    String remetenteTipo,
+                    String remetenteNome,
+                    String texto,
+                    String contexto,
+                    Clock clock
+            ) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public void marcarMensagensLidas(UUID empresaId, UUID pacienteId, String leitor) {
+            }
+
+            @Override
+            public List<br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.EvolucaoPacienteResult> listarEvolucao(
+                    UUID empresaId,
+                    UUID pacienteId
+            ) {
+                return List.of();
+            }
+        };
     }
 
     private MetricasNutriProResult metricasComDados() {

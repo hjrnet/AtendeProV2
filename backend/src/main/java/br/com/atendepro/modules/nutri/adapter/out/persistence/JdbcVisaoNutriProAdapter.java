@@ -4,9 +4,14 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,6 +24,7 @@ import br.com.atendepro.modules.nutri.application.port.out.CarregarAvaliacaoAntr
 import br.com.atendepro.modules.nutri.application.port.out.CarregarPlanoAlimentarNutriProPort;
 import br.com.atendepro.modules.nutri.application.port.out.CarregarVisaoNutriProPort;
 import br.com.atendepro.modules.nutri.application.port.out.CarregarProntuarioNutriProPort;
+import br.com.atendepro.modules.nutri.application.port.out.ExperienciaPacienteNutriProPort;
 import br.com.atendepro.modules.nutri.application.port.out.ListarAvaliacoesAntropometricasNutriProPort;
 import br.com.atendepro.modules.nutri.application.port.out.ListarPlanosAlimentaresNutriProPort;
 import br.com.atendepro.modules.nutri.application.port.out.ListarPacientesNutriProPort;
@@ -34,6 +40,14 @@ import br.com.atendepro.modules.nutri.domain.model.SexoBiologicoNutriPro;
 import br.com.atendepro.modules.nutri.domain.model.StatusPlanoAlimentarNutriPro;
 import br.com.atendepro.modules.nutri.domain.model.TipoItemPlanoAlimentarNutriPro;
 import br.com.atendepro.modules.nutri.application.result.DadosProntuarioNutriProResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.EvolucaoPacienteResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.GrupoListaComprasResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.ItemListaComprasResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.LembreteAcompanhamentoResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.ListaComprasResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.MensagemAcompanhamentoResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.MetaAcompanhamentoResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.RegistroDiarioResult;
 import br.com.atendepro.modules.nutri.application.result.MetricasNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.PacienteProntuarioNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.PacienteNutriResumoResult;
@@ -51,7 +65,8 @@ public class JdbcVisaoNutriProAdapter implements
         CarregarAvaliacaoAntropometricaNutriProPort,
         SalvarPlanoAlimentarNutriProPort,
         ListarPlanosAlimentaresNutriProPort,
-        CarregarPlanoAlimentarNutriProPort {
+        CarregarPlanoAlimentarNutriProPort,
+        ExperienciaPacienteNutriProPort {
 
     private static final String AREA_NUTRI = "NUTRI";
 
@@ -253,6 +268,339 @@ public class JdbcVisaoNutriProAdapter implements
         } catch (EmptyResultDataAccessException exception) {
             return Optional.empty();
         }
+    }
+
+    @Override
+    public Optional<PlanoAlimentarNutriPro> publicarPlanoAlimentar(UUID empresaId, UUID pacienteId, UUID planoId) {
+        Optional<PlanoAlimentarNutriPro> planoExistente = carregarPlanoAlimentar(empresaId, pacienteId, planoId);
+        if (planoExistente.isEmpty()) {
+            return Optional.empty();
+        }
+
+        jdbcTemplate.update("""
+                update nutri_planos_alimentares
+                set status = 'SUBSTITUIDO',
+                    atualizado_em = now()
+                where empresa_id = ?
+                  and paciente_id = ?
+                  and status = 'ATIVO'
+                  and id <> ?
+                """, empresaId, pacienteId, planoId);
+
+        jdbcTemplate.update("""
+                update nutri_planos_alimentares
+                set status = 'ATIVO',
+                    atualizado_em = now()
+                where id = ?
+                  and empresa_id = ?
+                  and paciente_id = ?
+                """, planoId, empresaId, pacienteId);
+
+        return carregarPlanoAlimentar(empresaId, pacienteId, planoId);
+    }
+
+    @Override
+    public Optional<PlanoAlimentarNutriPro> carregarPlanoPublicado(UUID empresaId, UUID pacienteId) {
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject("""
+                    select *
+                    from nutri_planos_alimentares
+                    where empresa_id = ?
+                      and paciente_id = ?
+                      and status = 'ATIVO'
+                    order by atualizado_em desc, criado_em desc
+                    limit 1
+                    """, this::mapearPlanoAlimentar, empresaId, pacienteId));
+        } catch (EmptyResultDataAccessException exception) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<ListaComprasResult> consultarListaCompras(UUID empresaId, UUID pacienteId, Clock clock) {
+        Optional<PlanoAlimentarNutriPro> planoPublicado = carregarPlanoPublicado(empresaId, pacienteId);
+        if (planoPublicado.isEmpty()) {
+            return Optional.empty();
+        }
+
+        PlanoAlimentarNutriPro plano = planoPublicado.get();
+        List<ItemListaComprasResult> itens = jdbcTemplate.query("""
+                select
+                    coalesce(nullif(item.grupo, ''), 'Geral') as categoria,
+                    item.nome,
+                    item.unidade_medida,
+                    sum(item.quantidade) as quantidade,
+                    string_agg(distinct refeicao.nome, ', ' order by refeicao.nome) as refeicoes,
+                    string_agg(distinct nullif(item.observacoes, ''), ' | ') as observacoes
+                from nutri_refeicao_itens item
+                join nutri_plano_refeicoes refeicao on refeicao.id = item.refeicao_id
+                where item.empresa_id = ?
+                  and refeicao.plano_id = ?
+                  and item.tipo_item = 'ALIMENTO'
+                group by coalesce(nullif(item.grupo, ''), 'Geral'), item.nome, item.unidade_medida
+                order by categoria, item.nome
+                """, (rs, rowNum) -> new ItemListaComprasResult(
+                rs.getString("nome"),
+                rs.getString("categoria"),
+                bigDecimal(rs, "quantidade"),
+                rs.getString("unidade_medida"),
+                rs.getString("refeicoes"),
+                rs.getString("observacoes")
+        ), empresaId, plano.id());
+
+        Map<String, List<ItemListaComprasResult>> porCategoria = new LinkedHashMap<>();
+        for (ItemListaComprasResult item : itens) {
+            porCategoria.computeIfAbsent(item.categoria(), chave -> new ArrayList<>()).add(item);
+        }
+
+        List<GrupoListaComprasResult> grupos = porCategoria.entrySet().stream()
+                .map(entry -> new GrupoListaComprasResult(entry.getKey(), entry.getValue()))
+                .toList();
+
+        return Optional.of(new ListaComprasResult(
+                empresaId,
+                pacienteId,
+                plano.id(),
+                plano.objetivo(),
+                grupos,
+                Instant.now(clock)
+        ));
+    }
+
+    @Override
+    public List<RegistroDiarioResult> listarDiarioAlimentar(UUID empresaId, UUID pacienteId) {
+        return jdbcTemplate.query("""
+                select *
+                from nutri_diario_alimentar
+                where empresa_id = ?
+                  and paciente_id = ?
+                order by registrado_em desc
+                limit 60
+                """, this::mapearRegistroDiario, empresaId, pacienteId);
+    }
+
+    @Override
+    public RegistroDiarioResult criarRegistroDiario(
+            UUID id,
+            UUID empresaId,
+            UUID pacienteId,
+            UUID planoId,
+            String refeicaoNome,
+            String texto,
+            String evidenciaUrl,
+            String criadoPor,
+            Clock clock
+    ) {
+        Instant agora = Instant.now(clock);
+        jdbcTemplate.update("""
+                insert into nutri_diario_alimentar (
+                    id, empresa_id, paciente_id, plano_id, refeicao_nome, texto, evidencia_url,
+                    status_revisao, parecer_profissional, criado_por, registrado_em, criado_em, atualizado_em
+                ) values (?, ?, ?, ?, ?, ?, ?, 'PENDENTE', null, ?, ?, ?, ?)
+                """,
+                id,
+                empresaId,
+                pacienteId,
+                planoId,
+                refeicaoNome,
+                texto,
+                evidenciaUrl,
+                criadoPor,
+                Timestamp.from(agora),
+                Timestamp.from(agora),
+                Timestamp.from(agora)
+        );
+        return carregarRegistroDiario(empresaId, pacienteId, id).orElseThrow();
+    }
+
+    @Override
+    public Optional<RegistroDiarioResult> revisarRegistroDiario(UUID empresaId, UUID pacienteId, UUID registroId, String parecerProfissional) {
+        int alterados = jdbcTemplate.update("""
+                update nutri_diario_alimentar
+                set status_revisao = 'REVISADO',
+                    parecer_profissional = ?,
+                    atualizado_em = now()
+                where id = ?
+                  and empresa_id = ?
+                  and paciente_id = ?
+                """, parecerProfissional, registroId, empresaId, pacienteId);
+        if (alterados == 0) {
+            return Optional.empty();
+        }
+        return carregarRegistroDiario(empresaId, pacienteId, registroId);
+    }
+
+    @Override
+    public List<MetaAcompanhamentoResult> listarMetas(UUID empresaId, UUID pacienteId) {
+        return jdbcTemplate.query("""
+                select *
+                from nutri_metas_acompanhamento
+                where empresa_id = ?
+                  and paciente_id = ?
+                order by status, data_alvo nulls last, criado_em desc
+                limit 50
+                """, this::mapearMeta, empresaId, pacienteId);
+    }
+
+    @Override
+    public MetaAcompanhamentoResult criarMeta(
+            UUID id,
+            UUID empresaId,
+            UUID pacienteId,
+            String tipo,
+            String descricao,
+            BigDecimal valorMeta,
+            String unidade,
+            LocalDate dataAlvo,
+            Clock clock
+    ) {
+        LocalDate hoje = LocalDate.now(clock);
+        Instant agora = Instant.now(clock);
+        jdbcTemplate.update("""
+                insert into nutri_metas_acompanhamento (
+                    id, empresa_id, paciente_id, tipo, descricao, valor_meta, unidade,
+                    data_inicio, data_alvo, status, criado_em, atualizado_em
+                ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, 'ATIVA', ?, ?)
+                """,
+                id,
+                empresaId,
+                pacienteId,
+                tipo,
+                descricao,
+                valorMeta,
+                unidade,
+                hoje,
+                dataAlvo,
+                Timestamp.from(agora),
+                Timestamp.from(agora)
+        );
+        return carregarMeta(empresaId, pacienteId, id).orElseThrow();
+    }
+
+    @Override
+    public List<LembreteAcompanhamentoResult> listarLembretes(UUID empresaId, UUID pacienteId) {
+        return jdbcTemplate.query("""
+                select *
+                from nutri_lembretes_acompanhamento
+                where empresa_id = ?
+                  and paciente_id = ?
+                order by status, horario nulls last, criado_em desc
+                limit 50
+                """, this::mapearLembrete, empresaId, pacienteId);
+    }
+
+    @Override
+    public LembreteAcompanhamentoResult criarLembrete(
+            UUID id,
+            UUID empresaId,
+            UUID pacienteId,
+            String titulo,
+            String descricao,
+            String horario,
+            String frequencia,
+            Clock clock
+    ) {
+        Instant agora = Instant.now(clock);
+        jdbcTemplate.update("""
+                insert into nutri_lembretes_acompanhamento (
+                    id, empresa_id, paciente_id, titulo, descricao, horario,
+                    frequencia, status, criado_em, atualizado_em
+                ) values (?, ?, ?, ?, ?, ?, ?, 'ATIVO', ?, ?)
+                """,
+                id,
+                empresaId,
+                pacienteId,
+                titulo,
+                descricao,
+                horario,
+                frequencia,
+                Timestamp.from(agora),
+                Timestamp.from(agora)
+        );
+        return carregarLembrete(empresaId, pacienteId, id).orElseThrow();
+    }
+
+    @Override
+    public List<MensagemAcompanhamentoResult> listarMensagens(UUID empresaId, UUID pacienteId) {
+        return jdbcTemplate.query("""
+                select *
+                from nutri_mensagens_acompanhamento
+                where empresa_id = ?
+                  and paciente_id = ?
+                order by enviada_em desc
+                limit 80
+                """, this::mapearMensagem, empresaId, pacienteId);
+    }
+
+    @Override
+    public MensagemAcompanhamentoResult enviarMensagem(
+            UUID id,
+            UUID empresaId,
+            UUID pacienteId,
+            String remetenteTipo,
+            String remetenteNome,
+            String texto,
+            String contexto,
+            Clock clock
+    ) {
+        Instant agora = Instant.now(clock);
+        boolean lidaPeloPaciente = "PACIENTE".equals(remetenteTipo);
+        boolean lidaPeloProfissional = "PROFISSIONAL".equals(remetenteTipo);
+        jdbcTemplate.update("""
+                insert into nutri_mensagens_acompanhamento (
+                    id, empresa_id, paciente_id, remetente_tipo, remetente_nome, texto,
+                    contexto, lida_pelo_paciente, lida_pelo_profissional, enviada_em
+                ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                id,
+                empresaId,
+                pacienteId,
+                remetenteTipo,
+                remetenteNome,
+                texto,
+                contexto,
+                lidaPeloPaciente,
+                lidaPeloProfissional,
+                Timestamp.from(agora)
+        );
+        return carregarMensagem(empresaId, pacienteId, id).orElseThrow();
+    }
+
+    @Override
+    public void marcarMensagensLidas(UUID empresaId, UUID pacienteId, String leitor) {
+        String coluna = "PACIENTE".equals(leitor) ? "lida_pelo_paciente" : "lida_pelo_profissional";
+        String sql = """
+                update nutri_mensagens_acompanhamento
+                set %s = true
+                where empresa_id = ?
+                  and paciente_id = ?
+                """.formatted(coluna);
+        jdbcTemplate.update(sql, empresaId, pacienteId);
+    }
+
+    @Override
+    public List<EvolucaoPacienteResult> listarEvolucao(UUID empresaId, UUID pacienteId) {
+        return jdbcTemplate.query("""
+                select 'PLANO' as tipo, objetivo as titulo, coalesce(descricao, 'Plano alimentar ativo no acompanhamento.') as descricao,
+                       status, atualizado_em as data
+                from nutri_planos_alimentares
+                where empresa_id = ? and paciente_id = ? and status = 'ATIVO'
+                union all
+                select 'DIARIO' as tipo, coalesce(refeicao_nome, 'Registro alimentar') as titulo, texto as descricao,
+                       status_revisao as status, registrado_em as data
+                from nutri_diario_alimentar
+                where empresa_id = ? and paciente_id = ?
+                union all
+                select 'META' as tipo, tipo as titulo, descricao, status, atualizado_em as data
+                from nutri_metas_acompanhamento
+                where empresa_id = ? and paciente_id = ?
+                union all
+                select 'MENSAGEM' as tipo, contexto as titulo, texto as descricao, remetente_tipo as status, enviada_em as data
+                from nutri_mensagens_acompanhamento
+                where empresa_id = ? and paciente_id = ?
+                order by data desc
+                limit 80
+                """, this::mapearEvolucao, empresaId, pacienteId, empresaId, pacienteId, empresaId, pacienteId, empresaId, pacienteId);
     }
 
     private void salvarRefeicao(RefeicaoPlanoAlimentarNutriPro refeicao) {
@@ -659,6 +1007,136 @@ public class JdbcVisaoNutriProAdapter implements
                 bigDecimal(rs, "lipidios"),
                 rs.getString("observacoes"),
                 rs.getInt("ordenacao")
+        );
+    }
+
+    private Optional<RegistroDiarioResult> carregarRegistroDiario(UUID empresaId, UUID pacienteId, UUID registroId) {
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject("""
+                    select *
+                    from nutri_diario_alimentar
+                    where id = ?
+                      and empresa_id = ?
+                      and paciente_id = ?
+                    """, this::mapearRegistroDiario, registroId, empresaId, pacienteId));
+        } catch (EmptyResultDataAccessException exception) {
+            return Optional.empty();
+        }
+    }
+
+    private Optional<MetaAcompanhamentoResult> carregarMeta(UUID empresaId, UUID pacienteId, UUID metaId) {
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject("""
+                    select *
+                    from nutri_metas_acompanhamento
+                    where id = ?
+                      and empresa_id = ?
+                      and paciente_id = ?
+                    """, this::mapearMeta, metaId, empresaId, pacienteId));
+        } catch (EmptyResultDataAccessException exception) {
+            return Optional.empty();
+        }
+    }
+
+    private Optional<LembreteAcompanhamentoResult> carregarLembrete(UUID empresaId, UUID pacienteId, UUID lembreteId) {
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject("""
+                    select *
+                    from nutri_lembretes_acompanhamento
+                    where id = ?
+                      and empresa_id = ?
+                      and paciente_id = ?
+                    """, this::mapearLembrete, lembreteId, empresaId, pacienteId));
+        } catch (EmptyResultDataAccessException exception) {
+            return Optional.empty();
+        }
+    }
+
+    private Optional<MensagemAcompanhamentoResult> carregarMensagem(UUID empresaId, UUID pacienteId, UUID mensagemId) {
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject("""
+                    select *
+                    from nutri_mensagens_acompanhamento
+                    where id = ?
+                      and empresa_id = ?
+                      and paciente_id = ?
+                    """, this::mapearMensagem, mensagemId, empresaId, pacienteId));
+        } catch (EmptyResultDataAccessException exception) {
+            return Optional.empty();
+        }
+    }
+
+    private RegistroDiarioResult mapearRegistroDiario(ResultSet rs, int rowNum) throws SQLException {
+        return new RegistroDiarioResult(
+                rs.getObject("id", UUID.class),
+                rs.getObject("empresa_id", UUID.class),
+                rs.getObject("paciente_id", UUID.class),
+                rs.getObject("plano_id", UUID.class),
+                rs.getString("refeicao_nome"),
+                rs.getString("texto"),
+                rs.getString("evidencia_url"),
+                rs.getString("status_revisao"),
+                rs.getString("parecer_profissional"),
+                rs.getString("criado_por"),
+                rs.getTimestamp("registrado_em").toInstant(),
+                rs.getTimestamp("atualizado_em").toInstant()
+        );
+    }
+
+    private MetaAcompanhamentoResult mapearMeta(ResultSet rs, int rowNum) throws SQLException {
+        return new MetaAcompanhamentoResult(
+                rs.getObject("id", UUID.class),
+                rs.getObject("empresa_id", UUID.class),
+                rs.getObject("paciente_id", UUID.class),
+                rs.getString("tipo"),
+                rs.getString("descricao"),
+                bigDecimal(rs, "valor_meta"),
+                rs.getString("unidade"),
+                rs.getObject("data_inicio", LocalDate.class),
+                rs.getObject("data_alvo", LocalDate.class),
+                rs.getString("status"),
+                rs.getTimestamp("criado_em").toInstant(),
+                rs.getTimestamp("atualizado_em").toInstant()
+        );
+    }
+
+    private LembreteAcompanhamentoResult mapearLembrete(ResultSet rs, int rowNum) throws SQLException {
+        return new LembreteAcompanhamentoResult(
+                rs.getObject("id", UUID.class),
+                rs.getObject("empresa_id", UUID.class),
+                rs.getObject("paciente_id", UUID.class),
+                rs.getString("titulo"),
+                rs.getString("descricao"),
+                rs.getString("horario"),
+                rs.getString("frequencia"),
+                rs.getString("status"),
+                rs.getTimestamp("criado_em").toInstant(),
+                rs.getTimestamp("atualizado_em").toInstant()
+        );
+    }
+
+    private MensagemAcompanhamentoResult mapearMensagem(ResultSet rs, int rowNum) throws SQLException {
+        return new MensagemAcompanhamentoResult(
+                rs.getObject("id", UUID.class),
+                rs.getObject("empresa_id", UUID.class),
+                rs.getObject("paciente_id", UUID.class),
+                rs.getString("remetente_tipo"),
+                rs.getString("remetente_nome"),
+                rs.getString("texto"),
+                rs.getString("contexto"),
+                rs.getBoolean("lida_pelo_paciente"),
+                rs.getBoolean("lida_pelo_profissional"),
+                rs.getTimestamp("enviada_em").toInstant()
+        );
+    }
+
+    private EvolucaoPacienteResult mapearEvolucao(ResultSet rs, int rowNum) throws SQLException {
+        return new EvolucaoPacienteResult(
+                rs.getString("tipo"),
+                rs.getString("titulo"),
+                rs.getString("descricao"),
+                rs.getString("status"),
+                rs.getTimestamp("data").toInstant()
         );
     }
 

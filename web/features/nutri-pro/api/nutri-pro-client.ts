@@ -174,6 +174,145 @@ export type PlanosAlimentaresNutriPro = {
   itens: PlanoAlimentarNutriPro[];
 };
 
+export type ItemListaComprasNutriPro = {
+  nome: string;
+  categoria: string;
+  quantidade: number;
+  unidadeMedida: string;
+  refeicoes: string | null;
+  observacoes: string | null;
+};
+
+export type GrupoListaComprasNutriPro = {
+  categoria: string;
+  itens: ItemListaComprasNutriPro[];
+};
+
+export type ListaComprasNutriPro = {
+  empresaId: string;
+  pacienteId: string;
+  planoId: string;
+  objetivoPlano: string;
+  grupos: GrupoListaComprasNutriPro[];
+  geradoEm: string;
+};
+
+export type RegistroDiarioNutriPro = {
+  id: string;
+  empresaId: string;
+  pacienteId: string;
+  planoId: string | null;
+  refeicaoNome: string | null;
+  texto: string;
+  evidenciaUrl: string | null;
+  statusRevisao: "PENDENTE" | "REVISADO";
+  parecerProfissional: string | null;
+  criadoPor: "PACIENTE" | "PROFISSIONAL" | "SISTEMA";
+  registradoEm: string;
+  atualizadoEm: string;
+};
+
+export type RegistrosDiarioNutriPro = {
+  itens: RegistroDiarioNutriPro[];
+};
+
+export type CriarRegistroDiarioNutriProInput = {
+  refeicaoNome?: string | null;
+  texto: string;
+  evidenciaUrl?: string | null;
+};
+
+export type RevisarRegistroDiarioNutriProInput = {
+  parecerProfissional: string;
+};
+
+export type MetaNutriPro = {
+  id: string;
+  empresaId: string;
+  pacienteId: string;
+  tipo: string;
+  descricao: string;
+  valorMeta: number;
+  unidade: string | null;
+  dataInicio: string;
+  dataAlvo: string | null;
+  status: "ATIVA" | "CONCLUIDA" | "PAUSADA";
+  criadoEm: string;
+  atualizadoEm: string;
+};
+
+export type MetasNutriPro = {
+  itens: MetaNutriPro[];
+};
+
+export type CriarMetaNutriProInput = {
+  tipo: string;
+  descricao: string;
+  valorMeta?: number;
+  unidade?: string | null;
+  dataAlvo?: string | null;
+};
+
+export type LembreteNutriPro = {
+  id: string;
+  empresaId: string;
+  pacienteId: string;
+  titulo: string;
+  descricao: string | null;
+  horario: string | null;
+  frequencia: string;
+  status: "ATIVO" | "PAUSADO";
+  criadoEm: string;
+  atualizadoEm: string;
+};
+
+export type LembretesNutriPro = {
+  itens: LembreteNutriPro[];
+};
+
+export type CriarLembreteNutriProInput = {
+  titulo: string;
+  descricao?: string | null;
+  horario?: string | null;
+  frequencia: string;
+};
+
+export type MensagemNutriPro = {
+  id: string;
+  empresaId: string;
+  pacienteId: string;
+  remetenteTipo: "PACIENTE" | "PROFISSIONAL" | "SISTEMA";
+  remetenteNome: string;
+  texto: string;
+  contexto: string | null;
+  lidaPeloPaciente: boolean;
+  lidaPeloProfissional: boolean;
+  enviadaEm: string;
+};
+
+export type MensagensNutriPro = {
+  itens: MensagemNutriPro[];
+};
+
+export type EnviarMensagemNutriProInput = {
+  remetenteTipo: "PACIENTE" | "PROFISSIONAL" | "SISTEMA";
+  remetenteNome: string;
+  texto: string;
+  contexto?: string | null;
+};
+
+export type EvolucaoNutriPro = {
+  tipo: string;
+  titulo: string;
+  descricao: string;
+  status: string;
+  data: string;
+};
+
+export type EvolucoesNutriPro = {
+  itens: EvolucaoNutriPro[];
+};
+
 export type CriarItemPlanoAlimentarNutriProInput = {
   tipoItem: TipoItemPlanoAlimentarNutriPro;
   nome: string;
@@ -416,6 +555,111 @@ export function criarPlanoAlimentarNutriPro(params: {
       query: { empresaId: params.empresaId }
     }
   );
+}
+
+export function publicarPlanoAlimentarNutriPro(params: { empresaId: string; pacienteId: string; planoId: string }) {
+  return nutriProApi.post<PlanoAlimentarNutriPro>(
+    `/api/nutri-pro/pacientes/${params.pacienteId}/planos-alimentares/${params.planoId}/publicar`,
+    undefined,
+    {
+      query: { empresaId: params.empresaId }
+    }
+  );
+}
+
+export function consultarPlanoPublicadoNutriPro(params: { empresaId: string; pacienteId: string }) {
+  return nutriProApi.get<PlanoAlimentarNutriPro>(`/api/nutri-pro/pacientes/${params.pacienteId}/plano-publicado`, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export function consultarListaComprasNutriPro(params: { empresaId: string; pacienteId: string }) {
+  return nutriProApi.get<ListaComprasNutriPro>(`/api/nutri-pro/pacientes/${params.pacienteId}/lista-compras`, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export function listarDiarioAlimentarNutriPro(params: { empresaId: string; pacienteId: string }) {
+  return nutriProApi.get<RegistrosDiarioNutriPro>(`/api/nutri-pro/pacientes/${params.pacienteId}/diario-alimentar`, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export function criarRegistroDiarioNutriPro(params: {
+  empresaId: string;
+  pacienteId: string;
+  dados: CriarRegistroDiarioNutriProInput;
+}) {
+  return nutriProApi.post<RegistroDiarioNutriPro>(
+    `/api/nutri-pro/pacientes/${params.pacienteId}/diario-alimentar`,
+    params.dados,
+    {
+      query: { empresaId: params.empresaId }
+    }
+  );
+}
+
+export function revisarRegistroDiarioNutriPro(params: {
+  empresaId: string;
+  pacienteId: string;
+  registroId: string;
+  dados: RevisarRegistroDiarioNutriProInput;
+}) {
+  return nutriProApi.post<RegistroDiarioNutriPro>(
+    `/api/nutri-pro/pacientes/${params.pacienteId}/diario-alimentar/${params.registroId}/revisar`,
+    params.dados,
+    {
+      query: { empresaId: params.empresaId }
+    }
+  );
+}
+
+export function listarMetasNutriPro(params: { empresaId: string; pacienteId: string }) {
+  return nutriProApi.get<MetasNutriPro>(`/api/nutri-pro/pacientes/${params.pacienteId}/metas`, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export function criarMetaNutriPro(params: { empresaId: string; pacienteId: string; dados: CriarMetaNutriProInput }) {
+  return nutriProApi.post<MetaNutriPro>(`/api/nutri-pro/pacientes/${params.pacienteId}/metas`, params.dados, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export function listarLembretesNutriPro(params: { empresaId: string; pacienteId: string }) {
+  return nutriProApi.get<LembretesNutriPro>(`/api/nutri-pro/pacientes/${params.pacienteId}/lembretes`, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export function criarLembreteNutriPro(params: { empresaId: string; pacienteId: string; dados: CriarLembreteNutriProInput }) {
+  return nutriProApi.post<LembreteNutriPro>(`/api/nutri-pro/pacientes/${params.pacienteId}/lembretes`, params.dados, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export function listarMensagensNutriPro(params: { empresaId: string; pacienteId: string }) {
+  return nutriProApi.get<MensagensNutriPro>(`/api/nutri-pro/pacientes/${params.pacienteId}/mensagens`, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export function enviarMensagemNutriPro(params: { empresaId: string; pacienteId: string; dados: EnviarMensagemNutriProInput }) {
+  return nutriProApi.post<MensagemNutriPro>(`/api/nutri-pro/pacientes/${params.pacienteId}/mensagens`, params.dados, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export function marcarMensagensNutriProLidas(params: { empresaId: string; pacienteId: string; leitor: "PACIENTE" | "PROFISSIONAL" }) {
+  return nutriProApi.patch<void>(`/api/nutri-pro/pacientes/${params.pacienteId}/mensagens/lidas`, undefined, {
+    query: { empresaId: params.empresaId, leitor: params.leitor }
+  });
+}
+
+export function listarEvolucaoNutriPro(params: { empresaId: string; pacienteId: string }) {
+  return nutriProApi.get<EvolucoesNutriPro>(`/api/nutri-pro/pacientes/${params.pacienteId}/evolucao`, {
+    query: { empresaId: params.empresaId }
+  });
 }
 
 export function listarDocumentosProfissionaisNutriPro(params: {

@@ -22,6 +22,14 @@ import br.com.atendepro.modules.nutri.application.command.CriarPlanoAlimentarNut
 import br.com.atendepro.modules.nutri.application.command.CriarRefeicaoPlanoAlimentarNutriProCommand;
 import br.com.atendepro.modules.nutri.application.command.DetalharAvaliacaoAntropometricaNutriProCommand;
 import br.com.atendepro.modules.nutri.application.command.DetalharPlanoAlimentarNutriProCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.ConsultarPacienteCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.CriarLembreteCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.CriarMetaCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.CriarRegistroDiarioCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.EnviarMensagemCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.MarcarMensagensLidasCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.PublicarPlanoAlimentarCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.RevisarRegistroDiarioCommand;
 import br.com.atendepro.modules.nutri.application.command.ListarAvaliacoesAntropometricasNutriProCommand;
 import br.com.atendepro.modules.nutri.application.command.ListarPlanosAlimentaresNutriProCommand;
 import br.com.atendepro.modules.nutri.application.command.ConsultarVisaoNutriProCommand;
@@ -31,6 +39,7 @@ import br.com.atendepro.modules.nutri.application.port.in.CriarAvaliacaoAntropom
 import br.com.atendepro.modules.nutri.application.port.in.CriarPlanoAlimentarNutriProUseCase;
 import br.com.atendepro.modules.nutri.application.port.in.DetalharAvaliacaoAntropometricaNutriProUseCase;
 import br.com.atendepro.modules.nutri.application.port.in.DetalharPlanoAlimentarNutriProUseCase;
+import br.com.atendepro.modules.nutri.application.port.in.GerenciarExperienciaPacienteNutriProUseCase;
 import br.com.atendepro.modules.nutri.application.port.in.ConsultarProntuarioNutriProUseCase;
 import br.com.atendepro.modules.nutri.application.port.in.ConsultarVisaoNutriProUseCase;
 import br.com.atendepro.modules.nutri.application.port.in.ListarAvaliacoesAntropometricasNutriProUseCase;
@@ -40,6 +49,7 @@ import br.com.atendepro.modules.nutri.application.port.out.CarregarAvaliacaoAntr
 import br.com.atendepro.modules.nutri.application.port.out.CarregarPlanoAlimentarNutriProPort;
 import br.com.atendepro.modules.nutri.application.port.out.CarregarProntuarioNutriProPort;
 import br.com.atendepro.modules.nutri.application.port.out.CarregarVisaoNutriProPort;
+import br.com.atendepro.modules.nutri.application.port.out.ExperienciaPacienteNutriProPort;
 import br.com.atendepro.modules.nutri.application.port.out.ListarAvaliacoesAntropometricasNutriProPort;
 import br.com.atendepro.modules.nutri.application.port.out.ListarPlanosAlimentaresNutriProPort;
 import br.com.atendepro.modules.nutri.application.port.out.ListarPacientesNutriProPort;
@@ -50,6 +60,12 @@ import br.com.atendepro.modules.nutri.application.result.AcaoProntuarioNutriProR
 import br.com.atendepro.modules.nutri.application.result.AtalhoNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.AvaliacaoAntropometricaNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.DadosProntuarioNutriProResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.EvolucaoPacienteResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.LembreteAcompanhamentoResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.ListaComprasResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.MensagemAcompanhamentoResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.MetaAcompanhamentoResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.RegistroDiarioResult;
 import br.com.atendepro.modules.nutri.application.result.IndicadorNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.MetricasNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.PacienteNutriResumoResult;
@@ -76,7 +92,8 @@ public class NutriProService implements
         DetalharAvaliacaoAntropometricaNutriProUseCase,
         CriarPlanoAlimentarNutriProUseCase,
         ListarPlanosAlimentaresNutriProUseCase,
-        DetalharPlanoAlimentarNutriProUseCase {
+        DetalharPlanoAlimentarNutriProUseCase,
+        GerenciarExperienciaPacienteNutriProUseCase {
 
     private final CarregarVisaoNutriProPort carregarVisaoNutriProPort;
     private final ListarPacientesNutriProPort listarPacientesNutriProPort;
@@ -88,6 +105,7 @@ public class NutriProService implements
     private final SalvarPlanoAlimentarNutriProPort salvarPlanoAlimentarNutriProPort;
     private final ListarPlanosAlimentaresNutriProPort listarPlanosAlimentaresNutriProPort;
     private final CarregarPlanoAlimentarNutriProPort carregarPlanoAlimentarNutriProPort;
+    private final ExperienciaPacienteNutriProPort experienciaPacienteNutriProPort;
     private final TenantAccessService tenantAccessService;
     private final PermissaoAcessoService permissaoAcessoService;
     private final Clock clock;
@@ -103,6 +121,7 @@ public class NutriProService implements
             SalvarPlanoAlimentarNutriProPort salvarPlanoAlimentarNutriProPort,
             ListarPlanosAlimentaresNutriProPort listarPlanosAlimentaresNutriProPort,
             CarregarPlanoAlimentarNutriProPort carregarPlanoAlimentarNutriProPort,
+            ExperienciaPacienteNutriProPort experienciaPacienteNutriProPort,
             TenantAccessService tenantAccessService,
             PermissaoAcessoService permissaoAcessoService,
             Clock clock
@@ -117,6 +136,7 @@ public class NutriProService implements
         this.salvarPlanoAlimentarNutriProPort = salvarPlanoAlimentarNutriProPort;
         this.listarPlanosAlimentaresNutriProPort = listarPlanosAlimentaresNutriProPort;
         this.carregarPlanoAlimentarNutriProPort = carregarPlanoAlimentarNutriProPort;
+        this.experienciaPacienteNutriProPort = experienciaPacienteNutriProPort;
         this.tenantAccessService = tenantAccessService;
         this.permissaoAcessoService = permissaoAcessoService;
         this.clock = clock;
@@ -233,6 +253,169 @@ public class NutriProService implements
         validarPacienteNutriPro(empresaId, command.pacienteId());
         return carregarPlanoAlimentarNutriProPort.carregarPlanoAlimentar(empresaId, command.pacienteId(), command.planoId())
                 .map(PlanoAlimentarNutriProResult::de);
+    }
+
+    @Override
+    @Transactional
+    public Optional<PlanoAlimentarNutriProResult> publicarPlanoAlimentar(PublicarPlanoAlimentarCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        return experienciaPacienteNutriProPort
+                .publicarPlanoAlimentar(empresaId, command.pacienteId(), command.planoId())
+                .map(PlanoAlimentarNutriProResult::de);
+    }
+
+    @Override
+    public Optional<PlanoAlimentarNutriProResult> consultarPlanoPublicado(ConsultarPacienteCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        return experienciaPacienteNutriProPort.carregarPlanoPublicado(empresaId, command.pacienteId())
+                .map(PlanoAlimentarNutriProResult::de);
+    }
+
+    @Override
+    public Optional<ListaComprasResult> consultarListaCompras(ConsultarPacienteCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        return experienciaPacienteNutriProPort.consultarListaCompras(empresaId, command.pacienteId(), clock);
+    }
+
+    @Override
+    public List<RegistroDiarioResult> listarDiarioAlimentar(ConsultarPacienteCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        return experienciaPacienteNutriProPort.listarDiarioAlimentar(empresaId, command.pacienteId());
+    }
+
+    @Override
+    public RegistroDiarioResult criarRegistroDiario(CriarRegistroDiarioCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        String texto = validarTexto(command.texto(), "NUTRI_PRO_DIARIO_TEXTO_OBRIGATORIO", "Texto do diário alimentar é obrigatório.");
+        UUID planoId = experienciaPacienteNutriProPort.carregarPlanoPublicado(empresaId, command.pacienteId())
+                .map(PlanoAlimentarNutriPro::id)
+                .orElse(null);
+        return experienciaPacienteNutriProPort.criarRegistroDiario(
+                UUID.randomUUID(),
+                empresaId,
+                command.pacienteId(),
+                planoId,
+                textoOuNulo(command.refeicaoNome()),
+                texto,
+                textoOuNulo(command.evidenciaUrl()),
+                "PACIENTE",
+                clock
+        );
+    }
+
+    @Override
+    public Optional<RegistroDiarioResult> revisarRegistroDiario(RevisarRegistroDiarioCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        String parecer = validarTexto(command.parecerProfissional(), "NUTRI_PRO_DIARIO_PARECER_OBRIGATORIO", "Parecer profissional é obrigatório.");
+        return experienciaPacienteNutriProPort.revisarRegistroDiario(empresaId, command.pacienteId(), command.registroId(), parecer);
+    }
+
+    @Override
+    public List<MetaAcompanhamentoResult> listarMetas(ConsultarPacienteCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        return experienciaPacienteNutriProPort.listarMetas(empresaId, command.pacienteId());
+    }
+
+    @Override
+    public MetaAcompanhamentoResult criarMeta(CriarMetaCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        return experienciaPacienteNutriProPort.criarMeta(
+                UUID.randomUUID(),
+                empresaId,
+                command.pacienteId(),
+                validarTexto(command.tipo(), "NUTRI_PRO_META_TIPO_OBRIGATORIO", "Tipo da meta é obrigatório.").toUpperCase(),
+                validarTexto(command.descricao(), "NUTRI_PRO_META_DESCRICAO_OBRIGATORIA", "Descrição da meta é obrigatória."),
+                command.valorMeta() == null ? BigDecimal.ZERO : command.valorMeta(),
+                textoOuNulo(command.unidade()),
+                command.dataAlvo(),
+                clock
+        );
+    }
+
+    @Override
+    public List<LembreteAcompanhamentoResult> listarLembretes(ConsultarPacienteCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        return experienciaPacienteNutriProPort.listarLembretes(empresaId, command.pacienteId());
+    }
+
+    @Override
+    public LembreteAcompanhamentoResult criarLembrete(CriarLembreteCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        return experienciaPacienteNutriProPort.criarLembrete(
+                UUID.randomUUID(),
+                empresaId,
+                command.pacienteId(),
+                validarTexto(command.titulo(), "NUTRI_PRO_LEMBRETE_TITULO_OBRIGATORIO", "Título do lembrete é obrigatório."),
+                textoOuNulo(command.descricao()),
+                textoOuNulo(command.horario()),
+                validarTexto(command.frequencia(), "NUTRI_PRO_LEMBRETE_FREQUENCIA_OBRIGATORIA", "Frequência do lembrete é obrigatória.").toUpperCase(),
+                clock
+        );
+    }
+
+    @Override
+    public List<MensagemAcompanhamentoResult> listarMensagens(ConsultarPacienteCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        return experienciaPacienteNutriProPort.listarMensagens(empresaId, command.pacienteId());
+    }
+
+    @Override
+    public MensagemAcompanhamentoResult enviarMensagem(EnviarMensagemCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        return experienciaPacienteNutriProPort.enviarMensagem(
+                UUID.randomUUID(),
+                empresaId,
+                command.pacienteId(),
+                validarTexto(command.remetenteTipo(), "NUTRI_PRO_MENSAGEM_REMETENTE_TIPO_OBRIGATORIO", "Tipo do remetente é obrigatório.").toUpperCase(),
+                validarTexto(command.remetenteNome(), "NUTRI_PRO_MENSAGEM_REMETENTE_OBRIGATORIO", "Remetente é obrigatório."),
+                validarTexto(command.texto(), "NUTRI_PRO_MENSAGEM_TEXTO_OBRIGATORIO", "Texto da mensagem é obrigatório."),
+                textoOuNulo(command.contexto()),
+                clock
+        );
+    }
+
+    @Override
+    public void marcarMensagensLidas(MarcarMensagensLidasCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        experienciaPacienteNutriProPort.marcarMensagensLidas(
+                empresaId,
+                command.pacienteId(),
+                validarTexto(command.leitor(), "NUTRI_PRO_MENSAGEM_LEITOR_OBRIGATORIO", "Leitor é obrigatório.").toUpperCase()
+        );
+    }
+
+    @Override
+    public List<EvolucaoPacienteResult> listarEvolucao(ConsultarPacienteCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        return experienciaPacienteNutriProPort.listarEvolucao(empresaId, command.pacienteId());
     }
 
     private ProntuarioNutriProResult montarProntuario(UUID empresaId, DadosProntuarioNutriProResult dados) {
@@ -395,6 +578,20 @@ public class NutriProService implements
         if (pacienteId == null || !verificarPacienteNutriProPort.existePacienteNutriPro(empresaId, pacienteId)) {
             throw new BusinessException("NUTRI_PRO_PACIENTE_NAO_ENCONTRADO", "Paciente de nutricao nao encontrado nesta empresa.");
         }
+    }
+
+    private String validarTexto(String valor, String codigo, String mensagem) {
+        if (valor == null || valor.isBlank()) {
+            throw new BusinessException(codigo, mensagem);
+        }
+        return valor.trim();
+    }
+
+    private String textoOuNulo(String valor) {
+        if (valor == null || valor.isBlank()) {
+            return null;
+        }
+        return valor.trim();
     }
 
     private void validarPermissao() {

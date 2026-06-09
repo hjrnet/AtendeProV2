@@ -603,4 +603,11 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Núcleo comum + verticais profissionais.
 - Commit local automático.
 - Push automático habilitado por política de governança.
+## Atualizacao R17 - experiencia paciente Nutri
 
+- Data: 2026-06-09
+- Release executada: R17 experiencia paciente Nutri
+- Tasks concluidas: TASK-NUTRI-007, TASK-NUTRI-008, TASK-NUTRI-009, TASK-NUTRI-010, TASK-NUTRI-011, TASK-NUTRI-012
+- Entrega: plano alimentar publicado para portal/app, lista de compras, diario alimentar, metas, lembretes, mensagens e linha do tempo de evolucao Nutri.
+- Validacao: backend Maven test, web typecheck/lint/build e mobile typecheck/lint aprovados.
+- Proxima etapa recomendada: R18 / TASK-NUTRI-013.

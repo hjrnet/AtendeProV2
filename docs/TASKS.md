@@ -1,4 +1,4 @@
-﻿# TASKS — AtendePro Profissional
+# TASKS — AtendePro Profissional
 
 Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listadas aqui e com arquivo correspondente em `docs/codex/tasks/`.
 
@@ -232,12 +232,12 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
-| TASK-NUTRI-007 | Publicar plano alimentar no portal/app do paciente | Plano ativo, refeições, horários, suplementos, observações e histórico de versões. | PENDENTE |
-| TASK-NUTRI-008 | Lista de compras do plano alimentar | Geração por plano, agrupamento por categoria, edição e compartilhamento com o paciente. | PENDENTE |
-| TASK-NUTRI-009 | Diário alimentar do paciente | Registro de refeição por texto e evidência segura, status de revisão e visão do nutricionista. | PENDENTE |
-| TASK-NUTRI-010 | Metas, lembretes e evolução do paciente | Hidratação, refeições, peso, medidas, metas semanais e linha do tempo. | PENDENTE |
-| TASK-NUTRI-011 | Recados/chat operacional Nutri | Troca de mensagens assíncronas entre paciente e nutricionista, com status de leitura e contexto do acompanhamento. | PENDENTE |
-| TASK-NUTRI-012 | Acompanhamento Nutri no mobile real | Conectar agenda, plano, diário, mensagens e notificações aos endpoints reais. | PENDENTE |
+| TASK-NUTRI-007 | Publicar plano alimentar no portal/app do paciente | Plano ativo, refeições, horários, suplementos, observações e histórico de versões. | CONCLUIDA |
+| TASK-NUTRI-008 | Lista de compras do plano alimentar | Geração por plano, agrupamento por categoria, edição e compartilhamento com o paciente. | CONCLUIDA |
+| TASK-NUTRI-009 | Diário alimentar do paciente | Registro de refeição por texto e evidência segura, status de revisão e visão do nutricionista. | CONCLUIDA |
+| TASK-NUTRI-010 | Metas, lembretes e evolução do paciente | Hidratação, refeições, peso, medidas, metas semanais e linha do tempo. | CONCLUIDA |
+| TASK-NUTRI-011 | Recados/chat operacional Nutri | Troca de mensagens assíncronas entre paciente e nutricionista, com status de leitura e contexto do acompanhamento. | CONCLUIDA |
+| TASK-NUTRI-012 | Acompanhamento Nutri no mobile real | Conectar agenda, plano, diário, mensagens e notificações aos endpoints reais. | CONCLUIDA |
 
 ## R18 — Nutri Pro plano alimentar avançado e produtividade clínica
 

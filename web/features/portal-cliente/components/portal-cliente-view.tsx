@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Inbox, LoaderCircle, Search, UserRound, type LucideIcon } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   listarAgendaPortal,
@@ -14,8 +14,26 @@ import {
   type TipoStatusAgenda,
   type TipoDocumentoPortal
 } from "@/features/portal-cliente/api/portal-cliente-client";
+import {
+  consultarListaComprasNutriPro,
+  consultarPlanoPublicadoNutriPro,
+  criarMetaNutriPro,
+  criarRegistroDiarioNutriPro,
+  enviarMensagemNutriPro,
+  listarDiarioAlimentarNutriPro,
+  listarEvolucaoNutriPro,
+  listarLembretesNutriPro,
+  listarMensagensNutriPro,
+  listarMetasNutriPro,
+  type GrupoListaComprasNutriPro,
+  type LembreteNutriPro,
+  type MensagemNutriPro,
+  type MetaNutriPro,
+  type PlanoAlimentarNutriPro,
+  type RegistroDiarioNutriPro
+} from "@/features/nutri-pro/api/nutri-pro-client";
 
-type AbaPortalCliente = "agenda" | "documentos" | "evolucao";
+type AbaPortalCliente = "agenda" | "plano" | "compras" | "diario" | "metas" | "mensagens" | "documentos" | "evolucao";
 
 type SecaoPortalClienteProps = {
   empresaId: string;
@@ -24,14 +42,22 @@ type SecaoPortalClienteProps = {
 const TAMANHO_PAGINA = 80;
 const ABAS: Array<{ id: AbaPortalCliente; label: string; descricao: string }> = [
   { id: "agenda", label: "Agenda", descricao: "Compromissos e próximos atendimentos do cliente." },
+  { id: "plano", label: "Plano", descricao: "Plano alimentar publicado para o paciente." },
+  { id: "compras", label: "Compras", descricao: "Lista de compras gerada pelo plano ativo." },
+  { id: "diario", label: "Diário", descricao: "Registros alimentares e revisão profissional." },
+  { id: "metas", label: "Metas", descricao: "Metas, lembretes e rotina combinada." },
+  { id: "mensagens", label: "Recados", descricao: "Comunicação assíncrona com a nutricionista." },
   { id: "documentos", label: "Documentos", descricao: "Histórico de documentos, solicitações e prescrições." },
   { id: "evolucao", label: "Evolução", descricao: "Linha do tempo com os últimos movimentos em ordem cronológica." }
 ];
 
 export function PortalClienteView({ empresaId }: SecaoPortalClienteProps) {
+  const queryClient = useQueryClient();
   const [abaAtiva, definirAbaAtiva] = useState<AbaPortalCliente>("agenda");
   const [busca, setBusca] = useState("");
   const [clienteSelecionadoId, definirClienteSelecionadoId] = useState<string>("");
+  const [textoDiario, setTextoDiario] = useState("");
+  const [textoMensagem, setTextoMensagem] = useState("");
 
   const clientesQuery = useQuery({
     queryKey: ["portal-cliente-clientes", empresaId, busca],
@@ -73,6 +99,84 @@ export function PortalClienteView({ empresaId }: SecaoPortalClienteProps) {
 
   const agenda = agendaQuery.data?.itens ?? [];
   const documentos = documentosQuery.data?.itens ?? [];
+  const clienteNutriSelecionado = clienteSelecionado?.area === "NUTRI";
+
+  const planoPublicadoQuery = useQuery({
+    queryKey: ["portal-cliente-plano-nutri", empresaId, clienteSelecionadoId],
+    queryFn: () => consultarPlanoPublicadoNutriPro({ empresaId, pacienteId: clienteSelecionadoId }),
+    enabled: Boolean(empresaId && clienteSelecionadoId && clienteNutriSelecionado),
+    retry: false
+  });
+  const listaComprasQuery = useQuery({
+    queryKey: ["portal-cliente-compras-nutri", empresaId, clienteSelecionadoId],
+    queryFn: () => consultarListaComprasNutriPro({ empresaId, pacienteId: clienteSelecionadoId }),
+    enabled: Boolean(empresaId && clienteSelecionadoId && clienteNutriSelecionado),
+    retry: false
+  });
+  const diarioQuery = useQuery({
+    queryKey: ["portal-cliente-diario-nutri", empresaId, clienteSelecionadoId],
+    queryFn: () => listarDiarioAlimentarNutriPro({ empresaId, pacienteId: clienteSelecionadoId }),
+    enabled: Boolean(empresaId && clienteSelecionadoId && clienteNutriSelecionado)
+  });
+  const metasQuery = useQuery({
+    queryKey: ["portal-cliente-metas-nutri", empresaId, clienteSelecionadoId],
+    queryFn: () => listarMetasNutriPro({ empresaId, pacienteId: clienteSelecionadoId }),
+    enabled: Boolean(empresaId && clienteSelecionadoId && clienteNutriSelecionado)
+  });
+  const lembretesQuery = useQuery({
+    queryKey: ["portal-cliente-lembretes-nutri", empresaId, clienteSelecionadoId],
+    queryFn: () => listarLembretesNutriPro({ empresaId, pacienteId: clienteSelecionadoId }),
+    enabled: Boolean(empresaId && clienteSelecionadoId && clienteNutriSelecionado)
+  });
+  const mensagensQuery = useQuery({
+    queryKey: ["portal-cliente-mensagens-nutri", empresaId, clienteSelecionadoId],
+    queryFn: () => listarMensagensNutriPro({ empresaId, pacienteId: clienteSelecionadoId }),
+    enabled: Boolean(empresaId && clienteSelecionadoId && clienteNutriSelecionado)
+  });
+  const evolucaoNutriQuery = useQuery({
+    queryKey: ["portal-cliente-evolucao-nutri", empresaId, clienteSelecionadoId],
+    queryFn: () => listarEvolucaoNutriPro({ empresaId, pacienteId: clienteSelecionadoId }),
+    enabled: Boolean(empresaId && clienteSelecionadoId && clienteNutriSelecionado)
+  });
+
+  const criarDiarioMutation = useMutation({
+    mutationFn: () => criarRegistroDiarioNutriPro({ empresaId, pacienteId: clienteSelecionadoId, dados: { texto: textoDiario, refeicaoNome: "Registro do paciente" } }),
+    onSuccess: () => {
+      setTextoDiario("");
+      queryClient.invalidateQueries({ queryKey: ["portal-cliente-diario-nutri", empresaId, clienteSelecionadoId] });
+      queryClient.invalidateQueries({ queryKey: ["portal-cliente-evolucao-nutri", empresaId, clienteSelecionadoId] });
+    }
+  });
+
+  const criarMetaMutation = useMutation({
+    mutationFn: () =>
+      criarMetaNutriPro({
+        empresaId,
+        pacienteId: clienteSelecionadoId,
+        dados: { tipo: "HIDRATACAO", descricao: "Manter hidratação diária combinada com a nutricionista.", valorMeta: 2, unidade: "L", dataAlvo: null }
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["portal-cliente-metas-nutri", empresaId, clienteSelecionadoId] })
+  });
+
+  const enviarMensagemMutation = useMutation({
+    mutationFn: () =>
+      enviarMensagemNutriPro({
+        empresaId,
+        pacienteId: clienteSelecionadoId,
+        dados: {
+          remetenteTipo: "PACIENTE",
+          remetenteNome: clienteSelecionado?.nome ?? "Paciente",
+          texto: textoMensagem,
+          contexto: "Portal do paciente"
+        }
+      }),
+    onSuccess: () => {
+      setTextoMensagem("");
+      queryClient.invalidateQueries({ queryKey: ["portal-cliente-mensagens-nutri", empresaId, clienteSelecionadoId] });
+      queryClient.invalidateQueries({ queryKey: ["portal-cliente-evolucao-nutri", empresaId, clienteSelecionadoId] });
+    }
+  });
+
   const evolucao = useMemo(() => {
     const registrosAgenda = agenda.map((compromisso) => ({
       id: `agenda-${compromisso.id}`,
@@ -98,8 +202,18 @@ export function PortalClienteView({ empresaId }: SecaoPortalClienteProps) {
       data: documento.criadoEm
     }));
 
-    return [...registrosAgenda, ...registrosDocumentos].sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
-  }, [agenda, documentos]);
+    const registrosNutri = (evolucaoNutriQuery.data?.itens ?? []).map((item) => ({
+      id: `nutri-${item.tipo}-${item.data}`,
+      tipo: "nutri" as const,
+      titulo: item.titulo,
+      descricao: item.descricao,
+      detalhe: item.tipo,
+      status: item.status,
+      data: item.data
+    }));
+
+    return [...registrosAgenda, ...registrosDocumentos, ...registrosNutri].sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
+  }, [agenda, documentos, evolucaoNutriQuery.data?.itens]);
 
   if (!empresaId) {
     return (
@@ -180,7 +294,7 @@ export function PortalClienteView({ empresaId }: SecaoPortalClienteProps) {
               ) : null}
             </header>
 
-            <nav className="grid gap-2 sm:grid-cols-3">
+            <nav className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
               {ABAS.map((aba) => (
                 <button
                   key={aba.id}
@@ -201,6 +315,49 @@ export function PortalClienteView({ empresaId }: SecaoPortalClienteProps) {
             <section className="min-h-[420px] rounded-md border bg-background p-4">
               {abaAtiva === "agenda" ? (
                 <ListaAgenda agenda={agenda} carregando={agendaQuery.isLoading} />
+              ) : abaAtiva === "plano" ? (
+                <PainelPlanoNutri plano={planoPublicadoQuery.data ?? null} carregando={planoPublicadoQuery.isLoading} habilitado={clienteNutriSelecionado} />
+              ) : abaAtiva === "compras" ? (
+                <PainelComprasNutri grupos={listaComprasQuery.data?.grupos ?? []} carregando={listaComprasQuery.isLoading} habilitado={clienteNutriSelecionado} />
+              ) : abaAtiva === "diario" ? (
+                <PainelDiarioNutri
+                  registros={diarioQuery.data?.itens ?? []}
+                  carregando={diarioQuery.isLoading}
+                  habilitado={clienteNutriSelecionado}
+                  texto={textoDiario}
+                  onTexto={setTextoDiario}
+                  enviando={criarDiarioMutation.isPending}
+                  onEnviar={(event) => {
+                    event.preventDefault();
+                    if (textoDiario.trim()) {
+                      criarDiarioMutation.mutate();
+                    }
+                  }}
+                />
+              ) : abaAtiva === "metas" ? (
+                <PainelMetasNutri
+                  metas={metasQuery.data?.itens ?? []}
+                  lembretes={lembretesQuery.data?.itens ?? []}
+                  carregando={metasQuery.isLoading || lembretesQuery.isLoading}
+                  habilitado={clienteNutriSelecionado}
+                  criando={criarMetaMutation.isPending}
+                  onCriar={() => criarMetaMutation.mutate()}
+                />
+              ) : abaAtiva === "mensagens" ? (
+                <PainelMensagensNutri
+                  mensagens={mensagensQuery.data?.itens ?? []}
+                  carregando={mensagensQuery.isLoading}
+                  habilitado={clienteNutriSelecionado}
+                  texto={textoMensagem}
+                  onTexto={setTextoMensagem}
+                  enviando={enviarMensagemMutation.isPending}
+                  onEnviar={(event) => {
+                    event.preventDefault();
+                    if (textoMensagem.trim()) {
+                      enviarMensagemMutation.mutate();
+                    }
+                  }}
+                />
               ) : abaAtiva === "documentos" ? (
                 <ListaDocumentos documentos={documentos} carregando={documentosQuery.isLoading} />
               ) : (
@@ -217,6 +374,217 @@ export function PortalClienteView({ empresaId }: SecaoPortalClienteProps) {
         )}
       </article>
     </section>
+  );
+}
+
+function PainelPlanoNutri({ plano, carregando, habilitado }: { plano: PlanoAlimentarNutriPro | null; carregando: boolean; habilitado: boolean }) {
+  if (!habilitado) {
+    return <EstadoListaVazia icon={Inbox} texto="Selecione um paciente de nutrição para visualizar o plano alimentar." />;
+  }
+
+  if (carregando) {
+    return <EstadoListaVazia icon={LoaderCircle} texto="Carregando plano alimentar" />;
+  }
+
+  if (!plano) {
+    return <EstadoListaVazia icon={Inbox} texto="Nenhum plano alimentar publicado ainda." />;
+  }
+
+  return (
+    <div className="grid gap-3">
+      <article className="rounded-md border border-emerald-200 bg-emerald-50 p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-emerald-950">{plano.objetivo}</p>
+            <p className="mt-1 text-sm leading-6 text-emerald-950/80">{plano.descricao ?? "Plano alimentar ativo para acompanhamento."}</p>
+          </div>
+          <span className="rounded-md border border-emerald-300 bg-white px-2 py-1 text-xs font-semibold text-emerald-800">{plano.statusRotulo}</span>
+        </div>
+      </article>
+      {plano.refeicoes.map((refeicao) => (
+        <article key={refeicao.id} className="rounded-md border bg-card p-3">
+          <p className="font-semibold text-card-foreground">
+            {refeicao.nome}
+            {refeicao.horario ? <span className="font-medium text-muted-foreground"> • {refeicao.horario}</span> : null}
+          </p>
+          <div className="mt-2 grid gap-2">
+            {refeicao.itens.map((item) => (
+              <div key={item.id} className="rounded-md border bg-background p-2 text-sm text-muted-foreground">
+                {item.nome} · {item.quantidade} {item.unidadeMedida}
+                {item.observacoes ? ` · ${item.observacoes}` : ""}
+              </div>
+            ))}
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function PainelComprasNutri({ grupos, carregando, habilitado }: { grupos: GrupoListaComprasNutriPro[]; carregando: boolean; habilitado: boolean }) {
+  if (!habilitado) {
+    return <EstadoListaVazia icon={Inbox} texto="Selecione um paciente de nutrição para visualizar compras." />;
+  }
+
+  if (carregando) {
+    return <EstadoListaVazia icon={LoaderCircle} texto="Carregando lista de compras" />;
+  }
+
+  if (!grupos.length) {
+    return <EstadoListaVazia icon={Inbox} texto="Nenhuma lista de compras gerada para o plano ativo." />;
+  }
+
+  return (
+    <div className="grid gap-3 md:grid-cols-2">
+      {grupos.map((grupo) => (
+        <article key={grupo.categoria} className="rounded-md border bg-card p-3">
+          <p className="font-semibold text-card-foreground">{grupo.categoria}</p>
+          <div className="mt-2 grid gap-2">
+            {grupo.itens.map((item) => (
+              <div key={`${grupo.categoria}-${item.nome}-${item.unidadeMedida}`} className="rounded-md border bg-background p-2 text-sm text-muted-foreground">
+                {item.nome} · {item.quantidade} {item.unidadeMedida}
+                {item.refeicoes ? ` · ${item.refeicoes}` : ""}
+              </div>
+            ))}
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function PainelDiarioNutri({
+  registros,
+  carregando,
+  habilitado,
+  texto,
+  onTexto,
+  enviando,
+  onEnviar
+}: {
+  registros: RegistroDiarioNutriPro[];
+  carregando: boolean;
+  habilitado: boolean;
+  texto: string;
+  onTexto: (texto: string) => void;
+  enviando: boolean;
+  onEnviar: (event: FormEvent<HTMLFormElement>) => void;
+}) {
+  if (!habilitado) {
+    return <EstadoListaVazia icon={Inbox} texto="Selecione um paciente de nutrição para usar o diário alimentar." />;
+  }
+
+  return (
+    <div className="grid gap-4">
+      <form onSubmit={onEnviar} className="rounded-md border bg-card p-3">
+        <label className="grid gap-2 text-sm font-medium text-card-foreground">
+          Novo registro alimentar
+          <textarea
+            value={texto}
+            onChange={(event) => onTexto(event.target.value)}
+            className="min-h-24 rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+            placeholder="Descreva refeição, sintomas, fome/saciedade ou dúvida do dia"
+          />
+        </label>
+        <button type="submit" disabled={!texto.trim() || enviando} className="mt-3 inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:opacity-60">
+          {enviando ? "Enviando" : "Enviar registro"}
+        </button>
+      </form>
+      {carregando ? <EstadoListaVazia icon={LoaderCircle} texto="Carregando diário" /> : null}
+      <div className="grid gap-2">
+        {registros.length ? registros.map((registro) => <LinhaDiarioPortal key={registro.id} registro={registro} />) : !carregando ? <EstadoListaVazia icon={Inbox} texto="Nenhum registro no diário ainda." /> : null}
+      </div>
+    </div>
+  );
+}
+
+function PainelMetasNutri({
+  metas,
+  lembretes,
+  carregando,
+  habilitado,
+  criando,
+  onCriar
+}: {
+  metas: MetaNutriPro[];
+  lembretes: LembreteNutriPro[];
+  carregando: boolean;
+  habilitado: boolean;
+  criando: boolean;
+  onCriar: () => void;
+}) {
+  if (!habilitado) {
+    return <EstadoListaVazia icon={Inbox} texto="Selecione um paciente de nutrição para visualizar metas." />;
+  }
+
+  if (carregando) {
+    return <EstadoListaVazia icon={LoaderCircle} texto="Carregando metas e lembretes" />;
+  }
+
+  return (
+    <div className="grid gap-3">
+      <button type="button" onClick={onCriar} disabled={criando} className="w-fit rounded-md border bg-card px-3 py-2 text-sm font-semibold text-card-foreground hover:border-primary/50 disabled:opacity-60">
+        {criando ? "Criando meta" : "Criar meta de hidratação"}
+      </button>
+      {metas.map((meta) => (
+        <article key={meta.id} className="rounded-md border bg-card p-3">
+          <p className="font-semibold text-card-foreground">{meta.tipo}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{meta.descricao} · {meta.valorMeta} {meta.unidade ?? ""}</p>
+        </article>
+      ))}
+      {lembretes.map((lembrete) => (
+        <article key={lembrete.id} className="rounded-md border bg-card p-3">
+          <p className="font-semibold text-card-foreground">{lembrete.titulo}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{lembrete.horario ?? "Sem horário"} · {lembrete.frequencia}</p>
+        </article>
+      ))}
+      {!metas.length && !lembretes.length ? <EstadoListaVazia icon={Inbox} texto="Nenhuma meta ou lembrete configurado ainda." /> : null}
+    </div>
+  );
+}
+
+function PainelMensagensNutri({
+  mensagens,
+  carregando,
+  habilitado,
+  texto,
+  onTexto,
+  enviando,
+  onEnviar
+}: {
+  mensagens: MensagemNutriPro[];
+  carregando: boolean;
+  habilitado: boolean;
+  texto: string;
+  onTexto: (texto: string) => void;
+  enviando: boolean;
+  onEnviar: (event: FormEvent<HTMLFormElement>) => void;
+}) {
+  if (!habilitado) {
+    return <EstadoListaVazia icon={Inbox} texto="Selecione um paciente de nutrição para trocar recados." />;
+  }
+
+  return (
+    <div className="grid gap-4">
+      <form onSubmit={onEnviar} className="rounded-md border bg-card p-3">
+        <label className="grid gap-2 text-sm font-medium text-card-foreground">
+          Novo recado
+          <textarea
+            value={texto}
+            onChange={(event) => onTexto(event.target.value)}
+            className="min-h-20 rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+            placeholder="Envie uma dúvida ou atualização para a nutricionista"
+          />
+        </label>
+        <button type="submit" disabled={!texto.trim() || enviando} className="mt-3 inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:opacity-60">
+          {enviando ? "Enviando" : "Enviar recado"}
+        </button>
+      </form>
+      {carregando ? <EstadoListaVazia icon={LoaderCircle} texto="Carregando mensagens" /> : null}
+      <div className="grid gap-2">
+        {mensagens.length ? mensagens.map((mensagem) => <LinhaMensagemPortal key={mensagem.id} mensagem={mensagem} />) : !carregando ? <EstadoListaVazia icon={Inbox} texto="Nenhum recado trocado ainda." /> : null}
+      </div>
+    </div>
   );
 }
 
@@ -288,7 +656,7 @@ function ListaEvolucao({
 }: {
   entradas: Array<{
     id: string;
-    tipo: "agenda" | "documento";
+    tipo: "agenda" | "documento" | "nutri";
     titulo: string;
     descricao: string;
     detalhe: string;
@@ -316,7 +684,7 @@ function ListaEvolucao({
             </div>
             <span
               className={`rounded-md border px-2 py-1 text-xs font-semibold ${
-                entrada.tipo === "agenda" ? classeStatusAgenda(entrada.status as TipoStatusAgenda) : classeStatusDocumento(entrada.status as TipoDocumentoPortal)
+                entrada.tipo === "agenda" ? classeStatusAgenda(entrada.status as TipoStatusAgenda) : entrada.tipo === "documento" ? classeStatusDocumento(entrada.status as TipoDocumentoPortal) : "border-emerald-300 bg-emerald-50 text-emerald-800"
               }`}
             >
               {entrada.status}
@@ -327,6 +695,35 @@ function ListaEvolucao({
         </article>
       ))}
     </div>
+  );
+}
+
+function LinhaDiarioPortal({ registro }: { registro: RegistroDiarioNutriPro }) {
+  return (
+    <article className="rounded-md border bg-card p-3">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <p className="font-semibold text-card-foreground">{registro.refeicaoNome ?? "Registro alimentar"}</p>
+        <span className={`rounded-md border px-2 py-1 text-xs font-semibold ${registro.statusRevisao === "REVISADO" ? "border-emerald-300 bg-emerald-50 text-emerald-800" : "border-amber-300 bg-amber-50 text-amber-800"}`}>
+          {registro.statusRevisao === "REVISADO" ? "Revisado" : "Pendente"}
+        </span>
+      </div>
+      <p className="mt-2 text-sm text-muted-foreground">{registro.texto}</p>
+      {registro.parecerProfissional ? <p className="mt-2 rounded-md border bg-background p-2 text-sm text-emerald-900">{registro.parecerProfissional}</p> : null}
+      <p className="mt-2 text-xs text-muted-foreground">{formatarDataHora(registro.registradoEm)}</p>
+    </article>
+  );
+}
+
+function LinhaMensagemPortal({ mensagem }: { mensagem: MensagemNutriPro }) {
+  return (
+    <article className="rounded-md border bg-card p-3">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <p className="font-semibold text-card-foreground">{mensagem.remetenteNome}</p>
+        <span className="rounded-md border bg-background px-2 py-1 text-xs font-semibold text-muted-foreground">{mensagem.remetenteTipo}</span>
+      </div>
+      <p className="mt-2 text-sm text-muted-foreground">{mensagem.texto}</p>
+      <p className="mt-2 text-xs text-muted-foreground">{mensagem.contexto ?? "Acompanhamento"} • {formatarDataHora(mensagem.enviadaEm)}</p>
+    </article>
   );
 }
 

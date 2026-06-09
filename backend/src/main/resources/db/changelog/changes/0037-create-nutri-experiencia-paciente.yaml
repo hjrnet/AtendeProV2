@@ -1,0 +1,112 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0037-create-nutri-experiencia-paciente
+      author: codex
+      changes:
+        - createTable:
+            tableName: nutri_diario_alimentar
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: empresa_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: paciente_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: plano_id, type: uuid }
+              - column: { name: refeicao_nome, type: varchar(120) }
+              - column: { name: texto, type: varchar(1200), constraints: { nullable: false } }
+              - column: { name: evidencia_url, type: varchar(500) }
+              - column: { name: status_revisao, type: varchar(30), constraints: { nullable: false } }
+              - column: { name: parecer_profissional, type: varchar(1200) }
+              - column: { name: criado_por, type: varchar(30), constraints: { nullable: false } }
+              - column: { name: registrado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+              - column: { name: criado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+              - column: { name: atualizado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+        - createTable:
+            tableName: nutri_metas_acompanhamento
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: empresa_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: paciente_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: tipo, type: varchar(40), constraints: { nullable: false } }
+              - column: { name: descricao, type: varchar(500), constraints: { nullable: false } }
+              - column: { name: valor_meta, type: "numeric(10,2)", constraints: { nullable: false } }
+              - column: { name: unidade, type: varchar(30) }
+              - column: { name: data_inicio, type: date, constraints: { nullable: false } }
+              - column: { name: data_alvo, type: date }
+              - column: { name: status, type: varchar(30), constraints: { nullable: false } }
+              - column: { name: criado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+              - column: { name: atualizado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+        - createTable:
+            tableName: nutri_lembretes_acompanhamento
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: empresa_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: paciente_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: titulo, type: varchar(160), constraints: { nullable: false } }
+              - column: { name: descricao, type: varchar(500) }
+              - column: { name: horario, type: varchar(20) }
+              - column: { name: frequencia, type: varchar(40), constraints: { nullable: false } }
+              - column: { name: status, type: varchar(30), constraints: { nullable: false } }
+              - column: { name: criado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+              - column: { name: atualizado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+        - createTable:
+            tableName: nutri_mensagens_acompanhamento
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: empresa_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: paciente_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: remetente_tipo, type: varchar(30), constraints: { nullable: false } }
+              - column: { name: remetente_nome, type: varchar(160), constraints: { nullable: false } }
+              - column: { name: texto, type: varchar(1200), constraints: { nullable: false } }
+              - column: { name: contexto, type: varchar(160) }
+              - column: { name: lida_pelo_paciente, type: boolean, defaultValueBoolean: false, constraints: { nullable: false } }
+              - column: { name: lida_pelo_profissional, type: boolean, defaultValueBoolean: false, constraints: { nullable: false } }
+              - column: { name: enviada_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+        - addForeignKeyConstraint:
+            baseTableName: nutri_diario_alimentar
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_nutri_diario_empresas
+        - addForeignKeyConstraint:
+            baseTableName: nutri_diario_alimentar
+            baseColumnNames: paciente_id
+            referencedTableName: clientes_pacientes
+            referencedColumnNames: id
+            constraintName: fk_nutri_diario_pacientes
+        - addForeignKeyConstraint:
+            baseTableName: nutri_diario_alimentar
+            baseColumnNames: plano_id
+            referencedTableName: nutri_planos_alimentares
+            referencedColumnNames: id
+            constraintName: fk_nutri_diario_planos
+        - addForeignKeyConstraint:
+            baseTableName: nutri_metas_acompanhamento
+            baseColumnNames: paciente_id
+            referencedTableName: clientes_pacientes
+            referencedColumnNames: id
+            constraintName: fk_nutri_metas_pacientes
+        - addForeignKeyConstraint:
+            baseTableName: nutri_lembretes_acompanhamento
+            baseColumnNames: paciente_id
+            referencedTableName: clientes_pacientes
+            referencedColumnNames: id
+            constraintName: fk_nutri_lembretes_pacientes
+        - addForeignKeyConstraint:
+            baseTableName: nutri_mensagens_acompanhamento
+            baseColumnNames: paciente_id
+            referencedTableName: clientes_pacientes
+            referencedColumnNames: id
+            constraintName: fk_nutri_mensagens_pacientes
+        - createIndex:
+            tableName: nutri_diario_alimentar
+            indexName: idx_nutri_diario_empresa_paciente_status
+            columns:
+              - column: { name: empresa_id }
+              - column: { name: paciente_id }
+              - column: { name: status_revisao }
+        - createIndex:
+            tableName: nutri_mensagens_acompanhamento
+            indexName: idx_nutri_mensagens_empresa_paciente_data
+            columns:
+              - column: { name: empresa_id }
+              - column: { name: paciente_id }
+              - column: { name: enviada_em }

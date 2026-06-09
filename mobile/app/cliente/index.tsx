@@ -9,12 +9,19 @@ import {
   GridCards
 } from "@/components/ui-shell";
 import { carregarSessaoAutenticada } from "@/lib/auth";
-import { mensagensNaoLidas } from "@/features/mensagens/mensagens";
-import { listarAgendaPortal, listarDocumentosPortal } from "@/lib/api/client";
+import {
+  consultarPlanoPublicadoNutri,
+  listarAgendaPortal,
+  listarDocumentosPortal,
+  listarMensagensNutri,
+  resolverPrimeiroPacienteNutri
+} from "@/lib/api/client";
 
 type ContagemCliente = {
   agenda: number;
   documentos: number;
+  mensagens: number;
+  planoPublicado: boolean;
 };
 
 const secoesCliente = [
@@ -41,7 +48,7 @@ const secoesCliente = [
 ];
 
 export default function AreaClienteMobile() {
-  const [contagens, setContagens] = useState<ContagemCliente>({ agenda: 0, documentos: 0 });
+  const [contagens, setContagens] = useState<ContagemCliente>({ agenda: 0, documentos: 0, mensagens: 0, planoPublicado: false });
   const [empresaId, setEmpresaId] = useState<string | null>(null);
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(true);
@@ -58,10 +65,22 @@ export default function AreaClienteMobile() {
         const contextoEmpresa = sessao?.usuario.empresaId ?? null;
         setEmpresaId(contextoEmpresa);
 
-        const [agendaResposta, documentosResposta] = await Promise.all([
+        const pacienteNutri = await resolverPrimeiroPacienteNutri(contextoEmpresa);
+        const [agendaResposta, documentosResposta, mensagensResposta] = await Promise.all([
           listarAgendaPortal({ empresaId: contextoEmpresa, tamanho: 10, pagina: 0 }),
-          listarDocumentosPortal({ empresaId: contextoEmpresa, tamanho: 20, pagina: 0 })
+          listarDocumentosPortal({ empresaId: contextoEmpresa, tamanho: 20, pagina: 0 }),
+          pacienteNutri ? listarMensagensNutri({ empresaId: contextoEmpresa, pacienteId: pacienteNutri.id }) : Promise.resolve({ itens: [] })
         ]);
+
+        let planoPublicado = false;
+        if (pacienteNutri) {
+          try {
+            await consultarPlanoPublicadoNutri({ empresaId: contextoEmpresa, pacienteId: pacienteNutri.id });
+            planoPublicado = true;
+          } catch {
+            planoPublicado = false;
+          }
+        }
 
         if (!ativo) {
           return;
@@ -69,7 +88,9 @@ export default function AreaClienteMobile() {
 
         setContagens({
           agenda: agendaResposta.totalItens,
-          documentos: documentosResposta.totalItens
+          documentos: documentosResposta.totalItens,
+          mensagens: mensagensResposta.itens.filter((mensagem) => !mensagem.lidaPeloPaciente).length,
+          planoPublicado
         });
       } catch (falha) {
         if (ativo) {
@@ -106,8 +127,12 @@ export default function AreaClienteMobile() {
         <Cartao titulo={`Agenda: ${contagens.agenda} compromissos`} descricao="Agendamentos ativos no período consultado." />
         <Cartao titulo={`Documentos: ${contagens.documentos}`} descricao="Documentos profissionais recentes." />
         <Cartao
-          titulo={`Mensagens: ${mensagensNaoLidas}`}
-          descricao="Itens não lidos para retorno."
+          titulo={`Mensagens: ${contagens.mensagens}`}
+          descricao="Recados Nutri não lidos no acompanhamento."
+        />
+        <Cartao
+          titulo={contagens.planoPublicado ? "Plano ativo publicado" : "Plano ainda não publicado"}
+          descricao="Status do plano alimentar disponível no portal/app."
         />
       </GridCards>
 

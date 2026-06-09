@@ -1,3 +1,4 @@
+import { Platform } from "react-native";
 import { obterSessaoAutenticada } from "@/lib/auth";
 
 type MetodoHttp = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -122,7 +123,137 @@ export type DocumentoProfissionalApi = {
   atualizadoEm: string;
 };
 
-export const API_BASE_PADRAO = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:8080";
+export type StatusPlanoAlimentarNutri = "RASCUNHO" | "ATIVO" | "SUBSTITUIDO" | "ARQUIVADO";
+
+export type ItemPlanoAlimentarNutriApi = {
+  id: string;
+  tipoItem: "ALIMENTO" | "SUPLEMENTO";
+  tipoItemRotulo: string;
+  nome: string;
+  grupo: string | null;
+  unidadeMedida: string;
+  quantidade: number;
+  quantidadeBase: number;
+  energiaKcal: number;
+  proteinas: number;
+  carboidratos: number;
+  lipidios: number;
+  observacoes: string | null;
+  ordenacao: number;
+};
+
+export type RefeicaoPlanoAlimentarNutriApi = {
+  id: string;
+  nome: string;
+  horario: string | null;
+  observacoes: string | null;
+  ordenacao: number;
+  itens: ItemPlanoAlimentarNutriApi[];
+  energiaTotalKcal: number;
+  proteinasTotal: number;
+  carboidratosTotal: number;
+  lipidiosTotal: number;
+};
+
+export type PlanoAlimentarNutriApi = {
+  id: string;
+  empresaId: string;
+  pacienteId: string;
+  objetivo: string;
+  descricao: string | null;
+  status: StatusPlanoAlimentarNutri;
+  statusRotulo: string;
+  refeicoes: RefeicaoPlanoAlimentarNutriApi[];
+  energiaTotalKcal: number;
+  proteinasTotal: number;
+  carboidratosTotal: number;
+  lipidiosTotal: number;
+  criadoEm: string;
+  atualizadoEm: string;
+};
+
+export type GrupoListaComprasNutriApi = {
+  categoria: string;
+  itens: {
+    nome: string;
+    categoria: string;
+    quantidade: number;
+    unidadeMedida: string;
+    refeicoes: string | null;
+    observacoes: string | null;
+  }[];
+};
+
+export type ListaComprasNutriApi = {
+  empresaId: string;
+  pacienteId: string;
+  planoId: string;
+  objetivoPlano: string;
+  grupos: GrupoListaComprasNutriApi[];
+  geradoEm: string;
+};
+
+export type RegistroDiarioNutriApi = {
+  id: string;
+  empresaId: string;
+  pacienteId: string;
+  planoId: string | null;
+  refeicaoNome: string | null;
+  texto: string;
+  evidenciaUrl: string | null;
+  statusRevisao: "PENDENTE" | "REVISADO";
+  parecerProfissional: string | null;
+  criadoPor: "PACIENTE" | "PROFISSIONAL" | "SISTEMA";
+  registradoEm: string;
+  atualizadoEm: string;
+};
+
+export type MetaNutriApi = {
+  id: string;
+  empresaId: string;
+  pacienteId: string;
+  tipo: string;
+  descricao: string;
+  valorMeta: number;
+  unidade: string | null;
+  dataInicio: string;
+  dataAlvo: string | null;
+  status: string;
+  criadoEm: string;
+  atualizadoEm: string;
+};
+
+export type LembreteNutriApi = {
+  id: string;
+  empresaId: string;
+  pacienteId: string;
+  titulo: string;
+  descricao: string | null;
+  horario: string | null;
+  frequencia: string;
+  status: string;
+  criadoEm: string;
+  atualizadoEm: string;
+};
+
+export type MensagemNutriApi = {
+  id: string;
+  empresaId: string;
+  pacienteId: string;
+  remetenteTipo: "PACIENTE" | "PROFISSIONAL" | "SISTEMA";
+  remetenteNome: string;
+  texto: string;
+  contexto: string | null;
+  lidaPeloPaciente: boolean;
+  lidaPeloProfissional: boolean;
+  enviadaEm: string;
+};
+
+const API_HOST_PADRAO_WEB = "http://localhost:8080";
+const API_HOST_PADRAO_ANDROID = "http://10.0.2.2:8080";
+const API_HOST_PADRAO_IOS = "http://localhost:8080";
+
+export const API_BASE_PADRAO = process.env.EXPO_PUBLIC_API_URL ?? resolverApiBasePadrao();
 
 function montarBaseApi(url: string) {
   const base = url.replace(/\/+$/, "");
@@ -131,6 +262,18 @@ function montarBaseApi(url: string) {
   }
 
   return `${base}/api`;
+}
+
+function resolverApiBasePadrao() {
+  if (Platform.OS === "android") {
+    return API_HOST_PADRAO_ANDROID;
+  }
+
+  if (Platform.OS === "ios") {
+    return API_HOST_PADRAO_IOS;
+  }
+
+  return API_HOST_PADRAO_WEB;
 }
 
 export function criarApiClient(config: ConfigApi = {}) {
@@ -152,7 +295,8 @@ export function criarApiClient(config: ConfigApi = {}) {
       headers.set("Content-Type", "application/json");
     }
 
-    const url = new URL(path, baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`);
+    const caminho = path.startsWith("/") ? path.slice(1) : path;
+    const url = new URL(caminho, baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`);
     Object.entries(options.query ?? {}).forEach(([chave, valor]) => {
       if (valor !== undefined && valor !== null) {
         url.searchParams.set(chave, String(valor));
@@ -295,4 +439,91 @@ export async function listarDocumentosPortal(params: {
       tamanho: params.tamanho ?? 40
     }
   });
+}
+
+export async function resolverPrimeiroPacienteNutri(empresaId: string | null) {
+  const resposta = await listarClientesPortal({
+    empresaId,
+    area: "NUTRI",
+    ativo: true,
+    pagina: 0,
+    tamanho: 1
+  });
+  return resposta.itens[0] ?? null;
+}
+
+export async function consultarPlanoPublicadoNutri(params: { empresaId: string | null; pacienteId: string }) {
+  return apiClientAutenticado.get<PlanoAlimentarNutriApi>(`/nutri-pro/pacientes/${params.pacienteId}/plano-publicado`, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export async function consultarListaComprasNutri(params: { empresaId: string | null; pacienteId: string }) {
+  return apiClientAutenticado.get<ListaComprasNutriApi>(`/nutri-pro/pacientes/${params.pacienteId}/lista-compras`, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export async function listarDiarioAlimentarNutri(params: { empresaId: string | null; pacienteId: string }) {
+  return apiClientAutenticado.get<{ itens: RegistroDiarioNutriApi[] }>(`/nutri-pro/pacientes/${params.pacienteId}/diario-alimentar`, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export async function criarRegistroDiarioNutri(params: {
+  empresaId: string | null;
+  pacienteId: string;
+  texto: string;
+  refeicaoNome?: string | null;
+}) {
+  return apiClientAutenticado.post<RegistroDiarioNutriApi>(
+    `/nutri-pro/pacientes/${params.pacienteId}/diario-alimentar`,
+    {
+      texto: params.texto,
+      refeicaoNome: params.refeicaoNome ?? "Registro do paciente"
+    },
+    {
+      query: { empresaId: params.empresaId }
+    }
+  );
+}
+
+export async function listarMetasNutri(params: { empresaId: string | null; pacienteId: string }) {
+  return apiClientAutenticado.get<{ itens: MetaNutriApi[] }>(`/nutri-pro/pacientes/${params.pacienteId}/metas`, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export async function listarLembretesNutri(params: { empresaId: string | null; pacienteId: string }) {
+  return apiClientAutenticado.get<{ itens: LembreteNutriApi[] }>(`/nutri-pro/pacientes/${params.pacienteId}/lembretes`, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export async function listarMensagensNutri(params: { empresaId: string | null; pacienteId: string }) {
+  return apiClientAutenticado.get<{ itens: MensagemNutriApi[] }>(`/nutri-pro/pacientes/${params.pacienteId}/mensagens`, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export async function enviarMensagemNutri(params: {
+  empresaId: string | null;
+  pacienteId: string;
+  remetenteTipo: "PACIENTE" | "PROFISSIONAL" | "SISTEMA";
+  remetenteNome: string;
+  texto: string;
+  contexto?: string | null;
+}) {
+  return apiClientAutenticado.post<MensagemNutriApi>(
+    `/nutri-pro/pacientes/${params.pacienteId}/mensagens`,
+    {
+      remetenteTipo: params.remetenteTipo,
+      remetenteNome: params.remetenteNome,
+      texto: params.texto,
+      contexto: params.contexto ?? "Mobile Nutri"
+    },
+    {
+      query: { empresaId: params.empresaId }
+    }
+  );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
@@ -13,10 +13,13 @@ import {
   FileText,
   Gauge,
   LoaderCircle,
+  MessageCircle,
   Plus,
   Save,
+  ShoppingBasket,
   Sparkles,
   Stethoscope,
+  Target,
   X,
   Users
 } from "lucide-react";
@@ -25,16 +28,27 @@ import {
   cadastrarPacienteNutriPro,
   consultarProntuarioNutriPro,
   consultarVisaoNutriPro,
+  consultarListaComprasNutriPro,
+  consultarPlanoPublicadoNutriPro,
   caminhoPdfDocumentoNutriPro,
   criarAvaliacaoAntropometricaNutriPro,
   criarCompromissoAgendaNutriPro,
   criarDocumentoProfissionalNutriPro,
+  criarLembreteNutriPro,
+  criarMetaNutriPro,
   criarPlanoAlimentarNutriPro,
+  enviarMensagemNutriPro,
   listarAgendaNutriPro,
   listarAvaliacoesAntropometricasNutriPro,
+  listarDiarioAlimentarNutriPro,
   listarDocumentosProfissionaisNutriPro,
+  listarLembretesNutriPro,
+  listarMensagensNutriPro,
+  listarMetasNutriPro,
   listarPacientesNutriPro,
   listarPlanosAlimentaresNutriPro,
+  publicarPlanoAlimentarNutriPro,
+  revisarRegistroDiarioNutriPro,
   type CompromissoAgendaNutriPro,
   type AtalhoNutriPro,
   type AvaliacaoAntropometricaNutriPro,
@@ -43,10 +57,14 @@ import {
   type CriarPlanoAlimentarNutriProInput,
   type DocumentoProfissionalNutriPro,
   type IndicadorNutriPro,
+  type ListaComprasNutriPro,
+  type MensagemNutriPro,
+  type MetaNutriPro,
   type ObjetivoNutricionalNutriPro,
   type PacienteNutriResumo,
   type PlanoAlimentarNutriPro,
   type ProntuarioNutriPro,
+  type RegistroDiarioNutriPro,
   type SexoBiologicoNutriPro,
   type StatusAgendaNutriPro,
   type TipoAgendaNutriPro,
@@ -101,9 +119,9 @@ type FormularioAgendaNutri = {
   observacoes: string;
 };
 
-type AbaProntuarioNutriPro = "resumo" | "anamnese" | "avaliacoes" | "plano" | "exames" | "prescricoes" | "documentos" | "historico";
+type AbaProntuarioNutriPro = "resumo" | "anamnese" | "avaliacoes" | "plano" | "acompanhamento" | "exames" | "prescricoes" | "documentos" | "historico";
 
-type AbaPlanoNutriPro = "visao" | "planos" | "refeicoes" | "macros" | "pdf" | "historico";
+type AbaPlanoNutriPro = "visao" | "portal" | "compras" | "planos" | "refeicoes" | "macros" | "pdf" | "historico";
 
 type AbaAvaliacaoNutriPro = "antropometria" | "gasto" | "historico" | "evolucao";
 
@@ -112,6 +130,7 @@ const abasProntuarioNutri: Array<{ id: AbaProntuarioNutriPro; label: string }> =
   { id: "anamnese", label: "Anamnese" },
   { id: "avaliacoes", label: "Avaliações" },
   { id: "plano", label: "Plano" },
+  { id: "acompanhamento", label: "Acompanhamento" },
   { id: "exames", label: "Exames" },
   { id: "prescricoes", label: "Prescrições" },
   { id: "documentos", label: "Documentos" },
@@ -120,6 +139,8 @@ const abasProntuarioNutri: Array<{ id: AbaProntuarioNutriPro; label: string }> =
 
 const abasPlanoNutri: Array<{ id: AbaPlanoNutriPro; label: string }> = [
   { id: "visao", label: "Visão geral" },
+  { id: "portal", label: "Portal/app" },
+  { id: "compras", label: "Compras" },
   { id: "planos", label: "Planos ativos" },
   { id: "refeicoes", label: "Refeições" },
   { id: "macros", label: "Macros" },
@@ -1056,6 +1077,10 @@ function ConteudoProntuarioNutri({ empresaId, prontuario, aba }: { empresaId: st
     return <AreaPlanoAlimentarNutri empresaId={empresaId} prontuario={prontuario} abaAtiva="visao" onSelecionarAba={() => undefined} semAbas />;
   }
 
+  if (aba === "acompanhamento") {
+    return <AreaAcompanhamentoPacienteNutri empresaId={empresaId} prontuario={prontuario} />;
+  }
+
   if (aba === "exames") {
     return <FluxoExamesLaboratoriais empresaId={empresaId} prontuario={prontuario} />;
   }
@@ -1124,6 +1149,18 @@ function AreaPlanoAlimentarNutri({
     queryFn: () => listarDocumentosProfissionaisNutriPro({ empresaId, pacienteId: prontuario.paciente.id, tipo: "PLANO_ALIMENTAR" }),
     enabled: Boolean(empresaId && prontuario.paciente.id)
   });
+  const planoPublicadoQuery = useQuery({
+    queryKey: ["nutri-pro-plano-publicado", empresaId, prontuario.paciente.id],
+    queryFn: () => consultarPlanoPublicadoNutriPro({ empresaId, pacienteId: prontuario.paciente.id }),
+    enabled: Boolean(empresaId && prontuario.paciente.id),
+    retry: false
+  });
+  const listaComprasQuery = useQuery({
+    queryKey: ["nutri-pro-lista-compras", empresaId, prontuario.paciente.id],
+    queryFn: () => consultarListaComprasNutriPro({ empresaId, pacienteId: prontuario.paciente.id }),
+    enabled: Boolean(empresaId && prontuario.paciente.id),
+    retry: false
+  });
   const criarPlanoMutation = useMutation({
     mutationFn: () =>
       criarPlanoAlimentarNutriPro({
@@ -1139,8 +1176,25 @@ function AreaPlanoAlimentarNutri({
   });
 
   const planos = planosQuery.data?.itens ?? [];
-  const planoEmFoco = criarPlanoMutation.data ?? planos[0] ?? null;
+  const planoPublicado = planoPublicadoQuery.data ?? null;
+  const planoEmFoco = criarPlanoMutation.data ?? planoPublicado ?? planos[0] ?? null;
   const documentosPlano = documentosPlanoQuery.data?.itens ?? [];
+
+  const publicarPlanoMutation = useMutation({
+    mutationFn: () => {
+      if (!planoEmFoco) {
+        throw new Error("Plano alimentar não selecionado.");
+      }
+      return publicarPlanoAlimentarNutriPro({ empresaId, pacienteId: prontuario.paciente.id, planoId: planoEmFoco.id });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-planos-alimentares", empresaId, prontuario.paciente.id] });
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-plano-publicado", empresaId, prontuario.paciente.id] });
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-lista-compras", empresaId, prontuario.paciente.id] });
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-prontuario", empresaId, prontuario.paciente.id] });
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-visao", empresaId] });
+    }
+  });
 
   const criarDocumentoPlanoMutation = useMutation({
     mutationFn: () => {
@@ -1181,11 +1235,15 @@ function AreaPlanoAlimentarNutri({
           plano={planoEmFoco}
           planos={planos}
           documentosPlano={documentosPlano}
+          planoPublicado={planoPublicado}
+          listaCompras={listaComprasQuery.data ?? null}
           carregando={planosQuery.isLoading || documentosPlanoQuery.isLoading}
           criandoDocumento={criarDocumentoPlanoMutation.isPending}
           documentoCriado={criarDocumentoPlanoMutation.data ?? null}
           erroDocumento={criarDocumentoPlanoMutation.isError}
           onCriarDocumento={() => criarDocumentoPlanoMutation.mutate()}
+          publicandoPlano={publicarPlanoMutation.isPending}
+          onPublicarPlano={() => publicarPlanoMutation.mutate()}
         />
       </div>
     </section>
@@ -1197,21 +1255,29 @@ function ConteudoPlanoNutri({
   plano,
   planos,
   documentosPlano,
+  planoPublicado,
+  listaCompras,
   carregando,
   criandoDocumento,
   documentoCriado,
   erroDocumento,
-  onCriarDocumento
+  onCriarDocumento,
+  publicandoPlano,
+  onPublicarPlano
 }: {
   aba: AbaPlanoNutriPro;
   plano: PlanoAlimentarNutriPro | null;
   planos: PlanoAlimentarNutriPro[];
   documentosPlano: DocumentoProfissionalNutriPro[];
+  planoPublicado: PlanoAlimentarNutriPro | null;
+  listaCompras: ListaComprasNutriPro | null;
   carregando: boolean;
   criandoDocumento: boolean;
   documentoCriado: DocumentoProfissionalNutriPro | null;
   erroDocumento: boolean;
   onCriarDocumento: () => void;
+  publicandoPlano: boolean;
+  onPublicarPlano: () => void;
 }) {
   if (carregando) {
     return <EstadoCarregandoNutri texto="Carregando planos alimentares" />;
@@ -1231,6 +1297,14 @@ function ConteudoPlanoNutri({
 
   if (aba === "macros" && plano) {
     return <ResumoMacrosPlano plano={plano} />;
+  }
+
+  if (aba === "portal") {
+    return <PainelPublicacaoPlano plano={plano} planoPublicado={planoPublicado} publicando={publicandoPlano} onPublicar={onPublicarPlano} />;
+  }
+
+  if (aba === "compras") {
+    return <ListaComprasPlano listaCompras={listaCompras} />;
   }
 
   if (aba === "pdf") {
@@ -1259,6 +1333,159 @@ function ConteudoPlanoNutri({
   }
 
   return plano ? <ResumoPlanoCompacto plano={plano} /> : <ListaPlanosNutri planos={planos} />;
+}
+
+function AreaAcompanhamentoPacienteNutri({ empresaId, prontuario }: { empresaId: string; prontuario: ProntuarioNutriPro }) {
+  const queryClient = useQueryClient();
+  const profissionalNome = carregarSessaoAutenticada()?.usuario.nome ?? "Nutricionista responsável";
+  const pacienteId = prontuario.paciente.id;
+
+  const diarioQuery = useQuery({
+    queryKey: ["nutri-pro-diario", empresaId, pacienteId],
+    queryFn: () => listarDiarioAlimentarNutriPro({ empresaId, pacienteId }),
+    enabled: Boolean(empresaId && pacienteId)
+  });
+  const metasQuery = useQuery({
+    queryKey: ["nutri-pro-metas", empresaId, pacienteId],
+    queryFn: () => listarMetasNutriPro({ empresaId, pacienteId }),
+    enabled: Boolean(empresaId && pacienteId)
+  });
+  const lembretesQuery = useQuery({
+    queryKey: ["nutri-pro-lembretes", empresaId, pacienteId],
+    queryFn: () => listarLembretesNutriPro({ empresaId, pacienteId }),
+    enabled: Boolean(empresaId && pacienteId)
+  });
+  const mensagensQuery = useQuery({
+    queryKey: ["nutri-pro-mensagens", empresaId, pacienteId],
+    queryFn: () => listarMensagensNutriPro({ empresaId, pacienteId }),
+    enabled: Boolean(empresaId && pacienteId)
+  });
+
+  const diario = diarioQuery.data?.itens ?? [];
+  const registroPendente = diario.find((registro) => registro.statusRevisao === "PENDENTE") ?? null;
+  const metas = metasQuery.data?.itens ?? [];
+  const lembretes = lembretesQuery.data?.itens ?? [];
+  const mensagens = mensagensQuery.data?.itens ?? [];
+
+  const revisarDiarioMutation = useMutation({
+    mutationFn: () => {
+      if (!registroPendente) {
+        throw new Error("Nenhum registro pendente.");
+      }
+      return revisarRegistroDiarioNutriPro({
+        empresaId,
+        pacienteId,
+        registroId: registroPendente.id,
+        dados: { parecerProfissional: "Registro revisado. Manter acompanhamento e avisar se houver desconforto ou mudança de rotina." }
+      });
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["nutri-pro-diario", empresaId, pacienteId] })
+  });
+
+  const criarMetaMutation = useMutation({
+    mutationFn: () =>
+      criarMetaNutriPro({
+        empresaId,
+        pacienteId,
+        dados: {
+          tipo: "HIDRATACAO",
+          descricao: "Atingir a meta diária de hidratação combinada no acompanhamento.",
+          valorMeta: 2,
+          unidade: "L",
+          dataAlvo: null
+        }
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["nutri-pro-metas", empresaId, pacienteId] })
+  });
+
+  const criarLembreteMutation = useMutation({
+    mutationFn: () =>
+      criarLembreteNutriPro({
+        empresaId,
+        pacienteId,
+        dados: {
+          titulo: "Registrar diário alimentar",
+          descricao: "Enviar percepção de fome, saciedade e adesão do dia.",
+          horario: "20:00",
+          frequencia: "DIARIA"
+        }
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["nutri-pro-lembretes", empresaId, pacienteId] })
+  });
+
+  const enviarMensagemMutation = useMutation({
+    mutationFn: () =>
+      enviarMensagemNutriPro({
+        empresaId,
+        pacienteId,
+        dados: {
+          remetenteTipo: "PROFISSIONAL",
+          remetenteNome: profissionalNome,
+          texto: "Olá! Seu acompanhamento está ativo. Me envie pelo diário como está a adesão ao plano e qualquer dúvida do dia.",
+          contexto: "Acompanhamento Nutri"
+        }
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["nutri-pro-mensagens", empresaId, pacienteId] })
+  });
+
+  return (
+    <section className="grid gap-4">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <CardAcompanhamentoNutri icon={ClipboardList} titulo="Diário" valor={diario.length} detalhe={`${registroPendente ? 1 : 0} pendente de revisão`} />
+        <CardAcompanhamentoNutri icon={Target} titulo="Metas" valor={metas.length} detalhe="Objetivos ativos do paciente" />
+        <CardAcompanhamentoNutri icon={Clock} titulo="Lembretes" valor={lembretes.length} detalhe="Rotina combinada" />
+        <CardAcompanhamentoNutri icon={MessageCircle} titulo="Mensagens" valor={mensagens.length} detalhe="Recados assíncronos" />
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <PainelListaAcompanhamento
+          titulo="Diário alimentar"
+          carregando={diarioQuery.isLoading}
+          vazio="Nenhum registro do paciente ainda."
+          acao={registroPendente ? "Revisar pendente" : undefined}
+          onAcao={registroPendente ? () => revisarDiarioMutation.mutate() : undefined}
+          acaoDesabilitada={revisarDiarioMutation.isPending}
+        >
+          {diario.map((registro) => <LinhaRegistroDiarioNutri key={registro.id} registro={registro} />)}
+        </PainelListaAcompanhamento>
+
+        <PainelListaAcompanhamento
+          titulo="Metas e lembretes"
+          carregando={metasQuery.isLoading || lembretesQuery.isLoading}
+          vazio="Nenhuma meta ou lembrete configurado."
+          acao="Criar meta/lembrete"
+          onAcao={() => {
+            criarMetaMutation.mutate();
+            criarLembreteMutation.mutate();
+          }}
+          acaoDesabilitada={criarMetaMutation.isPending || criarLembreteMutation.isPending}
+        >
+          {metas.map((meta) => <LinhaMetaNutri key={meta.id} meta={meta} />)}
+          {lembretes.map((lembrete) => (
+            <article key={lembrete.id} className="rounded-md border bg-background p-3 text-sm">
+              <p className="font-semibold text-card-foreground">{lembrete.titulo}</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                {lembrete.horario ?? "Sem horário"} · {lembrete.frequencia} · {lembrete.status}
+              </p>
+            </article>
+          ))}
+        </PainelListaAcompanhamento>
+
+        <div className="xl:col-span-2">
+          <PainelListaAcompanhamento
+            titulo="Recados Nutri"
+            carregando={mensagensQuery.isLoading}
+            vazio="Nenhuma mensagem trocada ainda."
+            acao="Enviar recado"
+            onAcao={() => enviarMensagemMutation.mutate()}
+            acaoDesabilitada={enviarMensagemMutation.isPending}
+          >
+            {mensagens.map((mensagem) => <LinhaMensagemNutri key={mensagem.id} mensagem={mensagem} />)}
+          </PainelListaAcompanhamento>
+        </div>
+      </div>
+    </section>
+  );
 }
 
 function AreaAvaliacoesNutri({
@@ -1433,6 +1660,105 @@ function PainelSimplesNutri({ titulo, descricao, icon: Icon }: { titulo: string;
   );
 }
 
+function CardAcompanhamentoNutri({ icon: Icon, titulo, valor, detalhe }: { icon: Icone; titulo: string; valor: number; detalhe: string }) {
+  return (
+    <article className="rounded-lg border bg-white p-4 shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <span className="flex h-10 w-10 items-center justify-center rounded-md bg-emerald-50 text-emerald-800">
+          <Icon className="h-5 w-5" />
+        </span>
+        <span className="text-2xl font-semibold text-card-foreground">{formatarNumero(valor)}</span>
+      </div>
+      <p className="mt-3 text-sm font-semibold text-card-foreground">{titulo}</p>
+      <p className="mt-1 text-xs leading-5 text-muted-foreground">{detalhe}</p>
+    </article>
+  );
+}
+
+function PainelListaAcompanhamento({
+  titulo,
+  carregando,
+  vazio,
+  acao,
+  onAcao,
+  acaoDesabilitada,
+  children
+}: {
+  titulo: string;
+  carregando: boolean;
+  vazio: string;
+  acao?: string;
+  onAcao?: () => void;
+  acaoDesabilitada?: boolean;
+  children: ReactNode;
+}) {
+  const possuiConteudo = Array.isArray(children) ? children.length > 0 : Boolean(children);
+
+  return (
+    <section className="rounded-lg border bg-white p-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm font-semibold text-card-foreground">{titulo}</p>
+        {acao && onAcao ? (
+          <button
+            type="button"
+            onClick={onAcao}
+            disabled={acaoDesabilitada}
+            className="inline-flex h-9 items-center justify-center rounded-md border bg-background px-3 text-xs font-semibold text-card-foreground transition-colors hover:border-primary/50 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {acao}
+          </button>
+        ) : null}
+      </div>
+      <div className="mt-3 grid gap-2">
+        {carregando ? <EstadoCarregandoNutri texto={`Carregando ${titulo.toLowerCase()}`} /> : possuiConteudo ? children : <div className="rounded-md border bg-background p-3 text-sm text-muted-foreground">{vazio}</div>}
+      </div>
+    </section>
+  );
+}
+
+function LinhaRegistroDiarioNutri({ registro }: { registro: RegistroDiarioNutriPro }) {
+  return (
+    <article className="rounded-md border bg-background p-3 text-sm">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <p className="font-semibold text-card-foreground">{registro.refeicaoNome ?? "Registro alimentar"}</p>
+        <span className={cn("rounded-md border px-2 py-1 text-xs font-semibold", registro.statusRevisao === "REVISADO" ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800")}>
+          {registro.statusRevisao === "REVISADO" ? "Revisado" : "Pendente"}
+        </span>
+      </div>
+      <p className="mt-2 text-xs leading-5 text-muted-foreground">{registro.texto}</p>
+      {registro.parecerProfissional ? <p className="mt-2 rounded-md border bg-white p-2 text-xs leading-5 text-emerald-900">{registro.parecerProfissional}</p> : null}
+      <p className="mt-2 text-xs font-medium text-muted-foreground">{formatarDataHora(registro.registradoEm)}</p>
+    </article>
+  );
+}
+
+function LinhaMetaNutri({ meta }: { meta: MetaNutriPro }) {
+  return (
+    <article className="rounded-md border bg-background p-3 text-sm">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <p className="font-semibold text-card-foreground">{rotuloTipoMetaNutri(meta.tipo)}</p>
+        <span className="rounded-md border bg-white px-2 py-1 text-xs font-semibold text-emerald-800">{meta.status}</span>
+      </div>
+      <p className="mt-1 text-xs leading-5 text-muted-foreground">
+        {meta.descricao} · meta {formatarDecimal(meta.valorMeta)} {meta.unidade ?? ""}
+      </p>
+    </article>
+  );
+}
+
+function LinhaMensagemNutri({ mensagem }: { mensagem: MensagemNutriPro }) {
+  return (
+    <article className="rounded-md border bg-background p-3 text-sm">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <p className="font-semibold text-card-foreground">{mensagem.remetenteNome}</p>
+        <span className="rounded-md border bg-white px-2 py-1 text-xs font-semibold text-muted-foreground">{mensagem.remetenteTipo}</span>
+      </div>
+      <p className="mt-1 text-xs leading-5 text-muted-foreground">{mensagem.texto}</p>
+      <p className="mt-2 text-xs font-medium text-muted-foreground">{mensagem.contexto ?? "Acompanhamento"} · {formatarDataHora(mensagem.enviadaEm)}</p>
+    </article>
+  );
+}
+
 function ResumoPlanoCompacto({ plano }: { plano: PlanoAlimentarNutriPro }) {
   return (
     <section className="rounded-lg border border-lime-200 bg-lime-50/70 p-4">
@@ -1531,6 +1857,81 @@ function ResumoMacrosPlano({ plano }: { plano: PlanoAlimentarNutriPro }) {
         {macros.map((macro) => (
           <span key={macro.label} className="rounded-md border bg-white px-2 py-1 text-xs font-semibold text-muted-foreground">{macro.label}: {formatarMacro(macro.valor)}</span>
         ))}
+      </div>
+    </section>
+  );
+}
+
+function PainelPublicacaoPlano({
+  plano,
+  planoPublicado,
+  publicando,
+  onPublicar
+}: {
+  plano: PlanoAlimentarNutriPro | null;
+  planoPublicado: PlanoAlimentarNutriPro | null;
+  publicando: boolean;
+  onPublicar: () => void;
+}) {
+  return (
+    <section className="grid gap-3 rounded-lg border border-emerald-200 bg-emerald-50/70 p-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+      <div>
+        <p className="text-sm font-semibold text-emerald-950">Publicação no portal e app</p>
+        <p className="mt-2 text-sm leading-6 text-emerald-950/80">
+          O plano ativo aparece para o paciente com refeições, horários, suplementos e observações. Ao publicar um novo plano, o ativo anterior vira histórico.
+        </p>
+        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          <CampoPreparado label="Plano em edição" value={plano?.objetivo ?? "Nenhum plano selecionado"} />
+          <CampoPreparado label="Publicado agora" value={planoPublicado?.objetivo ?? "Nenhum plano publicado"} />
+        </div>
+      </div>
+      <button
+        type="button"
+        disabled={!plano || publicando}
+        onClick={onPublicar}
+        className="inline-flex h-10 shrink-0 items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {publicando ? "Publicando" : "Publicar no portal/app"}
+      </button>
+    </section>
+  );
+}
+
+function ListaComprasPlano({ listaCompras }: { listaCompras: ListaComprasNutriPro | null }) {
+  if (!listaCompras) {
+    return <EstadoNutriPro titulo="Lista de compras indisponível" descricao="Publique um plano alimentar ativo para gerar a lista de compras do paciente." />;
+  }
+
+  return (
+    <section className="rounded-lg border bg-background p-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-card-foreground">Lista de compras</p>
+          <p className="mt-1 text-xs text-muted-foreground">{listaCompras.objetivoPlano} · gerada em {formatarDataHora(listaCompras.geradoEm)}</p>
+        </div>
+        <span className="w-fit rounded-md border bg-white px-2 py-1 text-xs font-semibold text-emerald-800">Compartilhável no portal/app</span>
+      </div>
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
+        {listaCompras.grupos.length ? (
+          listaCompras.grupos.map((grupo) => (
+            <article key={grupo.categoria} className="rounded-lg border bg-white p-3">
+              <p className="text-sm font-semibold text-card-foreground">{grupo.categoria}</p>
+              <div className="mt-3 grid gap-2">
+                {grupo.itens.map((item) => (
+                  <div key={`${grupo.categoria}-${item.nome}-${item.unidadeMedida}`} className="rounded-md border bg-background p-3 text-sm">
+                    <p className="font-semibold text-card-foreground">{item.nome}</p>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                      {formatarDecimal(item.quantidade)} {item.unidadeMedida}
+                      {item.refeicoes ? ` · ${item.refeicoes}` : ""}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </article>
+          ))
+        ) : (
+          <div className="rounded-md border bg-white p-3 text-sm text-muted-foreground">Nenhum alimento encontrado no plano publicado.</div>
+        )}
       </div>
     </section>
   );
@@ -2243,6 +2644,17 @@ function rotuloTipoDocumento(tipo: string) {
     DECLARACAO: "Declaração",
     RECIBO: "Recibo",
     OUTRO: "Documento"
+  };
+  return rotulos[tipo] ?? tipo;
+}
+
+function rotuloTipoMetaNutri(tipo: string) {
+  const rotulos: Record<string, string> = {
+    HIDRATACAO: "Hidratação",
+    REFEICOES: "Refeições",
+    PESO: "Peso",
+    MEDIDAS: "Medidas",
+    HABITO: "Hábito"
   };
   return rotulos[tipo] ?? tipo;
 }
