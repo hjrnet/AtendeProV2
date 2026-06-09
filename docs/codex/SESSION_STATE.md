@@ -611,3 +611,11 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Entrega: plano alimentar publicado para portal/app, lista de compras, diario alimentar, metas, lembretes, mensagens e linha do tempo de evolucao Nutri.
 - Validacao: backend Maven test, web typecheck/lint/build e mobile typecheck/lint aprovados.
 - Proxima etapa recomendada: R18 / TASK-NUTRI-013.
+## Atualizacao R18 - TASK-NUTRI-013 banco de alimentos
+
+- Data: 2026-06-09
+- Release executada: R18 Nutri Pro plano alimentar avancado e produtividade clinica
+- Task concluida: TASK-NUTRI-013
+- Entrega: banco de alimentos e suplementos com itens padrao globais, itens personalizados por empresa, composicao nutricional, origem, fonte dos dados e painel operacional no workspace Nutri.
+- Validacao: backend Maven test aprovado, web typecheck/lint/build aprovados, backend jar local UP e smoke test real do endpoint /api/nutri-pro/banco-alimentos aprovado com JWT.
+- Proxima etapa recomendada: TASK-NUTRI-014 editor avancado de plano alimentar.

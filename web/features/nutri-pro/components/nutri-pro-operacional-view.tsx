@@ -10,11 +10,13 @@ import {
   ChevronRight,
   Clock,
   ClipboardList,
+  Database,
   FileText,
   Gauge,
   LoaderCircle,
   MessageCircle,
   Plus,
+  Pill,
   Save,
   ShoppingBasket,
   Sparkles,
@@ -26,7 +28,9 @@ import {
 
 import {
   cadastrarPacienteNutriPro,
+  cadastrarItemBancoAlimentosNutriPro,
   consultarProntuarioNutriPro,
+  consultarBancoAlimentosNutriPro,
   consultarVisaoNutriPro,
   consultarListaComprasNutriPro,
   consultarPlanoPublicadoNutriPro,
@@ -52,16 +56,20 @@ import {
   type CompromissoAgendaNutriPro,
   type AtalhoNutriPro,
   type AvaliacaoAntropometricaNutriPro,
+  type BancoAlimentosNutriPro,
   type CriarAvaliacaoAntropometricaNutriProInput,
   type CriarDocumentoProfissionalNutriProInput,
   type CriarPlanoAlimentarNutriProInput,
   type DocumentoProfissionalNutriPro,
   type IndicadorNutriPro,
+  type ItemBancoAlimentosNutriPro,
   type ListaComprasNutriPro,
   type MensagemNutriPro,
   type MetaNutriPro,
   type ObjetivoNutricionalNutriPro,
+  type OrigemItemBancoAlimentosNutriPro,
   type PacienteNutriResumo,
+  type TipoItemBancoAlimentosNutriPro,
   type PlanoAlimentarNutriPro,
   type ProntuarioNutriPro,
   type RegistroDiarioNutriPro,
@@ -118,10 +126,28 @@ type FormularioAgendaNutri = {
   profissionalNome: string;
   observacoes: string;
 };
+type FormularioBancoAlimentosNutri = {
+  tipoItem: TipoItemBancoAlimentosNutriPro;
+  nome: string;
+  grupo: string;
+  categoriaClinica: string;
+  unidadeMedida: string;
+  quantidadeBase: string;
+  energiaKcalBase: string;
+  proteinasBase: string;
+  carboidratosBase: string;
+  lipidiosBase: string;
+  fibrasBase: string;
+  sodioMgBase: string;
+  fonteDados: string;
+  marcaFabricante: string;
+  orientacaoUso: string;
+  observacoes: string;
+};
 
 type AbaProntuarioNutriPro = "resumo" | "anamnese" | "avaliacoes" | "plano" | "acompanhamento" | "exames" | "prescricoes" | "documentos" | "historico";
 
-type AbaPlanoNutriPro = "visao" | "portal" | "compras" | "planos" | "refeicoes" | "macros" | "pdf" | "historico";
+type AbaPlanoNutriPro = "visao" | "portal" | "compras" | "planos" | "refeicoes" | "macros" | "pdf" | "historico" | "banco";
 
 type AbaAvaliacaoNutriPro = "antropometria" | "gasto" | "historico" | "evolucao";
 
@@ -141,6 +167,7 @@ const abasPlanoNutri: Array<{ id: AbaPlanoNutriPro; label: string }> = [
   { id: "visao", label: "Visão geral" },
   { id: "portal", label: "Portal/app" },
   { id: "compras", label: "Compras" },
+  { id: "banco", label: "Banco" },
   { id: "planos", label: "Planos ativos" },
   { id: "refeicoes", label: "Refeições" },
   { id: "macros", label: "Macros" },
@@ -1231,6 +1258,7 @@ function AreaPlanoAlimentarNutri({
       {!semAbas ? <div className="mt-4"><AbasNutri<AbaPlanoNutriPro> abas={abasPlanoNutri} ativa={abaAtiva} onSelecionar={onSelecionarAba} /></div> : null}
       <div className="mt-4">
         <ConteudoPlanoNutri
+          empresaId={empresaId}
           aba={abaRenderizada}
           plano={planoEmFoco}
           planos={planos}
@@ -1251,6 +1279,7 @@ function AreaPlanoAlimentarNutri({
 }
 
 function ConteudoPlanoNutri({
+  empresaId,
   aba,
   plano,
   planos,
@@ -1265,6 +1294,7 @@ function ConteudoPlanoNutri({
   publicandoPlano,
   onPublicarPlano
 }: {
+  empresaId: string;
   aba: AbaPlanoNutriPro;
   plano: PlanoAlimentarNutriPro | null;
   planos: PlanoAlimentarNutriPro[];
@@ -1283,8 +1313,12 @@ function ConteudoPlanoNutri({
     return <EstadoCarregandoNutri texto="Carregando planos alimentares" />;
   }
 
-  if (!plano && aba !== "historico" && aba !== "planos") {
+  if (!plano && aba !== "historico" && aba !== "planos" && aba !== "banco") {
     return <EstadoNutriPro titulo="Nenhum plano alimentar" descricao="Crie o primeiro plano para liberar refeições, macros e PDF." />;
+  }
+
+  if (aba === "banco") {
+    return <BancoAlimentosNutri empresaId={empresaId} />;
   }
 
   if (aba === "planos" || aba === "historico") {
@@ -1488,6 +1522,279 @@ function AreaAcompanhamentoPacienteNutri({ empresaId, prontuario }: { empresaId:
   );
 }
 
+function BancoAlimentosNutri({ empresaId }: { empresaId: string }) {
+  const queryClient = useQueryClient();
+  const [busca, setBusca] = useState("");
+  const [tipoItem, setTipoItem] = useState<TipoItemBancoAlimentosNutriPro | "TODOS">("TODOS");
+  const [origem, setOrigem] = useState<OrigemItemBancoAlimentosNutriPro | "TODOS">("TODOS");
+  const [mensagem, setMensagem] = useState<string | null>(null);
+  const [formulario, setFormulario] = useState<FormularioBancoAlimentosNutri>(criarFormularioBancoAlimentosNutri);
+
+  const bancoQuery = useQuery({
+    queryKey: ["nutri-pro-banco-alimentos", empresaId, busca, tipoItem, origem],
+    queryFn: () =>
+      consultarBancoAlimentosNutriPro({
+        empresaId,
+        busca,
+        tipoItem: tipoItem === "TODOS" ? undefined : tipoItem,
+        origem: origem === "TODOS" ? undefined : origem
+      }),
+    enabled: Boolean(empresaId)
+  });
+
+  const cadastrarMutation = useMutation({
+    mutationFn: () =>
+      cadastrarItemBancoAlimentosNutriPro({
+        empresaId,
+        dados: {
+          tipoItem: formulario.tipoItem,
+          origem: "PERSONALIZADO",
+          nome: formulario.nome.trim(),
+          grupo: formulario.grupo.trim() || null,
+          categoriaClinica: formulario.categoriaClinica.trim() || null,
+          unidadeMedida: formulario.unidadeMedida.trim(),
+          quantidadeBase: numeroBancoNutri(formulario.quantidadeBase),
+          energiaKcalBase: numeroBancoNutri(formulario.energiaKcalBase),
+          proteinasBase: numeroBancoNutri(formulario.proteinasBase),
+          carboidratosBase: numeroBancoNutri(formulario.carboidratosBase),
+          lipidiosBase: numeroBancoNutri(formulario.lipidiosBase),
+          fibrasBase: numeroBancoNutri(formulario.fibrasBase),
+          sodioMgBase: numeroBancoNutri(formulario.sodioMgBase),
+          fonteDados: formulario.fonteDados.trim() || null,
+          marcaFabricante: formulario.marcaFabricante.trim() || null,
+          orientacaoUso: formulario.orientacaoUso.trim() || null,
+          observacoes: formulario.observacoes.trim() || null
+        }
+      }),
+    onSuccess: (item) => {
+      setMensagem(`${item.nome} cadastrado no banco Nutri.`);
+      setFormulario(criarFormularioBancoAlimentosNutri());
+      queryClient.invalidateQueries({ queryKey: ["nutri-pro-banco-alimentos", empresaId] });
+    },
+    onError: (error) => {
+      setMensagem(error instanceof Error ? error.message : "Nao foi possivel cadastrar o item no banco Nutri.");
+    }
+  });
+
+  const banco: BancoAlimentosNutriPro | null = bancoQuery.data ?? null;
+  const itens = banco?.itens ?? [];
+  const metricas = banco?.metricas ?? { totalItens: 0, alimentos: 0, suplementos: 0, padrao: 0, personalizados: 0 };
+
+  function enviarFormulario(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setMensagem(null);
+    if (!formulario.nome.trim() || !formulario.unidadeMedida.trim()) {
+      setMensagem("Informe nome e unidade de medida do item.");
+      return;
+    }
+    cadastrarMutation.mutate();
+  }
+
+  return (
+    <section className="grid gap-4">
+      <div className="rounded-lg border border-lime-200 bg-lime-50/60 p-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-lime-900">Banco de alimentos e suplementos</p>
+            <p className="mt-1 max-w-3xl text-sm leading-6 text-lime-950/75">Consulte itens padrao do AtendePro e cadastre alimentos ou suplementos personalizados da clinica com macros, fibras, sodio, fonte e orientacao de uso.</p>
+          </div>
+          {bancoQuery.isLoading ? <LoaderCircle className="h-5 w-5 animate-spin text-lime-800" /> : null}
+        </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          <CardBancoNutri icon={Database} titulo="Total" valor={metricas.totalItens} detalhe="Itens disponiveis" />
+          <CardBancoNutri icon={Apple} titulo="Alimentos" valor={metricas.alimentos} detalhe="Composicao alimentar" />
+          <CardBancoNutri icon={Pill} titulo="Suplementos" valor={metricas.suplementos} detalhe="Formulas e ergogenicos" />
+          <CardBancoNutri icon={Sparkles} titulo="Padrao" valor={metricas.padrao} detalhe="Catalogo AtendePro" />
+          <CardBancoNutri icon={Users} titulo="Personalizados" valor={metricas.personalizados} detalhe="Da empresa" />
+        </div>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
+        <section className="rounded-lg border bg-white p-4 shadow-sm">
+          <div className="grid gap-3 md:grid-cols-3">
+            <label className="grid gap-1 text-sm font-medium text-card-foreground">
+              Busca
+              <input
+                value={busca}
+                onChange={(event) => setBusca(event.target.value)}
+                className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                placeholder="Nome, grupo, fonte ou fabricante"
+              />
+            </label>
+            <label className="grid gap-1 text-sm font-medium text-card-foreground">
+              Tipo
+              <select value={tipoItem} onChange={(event) => setTipoItem(event.target.value as TipoItemBancoAlimentosNutriPro | "TODOS")} className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring">
+                <option value="TODOS">Todos</option>
+                <option value="ALIMENTO">Alimentos</option>
+                <option value="SUPLEMENTO">Suplementos</option>
+              </select>
+            </label>
+            <label className="grid gap-1 text-sm font-medium text-card-foreground">
+              Origem
+              <select value={origem} onChange={(event) => setOrigem(event.target.value as OrigemItemBancoAlimentosNutriPro | "TODOS")} className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring">
+                <option value="TODOS">Todas</option>
+                <option value="PADRAO">Padrao</option>
+                <option value="PERSONALIZADO">Personalizados</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="mt-4 grid gap-3">
+            {itens.length ? itens.map((item) => <LinhaItemBancoNutri key={item.id} item={item} />) : <EstadoNutriPro titulo="Nenhum item encontrado" descricao="Ajuste os filtros ou cadastre um alimento personalizado para esta empresa." />}
+          </div>
+        </section>
+
+        <form onSubmit={enviarFormulario} className="rounded-lg border border-emerald-200 bg-emerald-50/45 p-4 shadow-sm">
+          <div className="border-b border-emerald-100 pb-3">
+            <p className="text-sm font-semibold text-emerald-900">Cadastrar item personalizado</p>
+            <p className="mt-1 text-xs leading-5 text-emerald-950/70">Use para alimentos de rotina da clinica, manipulados, suplementos ou marcas especificas.</p>
+          </div>
+          {mensagem ? <div className="mt-3 rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-xs leading-5 text-sky-900">{mensagem}</div> : null}
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <label className="grid gap-1 text-sm font-medium text-card-foreground">
+              Tipo
+              <select value={formulario.tipoItem} onChange={(event) => setFormulario((estado) => ({ ...estado, tipoItem: event.target.value as TipoItemBancoAlimentosNutriPro }))} className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring">
+                <option value="ALIMENTO">Alimento</option>
+                <option value="SUPLEMENTO">Suplemento</option>
+              </select>
+            </label>
+            <label className="grid gap-1 text-sm font-medium text-card-foreground">
+              Unidade
+              <input value={formulario.unidadeMedida} onChange={(event) => setFormulario((estado) => ({ ...estado, unidadeMedida: event.target.value }))} className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" placeholder="g, ml, dose" />
+            </label>
+            <label className="grid gap-1 text-sm font-medium text-card-foreground sm:col-span-2">
+              Nome
+              <input value={formulario.nome} onChange={(event) => setFormulario((estado) => ({ ...estado, nome: event.target.value }))} className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" placeholder="Ex.: Mix proteico da clinica" />
+            </label>
+            <label className="grid gap-1 text-sm font-medium text-card-foreground">
+              Grupo
+              <input value={formulario.grupo} onChange={(event) => setFormulario((estado) => ({ ...estado, grupo: event.target.value }))} className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" placeholder="Proteinas, frutas..." />
+            </label>
+            <label className="grid gap-1 text-sm font-medium text-card-foreground">
+              Categoria clinica
+              <input value={formulario.categoriaClinica} onChange={(event) => setFormulario((estado) => ({ ...estado, categoriaClinica: event.target.value }))} className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" placeholder="Performance, fibra..." />
+            </label>
+            {[
+              ["Base", "quantidadeBase"],
+              ["Kcal", "energiaKcalBase"],
+              ["Proteinas", "proteinasBase"],
+              ["Carboidratos", "carboidratosBase"],
+              ["Lipidios", "lipidiosBase"],
+              ["Fibras", "fibrasBase"],
+              ["Sodio mg", "sodioMgBase"]
+            ].map(([label, campo]) => (
+              <label key={campo} className="grid gap-1 text-sm font-medium text-card-foreground">
+                {label}
+                <input
+                  value={formulario[campo as keyof FormularioBancoAlimentosNutri]}
+                  onChange={(event) => setFormulario((estado) => ({ ...estado, [campo]: event.target.value }))}
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                />
+              </label>
+            ))}
+            <label className="grid gap-1 text-sm font-medium text-card-foreground sm:col-span-2">
+              Fonte dos dados
+              <input value={formulario.fonteDados} onChange={(event) => setFormulario((estado) => ({ ...estado, fonteDados: event.target.value }))} className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" placeholder="Rotulo, TACO, laboratorio, ficha tecnica..." />
+            </label>
+            <label className="grid gap-1 text-sm font-medium text-card-foreground sm:col-span-2">
+              Fabricante/marca
+              <input value={formulario.marcaFabricante} onChange={(event) => setFormulario((estado) => ({ ...estado, marcaFabricante: event.target.value }))} className="h-10 rounded-md border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" placeholder="Opcional" />
+            </label>
+            <label className="grid gap-1 text-sm font-medium text-card-foreground sm:col-span-2">
+              Orientacao de uso
+              <textarea value={formulario.orientacaoUso} onChange={(event) => setFormulario((estado) => ({ ...estado, orientacaoUso: event.target.value }))} className="min-h-20 rounded-md border bg-white px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" placeholder="Dose, horario, cuidado ou restricao." />
+            </label>
+          </div>
+          <button type="submit" disabled={cadastrarMutation.isPending} className="mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60">
+            {cadastrarMutation.isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            Salvar no banco Nutri
+          </button>
+        </form>
+      </div>
+    </section>
+  );
+}
+
+function CardBancoNutri({ icon: Icon, titulo, valor, detalhe }: { icon: Icone; titulo: string; valor: number; detalhe: string }) {
+  return (
+    <article className="rounded-lg border bg-white p-3 shadow-sm">
+      <div className="flex items-center justify-between gap-2">
+        <span className="flex h-9 w-9 items-center justify-center rounded-md bg-lime-50 text-lime-800"><Icon className="h-4 w-4" /></span>
+        <span className="text-lg font-semibold text-card-foreground">{formatarNumero(valor)}</span>
+      </div>
+      <p className="mt-2 text-xs font-semibold uppercase tracking-[0.18em] text-lime-900">{titulo}</p>
+      <p className="mt-1 text-xs leading-5 text-muted-foreground">{detalhe}</p>
+    </article>
+  );
+}
+
+function LinhaItemBancoNutri({ item }: { item: ItemBancoAlimentosNutriPro }) {
+  return (
+    <article className="rounded-lg border bg-background p-4">
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="font-semibold text-card-foreground">{item.nome}</p>
+            <span className={cn("rounded-md border px-2 py-1 text-xs font-semibold", item.origem === "PADRAO" ? "border-lime-200 bg-lime-50 text-lime-900" : "border-sky-200 bg-sky-50 text-sky-900")}>{item.origemRotulo}</span>
+            <span className="rounded-md border bg-white px-2 py-1 text-xs font-semibold text-muted-foreground">{item.tipoItemRotulo}</span>
+          </div>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">{item.grupo ?? "Sem grupo"} · {item.categoriaClinica ?? "Sem categoria clinica"} · Fonte: {item.fonteDados ?? "nao informada"}</p>
+          {item.orientacaoUso ? <p className="mt-2 text-xs leading-5 text-muted-foreground">{item.orientacaoUso}</p> : null}
+        </div>
+        <div className="grid min-w-[260px] grid-cols-2 gap-2 text-xs text-muted-foreground sm:grid-cols-4">
+          <MacroBancoNutri label="Kcal" valor={item.energiaKcalBase} />
+          <MacroBancoNutri label="Prot" valor={item.proteinasBase} sufixo="g" />
+          <MacroBancoNutri label="Carb" valor={item.carboidratosBase} sufixo="g" />
+          <MacroBancoNutri label="Lip" valor={item.lipidiosBase} sufixo="g" />
+        </div>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
+        <span className="rounded-md border bg-white px-2 py-1">Base: {formatarNumero(item.quantidadeBase)} {item.unidadeMedida}</span>
+        <span className="rounded-md border bg-white px-2 py-1">Fibras: {formatarNumero(item.fibrasBase)}g</span>
+        <span className="rounded-md border bg-white px-2 py-1">Sodio: {formatarNumero(item.sodioMgBase)}mg</span>
+        {item.marcaFabricante ? <span className="rounded-md border bg-white px-2 py-1">{item.marcaFabricante}</span> : null}
+      </div>
+    </article>
+  );
+}
+
+function MacroBancoNutri({ label, valor, sufixo = "" }: { label: string; valor: number; sufixo?: string }) {
+  return (
+    <div className="rounded-md border bg-white px-2 py-1 text-center">
+      <p className="font-semibold text-card-foreground">{formatarNumero(valor)}{sufixo}</p>
+      <p>{label}</p>
+    </div>
+  );
+}
+
+function criarFormularioBancoAlimentosNutri(): FormularioBancoAlimentosNutri {
+  return {
+    tipoItem: "ALIMENTO",
+    nome: "",
+    grupo: "",
+    categoriaClinica: "",
+    unidadeMedida: "g",
+    quantidadeBase: "100",
+    energiaKcalBase: "0",
+    proteinasBase: "0",
+    carboidratosBase: "0",
+    lipidiosBase: "0",
+    fibrasBase: "0",
+    sodioMgBase: "0",
+    fonteDados: "Rotulo validado em consulta",
+    marcaFabricante: "",
+    orientacaoUso: "",
+    observacoes: ""
+  };
+}
+
+function numeroBancoNutri(valor: string) {
+  const numero = Number(valor.replace(",", "."));
+  return Number.isFinite(numero) ? numero : 0;
+}
 function AreaAvaliacoesNutri({
   empresaId,
   prontuario,

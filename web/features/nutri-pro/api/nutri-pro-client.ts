@@ -313,6 +313,72 @@ export type EvolucoesNutriPro = {
   itens: EvolucaoNutriPro[];
 };
 
+export type TipoItemBancoAlimentosNutriPro = "ALIMENTO" | "SUPLEMENTO";
+
+export type OrigemItemBancoAlimentosNutriPro = "PADRAO" | "PERSONALIZADO";
+
+export type MetricasBancoAlimentosNutriPro = {
+  totalItens: number;
+  alimentos: number;
+  suplementos: number;
+  padrao: number;
+  personalizados: number;
+};
+
+export type ItemBancoAlimentosNutriPro = {
+  id: string;
+  empresaId: string | null;
+  tipoItem: TipoItemBancoAlimentosNutriPro;
+  tipoItemRotulo: string;
+  origem: OrigemItemBancoAlimentosNutriPro;
+  origemRotulo: string;
+  nome: string;
+  grupo: string | null;
+  categoriaClinica: string | null;
+  unidadeMedida: string;
+  quantidadeBase: number;
+  energiaKcalBase: number;
+  proteinasBase: number;
+  carboidratosBase: number;
+  lipidiosBase: number;
+  fibrasBase: number;
+  sodioMgBase: number;
+  fonteDados: string | null;
+  marcaFabricante: string | null;
+  orientacaoUso: string | null;
+  observacoes: string | null;
+  ativo: boolean;
+  criadoEm: string;
+  atualizadoEm: string;
+};
+
+export type BancoAlimentosNutriPro = {
+  empresaId: string;
+  metricas: MetricasBancoAlimentosNutriPro;
+  itens: ItemBancoAlimentosNutriPro[];
+  atualizadoEm: string;
+};
+
+export type CadastrarItemBancoAlimentosNutriProInput = {
+  tipoItem: TipoItemBancoAlimentosNutriPro;
+  origem?: OrigemItemBancoAlimentosNutriPro;
+  nome: string;
+  grupo?: string | null;
+  categoriaClinica?: string | null;
+  unidadeMedida: string;
+  quantidadeBase: number;
+  energiaKcalBase: number;
+  proteinasBase: number;
+  carboidratosBase: number;
+  lipidiosBase: number;
+  fibrasBase?: number;
+  sodioMgBase?: number;
+  fonteDados?: string | null;
+  marcaFabricante?: string | null;
+  orientacaoUso?: string | null;
+  observacoes?: string | null;
+};
+
 export type CriarItemPlanoAlimentarNutriProInput = {
   tipoItem: TipoItemPlanoAlimentarNutriPro;
   nome: string;
@@ -658,6 +724,33 @@ export function marcarMensagensNutriProLidas(params: { empresaId: string; pacien
 
 export function listarEvolucaoNutriPro(params: { empresaId: string; pacienteId: string }) {
   return nutriProApi.get<EvolucoesNutriPro>(`/api/nutri-pro/pacientes/${params.pacienteId}/evolucao`, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export function consultarBancoAlimentosNutriPro(params: {
+  empresaId: string;
+  busca?: string;
+  tipoItem?: TipoItemBancoAlimentosNutriPro;
+  origem?: OrigemItemBancoAlimentosNutriPro;
+  ativo?: boolean;
+}) {
+  return nutriProApi.get<BancoAlimentosNutriPro>("/api/nutri-pro/banco-alimentos", {
+    query: {
+      empresaId: params.empresaId,
+      busca: params.busca || undefined,
+      tipoItem: params.tipoItem,
+      origem: params.origem,
+      ativo: params.ativo ?? true
+    }
+  });
+}
+
+export function cadastrarItemBancoAlimentosNutriPro(params: {
+  empresaId: string;
+  dados: CadastrarItemBancoAlimentosNutriProInput;
+}) {
+  return nutriProApi.post<ItemBancoAlimentosNutriPro>("/api/nutri-pro/banco-alimentos", params.dados, {
     query: { empresaId: params.empresaId }
   });
 }

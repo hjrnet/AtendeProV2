@@ -243,7 +243,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
-| TASK-NUTRI-013 | Banco de alimentos e suplementos | Alimentos padrão, alimentos personalizados, suplementos, composição nutricional e origem do item. | PENDENTE |
+| TASK-NUTRI-013 | Banco de alimentos e suplementos | Alimentos padrão, alimentos personalizados, suplementos, composição nutricional e origem do item. | CONCLUIDA |
 | TASK-NUTRI-014 | Editor avançado de plano alimentar | Duplicar plano, versionar, arquivar, substituir, reorganizar refeições e salvar modelos. | PENDENTE |
 | TASK-NUTRI-015 | Substituições e equivalências alimentares | Lista de substituições por refeição, por objetivo e por restrição alimentar. | PENDENTE |
 | TASK-NUTRI-016 | Receitas e materiais educativos | Biblioteca de receitas, orientações, materiais por objetivo e anexos ao plano. | PENDENTE |
