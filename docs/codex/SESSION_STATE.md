@@ -686,3 +686,13 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Ultima task concluida: TASK-R23-004.
 - Proxima release recomendada: R24.
 - Proxima task recomendada: TASK-R24-001.
+
+## Atualizacao R24 - 2026-06-11
+
+- Release R24 concluida.
+- Entrega: Admin SaaS ganhou cockpit comercial para checkout/trial/upgrade preparado, onboarding guiado, metricas SaaS reais e demo/reset seguro por perfil.
+- Dados: metricas usam endpoints reais /api/admin-saas/dashboard e /api/admin-saas/dashboard/vendas; planos ativos usam /api/admin-saas/planos.
+- Observacao: gateway real e reset fisico de massa demo seguem como integracoes futuras seguras, sem efeitos externos automaticos.
+- Ultima task concluida: TASK-R24-004.
+- Proxima release recomendada: definir R25/backlog executivo.
+- Proxima task recomendada: A_DEFINIR.
