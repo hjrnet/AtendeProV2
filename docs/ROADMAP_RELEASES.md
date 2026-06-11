@@ -250,3 +250,10 @@
 - **TASK-R24-002 — Onboarding guiado de empresa**: Wizard de configuração inicial por vertical, usuários, serviços, agenda e dados demo opcionais.
 - **TASK-R24-003 — Métricas SaaS no Admin**: MRR, churn, trials, conversão, planos ativos, vertical de maior tração e alertas operacionais.
 - **TASK-R24-004 — Ambiente demo/reset por perfil**: Gerar e resetar dados demo seguros para Nutri, Beauty, gestor, investidor e suporte.
+
+## R20 concluida em 2026-06-11
+
+- Funil visual de leads por vertical no web app.
+- Dashboard executivo Nutri/Beauty com indicadores Growth.
+- Central de pos-venda assistida com sugestoes e oportunidades.
+- Modo apresentacao/demo navegavel por perfil.

@@ -652,3 +652,11 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Tasks concluidas: TASK-R14-001, TASK-R14-002, TASK-R14-003, TASK-R14-004.
 - Entrega: contrato de status funcional, inventario de lacunas por vertical, correcao de R19 para concluida, remocao da duplicidade historica de TASK-0801 em R13, shell mobile autenticado e fluxos iniciais reais de cliente/profissional.
 - Proxima etapa recomendada: R20 / TASK-R20-001.
+
+## Atualizacao R20 - 2026-06-11
+
+- Release R20 concluida.
+- Entrega: Growth UI e comando comercial para Nutri/Beauty.
+- Ultima task concluida: TASK-R20-004.
+- Proxima release recomendada: R21.
+- Proxima task recomendada: TASK-R21-001.
