@@ -668,3 +668,11 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Ultima task concluida: TASK-R21-004.
 - Proxima release recomendada: R22.
 - Proxima task recomendada: TASK-R22-001.
+
+## Atualizacao R22 - 2026-06-11
+
+- Release R22 concluida.
+- Entrega: Nutri Pro com painel de adesao do paciente, evolucao clinica visual, renovacao/retorno inteligente e biblioteca profissional exportavel vinculada ao plano.
+- Ultima task concluida: TASK-R22-004.
+- Proxima release recomendada: R23.
+- Proxima task recomendada: TASK-R23-001.

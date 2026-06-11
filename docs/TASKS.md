@@ -280,10 +280,10 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
-| TASK-R22-001 | Painel de adesão do paciente Nutri | Consolidar diário, metas, plano alimentar, mensagens e alertas de baixa adesão. | PENDENTE |
-| TASK-R22-002 | Evolução clínica visual Nutri | Gráficos longitudinais de peso, medidas, exames, metas e comparação de períodos. | PENDENTE |
-| TASK-R22-003 | Renovação e retorno inteligente Nutri | Fluxo de renovação de plano, retorno recomendado, pacotes de acompanhamento e mensagens assistidas. | PENDENTE |
-| TASK-R22-004 | Biblioteca profissional Nutri exportável | Materiais, receitas e orientações com vínculo ao plano, carimbo profissional e exportação segura. | PENDENTE |
+| TASK-R22-001 | Painel de adesão do paciente Nutri | Consolidar diário, metas, plano alimentar, mensagens e alertas de baixa adesão. | CONCLUIDA |
+| TASK-R22-002 | Evolução clínica visual Nutri | Gráficos longitudinais de peso, medidas, exames, metas e comparação de períodos. | CONCLUIDA |
+| TASK-R22-003 | Renovação e retorno inteligente Nutri | Fluxo de renovação de plano, retorno recomendado, pacotes de acompanhamento e mensagens assistidas. | CONCLUIDA |
+| TASK-R22-004 | Biblioteca profissional Nutri exportável | Materiais, receitas e orientações com vínculo ao plano, carimbo profissional e exportação segura. | CONCLUIDA |
 
 ## R23 — Mobile real paciente/profissional
 

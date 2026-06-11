@@ -264,3 +264,8 @@
 - Fornecedor, documento, pedido, data e status de compra persistidos por lote.
 - Checklist operacional para vencidos, vencendo, descarte, bloqueio e reposicao.
 - Margem real por procedimento Beauty cruzando kits, custo dos lotes e simulacoes de preco.
+
+## R22 concluida em 2026-06-11
+
+- Entrega: painel de adesao Nutri, evolucao clinica visual, retorno inteligente e biblioteca profissional exportavel com carimbo/documento.
+- Proxima release: R23 Mobile real paciente/profissional.

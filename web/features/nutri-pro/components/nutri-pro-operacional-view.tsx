@@ -39,6 +39,7 @@ import {
   criarCompromissoAgendaNutriPro,
   criarDocumentoProfissionalNutriPro,
   criarLembreteNutriPro,
+  criarMaterialEducativoNutriPro,
   criarMetaNutriPro,
   criarPlanoAlimentarNutriPro,
   enviarMensagemNutriPro,
@@ -46,7 +47,10 @@ import {
   listarAvaliacoesAntropometricasNutriPro,
   listarDiarioAlimentarNutriPro,
   listarDocumentosProfissionaisNutriPro,
+  listarEvolucaoNutriPro,
+  listarExamesAvancadosNutriPro,
   listarLembretesNutriPro,
+  listarMateriaisEducativosNutriPro,
   listarMensagensNutriPro,
   listarMetasNutriPro,
   listarPacientesNutriPro,
@@ -61,9 +65,12 @@ import {
   type CriarDocumentoProfissionalNutriProInput,
   type CriarPlanoAlimentarNutriProInput,
   type DocumentoProfissionalNutriPro,
+  type EvolucaoNutriPro,
+  type ExameAvancadoNutriPro,
   type IndicadorNutriPro,
   type ItemBancoAlimentosNutriPro,
   type ListaComprasNutriPro,
+  type MaterialEducativoNutriPro,
   type MensagemNutriPro,
   type MetaNutriPro,
   type ObjetivoNutricionalNutriPro,
@@ -179,7 +186,7 @@ const abasAvaliacoesNutri: Array<{ id: AbaAvaliacaoNutriPro; label: string }> = 
   { id: "antropometria", label: "Antropometria" },
   { id: "gasto", label: "Gasto energético" },
   { id: "historico", label: "Histórico" },
-  { id: "evolucao", label: "Evolução futura" }
+  { id: "evolucao", label: "Evolução clínica" }
 ];
 
 const iconesIndicadores: Record<string, Icone> = {
@@ -1259,6 +1266,7 @@ function AreaPlanoAlimentarNutri({
       <div className="mt-4">
         <ConteudoPlanoNutri
           empresaId={empresaId}
+          pacienteId={prontuario.paciente.id}
           aba={abaRenderizada}
           plano={planoEmFoco}
           planos={planos}
@@ -1280,6 +1288,7 @@ function AreaPlanoAlimentarNutri({
 
 function ConteudoPlanoNutri({
   empresaId,
+  pacienteId,
   aba,
   plano,
   planos,
@@ -1295,6 +1304,7 @@ function ConteudoPlanoNutri({
   onPublicarPlano
 }: {
   empresaId: string;
+  pacienteId: string;
   aba: AbaPlanoNutriPro;
   plano: PlanoAlimentarNutriPro | null;
   planos: PlanoAlimentarNutriPro[];
@@ -1343,26 +1353,35 @@ function ConteudoPlanoNutri({
 
   if (aba === "pdf") {
     return (
-      <section className="rounded-lg border bg-background p-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="text-sm font-semibold text-card-foreground">Documento e PDF</p>
-            <p className="mt-1 text-sm leading-6 text-muted-foreground">Gere o documento profissional do plano com carimbo CRN pelo módulo de documentos.</p>
+      <div className="grid gap-4">
+        <BibliotecaProfissionalNutri
+          empresaId={empresaId}
+          pacienteId={pacienteId}
+          plano={plano}
+          criandoDocumento={criandoDocumento}
+          onCriarDocumento={onCriarDocumento}
+        />
+        <section className="rounded-lg border bg-background p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-card-foreground">Documento e PDF</p>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">Gere o documento profissional do plano com carimbo CRN pelo módulo de documentos.</p>
+            </div>
+            <button
+              type="button"
+              onClick={onCriarDocumento}
+              disabled={criandoDocumento || !plano}
+              className="inline-flex h-10 shrink-0 items-center justify-center rounded-md border bg-white px-4 text-sm font-semibold text-card-foreground transition-colors hover:border-primary/50 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {criandoDocumento ? "Gerando documento" : "Gerar documento do plano"}
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={onCriarDocumento}
-            disabled={criandoDocumento || !plano}
-            className="inline-flex h-10 shrink-0 items-center justify-center rounded-md border bg-white px-4 text-sm font-semibold text-card-foreground transition-colors hover:border-primary/50 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {criandoDocumento ? "Gerando documento" : "Gerar documento do plano"}
-          </button>
-        </div>
-        {erroDocumento ? <p className="mt-3 text-sm font-medium text-destructive">Não foi possível gerar o documento do plano.</p> : null}
-        {documentoCriado ? <ResumoDocumentoNutri documento={documentoCriado} compacto /> : null}
-        {!documentoCriado && documentosPlano[0] ? <ResumoDocumentoNutri documento={documentosPlano[0]} compacto /> : null}
-        <ListaDocumentosNutri titulo="Histórico de PDFs do plano" documentos={documentosPlano} carregando={false} vazio="Nenhum PDF de plano alimentar registrado ainda." />
-      </section>
+          {erroDocumento ? <p className="mt-3 text-sm font-medium text-destructive">Não foi possível gerar o documento do plano.</p> : null}
+          {documentoCriado ? <ResumoDocumentoNutri documento={documentoCriado} compacto /> : null}
+          {!documentoCriado && documentosPlano[0] ? <ResumoDocumentoNutri documento={documentosPlano[0]} compacto /> : null}
+          <ListaDocumentosNutri titulo="Histórico de PDFs do plano" documentos={documentosPlano} carregando={false} vazio="Nenhum PDF de plano alimentar registrado ainda." />
+        </section>
+      </div>
     );
   }
 
@@ -1394,12 +1413,50 @@ function AreaAcompanhamentoPacienteNutri({ empresaId, prontuario }: { empresaId:
     queryFn: () => listarMensagensNutriPro({ empresaId, pacienteId }),
     enabled: Boolean(empresaId && pacienteId)
   });
+  const planoPublicadoQuery = useQuery({
+    queryKey: ["nutri-pro-plano-publicado", empresaId, pacienteId],
+    queryFn: () => consultarPlanoPublicadoNutriPro({ empresaId, pacienteId }),
+    enabled: Boolean(empresaId && pacienteId),
+    retry: false
+  });
+  const planosQuery = useQuery({
+    queryKey: ["nutri-pro-planos-alimentares", empresaId, pacienteId],
+    queryFn: () => listarPlanosAlimentaresNutriPro({ empresaId, pacienteId }),
+    enabled: Boolean(empresaId && pacienteId)
+  });
 
   const diario = diarioQuery.data?.itens ?? [];
   const registroPendente = diario.find((registro) => registro.statusRevisao === "PENDENTE") ?? null;
   const metas = metasQuery.data?.itens ?? [];
   const lembretes = lembretesQuery.data?.itens ?? [];
   const mensagens = mensagensQuery.data?.itens ?? [];
+  const planoPublicado = planoPublicadoQuery.data ?? null;
+  const planos = planosQuery.data?.itens ?? [];
+  const registrosRevisados = diario.filter((registro) => registro.statusRevisao === "REVISADO").length;
+  const percentualDiarioRevisado = diario.length ? Math.round((registrosRevisados / diario.length) * 100) : 0;
+  const scoreAdesao = Math.min(
+    100,
+    Math.round(
+      (planoPublicado ? 25 : 0) +
+        Math.min(25, diario.length * 5) +
+        Math.min(20, metas.length * 8) +
+        Math.min(15, lembretes.length * 5) +
+        Math.min(15, mensagens.length * 3)
+    )
+  );
+  const nivelAdesao = scoreAdesao >= 75 ? "Boa adesão" : scoreAdesao >= 50 ? "Atenção ativa" : "Risco de abandono";
+  const retornoEmDias = scoreAdesao >= 75 ? 30 : scoreAdesao >= 50 ? 14 : 7;
+  const dataRetorno = new Date();
+  dataRetorno.setDate(dataRetorno.getDate() + retornoEmDias);
+  const planoRenovacao = planos[0] ?? planoPublicado ?? null;
+  const alertasAdesao = [
+    registroPendente ? "Diário alimentar pendente de revisão profissional." : null,
+    !planoPublicado ? "Nenhum plano publicado no portal/app do paciente." : null,
+    !metas.length ? "Paciente ainda sem metas objetivas cadastradas." : null,
+    !lembretes.length ? "Nenhum lembrete de rotina configurado." : null,
+    !mensagens.length ? "Sem conversa de acompanhamento registrada." : null
+  ].filter(Boolean) as string[];
+  const mensagemAssistida = `Olá, ${prontuario.paciente.nome}. Vi seu acompanhamento no AtendePro e quero alinhar seu próximo retorno em ${retornoEmDias} dias para ajustar plano, metas e rotina. Se algo saiu do combinado, me envie pelo diário que eu reviso com você.`;
 
   const revisarDiarioMutation = useMutation({
     mutationFn: () => {
@@ -1464,6 +1521,70 @@ function AreaAcompanhamentoPacienteNutri({ empresaId, prontuario }: { empresaId:
 
   return (
     <section className="grid gap-4">
+      <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+        <section className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-lime-50 p-4 shadow-sm">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-emerald-950">Painel de adesão do paciente</p>
+              <p className="mt-1 text-sm leading-6 text-emerald-950/75">Diário, metas, plano publicado e conversa em um único radar operacional.</p>
+            </div>
+            <span className={cn("w-fit rounded-full border px-3 py-1 text-xs font-semibold", scoreAdesao >= 75 ? "border-emerald-300 bg-white text-emerald-800" : scoreAdesao >= 50 ? "border-amber-300 bg-white text-amber-800" : "border-rose-300 bg-white text-rose-800")}>
+              {nivelAdesao}
+            </span>
+          </div>
+          <div className="mt-5 grid gap-4 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-center">
+            <div className="flex h-28 w-28 flex-col items-center justify-center rounded-full border-8 border-emerald-200 bg-white text-center shadow-sm">
+              <span className="text-3xl font-semibold text-emerald-950">{scoreAdesao}</span>
+              <span className="text-xs font-semibold text-emerald-800">score</span>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <SinalAdesaoNutri label="Diário revisado" valor={`${percentualDiarioRevisado}%`} detalhe={`${registrosRevisados}/${diario.length} registros`} />
+              <SinalAdesaoNutri label="Plano no app" valor={planoPublicado ? "Ativo" : "Pendente"} detalhe={planoPublicado?.objetivo ?? "Publicar para o paciente"} />
+              <SinalAdesaoNutri label="Metas ativas" valor={formatarNumero(metas.length)} detalhe="Objetivos acompanháveis" />
+              <SinalAdesaoNutri label="Mensagens" valor={formatarNumero(mensagens.length)} detalhe="Contato pós-consulta" />
+            </div>
+          </div>
+          <div className="mt-5 overflow-hidden rounded-full border bg-white">
+            <span className="block h-3 rounded-full bg-emerald-500 transition-all" style={{ width: `${scoreAdesao}%` }} />
+          </div>
+          <div className="mt-4 grid gap-2">
+            {alertasAdesao.length ? (
+              alertasAdesao.map((alerta) => (
+                <p key={alerta} className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium leading-5 text-amber-900">{alerta}</p>
+              ))
+            ) : (
+              <p className="rounded-md border border-emerald-200 bg-white px-3 py-2 text-xs font-medium leading-5 text-emerald-900">Sem alertas críticos de adesão neste paciente.</p>
+            )}
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-sky-200 bg-sky-50/70 p-4 shadow-sm">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-sky-950">Renovação e retorno inteligente</p>
+              <p className="mt-1 text-sm leading-6 text-sky-950/75">Sugestão de retorno, pacote e mensagem assistida para retenção Nutri.</p>
+            </div>
+            <CalendarDays className="h-5 w-5 text-sky-800" />
+          </div>
+          <div className="mt-4 grid gap-3">
+            <CampoPreparado label="Retorno recomendado" value={`${formatarDataCurta(dataRetorno)} · em ${retornoEmDias} dias`} />
+            <CampoPreparado label="Plano/pacote sugerido" value={planoRenovacao ? `Acompanhamento de 4 semanas para ${planoRenovacao.objetivo}` : "Pacote mensal de adesão e ajustes"} />
+            <div className="rounded-md border bg-white p-3">
+              <p className="text-xs font-semibold text-muted-foreground">Mensagem assistida</p>
+              <p className="mt-2 text-sm leading-6 text-card-foreground">{mensagemAssistida}</p>
+              <button
+                type="button"
+                onClick={() => enviarMensagemMutation.mutate()}
+                disabled={enviarMensagemMutation.isPending}
+                className="mt-3 inline-flex h-9 items-center justify-center rounded-md bg-primary px-3 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Enviar recado de acompanhamento
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <CardAcompanhamentoNutri icon={ClipboardList} titulo="Diário" valor={diario.length} detalhe={`${registroPendente ? 1 : 0} pendente de revisão`} />
         <CardAcompanhamentoNutri icon={Target} titulo="Metas" valor={metas.length} detalhe="Objetivos ativos do paciente" />
@@ -1819,9 +1940,135 @@ function AreaAvaliacoesNutri({
         {abaAtiva === "antropometria" ? <FluxoAvaliacaoEGastoEnergetico empresaId={empresaId} prontuario={prontuario} /> : null}
         {abaAtiva === "gasto" ? <PainelSimplesNutri titulo="Gasto energético" descricao="Use a aba Antropometria para registrar peso, altura e fator de atividade. O resultado estimado exibe TMB, GEB, GET e meta energética." icon={Gauge} /> : null}
         {abaAtiva === "historico" ? <HistoricoAvaliacoesNutri empresaId={empresaId} prontuario={prontuario} /> : null}
-        {abaAtiva === "evolucao" ? <PainelSimplesNutri titulo="Evolução futura" descricao="Gráficos comparativos, fotos seguras e análise longitudinal entram em evolução futura do Nutri Pro." icon={Activity} /> : null}
+        {abaAtiva === "evolucao" ? <PainelEvolucaoClinicaNutri empresaId={empresaId} prontuario={prontuario} /> : null}
       </div>
     </section>
+  );
+}
+
+function PainelEvolucaoClinicaNutri({ empresaId, prontuario }: { empresaId: string; prontuario: ProntuarioNutriPro }) {
+  const pacienteId = prontuario.paciente.id;
+  const avaliacoesQuery = useQuery({
+    queryKey: ["nutri-pro-avaliacoes-antropometricas", empresaId, pacienteId],
+    queryFn: () => listarAvaliacoesAntropometricasNutriPro({ empresaId, pacienteId }),
+    enabled: Boolean(empresaId && pacienteId)
+  });
+  const examesQuery = useQuery({
+    queryKey: ["nutri-pro-exames-avancados", empresaId, pacienteId],
+    queryFn: () => listarExamesAvancadosNutriPro({ empresaId, pacienteId }),
+    enabled: Boolean(empresaId && pacienteId)
+  });
+  const evolucaoQuery = useQuery({
+    queryKey: ["nutri-pro-evolucao", empresaId, pacienteId],
+    queryFn: () => listarEvolucaoNutriPro({ empresaId, pacienteId }),
+    enabled: Boolean(empresaId && pacienteId)
+  });
+  const metasQuery = useQuery({
+    queryKey: ["nutri-pro-metas", empresaId, pacienteId],
+    queryFn: () => listarMetasNutriPro({ empresaId, pacienteId }),
+    enabled: Boolean(empresaId && pacienteId)
+  });
+  const avaliacoes = [...(avaliacoesQuery.data?.itens ?? [])].sort((a, b) => new Date(a.criadoEm).getTime() - new Date(b.criadoEm).getTime());
+  const exames = examesQuery.data?.itens ?? [];
+  const evolucoes = evolucaoQuery.data?.itens ?? [];
+  const metas = metasQuery.data?.itens ?? [];
+  const primeiraAvaliacao = avaliacoes[0] ?? null;
+  const ultimaAvaliacao = avaliacoes[avaliacoes.length - 1] ?? null;
+  const pesoMaximo = Math.max(1, ...avaliacoes.map((avaliacao) => avaliacao.pesoKg));
+  const variacaoPeso = primeiraAvaliacao && ultimaAvaliacao ? ultimaAvaliacao.pesoKg - primeiraAvaliacao.pesoKg : 0;
+  const carregando = avaliacoesQuery.isLoading || examesQuery.isLoading || evolucaoQuery.isLoading || metasQuery.isLoading;
+
+  if (carregando) {
+    return <EstadoCarregandoNutri texto="Carregando evolução clínica" />;
+  }
+
+  return (
+    <section className="grid gap-4">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <CampoPreparado label="Peso atual" value={ultimaAvaliacao ? `${formatarDecimal(ultimaAvaliacao.pesoKg)} kg` : "Sem avaliação"} />
+        <CampoPreparado label="Variação no período" value={avaliacoes.length > 1 ? `${variacaoPeso >= 0 ? "+" : ""}${formatarDecimal(variacaoPeso)} kg` : "Aguardando 2 registros"} />
+        <CampoPreparado label="Exames acompanhados" value={formatarNumero(exames.length)} />
+        <CampoPreparado label="Metas monitoradas" value={formatarNumero(metas.length)} />
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <section className="rounded-lg border bg-background p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-card-foreground">Gráfico longitudinal de peso</p>
+              <p className="mt-1 text-xs text-muted-foreground">Últimos registros antropométricos do paciente.</p>
+            </div>
+            <Activity className="h-5 w-5 text-emerald-800" />
+          </div>
+          <div className="mt-4 grid gap-3">
+            {avaliacoes.length ? (
+              avaliacoes.slice(-8).map((avaliacao) => (
+                <div key={avaliacao.id} className="grid gap-1">
+                  <div className="flex items-center justify-between gap-3 text-xs font-medium text-muted-foreground">
+                    <span>{formatarDataCurta(avaliacao.criadoEm)}</span>
+                    <span>{formatarDecimal(avaliacao.pesoKg)} kg · IMC {formatarDecimal(avaliacao.imc)}</span>
+                  </div>
+                  <div className="overflow-hidden rounded-full border bg-white">
+                    <span className="block h-3 rounded-full bg-emerald-500" style={{ width: `${Math.max(8, (avaliacao.pesoKg / pesoMaximo) * 100)}%` }} />
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="rounded-md border bg-white p-3 text-sm text-muted-foreground">Nenhum ponto clínico para montar gráfico ainda.</div>
+            )}
+          </div>
+        </section>
+
+        <section className="rounded-lg border bg-background p-4">
+          <p className="text-sm font-semibold text-card-foreground">Timeline clínica</p>
+          <div className="mt-4 grid gap-2">
+            {evolucoes.length ? evolucoes.map((item) => <LinhaEvolucaoNutri key={`${item.tipo}-${item.data}-${item.titulo}`} item={item} />) : <div className="rounded-md border bg-white p-3 text-sm text-muted-foreground">Nenhum evento de evolução registrado ainda.</div>}
+          </div>
+        </section>
+
+        <section className="rounded-lg border bg-background p-4">
+          <p className="text-sm font-semibold text-card-foreground">Exames e marcadores</p>
+          <div className="mt-4 grid gap-2">
+            {exames.length ? exames.map((exame) => <LinhaExameAvancadoNutri key={exame.id} exame={exame} />) : <div className="rounded-md border bg-white p-3 text-sm text-muted-foreground">Nenhum exame avançado cadastrado.</div>}
+          </div>
+        </section>
+
+        <section className="rounded-lg border bg-background p-4">
+          <p className="text-sm font-semibold text-card-foreground">Metas e comparação de período</p>
+          <div className="mt-4 grid gap-2">
+            {metas.length ? metas.map((meta) => <LinhaMetaNutri key={meta.id} meta={meta} />) : <div className="rounded-md border bg-white p-3 text-sm text-muted-foreground">Nenhuma meta configurada para comparar evolução.</div>}
+          </div>
+        </section>
+      </div>
+    </section>
+  );
+}
+
+function LinhaEvolucaoNutri({ item }: { item: EvolucaoNutriPro }) {
+  return (
+    <article className="rounded-md border bg-white p-3 text-sm">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <p className="font-semibold text-card-foreground">{item.titulo}</p>
+        <span className="rounded-md border bg-background px-2 py-1 text-xs font-semibold text-muted-foreground">{item.status}</span>
+      </div>
+      <p className="mt-1 text-xs leading-5 text-muted-foreground">{item.descricao}</p>
+      <p className="mt-2 text-xs font-medium text-muted-foreground">{item.tipo} · {formatarDataHora(item.data)}</p>
+    </article>
+  );
+}
+
+function LinhaExameAvancadoNutri({ exame }: { exame: ExameAvancadoNutriPro }) {
+  return (
+    <article className="rounded-md border bg-white p-3 text-sm">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <p className="font-semibold text-card-foreground">{exame.nome}</p>
+        <span className="rounded-md border bg-background px-2 py-1 text-xs font-semibold text-muted-foreground">{exame.status}</span>
+      </div>
+      <p className="mt-1 text-xs leading-5 text-muted-foreground">
+        {formatarDecimal(exame.valor)} {exame.unidadeMedida} · {formatarDataCurta(exame.dataExame)}
+      </p>
+      {exame.observacoes ? <p className="mt-2 text-xs leading-5 text-muted-foreground">{exame.observacoes}</p> : null}
+    </article>
   );
 }
 
@@ -1979,6 +2226,16 @@ function CardAcompanhamentoNutri({ icon: Icon, titulo, valor, detalhe }: { icon:
       <p className="mt-3 text-sm font-semibold text-card-foreground">{titulo}</p>
       <p className="mt-1 text-xs leading-5 text-muted-foreground">{detalhe}</p>
     </article>
+  );
+}
+
+function SinalAdesaoNutri({ label, valor, detalhe }: { label: string; valor: string; detalhe: string }) {
+  return (
+    <div className="rounded-md border bg-white p-3">
+      <p className="text-xs font-semibold text-muted-foreground">{label}</p>
+      <p className="mt-1 text-lg font-semibold text-card-foreground">{valor}</p>
+      <p className="mt-1 text-xs leading-5 text-muted-foreground">{detalhe}</p>
+    </div>
   );
 }
 
@@ -2241,6 +2498,107 @@ function ListaComprasPlano({ listaCompras }: { listaCompras: ListaComprasNutriPr
         )}
       </div>
     </section>
+  );
+}
+
+function BibliotecaProfissionalNutri({
+  empresaId,
+  pacienteId,
+  plano,
+  criandoDocumento,
+  onCriarDocumento
+}: {
+  empresaId: string;
+  pacienteId: string;
+  plano: PlanoAlimentarNutriPro | null;
+  criandoDocumento: boolean;
+  onCriarDocumento: () => void;
+}) {
+  const queryClient = useQueryClient();
+  const materiaisQuery = useQuery({
+    queryKey: ["nutri-pro-materiais-educativos", empresaId, pacienteId, plano?.id],
+    queryFn: () => listarMateriaisEducativosNutriPro({ empresaId, pacienteId, planoId: plano?.id ?? "" }),
+    enabled: Boolean(empresaId && pacienteId && plano?.id)
+  });
+  const criarMaterialMutation = useMutation({
+    mutationFn: () => {
+      if (!plano) {
+        throw new Error("Plano alimentar não selecionado.");
+      }
+      return criarMaterialEducativoNutriPro({
+        empresaId,
+        pacienteId,
+        planoId: plano.id,
+        dados: {
+          tipo: "ORIENTACAO",
+          titulo: "Guia de adesão ao plano alimentar",
+          objetivo: plano.objetivo,
+          conteudo: [
+            "Orientações práticas para melhorar adesão ao plano:",
+            "- registrar diário alimentar nos dias combinados;",
+            "- avisar fome, saciedade, sintomas ou dificuldade de preparo;",
+            "- manter hidratação e horários prioritários;",
+            "- retornar para ajuste antes de abandonar o plano."
+          ].join("\n"),
+          observacoes: "Material gerado pelo AtendePro para apoio profissional e exportação segura."
+        }
+      });
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["nutri-pro-materiais-educativos", empresaId, pacienteId, plano?.id] })
+  });
+  const materiais = materiaisQuery.data?.itens ?? [];
+
+  return (
+    <section className="rounded-lg border border-lime-200 bg-lime-50/70 p-4">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-lime-950">Biblioteca profissional Nutri exportável</p>
+          <p className="mt-1 text-sm leading-6 text-lime-950/80">Materiais, receitas e orientações ficam vinculados ao plano e podem ser empacotados no documento com carimbo profissional.</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => criarMaterialMutation.mutate()}
+            disabled={!plano || criarMaterialMutation.isPending}
+            className="inline-flex h-10 shrink-0 items-center justify-center rounded-md border border-lime-300 bg-white px-4 text-sm font-semibold text-lime-950 transition-colors hover:border-lime-500 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {criarMaterialMutation.isPending ? "Criando material" : "Criar orientação"}
+          </button>
+          <button
+            type="button"
+            onClick={onCriarDocumento}
+            disabled={!plano || criandoDocumento}
+            className="inline-flex h-10 shrink-0 items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {criandoDocumento ? "Exportando" : "Exportar com carimbo"}
+          </button>
+        </div>
+      </div>
+      {criarMaterialMutation.isError ? <p className="mt-3 text-sm font-medium text-destructive">Não foi possível criar o material educativo.</p> : null}
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
+        {materiaisQuery.isLoading ? (
+          <EstadoCarregandoNutri texto="Carregando biblioteca profissional" />
+        ) : materiais.length ? (
+          materiais.map((material) => <LinhaMaterialEducativoNutri key={material.id} material={material} />)
+        ) : (
+          <div className="rounded-md border bg-white p-3 text-sm leading-6 text-muted-foreground">Nenhum material vinculado a este plano ainda. Crie uma orientação para entregar um pós-consulta mais completo.</div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function LinhaMaterialEducativoNutri({ material }: { material: MaterialEducativoNutriPro }) {
+  return (
+    <article className="rounded-md border bg-white p-3 text-sm">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <p className="font-semibold text-card-foreground">{material.titulo}</p>
+        <span className="rounded-md border bg-lime-50 px-2 py-1 text-xs font-semibold text-lime-800">{material.tipo}</span>
+      </div>
+      <p className="mt-1 text-xs leading-5 text-muted-foreground">{material.objetivo ?? "Orientação profissional"}</p>
+      <p className="mt-2 line-clamp-3 text-xs leading-5 text-muted-foreground">{material.conteudo}</p>
+      <p className="mt-2 text-xs font-medium text-muted-foreground">Criado em {formatarDataHora(material.criadoEm)}</p>
+    </article>
   );
 }
 
@@ -3108,6 +3466,18 @@ function formatarDataParaInput(data: Date) {
   const mes = String(data.getMonth() + 1).padStart(2, "0");
   const dia = String(data.getDate()).padStart(2, "0");
   return `${ano}-${mes}-${dia}`;
+}
+
+function formatarDataCurta(valor: Date | string) {
+  const data = typeof valor === "string" ? new Date(valor) : valor;
+  if (Number.isNaN(data.getTime())) {
+    return "Data inválida";
+  }
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+  }).format(data);
 }
 
 function classeStatusIndicador(status: string) {
