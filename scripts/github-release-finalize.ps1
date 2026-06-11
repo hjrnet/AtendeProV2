@@ -131,13 +131,6 @@ function Ensure-Milestone {
 
     $milestone = Get-Milestone -Title $Title
     if ($milestone) {
-        if ($Apply -and $milestone.state -ne "open") {
-            & gh api -X PATCH "repos/$Repo/milestones/$($milestone.number)" -f state=open | Out-Null
-            if ($LASTEXITCODE -ne 0) {
-                throw "Nao foi possivel reabrir milestone $Title."
-            }
-            $milestone = Get-Milestone -Title $Title
-        }
         return $milestone
     }
 
@@ -163,7 +156,7 @@ function Ensure-Milestone {
 function Get-IssueByTask {
     param([string] $TaskId)
 
-    $issues = Invoke-GhJson @("issue", "list", "--repo", $Repo, "--state", "all", "--search", "$TaskId in:title", "--json", "number,title,state,url,milestone", "--limit", "20")
+    $issues = Invoke-GhJson @("issue", "list", "--repo", $Repo, "--state", "all", "--json", "number,title,state,url,milestone", "--limit", "200")
     $match = @($issues | Where-Object { $_.title -like "$TaskId*" } | Sort-Object number | Select-Object -First 1)
     if ($match.Count -gt 0) {
         return $match[0]
@@ -211,6 +204,16 @@ Criada automaticamente por scripts/github-release-finalize.ps1.
         throw "Nao foi possivel criar issue $title."
     }
 
+    $numeroCriado = [regex]::Match($url, "/issues/(\d+)$")
+    if ($numeroCriado.Success) {
+        return [pscustomobject]@{
+            number = [int]$numeroCriado.Groups[1].Value
+            title = $title
+            state = "OPEN"
+            url = $url
+        }
+    }
+
     return Get-IssueByTask -TaskId $Task.id
 }
 
@@ -255,12 +258,6 @@ function Close-MilestoneIfReady {
         throw "Milestone nao encontrada para fechamento: $Title."
     }
 
-    $openIssues = Invoke-GhJson @("issue", "list", "--repo", $Repo, "--state", "open", "--milestone", $Title, "--json", "number,title", "--limit", "100")
-    if (@($openIssues).Count -gt 0) {
-        $openTitles = (@($openIssues) | ForEach-Object { "#$($_.number) $($_.title)" }) -join "; "
-        throw "Milestone $Title ainda possui issues abertas: $openTitles"
-    }
-
     if ($milestone.state -eq "closed") {
         Write-Host "OK milestone ja fechada: $Title"
         return
@@ -271,10 +268,30 @@ function Close-MilestoneIfReady {
         return
     }
 
+    $openIssues = @()
+    for ($tentativa = 1; $tentativa -le 5; $tentativa++) {
+        $resultadoIssuesAbertas = Invoke-GhJson @("issue", "list", "--repo", $Repo, "--state", "open", "--milestone", $Title, "--json", "number,title", "--limit", "100")
+        $openIssues = @($resultadoIssuesAbertas | Where-Object { $_ -and $_.number })
+        if ($openIssues.Count -eq 0) {
+            break
+        }
+
+        if ($tentativa -lt 5) {
+            Start-Sleep -Seconds 2
+        }
+    }
+
+    if (@($openIssues).Count -gt 0) {
+        $openTitles = (@($openIssues) | ForEach-Object { "#$($_.number) $($_.title)" }) -join "; "
+        throw "Milestone $Title ainda possui issues abertas: $openTitles"
+    }
+
     & gh api -X PATCH "repos/$Repo/milestones/$($milestone.number)" -f state=closed | Out-Null
     if ($LASTEXITCODE -ne 0) {
         throw "Nao foi possivel fechar milestone $Title."
     }
+
+    Write-Host "OK milestone fechada: $Title"
 }
 
 Assert-GhReady
