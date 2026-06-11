@@ -309,3 +309,18 @@ Entregas:
 - Cockpit Admin SaaS executando reset seguro e exibindo resultado operacional.
 
 Proxima etapa recomendada: R27 automacao de sincronizacao GitHub/observability ou gateway real com escopo aprovado.
+
+## R27 — Observability e sincronizacao GitHub automatica
+
+Status: CONCLUIDA em 2026-06-11.
+
+Objetivo: impedir divergencia entre releases concluidas localmente e GitHub Issues/Milestones abertas.
+
+Entregas:
+
+- `scripts/github-release-finalize.ps1` para finalizar releases no GitHub com dry-run, `-Apply` e `-EnsureIssues`.
+- `scripts/github-project-sync.ps1` atualizado para releases recentes e labels dinamicas por release.
+- Documentacao do fluxo anti-divergencia em GitHub Projects e Observability.
+- Dogfood previsto: R27 usa o proprio finalizador apos merge.
+
+Proxima etapa recomendada: R28 gateway real com decisao explicita ou Admin SaaS auditoria operacional.

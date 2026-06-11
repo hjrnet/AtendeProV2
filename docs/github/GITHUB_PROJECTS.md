@@ -12,7 +12,7 @@ Esta configuracao cria a visao web de acompanhamento curto prazo do AtendePro no
 
 - Nome: `AtendePro Roadmap`
 - Repositorio: `hjrnet/AtendeProV2`
-- Escopo inicial: `R18` e `R19`
+- Escopo inicial: releases recentes sincronizadas pelo backlog local.
 - URL: `https://github.com/users/hjrnet/projects/4`
 
 ## Colunas/status
@@ -27,8 +27,7 @@ Esta configuracao cria a visao web de acompanhamento curto prazo do AtendePro no
 
 ## Labels
 
-- `release/R18`
-- `release/R19`
+- `release/R18` ate `release/R27`, conforme releases informadas ao script.
 - `vertical/nutri`
 - `vertical/beauty`
 - `vertical/growth`
@@ -47,8 +46,7 @@ Esta configuracao cria a visao web de acompanhamento curto prazo do AtendePro no
 
 ## Milestones
 
-- `R18 — Nutri Pro plano alimentar avançado e produtividade clínica`
-- `R19 — Growth, inteligência e refinamento comercial das duas verticais`
+- Milestones por release, lidas de `docs/RELEASE_STATUS.yaml`.
 
 ## Sincronizacao
 
@@ -61,6 +59,13 @@ O script local `scripts/github-project-sync.ps1` cria:
 - inclusao das issues no Project.
 
 Por seguranca, o script roda em modo simulacao por padrao. Use `-Apply` para criar no GitHub.
+
+O script local `scripts/github-release-finalize.ps1` finaliza uma release ja marcada como `CONCLUIDA` em `docs/RELEASE_STATUS.yaml`:
+
+- cria milestone/issue ausente quando usado com `-EnsureIssues`;
+- fecha issues com tasks `CONCLUIDA`;
+- fecha milestone apenas quando nao houver issue aberta;
+- roda em dry-run por padrao e aplica mudancas somente com `-Apply`.
 
 ## Pre-requisito
 
@@ -76,10 +81,22 @@ gh auth login --web --scopes "repo,project"
 powershell -ExecutionPolicy Bypass -File .\scripts\github-project-sync.ps1
 ```
 
+Simular finalizacao de release:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\github-release-finalize.ps1 -Release R27 -EnsureIssues
+```
+
 ## Aplicar
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\github-project-sync.ps1 -Apply
+```
+
+Aplicar finalizacao de release:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\github-release-finalize.ps1 -Release R27 -EnsureIssues -Apply
 ```
 
 ## Conferir autenticacao
@@ -101,4 +118,5 @@ Ao finalizar:
 - mover para `Review` ou `Done`;
 - associar PR/commit;
 - manter a milestone da release;
+- executar `github-release-finalize.ps1` depois do merge quando a release estiver concluida;
 - registrar falhas no observability quando houver bloqueio.

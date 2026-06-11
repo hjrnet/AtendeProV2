@@ -8,6 +8,7 @@ Esta camada registra o trabalho do projeto como trilha operacional. Ela nao subs
 - Registrar falhas com causa, impacto e acao tomada.
 - Gerar metricas simples de execucao sem depender de ferramenta externa.
 - Produzir checklist automatico por release a partir de `docs/RELEASE_STATUS.yaml`.
+- Evitar divergencia entre estado local e GitHub Issues/Milestones ao finalizar releases.
 - Facilitar retomada de contexto entre sessoes e agentes.
 
 ## Arquivos
@@ -16,6 +17,7 @@ Esta camada registra o trabalho do projeto como trilha operacional. Ela nao subs
 - `docs/codex/observability/failures.jsonl`: falhas, bloqueios e riscos relevantes.
 - `docs/codex/observability/reports/`: relatorios gerados por release.
 - `scripts/codex-observability.ps1`: comandos locais para registrar eventos, falhas, relatorios e checklists.
+- `scripts/github-release-finalize.ps1`: comando local para fechar issues e milestone de release concluida no GitHub.
 
 ## Evento estruturado
 
@@ -74,6 +76,12 @@ Gerar checklist automatico da release:
 powershell -ExecutionPolicy Bypass -File .\scripts\codex-observability.ps1 checklist -Release R18
 ```
 
+Finalizar GitHub Issues/Milestone da release:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\github-release-finalize.ps1 -Release R18 -EnsureIssues -Apply
+```
+
 ## Rotina por task
 
 1. Registrar `INICIADA` ao comecar.
@@ -82,6 +90,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\codex-observability.ps1 check
 4. Gerar checklist da release antes de marcar a task como concluida.
 5. Gerar relatorio da release ao final de blocos de autopilot.
 6. Registrar `CONCLUIDA`, `BLOQUEADA` ou `FALHOU` antes do commit.
+7. Depois do merge, finalizar GitHub Issues/Milestone com `github-release-finalize.ps1`.
 
 ## Criterio de qualidade
 

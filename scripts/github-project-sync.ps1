@@ -1,7 +1,7 @@
 param(
     [string] $Repo = "hjrnet/AtendeProV2",
     [string] $ProjectTitle = "AtendePro Roadmap",
-    [string[]] $Releases = @("R18", "R19"),
+    [string[]] $Releases = @("R18", "R19", "R20", "R21", "R22", "R23", "R24", "R25", "R26", "R27"),
     [switch] $Apply
 )
 
@@ -165,7 +165,16 @@ function Get-TaskLabels {
 }
 
 function Ensure-Labels {
-    foreach ($label in $Labels) {
+    $labelsFinais = @($Labels)
+    foreach ($release in $Releases) {
+        $labelsFinais += @{
+            name = "release/$release"
+            color = "0E8A16"
+            description = "Release $release"
+        }
+    }
+
+    foreach ($label in ($labelsFinais | Sort-Object name -Unique)) {
         Invoke-Gh @("label", "create", $label.name, "--repo", $Repo, "--color", $label.color, "--description", $label.description, "--force") | Out-Null
     }
 }

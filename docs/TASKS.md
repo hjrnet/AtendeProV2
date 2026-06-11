@@ -319,3 +319,12 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-R26-002 | Cockpit Admin SaaS executar reset demo | Conectar Admin SaaS ao reset backend e mostrar status, etapas, ambiente e credenciais. | CONCLUIDA |
 | TASK-R26-003 | Testes e validacao R26 | Validar backend/web e smoke test autenticado do endpoint local. | CONCLUIDA |
 | TASK-R26-004 | Sincronizacao GitHub e merge R26 | Criar PR, mergear em develop e sincronizar issues/milestone R26. | CONCLUIDA |
+
+## R27 — Observability e sincronizacao GitHub automatica
+
+| Task | Nome | Descricao | Status |
+| --- | --- | --- | --- |
+| TASK-R27-001 | Finalizador GitHub de release | Criar script seguro para fechar issues/milestone de release concluida a partir do estado local. | CONCLUIDA |
+| TASK-R27-002 | Atualizar sync de GitHub Projects | Ampliar script existente para releases recentes e labels dinamicas por release. | CONCLUIDA |
+| TASK-R27-003 | Documentar rotina anti-divergencia | Documentar uso do finalizador em GitHub Projects e Observability. | CONCLUIDA |
+| TASK-R27-004 | Validar e aplicar R27 | Validar dry-run, mergear e usar o proprio finalizador para fechar R27. | CONCLUIDA |
