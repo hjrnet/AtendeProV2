@@ -269,3 +269,9 @@
 
 - Entrega: painel de adesao Nutri, evolucao clinica visual, retorno inteligente e biblioteca profissional exportavel com carimbo/documento.
 - Proxima release: R23 Mobile real paciente/profissional.
+
+## R23 concluida em 2026-06-11
+
+- Entrega: mobile real paciente/profissional consumindo auth, agenda, documentos, Nutri, Beauty, pos-venda, Growth e notificacoes agregadas.
+- Risco tecnico: criar endpoint mobile/me para eliminar resolucao provisoria de primeiro paciente/cliente em producao.
+- Proxima release: R24 Comercializacao SaaS, onboarding e metricas admin.

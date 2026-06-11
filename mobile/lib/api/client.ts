@@ -37,9 +37,9 @@ export type UsuarioLoginApi = {
 
 export type LoginResponse = {
   accessToken: string;
-  refreshToken: string;
-  tipoToken: string;
-  expiraEm: string;
+  refreshToken?: string | null;
+  tipoToken?: string | null;
+  expiraEm?: string | null;
   usuario: UsuarioLoginApi;
 };
 
@@ -249,9 +249,116 @@ export type MensagemNutriApi = {
   enviadaEm: string;
 };
 
+export type ClienteBeautyResumoApi = {
+  id: string;
+  nome: string;
+  telefone: string | null;
+  observacoes: string | null;
+  ativo: boolean;
+  atualizadoEm: string;
+};
+
+export type ProtocoloBeautyApi = {
+  id: string;
+  empresaId: string;
+  clienteId: string;
+  nome: string;
+  tipo: string;
+  tipoRotulo: string;
+  objetivo: string;
+  quantidadeSessoesPrevistas: number;
+  sessoesRealizadas: number;
+  sessoesRestantes: number;
+  status: string;
+  statusRotulo: string;
+  observacoes: string | null;
+  atualizadoEm: string;
+};
+
+export type SegurancaBeautyApi = {
+  termos: unknown[];
+  evidencias: unknown[];
+  produtosUtilizados: Array<{
+    id: string;
+    nomeProduto: string;
+    lote: string | null;
+    validade: string | null;
+    alertaValidade: boolean;
+    alertaEstoqueBaixo: boolean;
+    statusRotulo: string;
+  }>;
+  produtosEstoque: Array<{
+    id: string;
+    nome: string;
+    validade: string | null;
+    quantidadeAtual: number;
+    estoqueBaixo: boolean;
+    validadeEmAlerta: boolean;
+  }>;
+};
+
+export type AreaPosVendaApi = "NUTRI" | "BEAUTY";
+
+export type ClientePosVendaApi = {
+  id: string;
+  nome: string;
+  area: AreaPosVendaApi;
+  telefone: string | null;
+  proximaConsultaEm: string | null;
+  retornoRecomendadoEm: string | null;
+  motivoRetorno: string;
+  riscoAbandono: "ALTO" | "MEDIO" | "BAIXO";
+  oportunidadeRecorrencia: boolean;
+  statusRotulo: string;
+};
+
+export type TarefaPosVendaApi = {
+  id: string | null;
+  clienteId: string;
+  clienteNome: string;
+  area: AreaPosVendaApi;
+  tipo: string;
+  titulo: string;
+  descricao: string | null;
+  dataRecomendada: string | null;
+  status: string;
+  origem: string | null;
+};
+
+export type PainelPosVendaApi = {
+  empresaId: string;
+  area: AreaPosVendaApi | null;
+  metricas: {
+    clientesMonitorados: number;
+    retornosPendentes: number;
+    clientesInativos: number;
+    faltasRecentes: number;
+    clientesSemContato: number;
+    oportunidadesRecorrencia: number;
+    npsMedio: number;
+    detratores: number;
+  };
+  clientes: ClientePosVendaApi[];
+  tarefas: TarefaPosVendaApi[];
+  atualizadoEm: string;
+};
+
+export type SugestaoPosVendaGrowthApi = {
+  clienteId: string;
+  clienteNome: string;
+  vertical: AreaPosVendaApi;
+  tipo: string;
+  prioridade: "1_ALTA" | "2_MEDIA" | "3_BAIXA";
+  motivo: string;
+  retornoRecomendadoEm: string;
+  mensagemSugerida: string;
+  oportunidadePacote: string;
+};
+
 const API_HOST_PADRAO_WEB = "http://localhost:8080";
 const API_HOST_PADRAO_ANDROID = "http://10.0.2.2:8080";
 const API_HOST_PADRAO_IOS = "http://localhost:8080";
+const TEMPO_LIMITE_REQUISICAO_MS = 15000;
 
 declare const process: { env?: Record<string, string | undefined> } | undefined;
 
@@ -307,12 +414,13 @@ export function criarApiClient(config: ConfigApi = {}) {
       }
     });
 
-    const resposta = await fetch(url, {
+    const bodyPreparado = prepararBody(options.body);
+    const resposta = await executarFetchComRetry(url, {
       ...options,
       method,
-      body: prepararBody(options.body),
+      body: bodyPreparado,
       headers
-    });
+    }, method);
 
     if (resposta.status === 204) {
       return undefined as T;
@@ -341,6 +449,46 @@ export function criarApiClient(config: ConfigApi = {}) {
     delete: <T>(path: string, options?: OpcoesRequisicao) => request<T>(path, options, "DELETE"),
     request
   };
+}
+
+async function executarFetchComRetry(url: URL, init: RequestInit, method: MetodoHttp) {
+  try {
+    return await executarFetchComTimeout(url, init);
+  } catch (falha) {
+    if (method === "GET") {
+      return executarFetchComTimeout(url, init);
+    }
+
+    throw normalizarErroRede(falha);
+  }
+}
+
+async function executarFetchComTimeout(url: URL, init: RequestInit) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), TEMPO_LIMITE_REQUISICAO_MS);
+
+  try {
+    return await fetch(url, {
+      ...init,
+      signal: init.signal ?? controller.signal
+    });
+  } catch (falha) {
+    throw normalizarErroRede(falha);
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+function normalizarErroRede(falha: unknown) {
+  if (falha instanceof Error && falha.name === "AbortError") {
+    return new Error("Tempo de resposta excedido. Verifique a conexão e tente novamente.");
+  }
+
+  if (falha instanceof Error) {
+    return new Error(`Falha de conexão com o AtendePro: ${falha.message}`);
+  }
+
+  return new Error("Falha de conexão com o AtendePro.");
 }
 
 function prepararBody(body: unknown) {
@@ -458,6 +606,17 @@ export async function resolverPrimeiroPacienteNutri(empresaId: string | null) {
   return resposta.itens[0] ?? null;
 }
 
+export async function resolverPrimeiroClienteBeauty(empresaId: string | null) {
+  const resposta = await listarClientesPortal({
+    empresaId,
+    area: "BEAUTY",
+    ativo: true,
+    pagina: 0,
+    tamanho: 1
+  });
+  return resposta.itens[0] ?? null;
+}
+
 export async function consultarPlanoPublicadoNutri(params: { empresaId: string | null; pacienteId: string }) {
   return apiClientAutenticado.get<PlanoAlimentarNutriApi>(`/nutri-pro/pacientes/${params.pacienteId}/plano-publicado`, {
     query: { empresaId: params.empresaId }
@@ -532,6 +691,46 @@ export async function enviarMensagemNutri(params: {
       query: { empresaId: params.empresaId }
     }
   );
+}
+
+export async function listarClientesBeauty(params: { empresaId: string | null; busca?: string }) {
+  return apiClientAutenticado.get<{ itens: ClienteBeautyResumoApi[] }>("/beauty-pro/clientes", {
+    query: {
+      empresaId: params.empresaId,
+      busca: params.busca || undefined
+    }
+  });
+}
+
+export async function listarProtocolosBeauty(params: { empresaId: string | null; clienteId: string }) {
+  return apiClientAutenticado.get<{ itens: ProtocoloBeautyApi[] }>(`/beauty-pro/clientes/${params.clienteId}/protocolos`, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export async function consultarSegurancaBeauty(params: { empresaId: string | null; clienteId: string }) {
+  return apiClientAutenticado.get<SegurancaBeautyApi>(`/beauty-pro/clientes/${params.clienteId}/seguranca-operacional`, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export async function consultarPainelPosVenda(params: { empresaId: string | null; area: AreaPosVendaApi; busca?: string }) {
+  return apiClientAutenticado.get<PainelPosVendaApi>("/relacionamento/pos-venda", {
+    query: {
+      empresaId: params.empresaId,
+      area: params.area,
+      busca: params.busca || undefined
+    }
+  });
+}
+
+export async function listarSugestoesPosVendaGrowth(params: { empresaId: string | null; vertical?: AreaPosVendaApi }) {
+  return apiClientAutenticado.get<SugestaoPosVendaGrowthApi[]>("/growth/pos-venda/ia-sugestoes", {
+    query: {
+      empresaId: params.empresaId,
+      vertical: params.vertical
+    }
+  });
 }
 
 export async function validarSessaoAtual(): Promise<UsuarioLoginApi> {

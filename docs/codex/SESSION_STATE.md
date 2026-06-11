@@ -676,3 +676,13 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Ultima task concluida: TASK-R22-004.
 - Proxima release recomendada: R23.
 - Proxima task recomendada: TASK-R23-001.
+
+## Atualizacao R23 - 2026-06-11
+
+- Release R23 concluida.
+- Entrega: app mobile Expo com login real por perfil, area paciente Nutri/Beauty, area profissional com agenda/carteira/pos-venda/Growth e notificacoes agregadas por APIs reais.
+- Resiliencia: client mobile com timeout e retry simples para GET, sessao persistida validada e mensagens de erro amigaveis.
+- Risco registrado: app paciente ainda precisa de endpoint dedicado mobile/me para vinculo seguro usuario-cliente antes de producao multiusuario real.
+- Ultima task concluida: TASK-R23-004.
+- Proxima release recomendada: R24.
+- Proxima task recomendada: TASK-R24-001.

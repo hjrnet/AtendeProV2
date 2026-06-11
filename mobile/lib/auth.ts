@@ -9,7 +9,7 @@ type SessaoPersistida = {
   accessToken: string;
   refreshToken: string;
   tipoToken: string;
-  expiraEm: string;
+  expiraEm: string | null;
   usuario: LoginResponse["usuario"];
 };
 
@@ -35,9 +35,9 @@ export async function autenticarSessao(dadosLogin: LoginRequest) {
 export async function salvarSessaoAutenticada(response: LoginResponse) {
   const sessao: SessaoPersistida = {
     accessToken: response.accessToken,
-    refreshToken: response.refreshToken,
-    tipoToken: response.tipoToken,
-    expiraEm: response.expiraEm,
+    refreshToken: response.refreshToken ?? "",
+    tipoToken: response.tipoToken ?? "Bearer",
+    expiraEm: response.expiraEm ?? null,
     usuario: response.usuario
   };
 
@@ -48,13 +48,15 @@ export async function salvarSessaoAutenticada(response: LoginResponse) {
 }
 
 export async function carregarSessaoAutenticada() {
-  if (cacheSessao) {
+  if (cacheSessao && sessaoAindaValida(cacheSessao)) {
     return cacheSessao;
   }
 
   const sessaoArmazenada = await carregarSessaoSegura();
-  if (sessaoArmazenada) {
+  if (sessaoArmazenada && sessaoAindaValida(sessaoArmazenada)) {
     cacheSessao = sessaoArmazenada;
+  } else if (sessaoArmazenada) {
+    await limparSessaoAutenticada();
   }
 
   return cacheSessao;
@@ -62,6 +64,15 @@ export async function carregarSessaoAutenticada() {
 
 export async function obterSessaoAutenticada() {
   return carregarSessaoAutenticada();
+}
+
+export async function exigirSessaoAutenticada() {
+  const sessao = await carregarSessaoAutenticada();
+  if (!sessao) {
+    throw new Error("Faça login novamente para carregar dados reais do AtendePro.");
+  }
+
+  return sessao;
 }
 
 export async function limparSessaoAutenticada() {
@@ -125,4 +136,21 @@ function parseSessao(valor: string | null) {
   } catch {
     return null;
   }
+}
+
+function sessaoAindaValida(sessao: SessaoPersistida) {
+  if (!sessao.accessToken || !sessao.usuario?.id) {
+    return false;
+  }
+
+  if (!sessao.expiraEm) {
+    return true;
+  }
+
+  const expiraEm = new Date(sessao.expiraEm).getTime();
+  if (Number.isNaN(expiraEm)) {
+    return true;
+  }
+
+  return expiraEm > Date.now() + 30_000;
 }

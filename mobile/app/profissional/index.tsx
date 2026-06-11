@@ -10,8 +10,10 @@ import {
 } from "@/components/ui-shell";
 import { carregarSessaoAutenticada } from "@/lib/auth";
 import {
+  consultarPainelPosVenda,
   listarAgendaPortal,
   listarMensagensNutri,
+  listarSugestoesPosVendaGrowth,
   resolverPrimeiroPacienteNutri
 } from "@/lib/api/client";
 
@@ -19,6 +21,8 @@ type ContagemProfissional = {
   agendaHoje: number;
   agendaTotal: number;
   mensagensPendentes: number;
+  tarefasPendentes: number;
+  sugestoesAlta: number;
 };
 
 const secoesProfissional = [
@@ -40,7 +44,13 @@ const secoesProfissional = [
 ];
 
 export default function AreaProfissionalMobile() {
-  const [contagens, setContagens] = useState<ContagemProfissional>({ agendaHoje: 0, agendaTotal: 0, mensagensPendentes: 0 });
+  const [contagens, setContagens] = useState<ContagemProfissional>({
+    agendaHoje: 0,
+    agendaTotal: 0,
+    mensagensPendentes: 0,
+    tarefasPendentes: 0,
+    sugestoesAlta: 0
+  });
   const [empresaId, setEmpresaId] = useState<string | null>(null);
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(true);
@@ -57,9 +67,12 @@ export default function AreaProfissionalMobile() {
         const contextoEmpresa = sessao?.usuario.empresaId ?? null;
         setEmpresaId(contextoEmpresa);
 
-        const [agendaResposta, pacienteNutri] = await Promise.all([
+        const [agendaResposta, pacienteNutri, posVendaNutri, posVendaBeauty, sugestoesGrowth] = await Promise.all([
           listarAgendaPortal({ empresaId: contextoEmpresa, tamanho: 80, pagina: 0 }),
-          resolverPrimeiroPacienteNutri(contextoEmpresa)
+          resolverPrimeiroPacienteNutri(contextoEmpresa),
+          consultarPainelPosVenda({ empresaId: contextoEmpresa, area: "NUTRI" }).catch(() => null),
+          consultarPainelPosVenda({ empresaId: contextoEmpresa, area: "BEAUTY" }).catch(() => null),
+          listarSugestoesPosVendaGrowth({ empresaId: contextoEmpresa }).catch(() => [])
         ]);
 
         const mensagensResposta = pacienteNutri
@@ -84,7 +97,9 @@ export default function AreaProfissionalMobile() {
         setContagens({
           agendaHoje: agendamentosHoje.length,
           agendaTotal: agendaResposta.totalItens,
-          mensagensPendentes: mensagensResposta.itens.filter((mensagem) => !mensagem.lidaPeloProfissional).length
+          mensagensPendentes: mensagensResposta.itens.filter((mensagem) => !mensagem.lidaPeloProfissional).length,
+          tarefasPendentes: (posVendaNutri?.tarefas.filter((tarefa) => tarefa.status === "PENDENTE").length ?? 0) + (posVendaBeauty?.tarefas.filter((tarefa) => tarefa.status === "PENDENTE").length ?? 0),
+          sugestoesAlta: sugestoesGrowth.filter((sugestao) => sugestao.prioridade === "1_ALTA").length
         });
       } catch (falha) {
         if (ativo) {
@@ -117,6 +132,8 @@ export default function AreaProfissionalMobile() {
         <Cartao titulo={`Hoje: ${contagens.agendaHoje} atendimentos`} descricao="Agenda ativa disponível." />
         <Cartao titulo={`Mensagens: ${contagens.mensagensPendentes}`} descricao="Pendentes de leitura no acompanhamento Nutri." />
         <Cartao titulo={`Pipeline: ${contagens.agendaTotal}`} descricao="Total de compromissos planejados." />
+        <Cartao titulo={`Tarefas: ${contagens.tarefasPendentes}`} descricao="Pós-venda Nutri/Beauty com ações pendentes." />
+        <Cartao titulo={`IA alta: ${contagens.sugestoesAlta}`} descricao="Sugestões Growth de maior prioridade." />
       </GridCards>
 
       <CabecalhoSecao titulo="Ambientes de trabalho" />

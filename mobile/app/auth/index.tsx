@@ -22,6 +22,14 @@ function montarInfoSessao(sessao: Awaited<ReturnType<typeof carregarSessaoAutent
   return `Usuário: ${sessao.usuario.nome}\nEmpresa: ${sessao.usuario.empresaId ?? "não informada"}`;
 }
 
+function resolverRotaInicial(perfis: string[]) {
+  if (perfis.includes("PROFISSIONAL") || perfis.includes("EMPRESA_ADMIN")) {
+    return "/profissional" as const;
+  }
+
+  return "/cliente" as const;
+}
+
 export default function LoginMobile() {
   const [email, setEmail] = useState("karol.nutri@atendepro.local");
   const [senha, setSenha] = useState("AtendePro@123");
@@ -50,7 +58,7 @@ export default function LoginMobile() {
         tamanho: 1
       });
       setInfoSessao(montarInfoSessao(await carregarSessaoAutenticada()));
-      router.replace("/cliente");
+      router.replace(resolverRotaInicial(resposta.usuario.perfis));
     } catch (falha) {
       await limparSessaoAutenticada();
       setErro(extrairMensagemErro(falha));

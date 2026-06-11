@@ -71,11 +71,11 @@ export default function TelaInicialMobile() {
           </Link>
         ))}
       </GridCards>
-      <Cartao titulo="Status da release" descricao="R14 consolida governança, autenticação mobile real e fluxos iniciais conectados.">
-        <EstadoVazio texto="Fluxos principais: login, clientes, agenda, documentos, diário e mensagens Nutri usando APIs reais." />
+      <Cartao titulo="Status da release" descricao="R23 consolida app mobile real para paciente e profissional.">
+        <EstadoVazio texto="Fluxos principais: login por perfil, agenda, documentos, Nutri, Beauty, pós-venda, mensagens e notificações agregadas por APIs reais." />
       </Cartao>
       <View style={estilos.chamada}>
-        <Text style={estilos.chamadaTexto}>Ajuste R14: mobile deixa de ser apenas demo e passa a consumir o backend local/autenticado.</Text>
+        <Text style={estilos.chamadaTexto}>R23: mobile deixa de ser shell demonstrativo e vira superfície real de operação para Nutri/Beauty.</Text>
       </View>
     </CapaPagina>
   );

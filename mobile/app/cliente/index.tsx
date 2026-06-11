@@ -10,10 +10,13 @@ import {
 } from "@/components/ui-shell";
 import { carregarSessaoAutenticada } from "@/lib/auth";
 import {
+  consultarPainelPosVenda,
   consultarPlanoPublicadoNutri,
   listarAgendaPortal,
   listarDocumentosPortal,
   listarMensagensNutri,
+  listarProtocolosBeauty,
+  resolverPrimeiroClienteBeauty,
   resolverPrimeiroPacienteNutri
 } from "@/lib/api/client";
 
@@ -22,6 +25,8 @@ type ContagemCliente = {
   documentos: number;
   mensagens: number;
   planoPublicado: boolean;
+  protocolosBeauty: number;
+  retornosPendentes: number;
 };
 
 const secoesCliente = [
@@ -48,7 +53,14 @@ const secoesCliente = [
 ];
 
 export default function AreaClienteMobile() {
-  const [contagens, setContagens] = useState<ContagemCliente>({ agenda: 0, documentos: 0, mensagens: 0, planoPublicado: false });
+  const [contagens, setContagens] = useState<ContagemCliente>({
+    agenda: 0,
+    documentos: 0,
+    mensagens: 0,
+    planoPublicado: false,
+    protocolosBeauty: 0,
+    retornosPendentes: 0
+  });
   const [empresaId, setEmpresaId] = useState<string | null>(null);
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(true);
@@ -65,20 +77,34 @@ export default function AreaClienteMobile() {
         const contextoEmpresa = sessao?.usuario.empresaId ?? null;
         setEmpresaId(contextoEmpresa);
 
-        const pacienteNutri = await resolverPrimeiroPacienteNutri(contextoEmpresa);
-        const [agendaResposta, documentosResposta, mensagensResposta] = await Promise.all([
+        const [pacienteNutri, clienteBeauty] = await Promise.all([
+          resolverPrimeiroPacienteNutri(contextoEmpresa),
+          resolverPrimeiroClienteBeauty(contextoEmpresa)
+        ]);
+        const [agendaResposta, documentosResposta, mensagensResposta, posVendaNutri, posVendaBeauty] = await Promise.all([
           listarAgendaPortal({ empresaId: contextoEmpresa, tamanho: 10, pagina: 0 }),
           listarDocumentosPortal({ empresaId: contextoEmpresa, tamanho: 20, pagina: 0 }),
-          pacienteNutri ? listarMensagensNutri({ empresaId: contextoEmpresa, pacienteId: pacienteNutri.id }) : Promise.resolve({ itens: [] })
+          pacienteNutri ? listarMensagensNutri({ empresaId: contextoEmpresa, pacienteId: pacienteNutri.id }) : Promise.resolve({ itens: [] }),
+          consultarPainelPosVenda({ empresaId: contextoEmpresa, area: "NUTRI" }).catch(() => null),
+          consultarPainelPosVenda({ empresaId: contextoEmpresa, area: "BEAUTY" }).catch(() => null)
         ]);
 
         let planoPublicado = false;
+        let protocolosBeauty = 0;
         if (pacienteNutri) {
           try {
             await consultarPlanoPublicadoNutri({ empresaId: contextoEmpresa, pacienteId: pacienteNutri.id });
             planoPublicado = true;
           } catch {
             planoPublicado = false;
+          }
+        }
+        if (clienteBeauty) {
+          try {
+            const protocolosResposta = await listarProtocolosBeauty({ empresaId: contextoEmpresa, clienteId: clienteBeauty.id });
+            protocolosBeauty = protocolosResposta.itens.filter((protocolo) => protocolo.status !== "CANCELADO").length;
+          } catch {
+            protocolosBeauty = 0;
           }
         }
 
@@ -90,7 +116,9 @@ export default function AreaClienteMobile() {
           agenda: agendaResposta.totalItens,
           documentos: documentosResposta.totalItens,
           mensagens: mensagensResposta.itens.filter((mensagem) => !mensagem.lidaPeloPaciente).length,
-          planoPublicado
+          planoPublicado,
+          protocolosBeauty,
+          retornosPendentes: (posVendaNutri?.metricas.retornosPendentes ?? 0) + (posVendaBeauty?.metricas.retornosPendentes ?? 0)
         });
       } catch (falha) {
         if (ativo) {
@@ -133,6 +161,14 @@ export default function AreaClienteMobile() {
         <Cartao
           titulo={contagens.planoPublicado ? "Plano ativo publicado" : "Plano ainda não publicado"}
           descricao="Status do plano alimentar disponível no portal/app."
+        />
+        <Cartao
+          titulo={`Beauty: ${contagens.protocolosBeauty} protocolos`}
+          descricao="Rotina estética vinculada ao cliente Beauty real."
+        />
+        <Cartao
+          titulo={`Retornos: ${contagens.retornosPendentes}`}
+          descricao="Sinais de pós-venda e recorrência em Nutri/Beauty."
         />
       </GridCards>
 

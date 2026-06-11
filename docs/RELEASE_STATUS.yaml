@@ -1,8 +1,8 @@
 project: AtendePro
 strategy: professional_complete
-current_release: R23
-last_completed_task: TASK-R22-004
-next_task: TASK-R23-001
+current_release: R24
+last_completed_task: TASK-R23-004
+next_task: TASK-R24-001
 releases:
   R0:
     name: "R0 — Fundação técnica profissional"
@@ -263,14 +263,12 @@ releases:
       TASK-R22-002: CONCLUIDA
       TASK-R22-003: CONCLUIDA
       TASK-R22-004: CONCLUIDA
-  R23:
-    name: "R23 — Mobile real paciente/profissional"
-    status: PENDENTE
+  R23:`r`n    name: "R23 — Mobile real paciente/profissional"`r`n    status: CONCLUIDA
     tasks:
-      TASK-R23-001: PENDENTE
-      TASK-R23-002: PENDENTE
-      TASK-R23-003: PENDENTE
-      TASK-R23-004: PENDENTE
+      TASK-R23-001: CONCLUIDA
+      TASK-R23-002: CONCLUIDA
+      TASK-R23-003: CONCLUIDA
+      TASK-R23-004: CONCLUIDA
   R24:
     name: "R24 — Comercialização SaaS, onboarding e métricas admin"
     status: PENDENTE
