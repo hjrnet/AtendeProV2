@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R14 — Alinhamento funcional e completude do produto.
+R20 — Growth UI e comando comercial.
 
 ## Última task concluída
-TASK-CRM-006 — R16 Pós-venda moderno para Nutri Pro e Beauty Pro concluída sob demanda em modo autopilot multiagente.
+TASK-R14-004 — R14 concluída com governança, inventário de lacunas e mobile real inicial.
 
 ## Próxima task recomendada
-TASK-NUTRI-007 — Iniciar R17 experiência do paciente Nutri, ou TASK-R14-001 para retomar governança oficial pendente.
+TASK-R20-001 — Tela Growth no web app.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -645,3 +645,10 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Persistencia: migration `0040-create-growth-r19.yaml`.
 - Observacao: faturamento previsto usa agenda futura por vertical multiplicada pelo ticket medio ativo, pois agenda ainda nao possui vinculo direto com servico/procedimento.
 - Proxima etapa recomendada: R20 / TASK-R20-001, a definir no backlog oficial.
+## Atualizacao R14 - governanca e mobile real
+
+- Data: 2026-06-11
+- Release executada: R14 Alinhamento funcional e completude do produto.
+- Tasks concluidas: TASK-R14-001, TASK-R14-002, TASK-R14-003, TASK-R14-004.
+- Entrega: contrato de status funcional, inventario de lacunas por vertical, correcao de R19 para concluida, remocao da duplicidade historica de TASK-0801 em R13, shell mobile autenticado e fluxos iniciais reais de cliente/profissional.
+- Proxima etapa recomendada: R20 / TASK-R20-001.

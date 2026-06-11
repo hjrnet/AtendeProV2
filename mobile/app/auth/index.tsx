@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 
 import { CapaPagina, Cartao, EstadoVazio, temaAtendePro } from "@/components/ui-shell";
 import { autenticarSessao, carregarSessaoAutenticada, limparSessaoAutenticada, salvarSessaoAutenticada } from "@/lib/auth";
-import { listarClientesPortal, type LoginRequest } from "@/lib/api/client";
+import { listarClientesPortal, validarSessaoAtual, type LoginRequest } from "@/lib/api/client";
 
 function extrairMensagemErro(erro: unknown) {
   if (erro instanceof Error) {
@@ -43,6 +43,7 @@ export default function LoginMobile() {
     try {
       const resposta = await autenticarSessao({ email: email.trim(), senha } as LoginRequest);
       await salvarSessaoAutenticada(resposta);
+      await validarSessaoAtual();
       await listarClientesPortal({
         empresaId: resposta.usuario.empresaId,
         pagina: 0,

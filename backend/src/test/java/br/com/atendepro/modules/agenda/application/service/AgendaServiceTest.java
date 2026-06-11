@@ -71,8 +71,9 @@ class AgendaServiceTest {
                 compromissoSalvo -> {
                 },
                 id -> Optional.empty(),
-                (empresaId, paginacao, inicio, fim, profissionalId, sala, status) -> {
+                (empresaId, paginacao, clientePacienteId, inicio, fim, profissionalId, sala, status) -> {
                     assertThat(empresaId).isEqualTo(EMPRESA_ID);
+                    assertThat(clientePacienteId).isNull();
                     assertThat(sala).isEqualTo("Sala 1");
                     return new ResultadoPaginado<>(List.of(compromisso), 1, paginacao.pagina(), paginacao.tamanho());
                 },
@@ -82,7 +83,7 @@ class AgendaServiceTest {
                 CLOCK
         );
 
-        var result = service.listarAgenda(null, new Paginacao(0, 20), null, null, null, "Sala 1", AgendaStatus.AGENDADO);
+        var result = service.listarAgenda(null, new Paginacao(0, 20), null, null, null, null, "Sala 1", AgendaStatus.AGENDADO);
 
         assertThat(result.totalItens()).isEqualTo(1);
         assertThat(result.itens()).extracting("sala").containsExactly("Sala 1");
@@ -94,7 +95,7 @@ class AgendaServiceTest {
         AgendaService service = service(compromisso -> {
         }, false);
 
-        assertThatThrownBy(() -> service.listarAgenda(null, new Paginacao(0, 20), null, null, null, null, null))
+        assertThatThrownBy(() -> service.listarAgenda(null, new Paginacao(0, 20), null, null, null, null, null, null))
                 .isInstanceOf(PermissaoNegadaException.class)
                 .hasMessage("Usuario nao possui permissao para executar esta acao.");
     }
@@ -103,7 +104,7 @@ class AgendaServiceTest {
         return new AgendaService(
                 salvarPort,
                 id -> Optional.empty(),
-                (empresaId, paginacao, inicio, fim, profissionalId, sala, status) -> new ResultadoPaginado<>(List.of(), 0, paginacao.pagina(), paginacao.tamanho()),
+                (empresaId, paginacao, clientePacienteId, inicio, fim, profissionalId, sala, status) -> new ResultadoPaginado<>(List.of(), 0, paginacao.pagina(), paginacao.tamanho()),
                 (empresaId, profissionalId, sala, inicio, fim) -> existeConflito,
                 new TenantAccessService(),
                 new PermissaoAcessoService(),

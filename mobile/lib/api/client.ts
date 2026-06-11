@@ -253,7 +253,11 @@ const API_HOST_PADRAO_WEB = "http://localhost:8080";
 const API_HOST_PADRAO_ANDROID = "http://10.0.2.2:8080";
 const API_HOST_PADRAO_IOS = "http://localhost:8080";
 
-export const API_BASE_PADRAO = process.env.EXPO_PUBLIC_API_URL ?? resolverApiBasePadrao();
+declare const process: { env?: Record<string, string | undefined> } | undefined;
+
+const API_BASE_CONFIGURADA = typeof process !== "undefined" ? process.env?.EXPO_PUBLIC_API_URL : undefined;
+
+export const API_BASE_PADRAO = API_BASE_CONFIGURADA ?? resolverApiBasePadrao();
 
 function montarBaseApi(url: string) {
   const base = url.replace(/\/+$/, "");
@@ -408,6 +412,7 @@ export async function listarAgendaPortal(params: {
   inicio?: string;
   fim?: string;
   status?: TipoStatusAgenda;
+  clientePacienteId?: string;
   pagina?: number;
   tamanho?: number;
 }) {
@@ -417,6 +422,7 @@ export async function listarAgendaPortal(params: {
       inicio: params.inicio,
       fim: params.fim,
       status: params.status,
+      clientePacienteId: params.clientePacienteId,
       pagina: params.pagina ?? 0,
       tamanho: params.tamanho ?? 80
     }
@@ -526,4 +532,8 @@ export async function enviarMensagemNutri(params: {
       query: { empresaId: params.empresaId }
     }
   );
+}
+
+export async function validarSessaoAtual(): Promise<UsuarioLoginApi> {
+  return apiClientAutenticado.get<UsuarioLoginApi>("/auth/me");
 }

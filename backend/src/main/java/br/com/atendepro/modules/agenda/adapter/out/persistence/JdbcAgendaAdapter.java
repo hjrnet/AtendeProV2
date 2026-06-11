@@ -97,6 +97,7 @@ public class JdbcAgendaAdapter implements
     public ResultadoPaginado<CompromissoAgenda> listarAgenda(
             UUID empresaId,
             Paginacao paginacao,
+            UUID clientePacienteId,
             Instant inicio,
             Instant fim,
             UUID profissionalId,
@@ -104,7 +105,7 @@ public class JdbcAgendaAdapter implements
             AgendaStatus status
     ) {
         var parametros = new ArrayList<>();
-        String filtro = montarFiltro(empresaId, inicio, fim, profissionalId, sala, status, parametros);
+        String filtro = montarFiltro(empresaId, clientePacienteId, inicio, fim, profissionalId, sala, status, parametros);
         Long total = jdbcTemplate.queryForObject(
                 "select count(*) from agenda_compromissos " + filtro,
                 Long.class,
@@ -178,6 +179,7 @@ public class JdbcAgendaAdapter implements
 
     private String montarFiltro(
             UUID empresaId,
+            UUID clientePacienteId,
             Instant inicio,
             Instant fim,
             UUID profissionalId,
@@ -187,6 +189,10 @@ public class JdbcAgendaAdapter implements
     ) {
         var filtro = new StringBuilder("where empresa_id = ?");
         parametros.add(empresaId);
+        if (clientePacienteId != null) {
+            filtro.append(" and cliente_paciente_id = ?");
+            parametros.add(clientePacienteId);
+        }
         if (inicio != null) {
             filtro.append(" and fim > ?");
             parametros.add(Timestamp.from(inicio));

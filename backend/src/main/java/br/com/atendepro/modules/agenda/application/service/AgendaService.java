@@ -101,6 +101,7 @@ public class AgendaService implements AgendarCompromissoUseCase, BuscarCompromis
     public ResultadoPaginado<CompromissoAgendaResult> listarAgenda(
             UUID empresaId,
             Paginacao paginacao,
+            UUID clientePacienteId,
             Instant inicio,
             Instant fim,
             UUID profissionalId,
@@ -112,6 +113,7 @@ public class AgendaService implements AgendarCompromissoUseCase, BuscarCompromis
         ResultadoPaginado<CompromissoAgenda> agenda = listarAgendaPort.listarAgenda(
                 empresaResolvida,
                 paginacao,
+                clientePacienteId,
                 inicio,
                 fim,
                 profissionalId,
