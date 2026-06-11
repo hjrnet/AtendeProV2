@@ -103,3 +103,18 @@ Uma task bem observada deve responder rapidamente:
 - Qual foi a causa?
 - Qual e a proxima acao?
 - O status da release confere com o backlog?
+
+## Auditoria de entrega e documentacao por release
+
+A partir da R27, a auditoria de release deve olhar dois lados:
+
+- Entrega: codigo, testes, Docker/local, smoke tests e ausencia de regressao obvia.
+- Documentacao: `docs/releases/Rxx.md`, `docs/TASKS.md`, `docs/RELEASE_STATUS.yaml`, `docs/ROADMAP_RELEASES.md`, tasks individuais e evidencias de validacao.
+
+Comando obrigatorio antes de fechar uma release:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\release-documentation-audit.ps1
+```
+
+Use `-Strict` quando a release estiver sendo preparada para apresentacao executiva ou auditoria externa.
