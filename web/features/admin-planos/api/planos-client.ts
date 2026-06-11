@@ -40,6 +40,36 @@ export type SalvarPlanoRequest = {
   modulos: string[];
 };
 
+export type AdminSaasDashboard = {
+  mrr: number;
+  empresasAtivas: number;
+  empresasBloqueadas: number;
+  trialsAtivos: number;
+  chamadosAbertos: number;
+  atualizadoEm: string;
+};
+
+export type PlanoVendidoAdminSaas = {
+  planoId: string;
+  codigo: string;
+  nome: string;
+  totalAssinaturas: number;
+  assinaturasAtivas: number;
+  mrr: number;
+};
+
+export type DashboardVendasAdminSaas = {
+  mrr: number;
+  trialsIniciados: number;
+  trialsConvertidos: number;
+  taxaConversaoTrial: number;
+  assinaturasAtivas: number;
+  assinaturasCanceladas: number;
+  taxaChurn: number;
+  planosVendidos: PlanoVendidoAdminSaas[];
+  atualizadoEm: string;
+};
+
 const adminApi = criarApiClient({
   getAccessToken: () => carregarSessaoAutenticada()?.accessToken ?? null,
   onUnauthorized: () => limparSessaoAutenticada()
@@ -61,4 +91,12 @@ export function criarPlano(request: SalvarPlanoRequest) {
 
 export function atualizarPlano(planoId: string, request: SalvarPlanoRequest) {
   return adminApi.put<Plano>(`/api/admin-saas/planos/${planoId}`, request);
+}
+
+export function consultarDashboardAdminSaas() {
+  return adminApi.get<AdminSaasDashboard>("/api/admin-saas/dashboard");
+}
+
+export function consultarDashboardVendasAdminSaas() {
+  return adminApi.get<DashboardVendasAdminSaas>("/api/admin-saas/dashboard/vendas");
 }

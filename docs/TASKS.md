@@ -298,7 +298,7 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
-| TASK-R24-001 | Checkout e assinatura self-service | Preparar fluxo de escolha de plano, trial, upgrade/downgrade e integração futura com gateway real. | PENDENTE |
-| TASK-R24-002 | Onboarding guiado de empresa | Wizard de configuração inicial por vertical, usuários, serviços, agenda e dados demo opcionais. | PENDENTE |
-| TASK-R24-003 | Métricas SaaS no Admin | MRR, churn, trials, conversão, planos ativos, vertical de maior tração e alertas operacionais. | PENDENTE |
-| TASK-R24-004 | Ambiente demo/reset por perfil | Gerar e resetar dados demo seguros para Nutri, Beauty, gestor, investidor e suporte. | PENDENTE |
+| TASK-R24-001 | Checkout e assinatura self-service | Preparar fluxo de escolha de plano, trial, upgrade/downgrade e integração futura com gateway real. | CONCLUIDA |
+| TASK-R24-002 | Onboarding guiado de empresa | Wizard de configuração inicial por vertical, usuários, serviços, agenda e dados demo opcionais. | CONCLUIDA |
+| TASK-R24-003 | Métricas SaaS no Admin | MRR, churn, trials, conversão, planos ativos, vertical de maior tração e alertas operacionais. | CONCLUIDA |
+| TASK-R24-004 | Ambiente demo/reset por perfil | Gerar e resetar dados demo seguros para Nutri, Beauty, gestor, investidor e suporte. | CONCLUIDA |

@@ -275,3 +275,8 @@
 - Entrega: mobile real paciente/profissional consumindo auth, agenda, documentos, Nutri, Beauty, pos-venda, Growth e notificacoes agregadas.
 - Risco tecnico: criar endpoint mobile/me para eliminar resolucao provisoria de primeiro paciente/cliente em producao.
 - Proxima release: R24 Comercializacao SaaS, onboarding e metricas admin.
+
+## R24 concluida em 2026-06-11
+
+- Entrega: comercializacao SaaS, onboarding, metricas admin e ambiente demo/reset seguro por perfil no Admin SaaS web.
+- Proxima etapa: definir backlog R25 com endpoint mobile/me, gateway real ou reset demo backend conforme prioridade de negocio.
