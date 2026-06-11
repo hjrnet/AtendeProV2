@@ -10,7 +10,7 @@ import {
   temaAtendePro
 } from "@/components/ui-shell";
 import { carregarSessaoAutenticada } from "@/lib/auth";
-import { listarDocumentosPortal, type DocumentoProfissionalApi } from "@/lib/api/client";
+import { listarDocumentosPortal, resolverPrimeiroClienteBeauty, resolverPrimeiroPacienteNutri, type DocumentoProfissionalApi } from "@/lib/api/client";
 
 type SelecaoDeStatus = {
   pendentes: DocumentoProfissionalApi[];
@@ -74,9 +74,13 @@ export default function DocumentosClienteMobile() {
         const sessao = await carregarSessaoAutenticada();
         const contextoEmpresa = sessao?.usuario.empresaId ?? null;
         setEmpresaId(contextoEmpresa);
+        const pacienteNutri = await resolverPrimeiroPacienteNutri(contextoEmpresa);
+        const clienteBeauty = await resolverPrimeiroClienteBeauty(contextoEmpresa);
+        const clientePacienteId = pacienteNutri?.id ?? clienteBeauty?.id;
 
         const resposta = await listarDocumentosPortal({
           empresaId: contextoEmpresa,
+          clientePacienteId,
           pagina: 0,
           tamanho: 50,
           ativo: true

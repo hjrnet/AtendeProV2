@@ -10,12 +10,16 @@ import {
 } from "@/components/ui-shell";
 import { carregarSessaoAutenticada } from "@/lib/auth";
 import {
+  consultarPainelPosVenda,
   listarAgendaPortal,
   listarClientesPortal,
   listarDocumentosPortal,
+  listarSugestoesPosVendaGrowth,
   type ClientePacienteApi,
   type CompromissoAgendaApi,
-  type DocumentoProfissionalApi
+  type DocumentoProfissionalApi,
+  type SugestaoPosVendaGrowthApi,
+  type TarefaPosVendaApi
 } from "@/lib/api/client";
 
 type PacienteAcompanhamentoReal = {
@@ -57,6 +61,8 @@ function descricaoPaciente(item: PacienteAcompanhamentoReal) {
 
 export default function EvolucaoProfissionalMobile() {
   const [pacientes, setPacientes] = useState<PacienteAcompanhamentoReal[]>([]);
+  const [tarefas, setTarefas] = useState<TarefaPosVendaApi[]>([]);
+  const [sugestoes, setSugestoes] = useState<SugestaoPosVendaGrowthApi[]>([]);
   const [empresaId, setEmpresaId] = useState<string | null>(null);
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(true);
@@ -73,10 +79,13 @@ export default function EvolucaoProfissionalMobile() {
         const contextoEmpresa = sessao?.usuario.empresaId ?? null;
         setEmpresaId(contextoEmpresa);
 
-        const [clientesResposta, agendaResposta, documentosResposta] = await Promise.all([
+        const [clientesResposta, agendaResposta, documentosResposta, posVendaNutri, posVendaBeauty, sugestoesResposta] = await Promise.all([
           listarClientesPortal({ empresaId: contextoEmpresa, ativo: true, tamanho: 50, pagina: 0 }),
           listarAgendaPortal({ empresaId: contextoEmpresa, tamanho: 80, pagina: 0 }),
-          listarDocumentosPortal({ empresaId: contextoEmpresa, ativo: true, tamanho: 80, pagina: 0 })
+          listarDocumentosPortal({ empresaId: contextoEmpresa, ativo: true, tamanho: 80, pagina: 0 }),
+          consultarPainelPosVenda({ empresaId: contextoEmpresa, area: "NUTRI" }).catch(() => null),
+          consultarPainelPosVenda({ empresaId: contextoEmpresa, area: "BEAUTY" }).catch(() => null),
+          listarSugestoesPosVendaGrowth({ empresaId: contextoEmpresa }).catch(() => [])
         ]);
 
         if (!ativo) {
@@ -97,6 +106,8 @@ export default function EvolucaoProfissionalMobile() {
             return { cliente, proximaAgenda, documentos: documentosCliente };
           })
         );
+        setTarefas([...(posVendaNutri?.tarefas ?? []), ...(posVendaBeauty?.tarefas ?? [])].filter((tarefa) => tarefa.status === "PENDENTE").slice(0, 8));
+        setSugestoes(sugestoesResposta.slice(0, 6));
       } catch (falha) {
         if (ativo) {
           setErro(falha instanceof Error ? falha.message : "Não foi possível carregar acompanhamento real.");
@@ -158,6 +169,34 @@ export default function EvolucaoProfissionalMobile() {
           meta="Base real de documentos profissionais"
         />
       </Cartao>
+
+      <CabecalhoSecao titulo="Tarefas de pós-venda" />
+      <View style={estilos.lista}>
+        {!carregando && !erro && tarefas.length === 0 ? <EstadoVazio texto="Nenhuma tarefa pendente de Nutri/Beauty." /> : null}
+        {tarefas.map((tarefa, indice) => (
+          <ItemLista
+            key={tarefa.id ?? `${tarefa.clienteId}-${indice}`}
+            titulo={`${tarefa.titulo} · ${tarefa.area}`}
+            meta={tarefa.dataRecomendada ? formatarData(tarefa.dataRecomendada) : "Sem data"}
+            descricao={tarefa.descricao ?? tarefa.clienteNome}
+            status={tarefa.tipo}
+          />
+        ))}
+      </View>
+
+      <CabecalhoSecao titulo="Sugestões assistidas" />
+      <View style={estilos.lista}>
+        {!carregando && !erro && sugestoes.length === 0 ? <EstadoVazio texto="Nenhuma sugestão Growth disponível agora." /> : null}
+        {sugestoes.map((sugestao) => (
+          <ItemLista
+            key={`${sugestao.vertical}-${sugestao.clienteId}-${sugestao.tipo}`}
+            titulo={`${sugestao.clienteNome} · ${sugestao.vertical}`}
+            meta={`${sugestao.prioridade} · ${formatarData(sugestao.retornoRecomendadoEm)}`}
+            descricao={`${sugestao.motivo}\n${sugestao.mensagemSugerida}`}
+            status={sugestao.oportunidadePacote}
+          />
+        ))}
+      </View>
     </CapaPagina>
   );
 }

@@ -10,7 +10,7 @@ import {
   temaAtendePro
 } from "@/components/ui-shell";
 import { carregarSessaoAutenticada, type SessaoAutenticada } from "@/lib/auth";
-import { listarAgendaPortal, type CompromissoAgendaApi, type TipoStatusAgenda } from "@/lib/api/client";
+import { listarAgendaPortal, resolverPrimeiroClienteBeauty, resolverPrimeiroPacienteNutri, type CompromissoAgendaApi, type TipoStatusAgenda } from "@/lib/api/client";
 
 function extrairErro(mensagem: unknown) {
   if (mensagem instanceof Error) {
@@ -70,8 +70,11 @@ export default function AgendaClienteMobile() {
         const sessao: SessaoAutenticada | null = await carregarSessaoAutenticada();
         const contextoEmpresa = sessao?.usuario.empresaId ?? null;
         setEmpresaId(contextoEmpresa);
+        const pacienteNutri = await resolverPrimeiroPacienteNutri(contextoEmpresa);
+        const clienteBeauty = await resolverPrimeiroClienteBeauty(contextoEmpresa);
+        const clientePacienteId = pacienteNutri?.id ?? clienteBeauty?.id;
 
-        const resposta = await listarAgendaPortal({ empresaId: contextoEmpresa, tamanho: 50 });
+        const resposta = await listarAgendaPortal({ empresaId: contextoEmpresa, clientePacienteId, tamanho: 50 });
         if (!ativo) {
           return;
         }

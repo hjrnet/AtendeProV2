@@ -289,10 +289,10 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
-| TASK-R23-001 | Resolver login e shell mobile real | Conectar autenticação, sessão, tenant e shell Expo ao backend real, fechando a dívida da R14 mobile. | PENDENTE |
-| TASK-R23-002 | App paciente real Nutri/Beauty | Agenda, plano/rotina, pós-venda, mensagens e documentos consumindo APIs reais. | PENDENTE |
-| TASK-R23-003 | App profissional real | Agenda do dia, clientes prioritários, tarefas, checklists e ações rápidas para Nutri/Beauty. | PENDENTE |
-| TASK-R23-004 | Notificações e resiliência mobile | Preparar push/local notifications, estados offline básicos, loading, erro e retry. | PENDENTE |
+| TASK-R23-001 | Resolver login e shell mobile real | Conectar autenticação, sessão, tenant e shell Expo ao backend real, fechando a dívida da R14 mobile. | CONCLUIDA |
+| TASK-R23-002 | App paciente real Nutri/Beauty | Agenda, plano/rotina, pós-venda, mensagens e documentos consumindo APIs reais. | CONCLUIDA |
+| TASK-R23-003 | App profissional real | Agenda do dia, clientes prioritários, tarefas, checklists e ações rápidas para Nutri/Beauty. | CONCLUIDA |
+| TASK-R23-004 | Notificações e resiliência mobile | Preparar push/local notifications, estados offline básicos, loading, erro e retry. | CONCLUIDA |
 
 ## R24 — Comercialização SaaS, onboarding e métricas admin
 
