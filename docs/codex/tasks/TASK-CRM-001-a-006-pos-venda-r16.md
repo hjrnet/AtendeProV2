@@ -1,4 +1,4 @@
-# TASK-CRM-001 a TASK-CRM-006 — R16 Pós-venda Nutri e Beauty
+﻿# TASK-CRM-001 a TASK-CRM-006 — R16 Pós-venda Nutri e Beauty
 
 ## Status
 

@@ -1,4 +1,4 @@
-# TASK-GROWTH-003 — Indicadores de negocio por vertical
+﻿# TASK-GROWTH-003 — Indicadores de negocio por vertical
 
 - Release: R19 Growth, pos-venda e indicadores comerciais
 - Status: CONCLUIDA

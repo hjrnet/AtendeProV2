@@ -1,4 +1,4 @@
-# TASK-GROWTH-001 — Funil de leads por vertical
+﻿# TASK-GROWTH-001 — Funil de leads por vertical
 
 - Release: R19 Growth, pos-venda e indicadores comerciais
 - Status: CONCLUIDA

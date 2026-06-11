@@ -1,4 +1,4 @@
-# TASK-GROWTH-004 — Apresentacoes demo por perfil
+﻿# TASK-GROWTH-004 — Apresentacoes demo por perfil
 
 - Release: R19 Growth, pos-venda e indicadores comerciais
 - Status: CONCLUIDA

@@ -2,6 +2,7 @@ package br.com.atendepro.modules.mobile.application.service;
 
 import java.util.UUID;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import br.com.atendepro.modules.auth.application.port.out.CarregarUsuarioPorIdPort;
@@ -15,6 +16,7 @@ import br.com.atendepro.modules.mobile.application.result.PerfilMobileResult;
 import br.com.atendepro.shared.domain.exception.BusinessException;
 
 @Service
+@Profile("!test")
 public class MobilePerfilService implements ConsultarPerfilMobileUseCase {
 
     private final CarregarUsuarioPorIdPort carregarUsuarioPorIdPort;
