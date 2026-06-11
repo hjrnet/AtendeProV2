@@ -174,3 +174,45 @@
 - **TASK-R14-002 — Inventário técnico de lacunas e plano de estabilização de verticais futuras**: mapear o que é catálogo vs operação para Biomed/Fisio/Psico/Fono/Farmácia/Odonto e definir o próximo slice operacional.
 - **TASK-R14-003 — Conectar autenticação e shell mobile ao backend real**: login, sessão persistida, tenant/empresa e telas de recuperação de contexto.
 - **TASK-R14-004 — Conectar os fluxos mobile (cliente/profissional) a dados reais**: agenda, clientes/pacientes e documentos via API real, com estados de vazio/erro/loading.
+
+## R15 — Beauty Pro estoque, validade e margem operacional
+
+- **TASK-BEAUTY-006 — Criar Estoque Beauty completo no workspace**: cadastro e listagem de produtos, lotes, validade, quantidade, custo unitário, estoque mínimo, filtros por vencimento e estado vazio.
+- **TASK-BEAUTY-007 — Criar movimentações e baixa automática de produtos**: entrada, ajuste, saída manual e baixa por sessão/protocolo, preservando histórico por produto, cliente, profissional e atendimento.
+- **TASK-BEAUTY-008 — Criar painel de validade, ruptura e consumo**: alertas de produto vencido, vence em 7/15/30 dias, estoque baixo, consumo por procedimento e impacto na margem.
+- **TASK-BEAUTY-009 — Criar kits de insumos por procedimento**: configurar produtos esperados por protocolo/serviço para estimar custo, sugerir baixa e alertar divergências.
+- **TASK-BEAUTY-010 — Popular demo Beauty com estoque realista**: produtos, lotes, validades próximas, vencidos, estoque baixo, pacotes e sessões para apresentação comercial.
+
+## R16 — Pós-venda moderno para Nutri Pro e Beauty Pro
+
+- **TASK-CRM-001 — Criar núcleo de relacionamento e pós-venda**: carteira de clientes/pacientes, status de acompanhamento, retorno recomendado, aniversários, faltas e clientes inativos.
+- **TASK-CRM-002 — Criar tarefas e lembretes pós-atendimento**: tarefas automáticas por evento de agenda, sessão, plano alimentar, protocolo, retorno e ausência.
+- **TASK-CRM-003 — Criar templates de mensagem e WhatsApp-ready**: mensagens manuais com variáveis, link direto de WhatsApp, histórico de contato e preparo para integração oficial futura.
+- **TASK-CRM-004 — Criar NPS e pesquisa de satisfação**: pesquisa pós-consulta/procedimento, registro de nota, comentário e alerta de insatisfação.
+- **TASK-CRM-005 — Criar segmentação e campanhas simples**: filtros por área, serviço, pacote, risco de abandono, produto usado, plano ativo e última consulta.
+- **TASK-CRM-006 — Criar dashboard de pós-venda**: retornos pendentes, reativações, faltas, NPS, clientes sem contato e oportunidades de recorrência.
+
+## R17 — Nutri Pro experiência do paciente e acompanhamento contínuo
+
+- **TASK-NUTRI-007 — Publicar plano alimentar no portal/app do paciente**: plano ativo, refeições, horários, suplementos, observações e histórico de versões.
+- **TASK-NUTRI-008 — Criar lista de compras do plano alimentar**: geração por plano, agrupamento por categoria, edição e compartilhamento com o paciente.
+- **TASK-NUTRI-009 — Criar diário alimentar do paciente**: registro de refeição por texto e evidência segura, status de revisão e visão do nutricionista.
+- **TASK-NUTRI-010 — Criar metas, lembretes e evolução do paciente**: hidratação, refeições, peso, medidas, metas semanais e linha do tempo.
+- **TASK-NUTRI-011 — Criar recados/chat operacional Nutri**: troca de mensagens assíncronas entre paciente e nutricionista, com status de leitura e contexto do acompanhamento.
+- **TASK-NUTRI-012 — Integrar acompanhamento Nutri ao mobile real**: conectar agenda, plano, diário, mensagens e notificações aos endpoints reais.
+
+## R18 — Nutri Pro plano alimentar avançado e produtividade clínica
+
+- **TASK-NUTRI-013 — Criar banco de alimentos e suplementos**: alimentos padrão, alimentos personalizados, suplementos, composição nutricional e origem do item.
+- **TASK-NUTRI-014 — Criar editor avançado de plano alimentar**: duplicar plano, versionar, arquivar, substituir, reorganizar refeições e salvar modelos.
+- **TASK-NUTRI-015 — Criar substituições e equivalências alimentares**: lista de substituições por refeição, por objetivo e por restrição alimentar.
+- **TASK-NUTRI-016 — Criar receitas e materiais educativos**: biblioteca de receitas, orientações, materiais por objetivo e anexos ao plano.
+- **TASK-NUTRI-017 — Evoluir antropometria e exames**: circunferências, dobras, bioimpedância, comparação longitudinal e histórico de exames.
+- **TASK-NUTRI-018 — Criar relatórios nutricionais gerenciais**: pacientes ativos, evolução, adesão, planos emitidos, retornos e perfil da carteira.
+
+## R19 — Growth, inteligência e refinamento comercial das duas verticais
+
+- **TASK-GROWTH-001 — Criar funil de leads por vertical**: captação, origem, etapa, conversão em cliente/paciente e vínculo com agenda.
+- **TASK-GROWTH-002 — Criar automações assistidas por IA para pós-venda**: sugestões de mensagem, risco de abandono, retorno recomendado e oportunidade de pacote.
+- **TASK-GROWTH-003 — Criar indicadores de negócio por vertical**: faturamento previsto, ocupação, recorrência, margem, recompra e ticket médio.
+- **TASK-GROWTH-004 — Criar apresentações demo por perfil**: roteiros e dados demo para Nutri, Beauty, gestor e investidor.

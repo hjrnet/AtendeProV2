@@ -2,6 +2,7 @@ package br.com.atendepro.modules.nutri.application.command;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 public final class ExperienciaPacienteNutriProCommands {
@@ -10,6 +11,69 @@ public final class ExperienciaPacienteNutriProCommands {
     }
 
     public record PublicarPlanoAlimentarCommand(UUID empresaId, UUID pacienteId, UUID planoId) {
+    }
+
+    public record DuplicarPlanoAlimentarCommand(UUID empresaId, UUID pacienteId, UUID planoId) {
+    }
+
+    public record VersionarPlanoAlimentarCommand(UUID empresaId, UUID pacienteId, UUID planoId) {
+    }
+
+    public record SalvarModeloPlanoAlimentarCommand(UUID empresaId, UUID pacienteId, UUID planoId) {
+    }
+
+    public record SubstituirPlanoAlimentarCommand(UUID empresaId, UUID pacienteId, UUID planoId) {
+    }
+
+    public record ArquivarPlanoAlimentarCommand(UUID empresaId, UUID pacienteId, UUID planoId) {
+    }
+
+    public record ReorganizarRefeicoesPlanoAlimentarCommand(UUID empresaId, UUID pacienteId, UUID planoId, List<UUID> refeicaoIds) {
+    }
+
+    public record CriarSubstituicaoAlimentarCommand(
+            UUID empresaId,
+            UUID pacienteId,
+            UUID planoId,
+            UUID refeicaoId,
+            String alimentoOrigem,
+            String alimentoSubstituto,
+            String grupo,
+            String objetivo,
+            String restricaoAlimentar,
+            BigDecimal quantidadeEquivalente,
+            String unidadeMedida,
+            String observacoes
+    ) {
+    }
+
+    public record CriarMaterialEducativoCommand(
+            UUID empresaId,
+            UUID pacienteId,
+            UUID planoId,
+            String tipo,
+            String titulo,
+            String objetivo,
+            String conteudo,
+            String linkAnexo,
+            String observacoes
+    ) {
+    }
+
+    public record CriarExameAvancadoCommand(
+            UUID empresaId,
+            UUID pacienteId,
+            String tipo,
+            String nome,
+            BigDecimal valor,
+            String unidadeMedida,
+            LocalDate dataExame,
+            String status,
+            String observacoes
+    ) {
+    }
+
+    public record ConsultarRelatorioGerencialCommand(UUID empresaId) {
     }
 
     public record ConsultarPacienteCommand(UUID empresaId, UUID pacienteId) {

@@ -7,18 +7,28 @@ import java.util.List;
 import java.util.UUID;
 
 import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.CriarLembreteCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.CriarExameAvancadoCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.CriarMaterialEducativoCommand;
 import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.CriarMetaCommand;
 import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.CriarRegistroDiarioCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.CriarSubstituicaoAlimentarCommand;
 import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.EnviarMensagemCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.ReorganizarRefeicoesPlanoAlimentarCommand;
 import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.RevisarRegistroDiarioCommand;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.EvolucaoPacienteResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.ExameAvancadoResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.GrupoListaComprasResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.IndicadorGerencialNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.ItemListaComprasResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.LembreteAcompanhamentoResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.ListaComprasResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.MaterialEducativoResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.MensagemAcompanhamentoResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.MetaAcompanhamentoResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.PerfilCarteiraNutriProResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.RelatorioGerencialNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.RegistroDiarioResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.SubstituicaoAlimentarResult;
 
 public final class ExperienciaPacienteNutriProWeb {
 
@@ -83,6 +93,216 @@ public final class ExperienciaPacienteNutriProWeb {
     public record RevisarRegistroDiarioNutriProRequest(String parecerProfissional) {
         public RevisarRegistroDiarioCommand paraCommand(UUID empresaId, UUID pacienteId, UUID registroId) {
             return new RevisarRegistroDiarioCommand(empresaId, pacienteId, registroId, parecerProfissional);
+        }
+    }
+
+    public record ReorganizarRefeicoesPlanoAlimentarNutriProRequest(List<UUID> refeicaoIds) {
+        public ReorganizarRefeicoesPlanoAlimentarCommand paraCommand(UUID empresaId, UUID pacienteId, UUID planoId) {
+            return new ReorganizarRefeicoesPlanoAlimentarCommand(empresaId, pacienteId, planoId, refeicaoIds);
+        }
+    }
+
+    public record CriarSubstituicaoAlimentarNutriProRequest(
+            UUID refeicaoId,
+            String alimentoOrigem,
+            String alimentoSubstituto,
+            String grupo,
+            String objetivo,
+            String restricaoAlimentar,
+            BigDecimal quantidadeEquivalente,
+            String unidadeMedida,
+            String observacoes
+    ) {
+        public CriarSubstituicaoAlimentarCommand paraCommand(UUID empresaId, UUID pacienteId, UUID planoId) {
+            return new CriarSubstituicaoAlimentarCommand(
+                    empresaId,
+                    pacienteId,
+                    planoId,
+                    refeicaoId,
+                    alimentoOrigem,
+                    alimentoSubstituto,
+                    grupo,
+                    objetivo,
+                    restricaoAlimentar,
+                    quantidadeEquivalente,
+                    unidadeMedida,
+                    observacoes
+            );
+        }
+    }
+
+    public record SubstituicaoAlimentarNutriProResponse(
+            UUID id,
+            UUID empresaId,
+            UUID pacienteId,
+            UUID planoId,
+            UUID refeicaoId,
+            String alimentoOrigem,
+            String alimentoSubstituto,
+            String grupo,
+            String objetivo,
+            String restricaoAlimentar,
+            BigDecimal quantidadeEquivalente,
+            String unidadeMedida,
+            String observacoes,
+            Instant criadoEm,
+            Instant atualizadoEm
+    ) {
+        public static SubstituicaoAlimentarNutriProResponse de(SubstituicaoAlimentarResult result) {
+            return new SubstituicaoAlimentarNutriProResponse(
+                    result.id(),
+                    result.empresaId(),
+                    result.pacienteId(),
+                    result.planoId(),
+                    result.refeicaoId(),
+                    result.alimentoOrigem(),
+                    result.alimentoSubstituto(),
+                    result.grupo(),
+                    result.objetivo(),
+                    result.restricaoAlimentar(),
+                    result.quantidadeEquivalente(),
+                    result.unidadeMedida(),
+                    result.observacoes(),
+                    result.criadoEm(),
+                    result.atualizadoEm()
+            );
+        }
+    }
+
+    public record SubstituicoesAlimentaresNutriProResponse(List<SubstituicaoAlimentarNutriProResponse> itens) {
+        public static SubstituicoesAlimentaresNutriProResponse de(List<SubstituicaoAlimentarResult> results) {
+            return new SubstituicoesAlimentaresNutriProResponse(results.stream().map(SubstituicaoAlimentarNutriProResponse::de).toList());
+        }
+    }
+
+    public record CriarMaterialEducativoNutriProRequest(
+            String tipo,
+            String titulo,
+            String objetivo,
+            String conteudo,
+            String linkAnexo,
+            String observacoes
+    ) {
+        public CriarMaterialEducativoCommand paraCommand(UUID empresaId, UUID pacienteId, UUID planoId) {
+            return new CriarMaterialEducativoCommand(empresaId, pacienteId, planoId, tipo, titulo, objetivo, conteudo, linkAnexo, observacoes);
+        }
+    }
+
+    public record MaterialEducativoNutriProResponse(
+            UUID id,
+            UUID empresaId,
+            UUID pacienteId,
+            UUID planoId,
+            String tipo,
+            String titulo,
+            String objetivo,
+            String conteudo,
+            String linkAnexo,
+            String observacoes,
+            Instant criadoEm,
+            Instant atualizadoEm
+    ) {
+        public static MaterialEducativoNutriProResponse de(MaterialEducativoResult result) {
+            return new MaterialEducativoNutriProResponse(
+                    result.id(),
+                    result.empresaId(),
+                    result.pacienteId(),
+                    result.planoId(),
+                    result.tipo(),
+                    result.titulo(),
+                    result.objetivo(),
+                    result.conteudo(),
+                    result.linkAnexo(),
+                    result.observacoes(),
+                    result.criadoEm(),
+                    result.atualizadoEm()
+            );
+        }
+    }
+
+    public record MateriaisEducativosNutriProResponse(List<MaterialEducativoNutriProResponse> itens) {
+        public static MateriaisEducativosNutriProResponse de(List<MaterialEducativoResult> results) {
+            return new MateriaisEducativosNutriProResponse(results.stream().map(MaterialEducativoNutriProResponse::de).toList());
+        }
+    }
+
+    public record CriarExameAvancadoNutriProRequest(
+            String tipo,
+            String nome,
+            BigDecimal valor,
+            String unidadeMedida,
+            LocalDate dataExame,
+            String status,
+            String observacoes
+    ) {
+        public CriarExameAvancadoCommand paraCommand(UUID empresaId, UUID pacienteId) {
+            return new CriarExameAvancadoCommand(empresaId, pacienteId, tipo, nome, valor, unidadeMedida, dataExame, status, observacoes);
+        }
+    }
+
+    public record ExameAvancadoNutriProResponse(
+            UUID id,
+            UUID empresaId,
+            UUID pacienteId,
+            String tipo,
+            String nome,
+            BigDecimal valor,
+            String unidadeMedida,
+            LocalDate dataExame,
+            String status,
+            String observacoes,
+            Instant criadoEm,
+            Instant atualizadoEm
+    ) {
+        public static ExameAvancadoNutriProResponse de(ExameAvancadoResult result) {
+            return new ExameAvancadoNutriProResponse(
+                    result.id(),
+                    result.empresaId(),
+                    result.pacienteId(),
+                    result.tipo(),
+                    result.nome(),
+                    result.valor(),
+                    result.unidadeMedida(),
+                    result.dataExame(),
+                    result.status(),
+                    result.observacoes(),
+                    result.criadoEm(),
+                    result.atualizadoEm()
+            );
+        }
+    }
+
+    public record ExamesAvancadosNutriProResponse(List<ExameAvancadoNutriProResponse> itens) {
+        public static ExamesAvancadosNutriProResponse de(List<ExameAvancadoResult> results) {
+            return new ExamesAvancadosNutriProResponse(results.stream().map(ExameAvancadoNutriProResponse::de).toList());
+        }
+    }
+
+    public record IndicadorGerencialNutriProResponse(String nome, BigDecimal valor, String unidade) {
+        public static IndicadorGerencialNutriProResponse de(IndicadorGerencialNutriProResult result) {
+            return new IndicadorGerencialNutriProResponse(result.nome(), result.valor(), result.unidade());
+        }
+    }
+
+    public record PerfilCarteiraNutriProResponse(String segmento, long total) {
+        public static PerfilCarteiraNutriProResponse de(PerfilCarteiraNutriProResult result) {
+            return new PerfilCarteiraNutriProResponse(result.segmento(), result.total());
+        }
+    }
+
+    public record RelatorioGerencialNutriProResponse(
+            UUID empresaId,
+            Instant geradoEm,
+            List<IndicadorGerencialNutriProResponse> indicadores,
+            List<PerfilCarteiraNutriProResponse> perfilCarteira
+    ) {
+        public static RelatorioGerencialNutriProResponse de(RelatorioGerencialNutriProResult result) {
+            return new RelatorioGerencialNutriProResponse(
+                    result.empresaId(),
+                    result.geradoEm(),
+                    result.indicadores().stream().map(IndicadorGerencialNutriProResponse::de).toList(),
+                    result.perfilCarteira().stream().map(PerfilCarteiraNutriProResponse::de).toList()
+            );
         }
     }
 

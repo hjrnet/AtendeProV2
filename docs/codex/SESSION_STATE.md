@@ -618,4 +618,20 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Task concluida: TASK-NUTRI-013
 - Entrega: banco de alimentos e suplementos com itens padrao globais, itens personalizados por empresa, composicao nutricional, origem, fonte dos dados e painel operacional no workspace Nutri.
 - Validacao: backend Maven test aprovado, web typecheck/lint/build aprovados, backend jar local UP e smoke test real do endpoint /api/nutri-pro/banco-alimentos aprovado com JWT.
-- Proxima etapa recomendada: TASK-NUTRI-014 editor avancado de plano alimentar.
+- Proxima etapa recomendada: TASK-NUTRI-015 editor avancado de plano alimentar (continuidade).
+
+## Atualizacao GOV - observabilidade de execucao
+
+- Data: 2026-06-10
+- Entrega: criada camada de observabilidade operacional em `docs/codex/OBSERVABILITY.md`, `docs/codex/observability/` e `scripts/codex-observability.ps1`.
+- Objetivo: registrar eventos estruturados por task/release, historico de falhas, metricas simples e checklist automatico por release.
+- Uso recomendado: executar `scripts/codex-observability.ps1 record` no inicio/fim de tasks longas, `fail` em bloqueios, `checklist` antes de encerrar release e `report` ao final de autopilot.
+
+## Atualizacao R18 - conclusao plano alimentar avancado e produtividade clinica
+
+- Data: 2026-06-10
+- Release executada: R18 Nutri Pro plano alimentar avancado e produtividade clinica.
+- Tasks concluidas: TASK-NUTRI-015, TASK-NUTRI-016, TASK-NUTRI-017, TASK-NUTRI-018.
+- Entrega: substituicoes alimentares por plano/refeicao, materiais educativos por plano, exames e medidas avancadas do paciente, relatorio gerencial Nutri Pro e clients web tipados.
+- Persistencia: migration `0039-create-nutri-produtividade-clinica-r18.yaml`.
+- Proxima etapa recomendada: R19 / TASK-GROWTH-001.

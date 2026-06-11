@@ -1,0 +1,112 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0039-create-nutri-produtividade-clinica-r18
+      author: codex
+      changes:
+        - createTable:
+            tableName: nutri_substituicoes_alimentares
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: empresa_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: paciente_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: plano_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: refeicao_id, type: uuid }
+              - column: { name: alimento_origem, type: varchar(180), constraints: { nullable: false } }
+              - column: { name: alimento_substituto, type: varchar(180), constraints: { nullable: false } }
+              - column: { name: grupo, type: varchar(80) }
+              - column: { name: objetivo, type: varchar(120) }
+              - column: { name: restricao_alimentar, type: varchar(120) }
+              - column: { name: quantidade_equivalente, type: "numeric(10,2)", constraints: { nullable: false } }
+              - column: { name: unidade_medida, type: varchar(40), constraints: { nullable: false } }
+              - column: { name: observacoes, type: varchar(800) }
+              - column: { name: ativo, type: boolean, defaultValueBoolean: true, constraints: { nullable: false } }
+              - column: { name: criado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+              - column: { name: atualizado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+        - createTable:
+            tableName: nutri_materiais_educativos
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: empresa_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: paciente_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: plano_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: tipo, type: varchar(50), constraints: { nullable: false } }
+              - column: { name: titulo, type: varchar(180), constraints: { nullable: false } }
+              - column: { name: objetivo, type: varchar(120) }
+              - column: { name: conteudo, type: varchar(3000), constraints: { nullable: false } }
+              - column: { name: link_anexo, type: varchar(500) }
+              - column: { name: observacoes, type: varchar(800) }
+              - column: { name: ativo, type: boolean, defaultValueBoolean: true, constraints: { nullable: false } }
+              - column: { name: criado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+              - column: { name: atualizado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+        - createTable:
+            tableName: nutri_exames_avancados
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: empresa_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: paciente_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: tipo, type: varchar(60), constraints: { nullable: false } }
+              - column: { name: nome, type: varchar(160), constraints: { nullable: false } }
+              - column: { name: valor, type: "numeric(12,2)", constraints: { nullable: false } }
+              - column: { name: unidade_medida, type: varchar(40), constraints: { nullable: false } }
+              - column: { name: data_exame, type: date, constraints: { nullable: false } }
+              - column: { name: status, type: varchar(40), constraints: { nullable: false } }
+              - column: { name: observacoes, type: varchar(1000) }
+              - column: { name: criado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+              - column: { name: atualizado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+        - addForeignKeyConstraint:
+            baseTableName: nutri_substituicoes_alimentares
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_nutri_substituicoes_empresas
+        - addForeignKeyConstraint:
+            baseTableName: nutri_substituicoes_alimentares
+            baseColumnNames: paciente_id
+            referencedTableName: clientes_pacientes
+            referencedColumnNames: id
+            constraintName: fk_nutri_substituicoes_pacientes
+        - addForeignKeyConstraint:
+            baseTableName: nutri_substituicoes_alimentares
+            baseColumnNames: plano_id
+            referencedTableName: nutri_planos_alimentares
+            referencedColumnNames: id
+            constraintName: fk_nutri_substituicoes_planos
+        - addForeignKeyConstraint:
+            baseTableName: nutri_materiais_educativos
+            baseColumnNames: paciente_id
+            referencedTableName: clientes_pacientes
+            referencedColumnNames: id
+            constraintName: fk_nutri_materiais_pacientes
+        - addForeignKeyConstraint:
+            baseTableName: nutri_materiais_educativos
+            baseColumnNames: plano_id
+            referencedTableName: nutri_planos_alimentares
+            referencedColumnNames: id
+            constraintName: fk_nutri_materiais_planos
+        - addForeignKeyConstraint:
+            baseTableName: nutri_exames_avancados
+            baseColumnNames: paciente_id
+            referencedTableName: clientes_pacientes
+            referencedColumnNames: id
+            constraintName: fk_nutri_exames_avancados_pacientes
+        - createIndex:
+            tableName: nutri_substituicoes_alimentares
+            indexName: idx_nutri_substituicoes_plano
+            columns:
+              - column: { name: empresa_id }
+              - column: { name: paciente_id }
+              - column: { name: plano_id }
+        - createIndex:
+            tableName: nutri_materiais_educativos
+            indexName: idx_nutri_materiais_plano
+            columns:
+              - column: { name: empresa_id }
+              - column: { name: paciente_id }
+              - column: { name: plano_id }
+        - createIndex:
+            tableName: nutri_exames_avancados
+            indexName: idx_nutri_exames_avancados_paciente_data
+            columns:
+              - column: { name: empresa_id }
+              - column: { name: paciente_id }
+              - column: { name: data_exame }

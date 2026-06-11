@@ -102,4 +102,69 @@ public final class ExperienciaPacienteNutriProResults {
             Instant data
     ) {
     }
+
+    public record SubstituicaoAlimentarResult(
+            UUID id,
+            UUID empresaId,
+            UUID pacienteId,
+            UUID planoId,
+            UUID refeicaoId,
+            String alimentoOrigem,
+            String alimentoSubstituto,
+            String grupo,
+            String objetivo,
+            String restricaoAlimentar,
+            BigDecimal quantidadeEquivalente,
+            String unidadeMedida,
+            String observacoes,
+            Instant criadoEm,
+            Instant atualizadoEm
+    ) {
+    }
+
+    public record MaterialEducativoResult(
+            UUID id,
+            UUID empresaId,
+            UUID pacienteId,
+            UUID planoId,
+            String tipo,
+            String titulo,
+            String objetivo,
+            String conteudo,
+            String linkAnexo,
+            String observacoes,
+            Instant criadoEm,
+            Instant atualizadoEm
+    ) {
+    }
+
+    public record ExameAvancadoResult(
+            UUID id,
+            UUID empresaId,
+            UUID pacienteId,
+            String tipo,
+            String nome,
+            BigDecimal valor,
+            String unidadeMedida,
+            LocalDate dataExame,
+            String status,
+            String observacoes,
+            Instant criadoEm,
+            Instant atualizadoEm
+    ) {
+    }
+
+    public record IndicadorGerencialNutriProResult(String nome, BigDecimal valor, String unidade) {
+    }
+
+    public record PerfilCarteiraNutriProResult(String segmento, long total) {
+    }
+
+    public record RelatorioGerencialNutriProResult(
+            UUID empresaId,
+            Instant geradoEm,
+            List<IndicadorGerencialNutriProResult> indicadores,
+            List<PerfilCarteiraNutriProResult> perfilCarteira
+    ) {
+    }
 }

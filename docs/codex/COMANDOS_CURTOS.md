@@ -47,3 +47,15 @@ Executa a release atual até erro, bloqueio ou conclusão.
 
 ## executar release / concluir release / autopilot da release
 Aliases para autopilot por release. Se a release não for informada, usar a release atual.
+
+## observabilidade
+Registrar eventos, falhas, relatorios e checklist automatico de release com `scripts/codex-observability.ps1`.
+
+Exemplos:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\codex-observability.ps1 record -Release R18 -Task TASK-NUTRI-015 -Status INICIADA -Area backend -Summary "Inicio da task"
+powershell -ExecutionPolicy Bypass -File .\scripts\codex-observability.ps1 fail -Release R18 -Task TASK-NUTRI-015 -Severity HIGH -FailureType test -Cause "Teste falhou" -Impact "Task bloqueada" -Action "Corrigir e repetir validacao"
+powershell -ExecutionPolicy Bypass -File .\scripts\codex-observability.ps1 checklist -Release R18
+powershell -ExecutionPolicy Bypass -File .\scripts\codex-observability.ps1 report -Release R18
+```
