@@ -1,8 +1,8 @@
 project: AtendePro
 strategy: professional_complete
-current_release: R20
-last_completed_task: TASK-R14-004
-next_task: TASK-R20-001
+current_release: R21
+last_completed_task: TASK-R20-004
+next_task: TASK-R21-001
 releases:
   R0:
     name: "R0 — Fundação técnica profissional"
@@ -243,12 +243,12 @@ releases:
       TASK-GROWTH-004: CONCLUIDA
   R20:
     name: "R20 — Growth UI e comando comercial"
-    status: PENDENTE
+    status: CONCLUIDA
     tasks:
-      TASK-R20-001: PENDENTE
-      TASK-R20-002: PENDENTE
-      TASK-R20-003: PENDENTE
-      TASK-R20-004: PENDENTE
+      TASK-R20-001: CONCLUIDA
+      TASK-R20-002: CONCLUIDA
+      TASK-R20-003: CONCLUIDA
+      TASK-R20-004: CONCLUIDA
   R21:
     name: "R21 — Beauty Pro estoque avançado, compras e margem real"
     status: PENDENTE

@@ -13,6 +13,7 @@ import {
   HeartHandshake,
   LayoutDashboard,
   PackageCheck,
+  TrendingUp,
   UserRound,
   Search,
   Sparkles,
@@ -57,6 +58,14 @@ const secoesPrincipais: SecaoPrincipalConfig[] = [
     titulo: "Precificação",
     descricao: "Simulador de custo real, margem e histórico de preços em uma área própria.",
     icon: BadgeDollarSign
+  },
+  {
+    id: "growth",
+    label: "Growth",
+    labelCurto: "Growth",
+    titulo: "Growth comercial",
+    descricao: "Funil, indicadores, pós-venda assistida e modo demo para Nutri e Beauty.",
+    icon: TrendingUp
   },
   {
     id: "busca",
@@ -150,6 +159,14 @@ const secoesNutriPro: SecaoPrincipalConfig[] = [
     icon: HeartHandshake
   },
   {
+    id: "growth",
+    label: "Growth",
+    labelCurto: "Growth",
+    titulo: "Growth Nutri",
+    descricao: "Funil, indicadores executivos, pós-venda assistida e demo da vertical Nutri.",
+    icon: TrendingUp
+  },
+  {
     id: "precificacao",
     label: "Precificação",
     labelCurto: "Preço",
@@ -223,6 +240,14 @@ const secoesBeautyPro: SecaoPrincipalConfig[] = [
     titulo: "Pós-venda Beauty",
     descricao: "Pós-procedimento, manutenção, pacotes, NPS, campanhas e recorrência em estética.",
     icon: HeartHandshake
+  },
+  {
+    id: "growth",
+    label: "Growth",
+    labelCurto: "Growth",
+    titulo: "Growth Beauty",
+    descricao: "Funil, indicadores executivos, pós-venda assistida e demo da vertical Beauty.",
+    icon: TrendingUp
   },
   {
     id: "beauty-termos",

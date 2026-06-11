@@ -4,6 +4,7 @@ export type SecaoPrincipal =
   | "operacao"
   | "verticais"
   | "precificacao"
+  | "growth"
   | "busca"
   | "admin"
   | "portal-cliente"

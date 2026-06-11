@@ -6,6 +6,7 @@ import type { SessaoAutenticada } from "@/features/auth/lib/auth-storage";
 import { SecaoAdminSaas } from "@/features/admin-planos/components/secao-admin-saas";
 import { PortalClienteView } from "@/features/portal-cliente/components/portal-cliente-view";
 import { BeautyProOperacionalView } from "@/features/beauty-pro/components/beauty-pro-operacional-view";
+import { GrowthCommandCenter } from "@/features/growth/components/growth-command-center";
 import { NutriProOperacionalView } from "@/features/nutri-pro/components/nutri-pro-operacional-view";
 import { SecaoBuscaGlobal } from "@/features/operacional/components/secao-busca-global";
 import { SecaoOperacao } from "@/features/operacional/components/secao-operacao";
@@ -62,6 +63,8 @@ function renderizarSecaoAtiva(
       return <VerticaisProfissionaisView empresaId={empresaId} />;
     case "precificacao":
       return <SecaoPrecificacao empresaId={empresaId} />;
+    case "growth":
+      return <GrowthCommandCenter empresaId={empresaId} />;
     case "busca":
       return <SecaoBuscaGlobal empresaId={empresaId} />;
     case "admin":

@@ -262,10 +262,10 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
-| TASK-R20-001 | Tela Growth no web app | Funil visual de leads por vertical, filtros, cadastro rápido, atualização de etapa e vínculo com cliente/agenda. | PENDENTE |
-| TASK-R20-002 | Dashboard executivo Nutri/Beauty | Cards e gráficos para faturamento previsto, agenda futura, ticket médio, margem, recompra e recorrência. | PENDENTE |
-| TASK-R20-003 | Central de pós-venda assistida | Tela com clientes em risco, mensagem sugerida, oportunidade de pacote e ação recomendada. | PENDENTE |
-| TASK-R20-004 | Modo apresentação/demo navegável | Experiência guiada para apresentar Nutri, Beauty, gestor e investidor usando roteiros e dados demo. | PENDENTE |
+| TASK-R20-001 | Tela Growth no web app | Funil visual de leads por vertical, filtros, cadastro rápido, atualização de etapa e vínculo com cliente/agenda. | CONCLUIDA |
+| TASK-R20-002 | Dashboard executivo Nutri/Beauty | Cards e gráficos para faturamento previsto, agenda futura, ticket médio, margem, recompra e recorrência. | CONCLUIDA |
+| TASK-R20-003 | Central de pós-venda assistida | Tela com clientes em risco, mensagem sugerida, oportunidade de pacote e ação recomendada. | CONCLUIDA |
+| TASK-R20-004 | Modo apresentação/demo navegável | Experiência guiada para apresentar Nutri, Beauty, gestor e investidor usando roteiros e dados demo. | CONCLUIDA |
 
 ## R21 — Beauty Pro estoque avançado, compras e margem real
 
