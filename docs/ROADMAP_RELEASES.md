@@ -105,7 +105,7 @@
 ## R8 — Fundação de experiência profissional do SaaS
 
 - **TASK-UX-001 — Redesenhar shell, navegação e experiência responsiva do AtendePro**: Shell profissional responsivo, navegação real por área, progressive disclosure e acabamento premium.
-- **TASK-0801 — Portal do cliente web**: Agenda, documentos e evolução.
+- **TASK-R13-001 — Portal do cliente web**: Agenda, documentos e evolução.
 - **TASK-0802 — App Expo base**: Estrutura mobile.
 - **TASK-0803 — App do cliente/paciente**: Agenda, documentos, diário, fotos e mensagens.
 - **TASK-0804 — App do profissional**: Agenda do dia, mensagens e acompanhamento.
@@ -166,7 +166,7 @@
 
 ## R13 — Portal do cliente web
 
-- **TASK-0801 — Portal do cliente web**: Agenda, documentos e evolução.
+- **TASK-R13-001 — Portal do cliente web**: Agenda, documentos e evolução.
 
 ## R14 — Alinhamento funcional e completude do produto
 
@@ -216,3 +216,37 @@
 - **TASK-GROWTH-002 — Criar automações assistidas por IA para pós-venda**: sugestões de mensagem, risco de abandono, retorno recomendado e oportunidade de pacote.
 - **TASK-GROWTH-003 — Criar indicadores de negócio por vertical**: faturamento previsto, ocupação, recorrência, margem, recompra e ticket médio.
 - **TASK-GROWTH-004 — Criar apresentações demo por perfil**: roteiros e dados demo para Nutri, Beauty, gestor e investidor.
+## R20 — Growth UI e comando comercial
+
+- **TASK-R20-001 — Tela Growth no web app**: Funil visual de leads por vertical, filtros, cadastro rápido, atualização de etapa e vínculo com cliente/agenda.
+- **TASK-R20-002 — Dashboard executivo Nutri/Beauty**: Cards e gráficos para faturamento previsto, agenda futura, ticket médio, margem, recompra e recorrência.
+- **TASK-R20-003 — Central de pós-venda assistida**: Tela com clientes em risco, mensagem sugerida, oportunidade de pacote e ação recomendada.
+- **TASK-R20-004 — Modo apresentação/demo navegável**: Experiência guiada para apresentar Nutri, Beauty, gestor e investidor usando roteiros e dados demo.
+
+## R21 — Beauty Pro estoque avançado, compras e margem real
+
+- **TASK-R21-001 — Reposição e pedidos de compra Beauty**: Sugestão de reposição, lista de compras por estoque mínimo/validade e controle de status do pedido.
+- **TASK-R21-002 — Fornecedores e custo por lote**: Cadastro de fornecedores, histórico de custo por lote, comparação de preço e rastreabilidade de compra.
+- **TASK-R21-003 — Rotina operacional de validade**: Ações para produtos vencendo/vencidos, descarte, bloqueio de uso e checklist semanal.
+- **TASK-R21-004 — Margem real por procedimento Beauty**: Relatório cruzando kits, baixa de produtos, preço do serviço, custo real e lucro por procedimento/pacote.
+
+## R22 — Nutri Pro engajamento, evolução e retenção
+
+- **TASK-R22-001 — Painel de adesão do paciente Nutri**: Consolidar diário, metas, plano alimentar, mensagens e alertas de baixa adesão.
+- **TASK-R22-002 — Evolução clínica visual Nutri**: Gráficos longitudinais de peso, medidas, exames, metas e comparação de períodos.
+- **TASK-R22-003 — Renovação e retorno inteligente Nutri**: Fluxo de renovação de plano, retorno recomendado, pacotes de acompanhamento e mensagens assistidas.
+- **TASK-R22-004 — Biblioteca profissional Nutri exportável**: Materiais, receitas e orientações com vínculo ao plano, carimbo profissional e exportação segura.
+
+## R23 — Mobile real paciente/profissional
+
+- **TASK-R23-001 — Resolver login e shell mobile real**: Conectar autenticação, sessão, tenant e shell Expo ao backend real, fechando a dívida da R14 mobile.
+- **TASK-R23-002 — App paciente real Nutri/Beauty**: Agenda, plano/rotina, pós-venda, mensagens e documentos consumindo APIs reais.
+- **TASK-R23-003 — App profissional real**: Agenda do dia, clientes prioritários, tarefas, checklists e ações rápidas para Nutri/Beauty.
+- **TASK-R23-004 — Notificações e resiliência mobile**: Preparar push/local notifications, estados offline básicos, loading, erro e retry.
+
+## R24 — Comercialização SaaS, onboarding e métricas admin
+
+- **TASK-R24-001 — Checkout e assinatura self-service**: Preparar fluxo de escolha de plano, trial, upgrade/downgrade e integração futura com gateway real.
+- **TASK-R24-002 — Onboarding guiado de empresa**: Wizard de configuração inicial por vertical, usuários, serviços, agenda e dados demo opcionais.
+- **TASK-R24-003 — Métricas SaaS no Admin**: MRR, churn, trials, conversão, planos ativos, vertical de maior tração e alertas operacionais.
+- **TASK-R24-004 — Ambiente demo/reset por perfil**: Gerar e resetar dados demo seguros para Nutri, Beauty, gestor, investidor e suporte.

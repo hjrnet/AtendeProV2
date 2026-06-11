@@ -1,4 +1,4 @@
-﻿# TASKS — AtendePro Profissional
+# TASKS — AtendePro Profissional
 
 Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listadas aqui e com arquivo correspondente em `docs/codex/tasks/`.
 
@@ -202,10 +202,10 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
-| TASK-R14-001 | Correção de governança de conclusão e contrato de status de funcionalidades futuras | Corrigir inconsistências entre plano e estado real de entrega (principalmente tarefas marcadas como concluídas sem implementação concreta). | PENDENTE |
-| TASK-R14-002 | Inventário técnico de lacunas e estabilização de verticais futuras | Mapear catálogo vs operação real e definir escopo mínimo operacional para Biomed/Fisio e demais verticais não operacionalizadas. | PENDENTE |
-| TASK-R14-003 | Conectar autenticação e shell mobile ao backend real | Implementar login/sessão e contexto real no app Expo, com validação de empresa/tenant quando aplicável. | PENDENTE |
-| TASK-R14-004 | Conectar fluxos mobile a dados reais | Integrar agenda, clientes/pacientes e documentos do app mobile com os endpoints reais e estados de UX robustos. | PENDENTE |
+| TASK-R14-001 | Correção de governança de conclusão e contrato de status de funcionalidades futuras | Corrigir inconsistências entre plano e estado real de entrega e criar contrato de status funcional. | CONCLUIDA |
+| TASK-R14-002 | Inventário técnico de lacunas e estabilização de verticais futuras | Mapear catálogo vs operação real e definir escopo mínimo operacional por vertical futura. | CONCLUIDA |
+| TASK-R14-003 | Conectar autenticação e shell mobile ao backend real | Login, sessão segura, tenant/empresa e shell mobile com estado real. | CONCLUIDA |
+| TASK-R14-004 | Conectar fluxos mobile a dados reais | Agenda, clientes, documentos, diário, mensagens e carteira profissional consumindo APIs reais. | CONCLUIDA |
 
 ## R15 — Beauty Pro estoque, validade e margem operacional
 
@@ -258,5 +258,47 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-GROWTH-002 | IA assistida para pós-venda | Sugestões de mensagem, risco de abandono, retorno recomendado e oportunidade de pacote. | CONCLUIDA |
 | TASK-GROWTH-003 | Indicadores de negócio por vertical | Faturamento previsto, ocupação, recorrência, margem, recompra e ticket médio. | CONCLUIDA |
 | TASK-GROWTH-004 | Apresentações demo por perfil | Roteiros e dados demo para Nutri, Beauty, gestor e investidor. | CONCLUIDA |
+## R20 — Growth UI e comando comercial
 
+| Task | Nome | Descrição | Status |
+|---|---|---|---|
+| TASK-R20-001 | Tela Growth no web app | Funil visual de leads por vertical, filtros, cadastro rápido, atualização de etapa e vínculo com cliente/agenda. | PENDENTE |
+| TASK-R20-002 | Dashboard executivo Nutri/Beauty | Cards e gráficos para faturamento previsto, agenda futura, ticket médio, margem, recompra e recorrência. | PENDENTE |
+| TASK-R20-003 | Central de pós-venda assistida | Tela com clientes em risco, mensagem sugerida, oportunidade de pacote e ação recomendada. | PENDENTE |
+| TASK-R20-004 | Modo apresentação/demo navegável | Experiência guiada para apresentar Nutri, Beauty, gestor e investidor usando roteiros e dados demo. | PENDENTE |
 
+## R21 — Beauty Pro estoque avançado, compras e margem real
+
+| Task | Nome | Descrição | Status |
+|---|---|---|---|
+| TASK-R21-001 | Reposição e pedidos de compra Beauty | Sugestão de reposição, lista de compras por estoque mínimo/validade e controle de status do pedido. | PENDENTE |
+| TASK-R21-002 | Fornecedores e custo por lote | Cadastro de fornecedores, histórico de custo por lote, comparação de preço e rastreabilidade de compra. | PENDENTE |
+| TASK-R21-003 | Rotina operacional de validade | Ações para produtos vencendo/vencidos, descarte, bloqueio de uso e checklist semanal. | PENDENTE |
+| TASK-R21-004 | Margem real por procedimento Beauty | Relatório cruzando kits, baixa de produtos, preço do serviço, custo real e lucro por procedimento/pacote. | PENDENTE |
+
+## R22 — Nutri Pro engajamento, evolução e retenção
+
+| Task | Nome | Descrição | Status |
+|---|---|---|---|
+| TASK-R22-001 | Painel de adesão do paciente Nutri | Consolidar diário, metas, plano alimentar, mensagens e alertas de baixa adesão. | PENDENTE |
+| TASK-R22-002 | Evolução clínica visual Nutri | Gráficos longitudinais de peso, medidas, exames, metas e comparação de períodos. | PENDENTE |
+| TASK-R22-003 | Renovação e retorno inteligente Nutri | Fluxo de renovação de plano, retorno recomendado, pacotes de acompanhamento e mensagens assistidas. | PENDENTE |
+| TASK-R22-004 | Biblioteca profissional Nutri exportável | Materiais, receitas e orientações com vínculo ao plano, carimbo profissional e exportação segura. | PENDENTE |
+
+## R23 — Mobile real paciente/profissional
+
+| Task | Nome | Descrição | Status |
+|---|---|---|---|
+| TASK-R23-001 | Resolver login e shell mobile real | Conectar autenticação, sessão, tenant e shell Expo ao backend real, fechando a dívida da R14 mobile. | PENDENTE |
+| TASK-R23-002 | App paciente real Nutri/Beauty | Agenda, plano/rotina, pós-venda, mensagens e documentos consumindo APIs reais. | PENDENTE |
+| TASK-R23-003 | App profissional real | Agenda do dia, clientes prioritários, tarefas, checklists e ações rápidas para Nutri/Beauty. | PENDENTE |
+| TASK-R23-004 | Notificações e resiliência mobile | Preparar push/local notifications, estados offline básicos, loading, erro e retry. | PENDENTE |
+
+## R24 — Comercialização SaaS, onboarding e métricas admin
+
+| Task | Nome | Descrição | Status |
+|---|---|---|---|
+| TASK-R24-001 | Checkout e assinatura self-service | Preparar fluxo de escolha de plano, trial, upgrade/downgrade e integração futura com gateway real. | PENDENTE |
+| TASK-R24-002 | Onboarding guiado de empresa | Wizard de configuração inicial por vertical, usuários, serviços, agenda e dados demo opcionais. | PENDENTE |
+| TASK-R24-003 | Métricas SaaS no Admin | MRR, churn, trials, conversão, planos ativos, vertical de maior tração e alertas operacionais. | PENDENTE |
+| TASK-R24-004 | Ambiente demo/reset por perfil | Gerar e resetar dados demo seguros para Nutri, Beauty, gestor, investidor e suporte. | PENDENTE |

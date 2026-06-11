@@ -61,6 +61,7 @@ public class AgendaController {
     @GetMapping
     public ResponseEntity<AgendaPaginadaResponse> listarAgenda(
             @RequestParam(required = false) UUID empresaId,
+            @RequestParam(required = false) UUID clientePacienteId,
             @RequestParam(defaultValue = "0") int pagina,
             @RequestParam(defaultValue = "20") int tamanho,
             @RequestParam(required = false) Instant inicio,
@@ -73,6 +74,7 @@ public class AgendaController {
                 listarAgendaUseCase.listarAgenda(
                         empresaId,
                         new Paginacao(pagina, tamanho),
+                        clientePacienteId,
                         inicio,
                         fim,
                         profissionalId,

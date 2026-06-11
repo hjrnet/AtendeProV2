@@ -13,6 +13,7 @@ public interface ListarAgendaUseCase {
     ResultadoPaginado<CompromissoAgendaResult> listarAgenda(
             UUID empresaId,
             Paginacao paginacao,
+            UUID clientePacienteId,
             Instant inicio,
             Instant fim,
             UUID profissionalId,

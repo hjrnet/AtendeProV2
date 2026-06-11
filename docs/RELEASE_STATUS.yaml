@@ -1,7 +1,7 @@
-﻿project: AtendePro
+project: AtendePro
 strategy: professional_complete
-current_release: R19
-last_completed_task: TASK-GROWTH-004
+current_release: R20
+last_completed_task: TASK-R14-004
 next_task: TASK-R20-001
 releases:
   R0:
@@ -185,15 +185,15 @@ releases:
     name: "R13 — Portal do cliente web"
     status: CONCLUIDA
     tasks:
-      TASK-0801: CONCLUIDA
+      TASK-R13-001: CONCLUIDA
   R14:
     name: "R14 — Alinhamento funcional e completude do produto"
-    status: EM_ANDAMENTO
+    status: CONCLUIDA
     tasks:
-      TASK-R14-001: PENDENTE
-      TASK-R14-002: PENDENTE
-      TASK-R14-003: PENDENTE
-      TASK-R14-004: PENDENTE
+      TASK-R14-001: CONCLUIDA
+      TASK-R14-002: CONCLUIDA
+      TASK-R14-003: CONCLUIDA
+      TASK-R14-004: CONCLUIDA
   R15:
     name: "R15 — Beauty Pro estoque, validade e margem operacional"
     status: CONCLUIDA
@@ -235,11 +235,49 @@ releases:
       TASK-NUTRI-018: CONCLUIDA
   R19:
     name: "R19 — Growth, inteligência e refinamento comercial das duas verticais"
-    status: PENDENTE
+    status: CONCLUIDA
     tasks:
       TASK-GROWTH-001: CONCLUIDA
       TASK-GROWTH-002: CONCLUIDA
       TASK-GROWTH-003: CONCLUIDA
       TASK-GROWTH-004: CONCLUIDA
-
-
+  R20:
+    name: "R20 — Growth UI e comando comercial"
+    status: PENDENTE
+    tasks:
+      TASK-R20-001: PENDENTE
+      TASK-R20-002: PENDENTE
+      TASK-R20-003: PENDENTE
+      TASK-R20-004: PENDENTE
+  R21:
+    name: "R21 — Beauty Pro estoque avançado, compras e margem real"
+    status: PENDENTE
+    tasks:
+      TASK-R21-001: PENDENTE
+      TASK-R21-002: PENDENTE
+      TASK-R21-003: PENDENTE
+      TASK-R21-004: PENDENTE
+  R22:
+    name: "R22 — Nutri Pro engajamento, evolução e retenção"
+    status: PENDENTE
+    tasks:
+      TASK-R22-001: PENDENTE
+      TASK-R22-002: PENDENTE
+      TASK-R22-003: PENDENTE
+      TASK-R22-004: PENDENTE
+  R23:
+    name: "R23 — Mobile real paciente/profissional"
+    status: PENDENTE
+    tasks:
+      TASK-R23-001: PENDENTE
+      TASK-R23-002: PENDENTE
+      TASK-R23-003: PENDENTE
+      TASK-R23-004: PENDENTE
+  R24:
+    name: "R24 — Comercialização SaaS, onboarding e métricas admin"
+    status: PENDENTE
+    tasks:
+      TASK-R24-001: PENDENTE
+      TASK-R24-002: PENDENTE
+      TASK-R24-003: PENDENTE
+      TASK-R24-004: PENDENTE

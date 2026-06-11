@@ -9,12 +9,16 @@ import {
   GridCards
 } from "@/components/ui-shell";
 import { carregarSessaoAutenticada } from "@/lib/auth";
-import { listarAgendaPortal } from "@/lib/api/client";
-import { mensagensNaoLidas } from "@/features/mensagens/mensagens";
+import {
+  listarAgendaPortal,
+  listarMensagensNutri,
+  resolverPrimeiroPacienteNutri
+} from "@/lib/api/client";
 
 type ContagemProfissional = {
   agendaHoje: number;
   agendaTotal: number;
+  mensagensPendentes: number;
 };
 
 const secoesProfissional = [
@@ -26,17 +30,17 @@ const secoesProfissional = [
   {
     titulo: "Mensagens",
     rota: "/profissional/mensagens",
-    descricao: "Mensagens de retorno e dúvidas dos pacientes."
+    descricao: "Mensagens reais do acompanhamento Nutri."
   },
   {
     titulo: "Acompanhamento",
     rota: "/profissional/evolucao",
-    descricao: "Painel de evolução dos atendidos."
+    descricao: "Carteira ativa com dados reais de clientes, agenda e documentos."
   }
 ];
 
 export default function AreaProfissionalMobile() {
-  const [contagens, setContagens] = useState<ContagemProfissional>({ agendaHoje: 0, agendaTotal: 0 });
+  const [contagens, setContagens] = useState<ContagemProfissional>({ agendaHoje: 0, agendaTotal: 0, mensagensPendentes: 0 });
   const [empresaId, setEmpresaId] = useState<string | null>(null);
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(true);
@@ -53,7 +57,15 @@ export default function AreaProfissionalMobile() {
         const contextoEmpresa = sessao?.usuario.empresaId ?? null;
         setEmpresaId(contextoEmpresa);
 
-        const agendaResposta = await listarAgendaPortal({ empresaId: contextoEmpresa, tamanho: 80, pagina: 0 });
+        const [agendaResposta, pacienteNutri] = await Promise.all([
+          listarAgendaPortal({ empresaId: contextoEmpresa, tamanho: 80, pagina: 0 }),
+          resolverPrimeiroPacienteNutri(contextoEmpresa)
+        ]);
+
+        const mensagensResposta = pacienteNutri
+          ? await listarMensagensNutri({ empresaId: contextoEmpresa, pacienteId: pacienteNutri.id })
+          : { itens: [] };
+
         if (!ativo) {
           return;
         }
@@ -71,7 +83,8 @@ export default function AreaProfissionalMobile() {
 
         setContagens({
           agendaHoje: agendamentosHoje.length,
-          agendaTotal: agendaResposta.totalItens
+          agendaTotal: agendaResposta.totalItens,
+          mensagensPendentes: mensagensResposta.itens.filter((mensagem) => !mensagem.lidaPeloProfissional).length
         });
       } catch (falha) {
         if (ativo) {
@@ -91,18 +104,18 @@ export default function AreaProfissionalMobile() {
   }, []);
 
   return (
-    <CapaPagina titulo="Área do Profissional" subtitulo="Comandos principais para operação diária.">
+    <CapaPagina titulo="Área do Profissional" subtitulo="Comandos principais para operação diária com backend real.">
       <CabecalhoSecao titulo="Resumo operacional" />
       {carregando ? (
         <EstadoVazio texto="Carregando indicadores..." />
       ) : erro ? (
         <EstadoVazio texto={erro} />
       ) : (
-        <Cartao titulo={`Empresa: ${empresaId ?? "sem contexto"}`} descricao="Indicadores carregados do backend." />
+        <Cartao titulo={`Empresa: ${empresaId ?? "sem contexto"}`} descricao="Indicadores carregados com token da sessão mobile." />
       )}
       <GridCards>
         <Cartao titulo={`Hoje: ${contagens.agendaHoje} atendimentos`} descricao="Agenda ativa disponível." />
-        <Cartao titulo={`Mensagens: ${mensagensNaoLidas}`} descricao="Pendentes de resposta no momento." />
+        <Cartao titulo={`Mensagens: ${contagens.mensagensPendentes}`} descricao="Pendentes de leitura no acompanhamento Nutri." />
         <Cartao titulo={`Pipeline: ${contagens.agendaTotal}`} descricao="Total de compromissos planejados." />
       </GridCards>
 
