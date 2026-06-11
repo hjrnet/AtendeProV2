@@ -14,7 +14,7 @@ databaseChangeLog:
               - column: { name: vertical, type: varchar(40), constraints: { nullable: false } }
               - column: { name: origem, type: varchar(80), constraints: { nullable: false } }
               - column: { name: etapa, type: varchar(40), constraints: { nullable: false } }
-              - column: { name: potencial_mensal, type: numeric(12,2), defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: potencial_mensal, type: "numeric(12,2)", defaultValueNumeric: 0, constraints: { nullable: false } }
               - column: { name: cliente_paciente_id, type: uuid }
               - column: { name: compromisso_agenda_id, type: uuid }
               - column: { name: observacoes, type: varchar(1000) }
