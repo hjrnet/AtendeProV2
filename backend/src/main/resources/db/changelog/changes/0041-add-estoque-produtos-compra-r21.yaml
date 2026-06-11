@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0041-add-estoque-produtos-compra-r21
+      author: codex
+      changes:
+        - addColumn:
+            tableName: estoque_produtos
+            columns:
+              - column:
+                  name: fornecedor_nome
+                  type: varchar(160)
+              - column:
+                  name: fornecedor_documento
+                  type: varchar(40)
+              - column:
+                  name: numero_pedido_compra
+                  type: varchar(80)
+              - column:
+                  name: data_compra
+                  type: date
+              - column:
+                  name: status_compra
+                  type: varchar(40)
+        - createIndex:
+            tableName: estoque_produtos
+            indexName: idx_estoque_produtos_empresa_fornecedor
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: fornecedor_nome
+        - createIndex:
+            tableName: estoque_produtos
+            indexName: idx_estoque_produtos_empresa_pedido
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: numero_pedido_compra

@@ -37,10 +37,11 @@ public class JdbcProdutoEstoqueAdapter implements
         jdbcTemplate.update(
                 """
                 insert into estoque_produtos (
-                    id, empresa_id, nome, categoria, lote, validade, unidade,
+                    id, empresa_id, nome, categoria, lote, validade,
+                    fornecedor_nome, fornecedor_documento, numero_pedido_compra, data_compra, status_compra, unidade,
                     quantidade_atual, custo_unitario, estoque_minimo, ativo, criado_em, atualizado_em
                 )
-                values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 produto.id(),
                 produto.empresaId(),
@@ -48,6 +49,11 @@ public class JdbcProdutoEstoqueAdapter implements
                 produto.categoria(),
                 produto.lote(),
                 produto.validade(),
+                produto.fornecedorNome(),
+                produto.fornecedorDocumento(),
+                produto.numeroPedidoCompra(),
+                produto.dataCompra(),
+                produto.statusCompra(),
                 produto.unidade(),
                 produto.quantidadeAtual(),
                 produto.custoUnitario(),
@@ -63,7 +69,8 @@ public class JdbcProdutoEstoqueAdapter implements
         try {
             return Optional.of(jdbcTemplate.queryForObject(
                     """
-                    select id, empresa_id, nome, categoria, lote, validade, unidade,
+                    select id, empresa_id, nome, categoria, lote, validade,
+                           fornecedor_nome, fornecedor_documento, numero_pedido_compra, data_compra, status_compra, unidade,
                            quantidade_atual, custo_unitario, estoque_minimo, ativo, criado_em, atualizado_em
                     from estoque_produtos
                     where id = ?
@@ -97,7 +104,8 @@ public class JdbcProdutoEstoqueAdapter implements
         parametros.add(paginacao.offset());
         var produtos = jdbcTemplate.query(
                 """
-                select id, empresa_id, nome, categoria, lote, validade, unidade,
+                select id, empresa_id, nome, categoria, lote, validade,
+                       fornecedor_nome, fornecedor_documento, numero_pedido_compra, data_compra, status_compra, unidade,
                        quantidade_atual, custo_unitario, estoque_minimo, ativo, criado_em, atualizado_em
                 from estoque_produtos
                 %s
@@ -122,7 +130,9 @@ public class JdbcProdutoEstoqueAdapter implements
         parametros.add(empresaId);
         if (busca != null && !busca.isBlank()) {
             String termo = "%" + busca.trim().toLowerCase() + "%";
-            filtro.append(" and (lower(nome) like ? or lower(coalesce(lote, '')) like ?)");
+            filtro.append(" and (lower(nome) like ? or lower(coalesce(lote, '')) like ? or lower(coalesce(fornecedor_nome, '')) like ? or lower(coalesce(numero_pedido_compra, '')) like ?)");
+            parametros.add(termo);
+            parametros.add(termo);
             parametros.add(termo);
             parametros.add(termo);
         }
@@ -143,6 +153,7 @@ public class JdbcProdutoEstoqueAdapter implements
 
     private ProdutoEstoque mapearProdutoEstoque(java.sql.ResultSet rs, int rowNum) throws java.sql.SQLException {
         Date validade = rs.getDate("validade");
+        Date dataCompra = rs.getDate("data_compra");
         return new ProdutoEstoque(
                 rs.getObject("id", UUID.class),
                 rs.getObject("empresa_id", UUID.class),
@@ -150,6 +161,11 @@ public class JdbcProdutoEstoqueAdapter implements
                 rs.getString("categoria"),
                 rs.getString("lote"),
                 validade == null ? null : validade.toLocalDate(),
+                rs.getString("fornecedor_nome"),
+                rs.getString("fornecedor_documento"),
+                rs.getString("numero_pedido_compra"),
+                dataCompra == null ? null : dataCompra.toLocalDate(),
+                rs.getString("status_compra"),
                 rs.getString("unidade"),
                 rs.getBigDecimal("quantidade_atual"),
                 rs.getBigDecimal("custo_unitario"),

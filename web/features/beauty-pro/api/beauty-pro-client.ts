@@ -194,6 +194,11 @@ export type ProdutoEstoqueBeautyOperacional = {
   categoria: string | null;
   lote: string | null;
   validade: string | null;
+  fornecedorNome: string | null;
+  fornecedorDocumento: string | null;
+  numeroPedidoCompra: string | null;
+  dataCompra: string | null;
+  statusCompra: string | null;
   unidade: string;
   quantidadeAtual: number;
   custoUnitario: number;
@@ -217,6 +222,11 @@ export type CadastrarProdutoEstoqueBeautyInput = {
   categoria?: string | null;
   lote?: string | null;
   validade?: string | null;
+  fornecedorNome?: string | null;
+  fornecedorDocumento?: string | null;
+  numeroPedidoCompra?: string | null;
+  dataCompra?: string | null;
+  statusCompra?: string | null;
   unidade: string;
   quantidadeAtual: number;
   custoUnitario: number;

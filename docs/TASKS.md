@@ -271,10 +271,10 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
-| TASK-R21-001 | Reposição e pedidos de compra Beauty | Sugestão de reposição, lista de compras por estoque mínimo/validade e controle de status do pedido. | PENDENTE |
-| TASK-R21-002 | Fornecedores e custo por lote | Cadastro de fornecedores, histórico de custo por lote, comparação de preço e rastreabilidade de compra. | PENDENTE |
-| TASK-R21-003 | Rotina operacional de validade | Ações para produtos vencendo/vencidos, descarte, bloqueio de uso e checklist semanal. | PENDENTE |
-| TASK-R21-004 | Margem real por procedimento Beauty | Relatório cruzando kits, baixa de produtos, preço do serviço, custo real e lucro por procedimento/pacote. | PENDENTE |
+| TASK-R21-001 | Reposição e pedidos de compra Beauty | Sugestão de reposição, lista de compras por estoque mínimo/validade e controle de status do pedido. | CONCLUIDA |
+| TASK-R21-002 | Fornecedores e custo por lote | Cadastro de fornecedores, histórico de custo por lote, comparação de preço e rastreabilidade de compra. | CONCLUIDA |
+| TASK-R21-003 | Rotina operacional de validade | Ações para produtos vencendo/vencidos, descarte, bloqueio de uso e checklist semanal. | CONCLUIDA |
+| TASK-R21-004 | Margem real por procedimento Beauty | Relatório cruzando kits, baixa de produtos, preço do serviço, custo real e lucro por procedimento/pacote. | CONCLUIDA |
 
 ## R22 — Nutri Pro engajamento, evolução e retenção
 

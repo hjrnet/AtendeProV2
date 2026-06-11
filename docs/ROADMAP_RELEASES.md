@@ -257,3 +257,10 @@
 - Dashboard executivo Nutri/Beauty com indicadores Growth.
 - Central de pos-venda assistida com sugestoes e oportunidades.
 - Modo apresentacao/demo navegavel por perfil.
+
+## R21 concluida em 2026-06-11
+
+- Reposicao e pedidos de compra Beauty por minimo, validade e custo estimado.
+- Fornecedor, documento, pedido, data e status de compra persistidos por lote.
+- Checklist operacional para vencidos, vencendo, descarte, bloqueio e reposicao.
+- Margem real por procedimento Beauty cruzando kits, custo dos lotes e simulacoes de preco.

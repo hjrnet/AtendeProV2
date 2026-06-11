@@ -150,6 +150,11 @@ type FormularioEstoqueBeauty = {
   categoria: string;
   lote: string;
   validade: string;
+  fornecedorNome: string;
+  fornecedorDocumento: string;
+  numeroPedidoCompra: string;
+  dataCompra: string;
+  statusCompra: string;
   unidade: string;
   quantidadeAtual: string;
   custoUnitario: string;
@@ -262,6 +267,11 @@ const estoqueBeautyVazio: FormularioEstoqueBeauty = {
   categoria: "Cosméticos Beauty",
   lote: "",
   validade: "",
+  fornecedorNome: "",
+  fornecedorDocumento: "",
+  numeroPedidoCompra: "",
+  dataCompra: "",
+  statusCompra: "RECEBIDO",
   unidade: "UN",
   quantidadeAtual: "1",
   custoUnitario: "0",
@@ -295,6 +305,33 @@ const kitsInsumosBeauty = [
     alerta: "Ajuda a precificar descartáveis que costumam sumir da margem."
   }
 ];
+
+type SugestaoReposicaoBeauty = {
+  produto: ProdutoEstoqueBeautyOperacional;
+  motivo: string;
+  prioridade: "ALTA" | "MEDIA" | "BAIXA";
+  quantidadeSugerida: number;
+  custoEstimado: number;
+};
+
+type FornecedorBeautyResumo = {
+  nome: string;
+  documento: string | null;
+  lotes: number;
+  custoTotal: number;
+  menorCusto: number;
+  maiorCusto: number;
+  pedidos: string[];
+};
+
+type MargemProcedimentoBeauty = {
+  procedimento: string;
+  custoKitEstimado: number;
+  precoVenda: number;
+  margemSimulada: number | null;
+  lucroDepoisKit: number;
+  alerta: boolean;
+};
 
 const tiposProtocolo: Array<{ value: TipoProtocoloBeautyPro; label: string }> = [
   { value: "FACIAL", label: "Facial" },
@@ -1168,8 +1205,15 @@ function EstoqueBeautyPainel({ empresaId }: { empresaId: string }) {
     enabled: Boolean(empresaId)
   });
 
+  const integracoesQuery = useQuery({
+    queryKey: ["beauty-pro-integracoes", empresaId, "estoque-r21"],
+    queryFn: () => consultarIntegracoesOperacionaisBeautyPro(empresaId),
+    enabled: Boolean(empresaId)
+  });
+
   const produtosBase = produtosQuery.data?.itens ?? [];
   const clientes = clientesQuery.data?.itens ?? [];
+  const simulacoes = integracoesQuery.data?.simulacoes ?? [];
   const produtos = useMemo(() => produtosBase.filter((produto) => produtoPassaFiltroEstoqueBeauty(produto, filtro)), [produtosBase, filtro]);
   const produtoSelecionadoParaBaixa = produtosBase.find((produto) => produto.id === formularioBaixa.produtoEstoqueId) ?? null;
   const produtosVencidos = produtosBase.filter((produto) => diasAteValidadeBeauty(produto.validade) !== null && (diasAteValidadeBeauty(produto.validade) ?? 0) < 0);
@@ -1183,6 +1227,9 @@ function EstoqueBeautyPainel({ empresaId }: { empresaId: string }) {
   });
   const produtosEstoqueBaixo = produtosBase.filter((produto) => produto.quantidadeAtual <= produto.estoqueMinimo);
   const valorEmEstoque = produtosBase.reduce((total, produto) => total + produto.quantidadeAtual * produto.custoUnitario, 0);
+  const sugestoesReposicao = useMemo(() => calcularSugestoesReposicaoBeauty(produtosBase), [produtosBase]);
+  const fornecedoresResumo = useMemo(() => resumirFornecedoresBeauty(produtosBase), [produtosBase]);
+  const margemProcedimentos = useMemo(() => calcularMargemProcedimentosBeauty(produtosBase, simulacoes), [produtosBase, simulacoes]);
 
   const cadastrarProdutoMutation = useMutation({
     mutationFn: (dados: CadastrarProdutoEstoqueBeautyInput) => cadastrarProdutoEstoqueBeauty(dados),
@@ -1235,6 +1282,11 @@ function EstoqueBeautyPainel({ empresaId }: { empresaId: string }) {
       categoria: textoOuNull(formulario.categoria),
       lote: textoOuNull(formulario.lote),
       validade: textoOuNull(formulario.validade),
+      fornecedorNome: textoOuNull(formulario.fornecedorNome),
+      fornecedorDocumento: textoOuNull(formulario.fornecedorDocumento),
+      numeroPedidoCompra: textoOuNull(formulario.numeroPedidoCompra),
+      dataCompra: textoOuNull(formulario.dataCompra),
+      statusCompra: textoOuNull(formulario.statusCompra),
       unidade: formulario.unidade.trim().toUpperCase(),
       quantidadeAtual: numeroFormulario(formulario.quantidadeAtual),
       custoUnitario: numeroFormulario(formulario.custoUnitario),
@@ -1259,7 +1311,7 @@ function EstoqueBeautyPainel({ empresaId }: { empresaId: string }) {
               Cadastre produtos e lotes, acompanhe vencimento, ruptura, custo parado e registre baixas por cliente para manter rastreabilidade no pós-procedimento.
             </p>
           </div>
-          <span className="w-fit rounded-md border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-900">R15 Beauty Pro</span>
+          <span className="w-fit rounded-md border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-900">R21 compras e margem real</span>
         </div>
       </div>
 
@@ -1269,6 +1321,73 @@ function EstoqueBeautyPainel({ empresaId }: { empresaId: string }) {
         <ResumoFichaBeauty rotulo="Vence 7 dias" valor={produtosVence7.length} destaque={produtosVence7.length > 0} />
         <ResumoFichaBeauty rotulo="Estoque baixo" valor={produtosEstoqueBaixo.length} destaque={produtosEstoqueBaixo.length > 0} />
         <ResumoFichaBeauty rotulo="Custo parado" valor={formatarMoeda(valorEmEstoque)} texto />
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
+        <section className="rounded-lg border bg-white p-4 shadow-sm">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-card-foreground">Reposição e pedidos de compra</p>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">Sugestões automáticas por estoque mínimo, validade e custo estimado de reposição.</p>
+            </div>
+            <span className="rounded-md border bg-rose-50 px-2 py-1 text-xs font-semibold text-rose-900">TASK-R21-001</span>
+          </div>
+          <div className="mt-4 grid gap-3 lg:grid-cols-2">
+            {sugestoesReposicao.length ? (
+              sugestoesReposicao.slice(0, 6).map((sugestao) => <CardReposicaoBeauty key={sugestao.produto.id} sugestao={sugestao} />)
+            ) : (
+              <EstadoBeautyPro titulo="Sem reposição crítica" descricao="Nenhum lote abaixo do mínimo ou próximo de vencer no momento." />
+            )}
+          </div>
+        </section>
+
+        <section className="rounded-lg border bg-white p-4 shadow-sm">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-card-foreground">Fornecedores e custo por lote</p>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">Histórico derivado dos lotes cadastrados e rastreabilidade de compra.</p>
+            </div>
+            <span className="rounded-md border bg-rose-50 px-2 py-1 text-xs font-semibold text-rose-900">TASK-R21-002</span>
+          </div>
+          <div className="mt-4 grid max-h-80 gap-3 overflow-y-auto pr-1">
+            {fornecedoresResumo.length ? (
+              fornecedoresResumo.map((fornecedor) => <CardFornecedorBeauty key={fornecedor.nome} fornecedor={fornecedor} />)
+            ) : (
+              <EstadoBeautyPro titulo="Sem fornecedor registrado" descricao="Preencha fornecedor e pedido ao cadastrar novos lotes Beauty." />
+            )}
+          </div>
+        </section>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-[420px_minmax(0,1fr)]">
+        <section className="rounded-lg border bg-white p-4 shadow-sm">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-card-foreground">Rotina operacional de validade</p>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">Checklist semanal para bloquear uso, separar descarte e priorizar consumo seguro.</p>
+            </div>
+            <span className="rounded-md border bg-rose-50 px-2 py-1 text-xs font-semibold text-rose-900">TASK-R21-003</span>
+          </div>
+          <div className="mt-4 grid gap-2">
+            <ChecklistValidadeBeauty titulo="Bloquear uso" produtos={produtosVencidos} acao="Mover para descarte e impedir vínculo em atendimento." />
+            <ChecklistValidadeBeauty titulo="Consumir ou revisar em 7 dias" produtos={produtosVence7} acao="Validar integridade, abrir campanha interna e evitar compra duplicada." />
+            <ChecklistValidadeBeauty titulo="Planejar 30 dias" produtos={produtosVence30} acao="Revisar demanda futura, kits e agenda antes de nova compra." />
+            <ChecklistValidadeBeauty titulo="Repor mínimo" produtos={produtosEstoqueBaixo} acao="Gerar pedido com fornecedor e quantidade sugerida." />
+          </div>
+        </section>
+
+        <section className="rounded-lg border bg-white p-4 shadow-sm">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-card-foreground">Margem real por procedimento Beauty</p>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">Cruza kits sugeridos, custo dos lotes atuais, preço de venda e margem simulada.</p>
+            </div>
+            <span className="rounded-md border bg-rose-50 px-2 py-1 text-xs font-semibold text-rose-900">TASK-R21-004</span>
+          </div>
+          <div className="mt-4 grid gap-3 lg:grid-cols-3">
+            {margemProcedimentos.map((item) => <CardMargemProcedimentoBeauty key={item.procedimento} item={item} />)}
+          </div>
+        </section>
       </div>
 
       <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_390px]">
@@ -1362,6 +1481,36 @@ function EstoqueBeautyPainel({ empresaId }: { empresaId: string }) {
               Validade
               <input type="date" value={formulario.validade} onChange={(event) => setFormulario((atual) => ({ ...atual, validade: event.target.value }))} className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" />
             </label>
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Fornecedor
+                <input value={formulario.fornecedorNome} onChange={(event) => setFormulario((atual) => ({ ...atual, fornecedorNome: event.target.value }))} className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" placeholder="Ex.: Dermocosméticos Brasil" />
+              </label>
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Documento fornecedor
+                <input value={formulario.fornecedorDocumento} onChange={(event) => setFormulario((atual) => ({ ...atual, fornecedorDocumento: event.target.value }))} className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" placeholder="CNPJ ou contato" />
+              </label>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Pedido compra
+                <input value={formulario.numeroPedidoCompra} onChange={(event) => setFormulario((atual) => ({ ...atual, numeroPedidoCompra: event.target.value }))} className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" placeholder="PC-2026-001" />
+              </label>
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Data compra
+                <input type="date" value={formulario.dataCompra} onChange={(event) => setFormulario((atual) => ({ ...atual, dataCompra: event.target.value }))} className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring" />
+              </label>
+              <label className="grid gap-1 text-sm font-medium text-card-foreground">
+                Status compra
+                <select value={formulario.statusCompra} onChange={(event) => setFormulario((atual) => ({ ...atual, statusCompra: event.target.value }))} className="h-10 rounded-md border bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring">
+                  <option value="RASCUNHO">Rascunho</option>
+                  <option value="ENVIADO">Enviado</option>
+                  <option value="RECEBIDO_PARCIAL">Recebido parcial</option>
+                  <option value="RECEBIDO">Recebido</option>
+                  <option value="CANCELADO">Cancelado</option>
+                </select>
+              </label>
+            </div>
             <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
               <label className="grid gap-1 text-sm font-medium text-card-foreground">
                 Quantidade
@@ -2051,6 +2200,98 @@ function LinhaProdutoEstoqueBeauty({ produto }: { produto: ProdutoEstoqueBeautyO
       ) : (
         <p className="mt-3 text-xs font-medium text-muted-foreground">Sem validade cadastrada. Revise se o produto exigir controle sanitário.</p>
       )}
+      <div className="mt-3 grid gap-2 rounded-md border bg-white p-3 text-xs leading-5 text-muted-foreground sm:grid-cols-2">
+        <span>Fornecedor: <strong>{produto.fornecedorNome ?? "não informado"}</strong></span>
+        <span>Pedido: <strong>{produto.numeroPedidoCompra ?? "sem pedido"}</strong></span>
+        <span>Compra: <strong>{produto.dataCompra ? formatarDataCurta(produto.dataCompra) : "sem data"}</strong></span>
+        <span>Status: <strong>{rotuloStatusCompraBeauty(produto.statusCompra)}</strong></span>
+      </div>
+    </article>
+  );
+}
+
+function CardReposicaoBeauty({ sugestao }: { sugestao: SugestaoReposicaoBeauty }) {
+  return (
+    <article className="rounded-lg border bg-background p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold text-card-foreground">{sugestao.produto.nome}</p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            {sugestao.produto.fornecedorNome ?? "Fornecedor não informado"} {sugestao.produto.lote ? `• lote ${sugestao.produto.lote}` : ""}
+          </p>
+        </div>
+        <span className={cn("rounded-md border px-2 py-1 text-xs font-semibold", classePrioridadeReposicaoBeauty(sugestao.prioridade))}>{sugestao.prioridade}</span>
+      </div>
+      <p className="mt-3 text-xs leading-5 text-muted-foreground">{sugestao.motivo}</p>
+      <div className="mt-3 grid gap-2 sm:grid-cols-3">
+        <ResumoFichaBeauty rotulo="Sugerido" valor={`${formatarQuantidade(sugestao.quantidadeSugerida)} ${sugestao.produto.unidade}`} texto />
+        <ResumoFichaBeauty rotulo="Custo" valor={formatarMoeda(sugestao.custoEstimado)} texto />
+        <ResumoFichaBeauty rotulo="Pedido" valor={rotuloStatusCompraBeauty(sugestao.produto.statusCompra)} texto />
+      </div>
+    </article>
+  );
+}
+
+function CardFornecedorBeauty({ fornecedor }: { fornecedor: FornecedorBeautyResumo }) {
+  return (
+    <article className="rounded-lg border bg-background p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-semibold text-card-foreground">{fornecedor.nome}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{fornecedor.documento ?? "Documento não informado"}</p>
+        </div>
+        <span className="rounded-md border bg-white px-2 py-1 text-xs font-semibold text-muted-foreground">{fornecedor.lotes} lote(s)</span>
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-3">
+        <ResumoFichaBeauty rotulo="Total comprado" valor={formatarMoeda(fornecedor.custoTotal)} texto />
+        <ResumoFichaBeauty rotulo="Menor custo" valor={formatarMoeda(fornecedor.menorCusto)} texto />
+        <ResumoFichaBeauty rotulo="Maior custo" valor={formatarMoeda(fornecedor.maiorCusto)} texto />
+      </div>
+      <p className="mt-3 text-xs leading-5 text-muted-foreground">
+        Pedidos: {fornecedor.pedidos.length ? fornecedor.pedidos.join(", ") : "sem rastreio de pedido"}
+      </p>
+    </article>
+  );
+}
+
+function ChecklistValidadeBeauty({ titulo, produtos, acao }: { titulo: string; produtos: ProdutoEstoqueBeautyOperacional[]; acao: string }) {
+  return (
+    <article className="rounded-md border bg-background p-3">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-semibold text-card-foreground">{titulo}</p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">{acao}</p>
+        </div>
+        <span className={cn("rounded-md border px-2 py-1 text-xs font-semibold", produtos.length ? "bg-amber-50 text-amber-900" : "bg-emerald-50 text-emerald-800")}>{produtos.length}</span>
+      </div>
+      {produtos.length ? (
+        <div className="mt-2 flex flex-wrap gap-2">
+          {produtos.slice(0, 4).map((produto) => (
+            <span key={produto.id} className="rounded-full border bg-white px-2 py-1 text-[11px] font-semibold text-muted-foreground">
+              {produto.nome}
+            </span>
+          ))}
+        </div>
+      ) : null}
+    </article>
+  );
+}
+
+function CardMargemProcedimentoBeauty({ item }: { item: MargemProcedimentoBeauty }) {
+  return (
+    <article className={cn("rounded-lg border p-4", item.alerta ? "border-amber-300 bg-amber-50/70" : "bg-background")}>
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-sm font-semibold text-card-foreground">{item.procedimento}</p>
+        <span className={cn("rounded-md border px-2 py-1 text-xs font-semibold", item.alerta ? "bg-amber-100 text-amber-900" : "bg-emerald-50 text-emerald-800")}>
+          {item.alerta ? "Revisar" : "Saudável"}
+        </span>
+      </div>
+      <div className="mt-3 grid gap-2">
+        <ResumoFichaBeauty rotulo="Custo kit" valor={formatarMoeda(item.custoKitEstimado)} texto />
+        <ResumoFichaBeauty rotulo="Preço venda" valor={formatarMoeda(item.precoVenda)} texto />
+        <ResumoFichaBeauty rotulo="Lucro após kit" valor={formatarMoeda(item.lucroDepoisKit)} texto destaque={item.lucroDepoisKit < 0} />
+        <ResumoFichaBeauty rotulo="Margem simulada" valor={item.margemSimulada === null ? "sem simulação" : `${formatarNumero(item.margemSimulada)}%`} texto destaque={item.alerta} />
+      </div>
     </article>
   );
 }
@@ -2347,6 +2588,126 @@ function formularioDeFicha(ficha: FichaEsteticaBeautyPro): FormularioFichaBeauty
 function textoOuNull(valor: string) {
   const texto = valor.trim();
   return texto.length ? texto : null;
+}
+
+function calcularSugestoesReposicaoBeauty(produtos: ProdutoEstoqueBeautyOperacional[]): SugestaoReposicaoBeauty[] {
+  return produtos
+    .map((produto) => {
+      const dias = diasAteValidadeBeauty(produto.validade);
+      const estoqueBaixo = produto.quantidadeAtual <= produto.estoqueMinimo;
+      const vencido = dias !== null && dias < 0;
+      const venceEm30 = dias !== null && dias >= 0 && dias <= 30;
+
+      if (!estoqueBaixo && !vencido && !venceEm30) {
+        return null;
+      }
+
+      const quantidadeSugerida = Math.max(produto.estoqueMinimo * 2 - produto.quantidadeAtual, produto.estoqueMinimo, 1);
+      const prioridade: SugestaoReposicaoBeauty["prioridade"] = vencido || estoqueBaixo ? "ALTA" : dias !== null && dias <= 7 ? "MEDIA" : "BAIXA";
+      const motivo = vencido
+        ? "Produto vencido: bloquear uso e repor se ainda fizer parte dos protocolos."
+        : estoqueBaixo
+          ? "Saldo abaixo do mínimo: gerar pedido para evitar ruptura em agenda Beauty."
+          : "Validade próxima: planejar consumo, promoção interna ou reposição com lote novo.";
+
+      return {
+        produto,
+        motivo,
+        prioridade,
+        quantidadeSugerida,
+        custoEstimado: quantidadeSugerida * produto.custoUnitario
+      };
+    })
+    .filter((item): item is SugestaoReposicaoBeauty => item !== null)
+    .sort((a, b) => prioridadeOrdemBeauty(a.prioridade) - prioridadeOrdemBeauty(b.prioridade));
+}
+
+function resumirFornecedoresBeauty(produtos: ProdutoEstoqueBeautyOperacional[]): FornecedorBeautyResumo[] {
+  const mapa = new Map<string, FornecedorBeautyResumo>();
+
+  produtos.forEach((produto) => {
+    const nome = produto.fornecedorNome?.trim() || "Fornecedor não informado";
+    const atual = mapa.get(nome) ?? {
+      nome,
+      documento: produto.fornecedorDocumento,
+      lotes: 0,
+      custoTotal: 0,
+      menorCusto: produto.custoUnitario,
+      maiorCusto: produto.custoUnitario,
+      pedidos: []
+    };
+
+    atual.lotes += 1;
+    atual.custoTotal += produto.quantidadeAtual * produto.custoUnitario;
+    atual.menorCusto = Math.min(atual.menorCusto, produto.custoUnitario);
+    atual.maiorCusto = Math.max(atual.maiorCusto, produto.custoUnitario);
+    if (produto.numeroPedidoCompra && !atual.pedidos.includes(produto.numeroPedidoCompra)) {
+      atual.pedidos.push(produto.numeroPedidoCompra);
+    }
+    mapa.set(nome, atual);
+  });
+
+  return Array.from(mapa.values()).sort((a, b) => b.custoTotal - a.custoTotal);
+}
+
+function calcularMargemProcedimentosBeauty(produtos: ProdutoEstoqueBeautyOperacional[], simulacoes: SimulacaoBeautyPro[]): MargemProcedimentoBeauty[] {
+  return kitsInsumosBeauty.map((kit) => {
+    const custoKitEstimado = kit.produtos.reduce((total, produtoKit) => total + estimarCustoProdutoKitBeauty(produtoKit, produtos), 0);
+    const simulacao = simulacoes.find((item) => item.nomeProcedimento.toLowerCase().includes(kit.procedimento.toLowerCase().split(" ")[0] ?? kit.procedimento.toLowerCase()));
+    const precoVenda = simulacao?.precoVenda ?? custoKitEstimado * 3;
+    const lucroDepoisKit = precoVenda - custoKitEstimado;
+    const margemCalculada = precoVenda > 0 ? (lucroDepoisKit / precoVenda) * 100 : 0;
+    const margemSimulada = simulacao?.margemRealPercentual ?? null;
+
+    return {
+      procedimento: kit.procedimento,
+      custoKitEstimado,
+      precoVenda,
+      margemSimulada,
+      lucroDepoisKit,
+      alerta: lucroDepoisKit <= 0 || margemCalculada < 25 || (margemSimulada !== null && margemSimulada < 25)
+    };
+  });
+}
+
+function estimarCustoProdutoKitBeauty(nomeProduto: string, produtos: ProdutoEstoqueBeautyOperacional[]) {
+  const termoPrincipal = nomeProduto.toLowerCase().split(" ")[0] ?? nomeProduto.toLowerCase();
+  const produto = produtos.find((item) => item.nome.toLowerCase().includes(termoPrincipal));
+  if (!produto) {
+    return 0;
+  }
+  return produto.custoUnitario;
+}
+
+function prioridadeOrdemBeauty(prioridade: SugestaoReposicaoBeauty["prioridade"]) {
+  if (prioridade === "ALTA") {
+    return 1;
+  }
+  if (prioridade === "MEDIA") {
+    return 2;
+  }
+  return 3;
+}
+
+function classePrioridadeReposicaoBeauty(prioridade: SugestaoReposicaoBeauty["prioridade"]) {
+  if (prioridade === "ALTA") {
+    return "border-red-200 bg-red-50 text-red-800";
+  }
+  if (prioridade === "MEDIA") {
+    return "border-amber-200 bg-amber-50 text-amber-900";
+  }
+  return "border-sky-200 bg-sky-50 text-sky-800";
+}
+
+function rotuloStatusCompraBeauty(status: string | null) {
+  const rotulos: Record<string, string> = {
+    RASCUNHO: "Rascunho",
+    ENVIADO: "Enviado",
+    RECEBIDO_PARCIAL: "Recebido parcial",
+    RECEBIDO: "Recebido",
+    CANCELADO: "Cancelado"
+  };
+  return status ? rotulos[status] ?? status : "Não informado";
 }
 
 function numeroFormulario(valor: string) {
