@@ -1,0 +1,115 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0040-create-growth-r19
+      author: codex
+      changes:
+        - createTable:
+            tableName: growth_leads
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: empresa_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: nome, type: varchar(160), constraints: { nullable: false } }
+              - column: { name: email, type: varchar(160), constraints: { nullable: false } }
+              - column: { name: telefone, type: varchar(40) }
+              - column: { name: vertical, type: varchar(40), constraints: { nullable: false } }
+              - column: { name: origem, type: varchar(80), constraints: { nullable: false } }
+              - column: { name: etapa, type: varchar(40), constraints: { nullable: false } }
+              - column: { name: potencial_mensal, type: numeric(12,2), defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: cliente_paciente_id, type: uuid }
+              - column: { name: compromisso_agenda_id, type: uuid }
+              - column: { name: observacoes, type: varchar(1000) }
+              - column: { name: criado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+              - column: { name: atualizado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+        - addForeignKeyConstraint:
+            baseTableName: growth_leads
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_growth_leads_empresas
+        - addForeignKeyConstraint:
+            baseTableName: growth_leads
+            baseColumnNames: cliente_paciente_id
+            referencedTableName: clientes_pacientes
+            referencedColumnNames: id
+            constraintName: fk_growth_leads_clientes_pacientes
+        - addForeignKeyConstraint:
+            baseTableName: growth_leads
+            baseColumnNames: compromisso_agenda_id
+            referencedTableName: agenda_compromissos
+            referencedColumnNames: id
+            constraintName: fk_growth_leads_agenda_compromissos
+        - createIndex:
+            tableName: growth_leads
+            indexName: idx_growth_leads_empresa_vertical_etapa
+            columns:
+              - column: { name: empresa_id }
+              - column: { name: vertical }
+              - column: { name: etapa }
+        - createIndex:
+            tableName: growth_leads
+            indexName: idx_growth_leads_empresa_email
+            columns:
+              - column: { name: empresa_id }
+              - column: { name: email }
+        - createTable:
+            tableName: growth_demo_apresentacoes
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: empresa_id, type: uuid }
+              - column: { name: perfil, type: varchar(40), constraints: { nullable: false } }
+              - column: { name: titulo, type: varchar(180), constraints: { nullable: false } }
+              - column: { name: roteiro, type: text, constraints: { nullable: false } }
+              - column: { name: metricas_chave, type: text, constraints: { nullable: false } }
+              - column: { name: chamada_para_acao, type: varchar(300), constraints: { nullable: false } }
+              - column: { name: ativo, type: boolean, defaultValueBoolean: true, constraints: { nullable: false } }
+              - column: { name: criado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+              - column: { name: atualizado_em, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+        - addForeignKeyConstraint:
+            baseTableName: growth_demo_apresentacoes
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_growth_demo_apresentacoes_empresas
+        - createIndex:
+            tableName: growth_demo_apresentacoes
+            indexName: idx_growth_demo_apresentacoes_empresa_perfil
+            columns:
+              - column: { name: empresa_id }
+              - column: { name: perfil }
+              - column: { name: ativo }
+        - insert:
+            tableName: growth_demo_apresentacoes
+            columns:
+              - column: { name: id, value: "d4d5b9f5-6e2e-4a6c-9a19-4a2c3ff10001" }
+              - column: { name: perfil, value: "NUTRI" }
+              - column: { name: titulo, value: "Demo Nutri Pro: adesao, retorno e plano vivo" }
+              - column: { name: roteiro, value: "Abrir workspace Nutri, mostrar paciente prioritario, plano alimentar, diario, mensagens e sugestao de retorno assistida por Growth." }
+              - column: { name: metricas_chave, value: "Retornos recomendados, risco de abandono, recorrencia, ticket medio e faturamento previsto da agenda." }
+              - column: { name: chamada_para_acao, value: "Agendar retorno com mensagem consultiva e mostrar ganho de recorrencia." }
+        - insert:
+            tableName: growth_demo_apresentacoes
+            columns:
+              - column: { name: id, value: "d4d5b9f5-6e2e-4a6c-9a19-4a2c3ff10002" }
+              - column: { name: perfil, value: "BEAUTY" }
+              - column: { name: titulo, value: "Demo Beauty Pro: protocolo, produto e manutencao" }
+              - column: { name: roteiro, value: "Abrir workspace Beauty, mostrar protocolo, produto com validade, pos-procedimento, pacote de manutencao e alerta de recompra." }
+              - column: { name: metricas_chave, value: "Agenda futura, recompra, margem media, produtos criticos e oportunidades de pacote." }
+              - column: { name: chamada_para_acao, value: "Converter manutencao em pacote recorrente com pos-venda humano." }
+        - insert:
+            tableName: growth_demo_apresentacoes
+            columns:
+              - column: { name: id, value: "d4d5b9f5-6e2e-4a6c-9a19-4a2c3ff10003" }
+              - column: { name: perfil, value: "GESTOR" }
+              - column: { name: titulo, value: "Demo Gestor: vertical, margem e agenda" }
+              - column: { name: roteiro, value: "Comparar Nutri e Beauty em indicadores executivos, funil de leads, agenda futura, recorrencia e margem por vertical." }
+              - column: { name: metricas_chave, value: "Faturamento previsto, ocupacao, recorrencia, clientes ativos, recompra e margem media." }
+              - column: { name: chamada_para_acao, value: "Priorizar a vertical com maior retorno e corrigir gargalos antes de escalar." }
+        - insert:
+            tableName: growth_demo_apresentacoes
+            columns:
+              - column: { name: id, value: "d4d5b9f5-6e2e-4a6c-9a19-4a2c3ff10004" }
+              - column: { name: perfil, value: "INVESTIDOR" }
+              - column: { name: titulo, value: "Demo Investidor: SaaS vertical com pos-venda inteligente" }
+              - column: { name: roteiro, value: "Mostrar nucleo comum, verticais prioritarias, funil tenantado, sinais de retencao e caminho de expansao para novas areas." }
+              - column: { name: metricas_chave, value: "ARR potencial, conversao de lead, retencao, recorrencia, ticket medio e margem por vertical." }
+              - column: { name: chamada_para_acao, value: "Evidenciar defensibilidade por dados operacionais e especializacao em saude/estetica." }

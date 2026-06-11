@@ -635,3 +635,13 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Entrega: substituicoes alimentares por plano/refeicao, materiais educativos por plano, exames e medidas avancadas do paciente, relatorio gerencial Nutri Pro e clients web tipados.
 - Persistencia: migration `0039-create-nutri-produtividade-clinica-r18.yaml`.
 - Proxima etapa recomendada: R19 / TASK-GROWTH-001.
+
+## Atualizacao R19 - Growth, pos-venda e indicadores comerciais
+
+- Data: 2026-06-11
+- Release executada: R19 Growth, pos-venda e indicadores comerciais.
+- Tasks concluidas: TASK-GROWTH-001, TASK-GROWTH-002, TASK-GROWTH-003, TASK-GROWTH-004.
+- Entrega: funil tenantado de leads por vertical, sugestoes assistidas de pos-venda, indicadores executivos por Nutri/Beauty e roteiros demo para Nutri, Beauty, gestor e investidor.
+- Persistencia: migration `0040-create-growth-r19.yaml`.
+- Observacao: faturamento previsto usa agenda futura por vertical multiplicada pelo ticket medio ativo, pois agenda ainda nao possui vinculo direto com servico/procedimento.
+- Proxima etapa recomendada: R20 / TASK-R20-001, a definir no backlog oficial.

@@ -1,4 +1,4 @@
-databaseChangeLog:
+﻿databaseChangeLog:
   - include:
       file: db/changelog/changes/0001-create-pgcrypto-extension.yaml
   - include:
@@ -77,3 +77,6 @@ databaseChangeLog:
       file: db/changelog/changes/0038-create-nutri-banco-alimentos.yaml
   - include:
       file: db/changelog/changes/0039-create-nutri-produtividade-clinica-r18.yaml
+  - include:
+      file: db/changelog/changes/0040-create-growth-r19.yaml
+
