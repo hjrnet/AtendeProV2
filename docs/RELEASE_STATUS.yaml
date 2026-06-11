@@ -1,8 +1,8 @@
 project: AtendePro
 strategy: professional_complete
-current_release: R22
-last_completed_task: TASK-R21-004
-next_task: TASK-R22-001
+current_release: R23
+last_completed_task: TASK-R22-004
+next_task: TASK-R23-001
 releases:
   R0:
     name: "R0 — Fundação técnica profissional"
@@ -257,14 +257,12 @@ releases:
       TASK-R21-002: CONCLUIDA
       TASK-R21-003: CONCLUIDA
       TASK-R21-004: CONCLUIDA
-  R22:
-    name: "R22 — Nutri Pro engajamento, evolução e retenção"
-    status: PENDENTE
+  R22:`r`n    name: "R22 — Nutri Pro engajamento, evolução e retenção"`r`n    status: CONCLUIDA
     tasks:
-      TASK-R22-001: PENDENTE
-      TASK-R22-002: PENDENTE
-      TASK-R22-003: PENDENTE
-      TASK-R22-004: PENDENTE
+      TASK-R22-001: CONCLUIDA
+      TASK-R22-002: CONCLUIDA
+      TASK-R22-003: CONCLUIDA
+      TASK-R22-004: CONCLUIDA
   R23:
     name: "R23 — Mobile real paciente/profissional"
     status: PENDENTE
