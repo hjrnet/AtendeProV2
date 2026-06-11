@@ -310,3 +310,12 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-R25-002 | Mobile consumir perfil seguro | App Expo usa `/api/mobile/me` e evita fallback para primeiro paciente quando usuario exige vinculo de cliente. | CONCLUIDA |
 | TASK-R25-003 | Formalizar backlog e status R25 | Registrar R25 em tasks, roadmap, release status e session state. | CONCLUIDA |
 | TASK-R25-004 | Validacao, commit e merge R25 | Validar backend/mobile, smoke test, commit, push e merge para develop. | CONCLUIDA |
+
+## R26 — Reset demo backend controlado por perfil
+
+| Task | Nome | Descricao | Status |
+| --- | --- | --- | --- |
+| TASK-R26-001 | Endpoint local de reset demo controlado | Criar contrato backend local para reset demo por perfil, idempotente e sem deletes destrutivos. | CONCLUIDA |
+| TASK-R26-002 | Cockpit Admin SaaS executar reset demo | Conectar Admin SaaS ao reset backend e mostrar status, etapas, ambiente e credenciais. | CONCLUIDA |
+| TASK-R26-003 | Testes e validacao R26 | Validar backend/web e smoke test autenticado do endpoint local. | CONCLUIDA |
+| TASK-R26-004 | Sincronizacao GitHub e merge R26 | Criar PR, mergear em develop e sincronizar issues/milestone R26. | CONCLUIDA |

@@ -70,6 +70,26 @@ export type DashboardVendasAdminSaas = {
   atualizadoEm: string;
 };
 
+export type PerfilDemoAdminSaas = "NUTRI" | "BEAUTY" | "GESTOR" | "INVESTIDOR" | "SUPORTE";
+
+export type ResetDemoAdminSaasRequest = {
+  perfil: PerfilDemoAdminSaas;
+  confirmarReset: boolean;
+  motivo?: string | null;
+};
+
+export type ResetDemoAdminSaas = {
+  perfil: PerfilDemoAdminSaas;
+  perfilRotulo: string;
+  status: "RESET_PREPARADO" | "RESET_EXECUTADO";
+  executado: boolean;
+  ambiente: string;
+  etapas: string[];
+  credenciais: string[];
+  avisos: string[];
+  atualizadoEm: string;
+};
+
 const adminApi = criarApiClient({
   getAccessToken: () => carregarSessaoAutenticada()?.accessToken ?? null,
   onUnauthorized: () => limparSessaoAutenticada()
@@ -99,4 +119,8 @@ export function consultarDashboardAdminSaas() {
 
 export function consultarDashboardVendasAdminSaas() {
   return adminApi.get<DashboardVendasAdminSaas>("/api/admin-saas/dashboard/vendas");
+}
+
+export function resetarDemoAdminSaas(request: ResetDemoAdminSaasRequest) {
+  return adminApi.post<ResetDemoAdminSaas>("/api/admin-saas/demo/reset", request);
 }
