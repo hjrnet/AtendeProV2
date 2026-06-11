@@ -16,6 +16,7 @@ import br.com.atendepro.modules.adminsaas.application.port.in.AlterarBloqueioEmp
 import br.com.atendepro.modules.adminsaas.application.port.in.ConsultarDashboardAdminSaasUseCase;
 import br.com.atendepro.modules.adminsaas.application.port.in.ConsultarDashboardVendasAdminSaasUseCase;
 import br.com.atendepro.modules.adminsaas.application.port.in.ConsultarAdminSaasUseCase;
+import br.com.atendepro.modules.adminsaas.application.port.in.ConsultarAuditoriaOperacionalAdminSaasUseCase;
 import br.com.atendepro.modules.adminsaas.application.port.in.DetalharEmpresaAdminSaasUseCase;
 import br.com.atendepro.modules.adminsaas.application.port.in.ListarEmpresasAdminSaasUseCase;
 import br.com.atendepro.modules.adminsaas.application.port.in.ObservarEmpresaAdminSaasUseCase;
@@ -30,6 +31,7 @@ public class AdminSaasController {
     private final ConsultarAdminSaasUseCase consultarAdminSaasUseCase;
     private final ConsultarDashboardAdminSaasUseCase consultarDashboardAdminSaasUseCase;
     private final ConsultarDashboardVendasAdminSaasUseCase consultarDashboardVendasAdminSaasUseCase;
+    private final ConsultarAuditoriaOperacionalAdminSaasUseCase consultarAuditoriaOperacionalAdminSaasUseCase;
     private final ListarEmpresasAdminSaasUseCase listarEmpresasAdminSaasUseCase;
     private final DetalharEmpresaAdminSaasUseCase detalharEmpresaAdminSaasUseCase;
     private final AlterarBloqueioEmpresaAdminSaasUseCase alterarBloqueioEmpresaAdminSaasUseCase;
@@ -39,6 +41,7 @@ public class AdminSaasController {
             ConsultarAdminSaasUseCase consultarAdminSaasUseCase,
             ConsultarDashboardAdminSaasUseCase consultarDashboardAdminSaasUseCase,
             ConsultarDashboardVendasAdminSaasUseCase consultarDashboardVendasAdminSaasUseCase,
+            ConsultarAuditoriaOperacionalAdminSaasUseCase consultarAuditoriaOperacionalAdminSaasUseCase,
             ListarEmpresasAdminSaasUseCase listarEmpresasAdminSaasUseCase,
             DetalharEmpresaAdminSaasUseCase detalharEmpresaAdminSaasUseCase,
             AlterarBloqueioEmpresaAdminSaasUseCase alterarBloqueioEmpresaAdminSaasUseCase,
@@ -47,6 +50,7 @@ public class AdminSaasController {
         this.consultarAdminSaasUseCase = consultarAdminSaasUseCase;
         this.consultarDashboardAdminSaasUseCase = consultarDashboardAdminSaasUseCase;
         this.consultarDashboardVendasAdminSaasUseCase = consultarDashboardVendasAdminSaasUseCase;
+        this.consultarAuditoriaOperacionalAdminSaasUseCase = consultarAuditoriaOperacionalAdminSaasUseCase;
         this.listarEmpresasAdminSaasUseCase = listarEmpresasAdminSaasUseCase;
         this.detalharEmpresaAdminSaasUseCase = detalharEmpresaAdminSaasUseCase;
         this.alterarBloqueioEmpresaAdminSaasUseCase = alterarBloqueioEmpresaAdminSaasUseCase;
@@ -70,6 +74,13 @@ public class AdminSaasController {
         ));
     }
 
+
+    @GetMapping("/auditoria/operacional")
+    public ResponseEntity<AuditoriaOperacionalAdminSaasResponse> consultarAuditoriaOperacional() {
+        return ResponseEntity.ok(AuditoriaOperacionalAdminSaasResponse.de(
+                consultarAuditoriaOperacionalAdminSaasUseCase.consultarAuditoriaOperacional()
+        ));
+    }
     @GetMapping("/empresas")
     public ResponseEntity<EmpresasAdminSaasPaginadasResponse> listarEmpresas(
             @RequestParam(defaultValue = "0") int pagina,

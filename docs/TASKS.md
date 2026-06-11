@@ -1,4 +1,4 @@
-# TASKS — AtendePro Profissional
+﻿# TASKS — AtendePro Profissional
 
 Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listadas aqui e com arquivo correspondente em `docs/codex/tasks/`.
 
@@ -328,3 +328,11 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-R27-002 | Atualizar sync de GitHub Projects | Ampliar script existente para releases recentes e labels dinamicas por release. | CONCLUIDA |
 | TASK-R27-003 | Documentar rotina anti-divergencia | Documentar uso do finalizador em GitHub Projects e Observability. | CONCLUIDA |
 | TASK-R27-004 | Validar e aplicar R27 | Validar dry-run, mergear e usar o proprio finalizador para fechar R27. | CONCLUIDA |
+## R28 — Auditoria operacional Admin SaaS
+
+| Task | Nome | Descricao | Status |
+| --- | --- | --- | --- |
+| TASK-R28-001 | Trilha persistente de auditoria admin | Criar eventos persistidos para acoes administrativas sensiveis no Admin SaaS. | CONCLUIDA |
+| TASK-R28-002 | Endpoint de auditoria operacional | Expor resumo, checklist e eventos recentes em `/api/admin-saas/auditoria/operacional`. | CONCLUIDA |
+| TASK-R28-003 | Painel web Auditoria R28 | Adicionar aba Admin SaaS com indicadores, checklist e trilha de eventos. | CONCLUIDA |
+| TASK-R28-004 | Documentacao, validacao e sincronizacao R28 | Atualizar docs, validar auditoria documental e preparar sync GitHub. | CONCLUIDA |

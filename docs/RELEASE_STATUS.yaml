@@ -1,7 +1,7 @@
-project: AtendePro
+﻿project: AtendePro
 strategy: professional_complete
 current_release: A_DEFINIR
-last_completed_task: TASK-R27-004
+last_completed_task: TASK-R28-004
 next_task: A_DEFINIR
 releases:
   R0:
@@ -257,19 +257,25 @@ releases:
       TASK-R21-002: CONCLUIDA
       TASK-R21-003: CONCLUIDA
       TASK-R21-004: CONCLUIDA
-  R22:`r`n    name: "R22 — Nutri Pro engajamento, evolução e retenção"`r`n    status: CONCLUIDA
+  R22:
+    name: "R22 — Nutri Pro engajamento, evolução e retenção"
+    status: CONCLUIDA
     tasks:
       TASK-R22-001: CONCLUIDA
       TASK-R22-002: CONCLUIDA
       TASK-R22-003: CONCLUIDA
       TASK-R22-004: CONCLUIDA
-  R23:`r`n    name: "R23 — Mobile real paciente/profissional"`r`n    status: CONCLUIDA
+  R23:
+    name: "R23 — Mobile real paciente/profissional"
+    status: CONCLUIDA
     tasks:
       TASK-R23-001: CONCLUIDA
       TASK-R23-002: CONCLUIDA
       TASK-R23-003: CONCLUIDA
       TASK-R23-004: CONCLUIDA
-  R24:`r`n    name: "R24 — Comercialização SaaS, onboarding e métricas admin"`r`n    status: CONCLUIDA
+  R24:
+    name: "R24 — Comercialização SaaS, onboarding e métricas admin"
+    status: CONCLUIDA
     tasks:
       TASK-R24-001: CONCLUIDA
       TASK-R24-002: CONCLUIDA
@@ -299,3 +305,11 @@ releases:
       TASK-R27-002: CONCLUIDA
       TASK-R27-003: CONCLUIDA
       TASK-R27-004: CONCLUIDA
+  R28:
+    name: "R28 — Auditoria operacional Admin SaaS"
+    status: CONCLUIDA
+    tasks:
+      TASK-R28-001: CONCLUIDA
+      TASK-R28-002: CONCLUIDA
+      TASK-R28-003: CONCLUIDA
+      TASK-R28-004: CONCLUIDA

@@ -23,6 +23,8 @@ class AdminSaasDemoResetServiceTest {
         AdminSaasDemoResetService service = new AdminSaasDemoResetService(
                 new PermissaoAcessoService(),
                 execucoes::incrementAndGet,
+                command -> {
+                },
                 CLOCK
         );
 
@@ -45,6 +47,8 @@ class AdminSaasDemoResetServiceTest {
         AdminSaasDemoResetService service = new AdminSaasDemoResetService(
                 new PermissaoAcessoService(),
                 execucoes::incrementAndGet,
+                command -> {
+                },
                 CLOCK
         );
 

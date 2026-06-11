@@ -1,4 +1,4 @@
-import { criarApiClient } from "@/lib/api";
+﻿import { criarApiClient } from "@/lib/api";
 import { carregarSessaoAutenticada, limparSessaoAutenticada } from "@/features/auth/lib/auth-storage";
 
 export type Plano = {
@@ -70,6 +70,39 @@ export type DashboardVendasAdminSaas = {
   atualizadoEm: string;
 };
 
+
+export type ChecklistAuditoriaAdminSaas = {
+  codigo: string;
+  titulo: string;
+  status: "OK" | "ACAO_REQUERIDA";
+  detalhe: string;
+  severidade: "BAIXA" | "MEDIA" | "ALTA" | "CRITICA";
+};
+
+export type EventoAuditoriaAdminSaas = {
+  id: string;
+  tipo: string;
+  severidade: "BAIXA" | "MEDIA" | "ALTA" | "CRITICA";
+  descricao: string;
+  empresaId: string | null;
+  empresaNome: string | null;
+  usuarioId: string | null;
+  referenciaTipo: string | null;
+  referenciaId: string | null;
+  metadados: string;
+  criadoEm: string;
+};
+
+export type AuditoriaOperacionalAdminSaas = {
+  eventosUltimos7Dias: number;
+  eventosCriticosUltimos7Dias: number;
+  empresasBloqueadas: number;
+  trialsExpirando7Dias: number;
+  chamadosCriticosAbertos: number;
+  checklist: ChecklistAuditoriaAdminSaas[];
+  eventosRecentes: EventoAuditoriaAdminSaas[];
+  atualizadoEm: string;
+};
 export type PerfilDemoAdminSaas = "NUTRI" | "BEAUTY" | "GESTOR" | "INVESTIDOR" | "SUPORTE";
 
 export type ResetDemoAdminSaasRequest = {
@@ -123,4 +156,7 @@ export function consultarDashboardVendasAdminSaas() {
 
 export function resetarDemoAdminSaas(request: ResetDemoAdminSaasRequest) {
   return adminApi.post<ResetDemoAdminSaas>("/api/admin-saas/demo/reset", request);
+}
+export function consultarAuditoriaOperacionalAdminSaas() {
+  return adminApi.get<AuditoriaOperacionalAdminSaas>("/api/admin-saas/auditoria/operacional");
 }

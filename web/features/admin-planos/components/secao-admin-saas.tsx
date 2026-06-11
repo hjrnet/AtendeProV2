@@ -1,8 +1,9 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
-import { BookOpenText, Building2, CreditCard, LifeBuoy, PackageCheck, Route, TrendingUp } from "lucide-react";
+import { BookOpenText, Building2, CreditCard, LifeBuoy, PackageCheck, Route, ShieldCheck, TrendingUp } from "lucide-react";
 
+import { AdminSaasAuditoriaR28View } from "@/features/admin-planos/components/admin-saas-auditoria-r28-view";
 import { AdminSaasR24View } from "@/features/admin-planos/components/admin-saas-r24-view";
 import { AdminPlanosView } from "@/features/admin-planos/components/admin-planos-view";
 import type { SessaoAutenticada } from "@/features/auth/lib/auth-storage";
@@ -17,10 +18,11 @@ const secoesAdmin = [
   { id: "suporte", label: "Suporte", icon: LifeBuoy, ativo: true },
   { id: "ajuda", label: "Ajuda", icon: BookOpenText, ativo: true },
   { id: "roadmap", label: "Roadmap", icon: Route, ativo: true },
-  { id: "relatorios", label: "Métricas", icon: TrendingUp, ativo: true }
+  { id: "relatorios", label: "Métricas", icon: TrendingUp, ativo: true },
+  { id: "auditoria", label: "Auditoria R28", icon: ShieldCheck, ativo: true }
 ];
 
-type SubsecaoAdmin = "planos" | "comercial" | "empresas" | "suporte" | "ajuda" | "roadmap" | "relatorios";
+type SubsecaoAdmin = "planos" | "comercial" | "empresas" | "suporte" | "ajuda" | "roadmap" | "relatorios" | "auditoria";
 
 type SecaoAdminSaasProps = {
   empresaId: string;
@@ -70,6 +72,9 @@ function renderizarSubsecaoAdmin(subsecao: SubsecaoAdmin, empresaId: string, ses
   }
   if (subsecao === "roadmap") {
     return <FeedbackRoadmapView />;
+  }
+  if (subsecao === "auditoria") {
+    return <AdminSaasAuditoriaR28View />;
   }
   if (subsecao === "comercial" || subsecao === "empresas" || subsecao === "relatorios") {
     return <AdminSaasR24View />;

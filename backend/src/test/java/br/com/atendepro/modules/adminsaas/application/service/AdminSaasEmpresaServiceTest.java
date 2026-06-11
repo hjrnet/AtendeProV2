@@ -15,10 +15,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import br.com.atendepro.modules.adminsaas.application.command.AlterarBloqueioEmpresaAdminSaasCommand;
+import br.com.atendepro.modules.adminsaas.application.command.RegistrarEventoAuditoriaAdminSaasCommand;
 import br.com.atendepro.modules.adminsaas.application.port.out.AtualizarBloqueioEmpresaAdminSaasPort;
 import br.com.atendepro.modules.adminsaas.application.port.out.CarregarEmpresaAdminSaasPort;
 import br.com.atendepro.modules.adminsaas.application.port.out.ContarUsuariosEmpresaAdminSaasPort;
 import br.com.atendepro.modules.adminsaas.application.port.out.ListarEmpresasAdminSaasPort;
+import br.com.atendepro.modules.adminsaas.application.port.out.RegistrarEventoAuditoriaAdminSaasPort;
 import br.com.atendepro.modules.adminsaas.application.result.EmpresaAdminSaasDetalheResult;
 import br.com.atendepro.modules.adminsaas.application.result.EmpresaAdminSaasResumoResult;
 import br.com.atendepro.modules.auth.application.permission.PermissaoAcessoService;
@@ -37,6 +39,7 @@ class AdminSaasEmpresaServiceTest {
     private final FakeEmpresaAdminSaasAdapter adapter = new FakeEmpresaAdminSaasAdapter();
     private final AdminSaasEmpresaService service = new AdminSaasEmpresaService(
             new PermissaoAcessoService(),
+            adapter,
             adapter,
             adapter,
             adapter,
@@ -79,6 +82,8 @@ class AdminSaasEmpresaServiceTest {
 
         assertThat(empresa).isPresent();
         assertThat(empresa.get().ativo()).isFalse();
+        assertThat(adapter.eventosRegistrados).hasSize(1);
+        assertThat(adapter.eventosRegistrados.get(0).tipo()).isEqualTo("EMPRESA_BLOQUEIO_ALTERADO");
     }
 
     @Test
@@ -119,10 +124,12 @@ class AdminSaasEmpresaServiceTest {
             ListarEmpresasAdminSaasPort,
             CarregarEmpresaAdminSaasPort,
             AtualizarBloqueioEmpresaAdminSaasPort,
-            ContarUsuariosEmpresaAdminSaasPort {
+            ContarUsuariosEmpresaAdminSaasPort,
+            RegistrarEventoAuditoriaAdminSaasPort {
 
         private boolean ativo = true;
         private String ultimaBusca;
+        private final List<RegistrarEventoAuditoriaAdminSaasCommand> eventosRegistrados = new java.util.ArrayList<>();
 
         @Override
         public ResultadoPaginado<EmpresaAdminSaasResumoResult> listarEmpresas(Paginacao paginacao, String busca) {
@@ -171,6 +178,11 @@ class AdminSaasEmpresaServiceTest {
         @Override
         public long contarUsuariosVinculados(UUID empresaId) {
             return EMPRESA_ID.equals(empresaId) ? 2 : 0;
+        }
+
+        @Override
+        public void registrarEvento(RegistrarEventoAuditoriaAdminSaasCommand command) {
+            eventosRegistrados.add(command);
         }
     }
 }

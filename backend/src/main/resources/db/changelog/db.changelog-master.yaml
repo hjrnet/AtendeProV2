@@ -81,4 +81,6 @@
       file: db/changelog/changes/0040-create-growth-r19.yaml
   - include:
       file: db/changelog/changes/0041-add-estoque-produtos-compra-r21.yaml
+  - include:
+      file: db/changelog/changes/0042-create-admin-saas-auditoria-operacional-r28.yaml
 
