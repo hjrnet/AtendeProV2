@@ -1,7 +1,7 @@
 project: AtendePro
 strategy: professional_complete
 current_release: A_DEFINIR
-last_completed_task: TASK-R24-004
+last_completed_task: TASK-R25-004
 next_task: A_DEFINIR
 releases:
   R0:
@@ -275,3 +275,11 @@ releases:
       TASK-R24-002: CONCLUIDA
       TASK-R24-003: CONCLUIDA
       TASK-R24-004: CONCLUIDA
+  R25:
+    name: "R25 — Mobile seguro por usuario autenticado"
+    status: CONCLUIDA
+    tasks:
+      TASK-R25-001: CONCLUIDA
+      TASK-R25-002: CONCLUIDA
+      TASK-R25-003: CONCLUIDA
+      TASK-R25-004: CONCLUIDA

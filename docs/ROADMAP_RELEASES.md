@@ -280,3 +280,17 @@
 
 - Entrega: comercializacao SaaS, onboarding, metricas admin e ambiente demo/reset seguro por perfil no Admin SaaS web.
 - Proxima etapa: definir backlog R25 com endpoint mobile/me, gateway real ou reset demo backend conforme prioridade de negocio.
+## R25 — Mobile seguro por usuario autenticado
+
+Status: CONCLUIDA em 2026-06-11.
+
+Objetivo: fechar a principal divida de producao multiusuario deixada pela R23, criando um contrato mobile dedicado para resolver usuario, empresa e vinculos de cliente/paciente sem depender do primeiro cliente do tenant.
+
+Entregas:
+
+- `GET /api/mobile/me` com perfil, empresa ativa, papel principal e clientes vinculados por email dentro do tenant.
+- App mobile validando o perfil mobile apos login.
+- Resolvers Nutri/Beauty passam a bloquear fallback tenant quando o usuario autenticado exige vinculo de cliente.
+- Documentacao oficial da release e tasks R25.
+
+Proxima etapa recomendada: R26 Admin SaaS real com gateway/assinaturas ou R26 reset demo backend controlado por perfil.
