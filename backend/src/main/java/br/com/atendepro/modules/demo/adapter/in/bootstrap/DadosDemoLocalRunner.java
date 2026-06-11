@@ -50,6 +50,11 @@ public class DadosDemoLocalRunner implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
+        popularDadosDemo();
+    }
+
+    @Transactional
+    public void popularDadosDemo() {
         ContextoDemo contexto = new ContextoDemo(Instant.now(clock), LocalDate.now(clock));
         Map<String, UUID> empresas = popularEmpresas();
         Map<String, UUID> planos = popularPlanos();

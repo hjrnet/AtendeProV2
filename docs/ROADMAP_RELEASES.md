@@ -294,3 +294,18 @@ Entregas:
 - Documentacao oficial da release e tasks R25.
 
 Proxima etapa recomendada: R26 Admin SaaS real com gateway/assinaturas ou R26 reset demo backend controlado por perfil.
+
+## R26 — Reset demo backend controlado por perfil
+
+Status: CONCLUIDA em 2026-06-11.
+
+Objetivo: permitir que o Admin SaaS repopule a massa demo local por perfil de apresentacao sem acionar gateway real, webhooks ou deletes destrutivos.
+
+Entregas:
+
+- Endpoint local `POST /api/admin-saas/demo/reset`.
+- Perfis Nutri, Beauty, Gestor, Investidor e Suporte com etapas, credenciais e avisos.
+- Reuso da massa demo deterministica existente em `DadosDemoLocalRunner`.
+- Cockpit Admin SaaS executando reset seguro e exibindo resultado operacional.
+
+Proxima etapa recomendada: R27 automacao de sincronizacao GitHub/observability ou gateway real com escopo aprovado.

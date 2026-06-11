@@ -706,3 +706,13 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Ultima task concluida: TASK-R25-004.
 - Proxima release recomendada: R26 Admin SaaS real com gateway/assinaturas ou reset demo backend controlado.
 - Proxima task recomendada: A_DEFINIR.
+
+## Atualizacao R26 - 2026-06-11
+
+- Release R26 concluida.
+- Entrega: Admin SaaS ganhou reset demo backend local em `/api/admin-saas/demo/reset`, controlado por perfil NUTRI, BEAUTY, GESTOR, INVESTIDOR e SUPORTE.
+- Seguranca: reset idempotente reaproveita a massa demo deterministica existente, nao apaga dados reais externos e nao aciona gateway, cobranca ou webhooks.
+- Web: cockpit Admin SaaS executa reset seguro e mostra status, etapas, ambiente e credenciais demo.
+- Ultima task concluida: TASK-R26-004.
+- Proxima release recomendada: R27 observability/sincronizacao GitHub automatica ou gateway real com decisao explicita.
+- Proxima task recomendada: A_DEFINIR.

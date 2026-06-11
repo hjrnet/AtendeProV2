@@ -1,7 +1,7 @@
 project: AtendePro
 strategy: professional_complete
 current_release: A_DEFINIR
-last_completed_task: TASK-R25-004
+last_completed_task: TASK-R26-004
 next_task: A_DEFINIR
 releases:
   R0:
@@ -283,3 +283,11 @@ releases:
       TASK-R25-002: CONCLUIDA
       TASK-R25-003: CONCLUIDA
       TASK-R25-004: CONCLUIDA
+  R26:
+    name: "R26 — Reset demo backend controlado por perfil"
+    status: CONCLUIDA
+    tasks:
+      TASK-R26-001: CONCLUIDA
+      TASK-R26-002: CONCLUIDA
+      TASK-R26-003: CONCLUIDA
+      TASK-R26-004: CONCLUIDA

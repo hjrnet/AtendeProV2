@@ -1,14 +1,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Building2, CheckCircle2, CreditCard, DatabaseZap, LoaderCircle, PlayCircle, RefreshCcw, Route, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
 
 import {
   consultarDashboardAdminSaas,
   consultarDashboardVendasAdminSaas,
   listarPlanos,
+  resetarDemoAdminSaas,
   type DashboardVendasAdminSaas,
+  type PerfilDemoAdminSaas,
   type Plano
 } from "@/features/admin-planos/api/planos-client";
 
@@ -20,31 +22,40 @@ type EtapaOnboarding = {
 
 const perfisDemo = [
   {
-    perfil: "Nutri",
+    perfil: "NUTRI" as PerfilDemoAdminSaas,
+    label: "Nutri",
     descricao: "Pacientes, plano alimentar, diario, metas, documentos e mensagens.",
     seguranca: "Reset sem dados reais de clientes externos."
   },
   {
-    perfil: "Beauty",
+    perfil: "BEAUTY" as PerfilDemoAdminSaas,
+    label: "Beauty",
     descricao: "Protocolos, estoque com validade, termos, evidencias e margem real.",
     seguranca: "Reset preserva cadastros base e recria somente massa demo."
   },
   {
-    perfil: "Gestor",
+    perfil: "GESTOR" as PerfilDemoAdminSaas,
+    label: "Gestor",
     descricao: "Indicadores por vertical, agenda, pos-venda e comparacao comercial.",
     seguranca: "Reset focado em demonstracao executiva."
   },
   {
-    perfil: "Investidor",
+    perfil: "INVESTIDOR" as PerfilDemoAdminSaas,
+    label: "Investidor",
     descricao: "MRR, trials, churn, planos vendidos e tracao por vertical.",
     seguranca: "Dados financeiros demo marcados como simulados."
+  },
+  {
+    perfil: "SUPORTE" as PerfilDemoAdminSaas,
+    label: "Suporte",
+    descricao: "Base local para diagnostico, suporte e apresentacao guiada.",
+    seguranca: "Disponivel somente no backend local."
   }
 ];
 
 export function AdminSaasR24View() {
   const [planoSelecionadoCodigo, setPlanoSelecionadoCodigo] = useState<string | null>(null);
   const [acaoComercial, setAcaoComercial] = useState<string | null>(null);
-  const [perfilDemoResetado, setPerfilDemoResetado] = useState<string | null>(null);
 
   const planosQuery = useQuery({
     queryKey: ["admin-planos", "r24-checkout"],
@@ -57,6 +68,9 @@ export function AdminSaasR24View() {
   const vendasQuery = useQuery({
     queryKey: ["admin-saas-dashboard-vendas-r24"],
     queryFn: consultarDashboardVendasAdminSaas
+  });
+  const resetDemoMutation = useMutation({
+    mutationFn: resetarDemoAdminSaas
   });
 
   const planos = useMemo(() => (planosQuery.data?.itens ?? []).filter((plano) => plano.ativo), [planosQuery.data?.itens]);
@@ -198,7 +212,7 @@ export function AdminSaasR24View() {
               <article key={perfil.perfil} className="rounded-lg border bg-background p-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-sm font-semibold text-card-foreground">{perfil.perfil}</p>
+                    <p className="text-sm font-semibold text-card-foreground">{perfil.label}</p>
                     <p className="mt-1 text-sm leading-6 text-muted-foreground">{perfil.descricao}</p>
                   </div>
                   <ShieldCheck className="h-5 w-5 text-emerald-700" />
@@ -206,15 +220,32 @@ export function AdminSaasR24View() {
                 <p className="mt-2 rounded-md border bg-white px-2 py-1 text-xs font-medium text-muted-foreground">{perfil.seguranca}</p>
                 <button
                   type="button"
-                  onClick={() => setPerfilDemoResetado(`${perfil.perfil} preparado para reset seguro em ambiente demo`)}
+                  disabled={resetDemoMutation.isPending}
+                  onClick={() => resetDemoMutation.mutate({
+                    perfil: perfil.perfil,
+                    confirmarReset: true,
+                    motivo: `Reset demo R26 solicitado pelo cockpit Admin SaaS para ${perfil.label}.`
+                  })}
                   className="mt-3 inline-flex h-9 items-center gap-2 rounded-md border bg-white px-3 text-xs font-semibold text-card-foreground transition-colors hover:border-primary/50"
                 >
-                  <RefreshCcw className="h-4 w-4" /> Preparar reset
+                  <RefreshCcw className={`h-4 w-4 ${resetDemoMutation.isPending ? "animate-spin" : ""}`} /> Executar reset seguro
                 </button>
               </article>
             ))}
           </div>
-          {perfilDemoResetado ? <p className="mt-4 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-900">{perfilDemoResetado}</p> : null}
+          {resetDemoMutation.data ? (
+            <div className="mt-4 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm text-emerald-950">
+              <p className="font-semibold">{resetDemoMutation.data.perfilRotulo}: {resetDemoMutation.data.status}</p>
+              <p className="mt-1 text-emerald-900/80">Ambiente: {resetDemoMutation.data.ambiente} · atualizado em {formatarDataHora(resetDemoMutation.data.atualizadoEm)}</p>
+              <ul className="mt-2 list-disc space-y-1 pl-5">
+                {resetDemoMutation.data.etapas.map((etapa) => <li key={etapa}>{etapa}</li>)}
+              </ul>
+              <p className="mt-2 font-medium">Credenciais: {resetDemoMutation.data.credenciais.join(" · ")}</p>
+            </div>
+          ) : null}
+          {resetDemoMutation.error instanceof Error ? (
+            <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-900">{resetDemoMutation.error.message}</p>
+          ) : null}
         </section>
       </div>
     </section>
@@ -335,4 +366,11 @@ function formatarMoeda(valor: number) {
 
 function formatarNumero(valor: number) {
   return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 }).format(valor);
+}
+
+function formatarDataHora(valor: string) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    dateStyle: "short",
+    timeStyle: "short"
+  }).format(new Date(valor));
 }
