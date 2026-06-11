@@ -1,4 +1,4 @@
-# SESSION_STATE — AtendePro
+﻿# SESSION_STATE — AtendePro
 
 ## Projeto
 AtendePro — SaaS profissional completo.
@@ -726,3 +726,13 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Ultima task concluida: TASK-R27-004.
 - Proxima release recomendada: R28 gateway real com decisao explicita ou Admin SaaS auditoria operacional.
 - Proxima task recomendada: A_DEFINIR.
+## Atualizacao R28 - 2026-06-11
+
+- Release R28 concluida.
+- Entrega: Admin SaaS ganhou auditoria operacional persistente para eventos sensiveis, endpoint `/api/admin-saas/auditoria/operacional` e aba web `Auditoria R28`.
+- Eventos registrados: bloqueio/desbloqueio de empresa e reset demo local/preparado.
+- Checklist operacional: eventos criticos recentes, empresas bloqueadas, trials expirando e chamados criticos abertos.
+- Governanca: auditoria documental strict continua obrigatoria antes de fechamento de release.
+- Ultima task concluida: TASK-R28-004.
+- Proxima release recomendada: R29 gateway real de assinaturas/pagamentos com provedor definido.
+- Proxima task recomendada: TASK-R29-001.

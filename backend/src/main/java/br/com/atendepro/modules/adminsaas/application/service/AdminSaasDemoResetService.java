@@ -3,16 +3,21 @@ package br.com.atendepro.modules.adminsaas.application.service;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import br.com.atendepro.modules.adminsaas.application.command.ResetarDemoAdminSaasCommand;
+import br.com.atendepro.modules.adminsaas.application.command.RegistrarEventoAuditoriaAdminSaasCommand;
 import br.com.atendepro.modules.adminsaas.application.port.in.ResetarDemoAdminSaasUseCase;
 import br.com.atendepro.modules.adminsaas.application.port.out.RepopularDadosDemoPort;
+import br.com.atendepro.modules.adminsaas.application.port.out.RegistrarEventoAuditoriaAdminSaasPort;
 import br.com.atendepro.modules.adminsaas.application.result.ResetDemoAdminSaasResult;
 import br.com.atendepro.modules.auth.application.permission.PermissaoAcessoService;
 import br.com.atendepro.modules.auth.domain.model.PermissaoAcesso;
+import br.com.atendepro.modules.empresa.application.context.TenantContextHolder;
 import br.com.atendepro.shared.domain.exception.ValidationException;
 
 @Service
@@ -23,15 +28,18 @@ public class AdminSaasDemoResetService implements ResetarDemoAdminSaasUseCase {
 
     private final PermissaoAcessoService permissaoAcessoService;
     private final RepopularDadosDemoPort repopularDadosDemoPort;
+    private final RegistrarEventoAuditoriaAdminSaasPort registrarEventoAuditoriaAdminSaasPort;
     private final Clock clock;
 
     public AdminSaasDemoResetService(
             PermissaoAcessoService permissaoAcessoService,
             RepopularDadosDemoPort repopularDadosDemoPort,
+            RegistrarEventoAuditoriaAdminSaasPort registrarEventoAuditoriaAdminSaasPort,
             Clock clock
     ) {
         this.permissaoAcessoService = permissaoAcessoService;
         this.repopularDadosDemoPort = repopularDadosDemoPort;
+        this.registrarEventoAuditoriaAdminSaasPort = registrarEventoAuditoriaAdminSaasPort;
         this.clock = clock;
     }
 
@@ -46,6 +54,22 @@ public class AdminSaasDemoResetService implements ResetarDemoAdminSaasUseCase {
         if (executado) {
             repopularDadosDemoPort.repopularDadosDemo();
         }
+        registrarEventoAuditoriaAdminSaasPort.registrarEvento(new RegistrarEventoAuditoriaAdminSaasCommand(
+                executado ? "DEMO_RESET_EXECUTADO" : "DEMO_RESET_PREPARADO",
+                executado ? "ALTA" : "MEDIA",
+                executado
+                        ? "Reset demo executado pelo Admin SaaS local."
+                        : "Reset demo preparado pelo Admin SaaS local.",
+                empresaAtualId(),
+                usuarioAtualId(),
+                "DEMO",
+                null,
+                Map.of(
+                        "perfil", command.perfil().name(),
+                        "ambiente", AMBIENTE_LOCAL,
+                        "confirmarReset", Boolean.toString(command.confirmarReset())
+                )
+        ));
 
         return new ResetDemoAdminSaasResult(
                 command.perfil(),
@@ -58,6 +82,18 @@ public class AdminSaasDemoResetService implements ResetarDemoAdminSaasUseCase {
                 avisos(command.motivo()),
                 Instant.now(clock)
         );
+    }
+
+    private UUID empresaAtualId() {
+        return TenantContextHolder.contextoAtual()
+                .map(contexto -> contexto.empresaId())
+                .orElse(null);
+    }
+
+    private UUID usuarioAtualId() {
+        return TenantContextHolder.contextoAtual()
+                .map(contexto -> contexto.usuarioId())
+                .orElse(null);
     }
 
     private List<String> avisos(String motivo) {

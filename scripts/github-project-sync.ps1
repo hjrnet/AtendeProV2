@@ -1,7 +1,7 @@
 param(
     [string] $Repo = "hjrnet/AtendeProV2",
     [string] $ProjectTitle = "AtendePro Roadmap",
-    [string[]] $Releases = @("R18", "R19", "R20", "R21", "R22", "R23", "R24", "R25", "R26", "R27"),
+    [string[]] $Releases = @("R18", "R19", "R20", "R21", "R22", "R23", "R24", "R25", "R26", "R27", "R28"),
     [switch] $Apply
 )
 

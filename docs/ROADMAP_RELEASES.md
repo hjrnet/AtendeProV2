@@ -1,4 +1,4 @@
-# Roadmap por Releases — AtendePro Profissional
+﻿# Roadmap por Releases — AtendePro Profissional
 
 ## R0 — Fundação técnica profissional
 
@@ -324,3 +324,18 @@ Entregas:
 - Dogfood previsto: R27 usa o proprio finalizador apos merge.
 
 Proxima etapa recomendada: R28 gateway real com decisao explicita ou Admin SaaS auditoria operacional.
+## R28 — Auditoria operacional Admin SaaS
+
+Status: CONCLUIDA em 2026-06-11.
+
+Objetivo: criar rastreabilidade operacional para o Admin SaaS antes de avancar para cobranca/gateway real.
+
+Entregas:
+
+- Tabela `admin_saas_auditoria_eventos` para eventos administrativos sensiveis.
+- Endpoint `GET /api/admin-saas/auditoria/operacional` com indicadores, checklist e eventos recentes.
+- Registro automatico de bloqueio/desbloqueio de empresa e reset demo local.
+- Aba web `Auditoria R28` no Admin SaaS com visao executiva e operacional.
+- Auditoria documental strict mantida como criterio de fechamento.
+
+Proxima etapa recomendada: R29 gateway real de assinaturas/pagamentos com provedor definido.

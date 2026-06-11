@@ -1,0 +1,84 @@
+﻿databaseChangeLog:
+  - changeSet:
+      id: 0042-create-admin-saas-auditoria-operacional-r28
+      author: codex
+      changes:
+        - createTable:
+            tableName: admin_saas_auditoria_eventos
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: tipo
+                  type: varchar(80)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: severidade
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: descricao
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: empresa_id
+                  type: uuid
+              - column:
+                  name: usuario_id
+                  type: uuid
+              - column:
+                  name: referencia_tipo
+                  type: varchar(80)
+              - column:
+                  name: referencia_id
+                  type: uuid
+              - column:
+                  name: metadados
+                  type: jsonb
+                  defaultValueComputed: "'{}'::jsonb"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamptz
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: admin_saas_auditoria_eventos
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_admin_saas_auditoria_empresa
+        - addForeignKeyConstraint:
+            baseTableName: admin_saas_auditoria_eventos
+            baseColumnNames: usuario_id
+            referencedTableName: auth_usuarios
+            referencedColumnNames: id
+            constraintName: fk_admin_saas_auditoria_usuario
+        - createIndex:
+            tableName: admin_saas_auditoria_eventos
+            indexName: idx_admin_saas_auditoria_criado
+            columns:
+              - column:
+                  name: criado_em
+        - createIndex:
+            tableName: admin_saas_auditoria_eventos
+            indexName: idx_admin_saas_auditoria_tipo
+            columns:
+              - column:
+                  name: tipo
+        - createIndex:
+            tableName: admin_saas_auditoria_eventos
+            indexName: idx_admin_saas_auditoria_empresa
+            columns:
+              - column:
+                  name: empresa_id

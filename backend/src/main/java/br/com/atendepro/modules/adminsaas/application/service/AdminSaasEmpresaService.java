@@ -2,6 +2,7 @@ package br.com.atendepro.modules.adminsaas.application.service;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -9,6 +10,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import br.com.atendepro.modules.adminsaas.application.command.AlterarBloqueioEmpresaAdminSaasCommand;
+import br.com.atendepro.modules.adminsaas.application.command.RegistrarEventoAuditoriaAdminSaasCommand;
 import br.com.atendepro.modules.adminsaas.application.port.in.AlterarBloqueioEmpresaAdminSaasUseCase;
 import br.com.atendepro.modules.adminsaas.application.port.in.DetalharEmpresaAdminSaasUseCase;
 import br.com.atendepro.modules.adminsaas.application.port.in.ListarEmpresasAdminSaasUseCase;
@@ -17,11 +19,13 @@ import br.com.atendepro.modules.adminsaas.application.port.out.AtualizarBloqueio
 import br.com.atendepro.modules.adminsaas.application.port.out.CarregarEmpresaAdminSaasPort;
 import br.com.atendepro.modules.adminsaas.application.port.out.ContarUsuariosEmpresaAdminSaasPort;
 import br.com.atendepro.modules.adminsaas.application.port.out.ListarEmpresasAdminSaasPort;
+import br.com.atendepro.modules.adminsaas.application.port.out.RegistrarEventoAuditoriaAdminSaasPort;
 import br.com.atendepro.modules.adminsaas.application.result.EmpresaAdminSaasDetalheResult;
 import br.com.atendepro.modules.adminsaas.application.result.EmpresaAdminSaasObservacaoResult;
 import br.com.atendepro.modules.adminsaas.application.result.EmpresaAdminSaasResumoResult;
 import br.com.atendepro.modules.auth.application.permission.PermissaoAcessoService;
 import br.com.atendepro.modules.auth.domain.model.PermissaoAcesso;
+import br.com.atendepro.modules.empresa.application.context.TenantContextHolder;
 import br.com.atendepro.shared.application.pagination.Paginacao;
 import br.com.atendepro.shared.application.pagination.ResultadoPaginado;
 
@@ -38,6 +42,7 @@ public class AdminSaasEmpresaService implements
     private final CarregarEmpresaAdminSaasPort carregarEmpresaAdminSaasPort;
     private final AtualizarBloqueioEmpresaAdminSaasPort atualizarBloqueioEmpresaAdminSaasPort;
     private final ContarUsuariosEmpresaAdminSaasPort contarUsuariosEmpresaAdminSaasPort;
+    private final RegistrarEventoAuditoriaAdminSaasPort registrarEventoAuditoriaAdminSaasPort;
     private final Clock clock;
 
     public AdminSaasEmpresaService(
@@ -46,6 +51,7 @@ public class AdminSaasEmpresaService implements
             CarregarEmpresaAdminSaasPort carregarEmpresaAdminSaasPort,
             AtualizarBloqueioEmpresaAdminSaasPort atualizarBloqueioEmpresaAdminSaasPort,
             ContarUsuariosEmpresaAdminSaasPort contarUsuariosEmpresaAdminSaasPort,
+            RegistrarEventoAuditoriaAdminSaasPort registrarEventoAuditoriaAdminSaasPort,
             Clock clock
     ) {
         this.permissaoAcessoService = permissaoAcessoService;
@@ -53,6 +59,7 @@ public class AdminSaasEmpresaService implements
         this.carregarEmpresaAdminSaasPort = carregarEmpresaAdminSaasPort;
         this.atualizarBloqueioEmpresaAdminSaasPort = atualizarBloqueioEmpresaAdminSaasPort;
         this.contarUsuariosEmpresaAdminSaasPort = contarUsuariosEmpresaAdminSaasPort;
+        this.registrarEventoAuditoriaAdminSaasPort = registrarEventoAuditoriaAdminSaasPort;
         this.clock = clock;
     }
 
@@ -76,7 +83,21 @@ public class AdminSaasEmpresaService implements
         return atualizarBloqueioEmpresaAdminSaasPort.atualizarBloqueioEmpresa(
                 command.empresaId(),
                 command.bloqueada()
-        );
+        ).map(empresa -> {
+            registrarEventoAuditoriaAdminSaasPort.registrarEvento(new RegistrarEventoAuditoriaAdminSaasCommand(
+                    "EMPRESA_BLOQUEIO_ALTERADO",
+                    command.bloqueada() ? "ALTA" : "MEDIA",
+                    command.bloqueada()
+                            ? "Empresa bloqueada pelo Admin SaaS."
+                            : "Empresa desbloqueada pelo Admin SaaS.",
+                    empresa.id(),
+                    usuarioAtualId(),
+                    "EMPRESA",
+                    empresa.id(),
+                    Map.of("bloqueada", Boolean.toString(command.bloqueada()))
+            ));
+            return empresa;
+        });
     }
 
     @Override
@@ -91,6 +112,12 @@ public class AdminSaasEmpresaService implements
                         contarUsuariosEmpresaAdminSaasPort.contarUsuariosVinculados(empresa.id()),
                         Instant.now(clock)
                 ));
+    }
+
+    private UUID usuarioAtualId() {
+        return TenantContextHolder.contextoAtual()
+                .map(contexto -> contexto.usuarioId())
+                .orElse(null);
     }
 
     private void validarAcessoAdminSaas() {
