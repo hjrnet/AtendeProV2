@@ -197,6 +197,115 @@ export type ListaComprasNutriPro = {
   geradoEm: string;
 };
 
+export type SubstituicaoAlimentarNutriPro = {
+  id: string;
+  empresaId: string;
+  pacienteId: string;
+  planoId: string;
+  refeicaoId: string | null;
+  alimentoOrigem: string;
+  alimentoSubstituto: string;
+  grupo: string | null;
+  objetivo: string | null;
+  restricaoAlimentar: string | null;
+  quantidadeEquivalente: number;
+  unidadeMedida: string;
+  observacoes: string | null;
+  criadoEm: string;
+  atualizadoEm: string;
+};
+
+export type SubstituicoesAlimentaresNutriPro = {
+  itens: SubstituicaoAlimentarNutriPro[];
+};
+
+export type CriarSubstituicaoAlimentarNutriProInput = {
+  refeicaoId?: string | null;
+  alimentoOrigem: string;
+  alimentoSubstituto: string;
+  grupo?: string | null;
+  objetivo?: string | null;
+  restricaoAlimentar?: string | null;
+  quantidadeEquivalente: number;
+  unidadeMedida: string;
+  observacoes?: string | null;
+};
+
+export type MaterialEducativoNutriPro = {
+  id: string;
+  empresaId: string;
+  pacienteId: string;
+  planoId: string;
+  tipo: string;
+  titulo: string;
+  objetivo: string | null;
+  conteudo: string;
+  linkAnexo: string | null;
+  observacoes: string | null;
+  criadoEm: string;
+  atualizadoEm: string;
+};
+
+export type MateriaisEducativosNutriPro = {
+  itens: MaterialEducativoNutriPro[];
+};
+
+export type CriarMaterialEducativoNutriProInput = {
+  tipo: string;
+  titulo: string;
+  objetivo?: string | null;
+  conteudo: string;
+  linkAnexo?: string | null;
+  observacoes?: string | null;
+};
+
+export type ExameAvancadoNutriPro = {
+  id: string;
+  empresaId: string;
+  pacienteId: string;
+  tipo: string;
+  nome: string;
+  valor: number;
+  unidadeMedida: string;
+  dataExame: string;
+  status: string;
+  observacoes: string | null;
+  criadoEm: string;
+  atualizadoEm: string;
+};
+
+export type ExamesAvancadosNutriPro = {
+  itens: ExameAvancadoNutriPro[];
+};
+
+export type CriarExameAvancadoNutriProInput = {
+  tipo: string;
+  nome: string;
+  valor: number;
+  unidadeMedida: string;
+  dataExame?: string | null;
+  status?: string | null;
+  observacoes?: string | null;
+};
+
+export type IndicadorGerencialNutriPro = {
+  nome: string;
+  valor: number;
+  unidade: string;
+};
+
+export type PerfilCarteiraNutriPro = {
+  segmento: string;
+  total: number;
+};
+
+export type RelatorioGerencialNutriPro = {
+  empresaId: string;
+  geradoEm: string;
+  indicadores: IndicadorGerencialNutriPro[];
+  perfilCarteira: PerfilCarteiraNutriPro[];
+};
+
 export type RegistroDiarioNutriPro = {
   id: string;
   empresaId: string;
@@ -407,6 +516,10 @@ export type CriarPlanoAlimentarNutriProInput = {
   descricao?: string | null;
   status?: StatusPlanoAlimentarNutriPro;
   refeicoes: CriarRefeicaoPlanoAlimentarNutriProInput[];
+};
+
+export type ReorganizarRefeicoesPlanoAlimentarNutriProInput = {
+  refeicaoIds: string[];
 };
 
 export type TipoDocumentoProfissionalNutriPro =
@@ -633,6 +746,71 @@ export function publicarPlanoAlimentarNutriPro(params: { empresaId: string; paci
   );
 }
 
+export function substituirPlanoAlimentarNutriPro(params: { empresaId: string; pacienteId: string; planoId: string }) {
+  return nutriProApi.post<PlanoAlimentarNutriPro>(
+    `/api/nutri-pro/pacientes/${params.pacienteId}/planos-alimentares/${params.planoId}/substituir`,
+    undefined,
+    {
+      query: { empresaId: params.empresaId }
+    }
+  );
+}
+
+export function duplicarPlanoAlimentarNutriPro(params: { empresaId: string; pacienteId: string; planoId: string }) {
+  return nutriProApi.post<PlanoAlimentarNutriPro>(
+    `/api/nutri-pro/pacientes/${params.pacienteId}/planos-alimentares/${params.planoId}/duplicar`,
+    undefined,
+    {
+      query: { empresaId: params.empresaId }
+    }
+  );
+}
+
+export function versionarPlanoAlimentarNutriPro(params: { empresaId: string; pacienteId: string; planoId: string }) {
+  return nutriProApi.post<PlanoAlimentarNutriPro>(
+    `/api/nutri-pro/pacientes/${params.pacienteId}/planos-alimentares/${params.planoId}/versionar`,
+    undefined,
+    {
+      query: { empresaId: params.empresaId }
+    }
+  );
+}
+
+export function salvarModeloPlanoAlimentarNutriPro(params: { empresaId: string; pacienteId: string; planoId: string }) {
+  return nutriProApi.post<PlanoAlimentarNutriPro>(
+    `/api/nutri-pro/pacientes/${params.pacienteId}/planos-alimentares/${params.planoId}/salvar-modelo`,
+    undefined,
+    {
+      query: { empresaId: params.empresaId }
+    }
+  );
+}
+
+export function arquivarPlanoAlimentarNutriPro(params: { empresaId: string; pacienteId: string; planoId: string }) {
+  return nutriProApi.post<PlanoAlimentarNutriPro>(
+    `/api/nutri-pro/pacientes/${params.pacienteId}/planos-alimentares/${params.planoId}/arquivar`,
+    undefined,
+    {
+      query: { empresaId: params.empresaId }
+    }
+  );
+}
+
+export function reorganizarRefeicoesPlanoAlimentarNutriPro(params: {
+  empresaId: string;
+  pacienteId: string;
+  planoId: string;
+  dados: ReorganizarRefeicoesPlanoAlimentarNutriProInput;
+}) {
+  return nutriProApi.patch<void>(
+    `/api/nutri-pro/pacientes/${params.pacienteId}/planos-alimentares/${params.planoId}/reordenar-refeicoes`,
+    params.dados,
+    {
+      query: { empresaId: params.empresaId }
+    }
+  );
+}
+
 export function consultarPlanoPublicadoNutriPro(params: { empresaId: string; pacienteId: string }) {
   return nutriProApi.get<PlanoAlimentarNutriPro>(`/api/nutri-pro/pacientes/${params.pacienteId}/plano-publicado`, {
     query: { empresaId: params.empresaId }
@@ -641,6 +819,80 @@ export function consultarPlanoPublicadoNutriPro(params: { empresaId: string; pac
 
 export function consultarListaComprasNutriPro(params: { empresaId: string; pacienteId: string }) {
   return nutriProApi.get<ListaComprasNutriPro>(`/api/nutri-pro/pacientes/${params.pacienteId}/lista-compras`, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export function listarSubstituicoesAlimentaresNutriPro(params: { empresaId: string; pacienteId: string; planoId: string }) {
+  return nutriProApi.get<SubstituicoesAlimentaresNutriPro>(
+    `/api/nutri-pro/pacientes/${params.pacienteId}/planos-alimentares/${params.planoId}/substituicoes-alimentares`,
+    {
+      query: { empresaId: params.empresaId }
+    }
+  );
+}
+
+export function criarSubstituicaoAlimentarNutriPro(params: {
+  empresaId: string;
+  pacienteId: string;
+  planoId: string;
+  dados: CriarSubstituicaoAlimentarNutriProInput;
+}) {
+  return nutriProApi.post<SubstituicaoAlimentarNutriPro>(
+    `/api/nutri-pro/pacientes/${params.pacienteId}/planos-alimentares/${params.planoId}/substituicoes-alimentares`,
+    params.dados,
+    {
+      query: { empresaId: params.empresaId }
+    }
+  );
+}
+
+export function listarMateriaisEducativosNutriPro(params: { empresaId: string; pacienteId: string; planoId: string }) {
+  return nutriProApi.get<MateriaisEducativosNutriPro>(
+    `/api/nutri-pro/pacientes/${params.pacienteId}/planos-alimentares/${params.planoId}/materiais-educativos`,
+    {
+      query: { empresaId: params.empresaId }
+    }
+  );
+}
+
+export function criarMaterialEducativoNutriPro(params: {
+  empresaId: string;
+  pacienteId: string;
+  planoId: string;
+  dados: CriarMaterialEducativoNutriProInput;
+}) {
+  return nutriProApi.post<MaterialEducativoNutriPro>(
+    `/api/nutri-pro/pacientes/${params.pacienteId}/planos-alimentares/${params.planoId}/materiais-educativos`,
+    params.dados,
+    {
+      query: { empresaId: params.empresaId }
+    }
+  );
+}
+
+export function listarExamesAvancadosNutriPro(params: { empresaId: string; pacienteId: string }) {
+  return nutriProApi.get<ExamesAvancadosNutriPro>(`/api/nutri-pro/pacientes/${params.pacienteId}/exames-avancados`, {
+    query: { empresaId: params.empresaId }
+  });
+}
+
+export function criarExameAvancadoNutriPro(params: {
+  empresaId: string;
+  pacienteId: string;
+  dados: CriarExameAvancadoNutriProInput;
+}) {
+  return nutriProApi.post<ExameAvancadoNutriPro>(
+    `/api/nutri-pro/pacientes/${params.pacienteId}/exames-avancados`,
+    params.dados,
+    {
+      query: { empresaId: params.empresaId }
+    }
+  );
+}
+
+export function consultarRelatorioGerencialNutriPro(params: { empresaId: string }) {
+  return nutriProApi.get<RelatorioGerencialNutriPro>("/api/nutri-pro/relatorios/gerencial", {
     query: { empresaId: params.empresaId }
   });
 }

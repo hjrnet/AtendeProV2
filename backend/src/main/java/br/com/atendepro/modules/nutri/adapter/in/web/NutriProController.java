@@ -17,8 +17,15 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.atendepro.modules.nutri.application.command.DetalharAvaliacaoAntropometricaNutriProCommand;
 import br.com.atendepro.modules.nutri.application.command.DetalharPlanoAlimentarNutriProCommand;
 import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.ConsultarPacienteCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.ConsultarRelatorioGerencialCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.ArquivarPlanoAlimentarCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.DuplicarPlanoAlimentarCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.ReorganizarRefeicoesPlanoAlimentarCommand;
 import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.MarcarMensagensLidasCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.SalvarModeloPlanoAlimentarCommand;
 import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.PublicarPlanoAlimentarCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.SubstituirPlanoAlimentarCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.VersionarPlanoAlimentarCommand;
 import br.com.atendepro.modules.nutri.application.command.ListarAvaliacoesAntropometricasNutriProCommand;
 import br.com.atendepro.modules.nutri.application.command.ListarPlanosAlimentaresNutriProCommand;
 import br.com.atendepro.modules.nutri.application.command.ConsultarProntuarioNutriProCommand;
@@ -35,13 +42,22 @@ import br.com.atendepro.modules.nutri.application.port.in.ListarAvaliacoesAntrop
 import br.com.atendepro.modules.nutri.application.port.in.ListarPlanosAlimentaresNutriProUseCase;
 import br.com.atendepro.modules.nutri.application.port.in.ListarPacientesNutriProUseCase;
 import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.CriarLembreteNutriProRequest;
+import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.CriarExameAvancadoNutriProRequest;
+import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.CriarMaterialEducativoNutriProRequest;
 import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.CriarMetaNutriProRequest;
 import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.CriarRegistroDiarioNutriProRequest;
+import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.CriarSubstituicaoAlimentarNutriProRequest;
 import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.EnviarMensagemNutriProRequest;
 import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.EvolucoesNutriProResponse;
+import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.ExameAvancadoNutriProResponse;
+import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.ExamesAvancadosNutriProResponse;
 import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.LembreteNutriProResponse;
 import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.LembretesNutriProResponse;
 import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.ListaComprasNutriProResponse;
+import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.MaterialEducativoNutriProResponse;
+import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.MateriaisEducativosNutriProResponse;
+import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.ReorganizarRefeicoesPlanoAlimentarNutriProRequest;
+import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.RelatorioGerencialNutriProResponse;
 import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.MensagemNutriProResponse;
 import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.MensagensNutriProResponse;
 import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.MetaNutriProResponse;
@@ -49,6 +65,8 @@ import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriPro
 import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.RegistroDiarioNutriProResponse;
 import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.RegistrosDiarioNutriProResponse;
 import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.RevisarRegistroDiarioNutriProRequest;
+import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.SubstituicaoAlimentarNutriProResponse;
+import br.com.atendepro.modules.nutri.adapter.in.web.ExperienciaPacienteNutriProWeb.SubstituicoesAlimentaresNutriProResponse;
 import jakarta.validation.Valid;
 
 @RestController
@@ -97,6 +115,15 @@ public class NutriProController {
     ) {
         return ResponseEntity.ok(VisaoNutriProResponse.de(
                 consultarVisaoNutriProUseCase.consultarVisaoNutriPro(new ConsultarVisaoNutriProCommand(empresaId))
+        ));
+    }
+
+    @GetMapping("/relatorios/gerencial")
+    public ResponseEntity<RelatorioGerencialNutriProResponse> consultarRelatorioGerencial(
+            @RequestParam(required = false) UUID empresaId
+    ) {
+        return ResponseEntity.ok(RelatorioGerencialNutriProResponse.de(
+                gerenciarExperienciaPacienteNutriProUseCase.consultarRelatorioGerencial(new ConsultarRelatorioGerencialCommand(empresaId))
         ));
     }
 
@@ -211,6 +238,84 @@ public class NutriProController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @PostMapping("/pacientes/{pacienteId}/planos-alimentares/{planoId}/substituir")
+    public ResponseEntity<PlanoAlimentarNutriProResponse> substituirPlanoAlimentar(
+            @PathVariable UUID pacienteId,
+            @PathVariable UUID planoId,
+            @RequestParam(required = false) UUID empresaId
+    ) {
+        return gerenciarExperienciaPacienteNutriProUseCase
+                .substituirPlanoAlimentar(new SubstituirPlanoAlimentarCommand(empresaId, pacienteId, planoId))
+                .map(PlanoAlimentarNutriProResponse::de)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/pacientes/{pacienteId}/planos-alimentares/{planoId}/duplicar")
+    public ResponseEntity<PlanoAlimentarNutriProResponse> duplicarPlanoAlimentar(
+            @PathVariable UUID pacienteId,
+            @PathVariable UUID planoId,
+            @RequestParam(required = false) UUID empresaId
+    ) {
+        return gerenciarExperienciaPacienteNutriProUseCase
+                .duplicarPlanoAlimentar(new DuplicarPlanoAlimentarCommand(empresaId, pacienteId, planoId))
+                .map(PlanoAlimentarNutriProResponse::de)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/pacientes/{pacienteId}/planos-alimentares/{planoId}/versionar")
+    public ResponseEntity<PlanoAlimentarNutriProResponse> versionarPlanoAlimentar(
+            @PathVariable UUID pacienteId,
+            @PathVariable UUID planoId,
+            @RequestParam(required = false) UUID empresaId
+    ) {
+        return gerenciarExperienciaPacienteNutriProUseCase
+                .versionarPlanoAlimentar(new VersionarPlanoAlimentarCommand(empresaId, pacienteId, planoId))
+                .map(PlanoAlimentarNutriProResponse::de)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/pacientes/{pacienteId}/planos-alimentares/{planoId}/salvar-modelo")
+    public ResponseEntity<PlanoAlimentarNutriProResponse> salvarModeloPlanoAlimentar(
+            @PathVariable UUID pacienteId,
+            @PathVariable UUID planoId,
+            @RequestParam(required = false) UUID empresaId
+    ) {
+        return gerenciarExperienciaPacienteNutriProUseCase
+                .salvarModeloPlanoAlimentar(new SalvarModeloPlanoAlimentarCommand(empresaId, pacienteId, planoId))
+                .map(PlanoAlimentarNutriProResponse::de)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/pacientes/{pacienteId}/planos-alimentares/{planoId}/arquivar")
+    public ResponseEntity<PlanoAlimentarNutriProResponse> arquivarPlanoAlimentar(
+            @PathVariable UUID pacienteId,
+            @PathVariable UUID planoId,
+            @RequestParam(required = false) UUID empresaId
+    ) {
+        return gerenciarExperienciaPacienteNutriProUseCase
+                .arquivarPlanoAlimentar(new ArquivarPlanoAlimentarCommand(empresaId, pacienteId, planoId))
+                .map(PlanoAlimentarNutriProResponse::de)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PatchMapping("/pacientes/{pacienteId}/planos-alimentares/{planoId}/reordenar-refeicoes")
+    public ResponseEntity<Void> reorganizarRefeicoesPlanoAlimentar(
+            @PathVariable UUID pacienteId,
+            @PathVariable UUID planoId,
+            @RequestParam(required = false) UUID empresaId,
+            @Valid @RequestBody ReorganizarRefeicoesPlanoAlimentarNutriProRequest request
+    ) {
+        gerenciarExperienciaPacienteNutriProUseCase.reorganizarRefeicoesPlanoAlimentar(
+                request.paraCommand(empresaId, pacienteId, planoId)
+        );
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/pacientes/{pacienteId}/plano-publicado")
     public ResponseEntity<PlanoAlimentarNutriProResponse> consultarPlanoPublicado(
             @PathVariable UUID pacienteId,
@@ -233,6 +338,89 @@ public class NutriProController {
                 .map(ListaComprasNutriProResponse::de)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/pacientes/{pacienteId}/planos-alimentares/{planoId}/substituicoes-alimentares")
+    public ResponseEntity<SubstituicoesAlimentaresNutriProResponse> listarSubstituicoesAlimentares(
+            @PathVariable UUID pacienteId,
+            @PathVariable UUID planoId,
+            @RequestParam(required = false) UUID empresaId
+    ) {
+        return ResponseEntity.ok(SubstituicoesAlimentaresNutriProResponse.de(
+                gerenciarExperienciaPacienteNutriProUseCase.listarSubstituicoesAlimentares(
+                        new ConsultarPacienteCommand(empresaId, pacienteId),
+                        planoId
+                )
+        ));
+    }
+
+    @PostMapping("/pacientes/{pacienteId}/planos-alimentares/{planoId}/substituicoes-alimentares")
+    public ResponseEntity<SubstituicaoAlimentarNutriProResponse> criarSubstituicaoAlimentar(
+            @PathVariable UUID pacienteId,
+            @PathVariable UUID planoId,
+            @RequestParam(required = false) UUID empresaId,
+            @Valid @RequestBody CriarSubstituicaoAlimentarNutriProRequest request
+    ) {
+        SubstituicaoAlimentarNutriProResponse response = SubstituicaoAlimentarNutriProResponse.de(
+                gerenciarExperienciaPacienteNutriProUseCase.criarSubstituicaoAlimentar(
+                        request.paraCommand(empresaId, pacienteId, planoId)
+                )
+        );
+        return ResponseEntity.created(URI.create("/api/nutri-pro/pacientes/" + pacienteId + "/planos-alimentares/" + planoId + "/substituicoes-alimentares/" + response.id()))
+                .body(response);
+    }
+
+    @GetMapping("/pacientes/{pacienteId}/planos-alimentares/{planoId}/materiais-educativos")
+    public ResponseEntity<MateriaisEducativosNutriProResponse> listarMateriaisEducativos(
+            @PathVariable UUID pacienteId,
+            @PathVariable UUID planoId,
+            @RequestParam(required = false) UUID empresaId
+    ) {
+        return ResponseEntity.ok(MateriaisEducativosNutriProResponse.de(
+                gerenciarExperienciaPacienteNutriProUseCase.listarMateriaisEducativos(
+                        new ConsultarPacienteCommand(empresaId, pacienteId),
+                        planoId
+                )
+        ));
+    }
+
+    @PostMapping("/pacientes/{pacienteId}/planos-alimentares/{planoId}/materiais-educativos")
+    public ResponseEntity<MaterialEducativoNutriProResponse> criarMaterialEducativo(
+            @PathVariable UUID pacienteId,
+            @PathVariable UUID planoId,
+            @RequestParam(required = false) UUID empresaId,
+            @Valid @RequestBody CriarMaterialEducativoNutriProRequest request
+    ) {
+        MaterialEducativoNutriProResponse response = MaterialEducativoNutriProResponse.de(
+                gerenciarExperienciaPacienteNutriProUseCase.criarMaterialEducativo(
+                        request.paraCommand(empresaId, pacienteId, planoId)
+                )
+        );
+        return ResponseEntity.created(URI.create("/api/nutri-pro/pacientes/" + pacienteId + "/planos-alimentares/" + planoId + "/materiais-educativos/" + response.id()))
+                .body(response);
+    }
+
+    @GetMapping("/pacientes/{pacienteId}/exames-avancados")
+    public ResponseEntity<ExamesAvancadosNutriProResponse> listarExamesAvancados(
+            @PathVariable UUID pacienteId,
+            @RequestParam(required = false) UUID empresaId
+    ) {
+        return ResponseEntity.ok(ExamesAvancadosNutriProResponse.de(
+                gerenciarExperienciaPacienteNutriProUseCase.listarExamesAvancados(new ConsultarPacienteCommand(empresaId, pacienteId))
+        ));
+    }
+
+    @PostMapping("/pacientes/{pacienteId}/exames-avancados")
+    public ResponseEntity<ExameAvancadoNutriProResponse> criarExameAvancado(
+            @PathVariable UUID pacienteId,
+            @RequestParam(required = false) UUID empresaId,
+            @Valid @RequestBody CriarExameAvancadoNutriProRequest request
+    ) {
+        ExameAvancadoNutriProResponse response = ExameAvancadoNutriProResponse.de(
+                gerenciarExperienciaPacienteNutriProUseCase.criarExameAvancado(request.paraCommand(empresaId, pacienteId))
+        );
+        return ResponseEntity.created(URI.create("/api/nutri-pro/pacientes/" + pacienteId + "/exames-avancados/" + response.id()))
+                .body(response);
     }
 
     @GetMapping("/pacientes/{pacienteId}/diario-alimentar")

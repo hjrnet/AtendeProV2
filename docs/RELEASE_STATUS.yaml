@@ -1,8 +1,8 @@
 project: AtendePro
 strategy: professional_complete
-current_release: R18
-last_completed_task: TASK-NUTRI-013
-next_task: TASK-NUTRI-014
+current_release: R19
+last_completed_task: TASK-NUTRI-018
+next_task: TASK-GROWTH-001
 releases:
   R0:
     name: "R0 — Fundação técnica profissional"
@@ -225,14 +225,14 @@ releases:
       TASK-NUTRI-012: CONCLUIDA
   R18:
     name: "R18 — Nutri Pro plano alimentar avançado e produtividade clínica"
-    status: PENDENTE
+    status: CONCLUIDA
     tasks:
       TASK-NUTRI-013: CONCLUIDA
-      TASK-NUTRI-014: PENDENTE
-      TASK-NUTRI-015: PENDENTE
-      TASK-NUTRI-016: PENDENTE
-      TASK-NUTRI-017: PENDENTE
-      TASK-NUTRI-018: PENDENTE
+      TASK-NUTRI-014: CONCLUIDA
+      TASK-NUTRI-015: CONCLUIDA
+      TASK-NUTRI-016: CONCLUIDA
+      TASK-NUTRI-017: CONCLUIDA
+      TASK-NUTRI-018: CONCLUIDA
   R19:
     name: "R19 — Growth, inteligência e refinamento comercial das duas verticais"
     status: PENDENTE

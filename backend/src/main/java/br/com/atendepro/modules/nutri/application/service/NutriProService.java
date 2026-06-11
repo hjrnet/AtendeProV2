@@ -5,8 +5,10 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
@@ -23,13 +25,23 @@ import br.com.atendepro.modules.nutri.application.command.CriarRefeicaoPlanoAlim
 import br.com.atendepro.modules.nutri.application.command.DetalharAvaliacaoAntropometricaNutriProCommand;
 import br.com.atendepro.modules.nutri.application.command.DetalharPlanoAlimentarNutriProCommand;
 import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.ConsultarPacienteCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.ConsultarRelatorioGerencialCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.CriarExameAvancadoCommand;
 import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.CriarLembreteCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.CriarMaterialEducativoCommand;
 import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.CriarMetaCommand;
 import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.CriarRegistroDiarioCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.CriarSubstituicaoAlimentarCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.RevisarRegistroDiarioCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.ArquivarPlanoAlimentarCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.DuplicarPlanoAlimentarCommand;
 import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.EnviarMensagemCommand;
 import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.MarcarMensagensLidasCommand;
 import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.PublicarPlanoAlimentarCommand;
-import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.RevisarRegistroDiarioCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.ReorganizarRefeicoesPlanoAlimentarCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.SalvarModeloPlanoAlimentarCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.SubstituirPlanoAlimentarCommand;
+import br.com.atendepro.modules.nutri.application.command.ExperienciaPacienteNutriProCommands.VersionarPlanoAlimentarCommand;
 import br.com.atendepro.modules.nutri.application.command.ListarAvaliacoesAntropometricasNutriProCommand;
 import br.com.atendepro.modules.nutri.application.command.ListarPlanosAlimentaresNutriProCommand;
 import br.com.atendepro.modules.nutri.application.command.ConsultarVisaoNutriProCommand;
@@ -61,11 +73,15 @@ import br.com.atendepro.modules.nutri.application.result.AtalhoNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.AvaliacaoAntropometricaNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.DadosProntuarioNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.EvolucaoPacienteResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.ExameAvancadoResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.LembreteAcompanhamentoResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.ListaComprasResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.MaterialEducativoResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.MensagemAcompanhamentoResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.MetaAcompanhamentoResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.RelatorioGerencialNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.RegistroDiarioResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.SubstituicaoAlimentarResult;
 import br.com.atendepro.modules.nutri.application.result.IndicadorNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.MetricasNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.PacienteNutriResumoResult;
@@ -267,6 +283,126 @@ public class NutriProService implements
     }
 
     @Override
+    @Transactional
+    public Optional<PlanoAlimentarNutriProResult> substituirPlanoAlimentar(SubstituirPlanoAlimentarCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        return experienciaPacienteNutriProPort
+                .substituirPlanoAlimentar(empresaId, command.pacienteId(), command.planoId())
+                .map(PlanoAlimentarNutriProResult::de);
+    }
+
+    @Override
+    @Transactional
+    public Optional<PlanoAlimentarNutriProResult> duplicarPlanoAlimentar(DuplicarPlanoAlimentarCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        return carregarPlanoAlimentarNutriProPort
+                .carregarPlanoAlimentar(empresaId, command.pacienteId(), command.planoId())
+                .map(plano -> clonarPlanoAlimentar(
+                        plano,
+                        StatusPlanoAlimentarNutriPro.RASCUNHO
+                ))
+                .map(plano -> {
+                    salvarPlanoAlimentarNutriProPort.salvarPlanoAlimentar(plano);
+                    return PlanoAlimentarNutriProResult.de(plano);
+                });
+    }
+
+    @Override
+    @Transactional
+    public Optional<PlanoAlimentarNutriProResult> versionarPlanoAlimentar(VersionarPlanoAlimentarCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        return carregarPlanoAlimentarNutriProPort
+                .carregarPlanoAlimentar(empresaId, command.pacienteId(), command.planoId())
+                .map(plano -> clonarPlanoAlimentar(
+                        plano,
+                        StatusPlanoAlimentarNutriPro.RASCUNHO
+                ))
+                .map(plano -> {
+                    salvarPlanoAlimentarNutriProPort.salvarPlanoAlimentar(plano);
+                    return PlanoAlimentarNutriProResult.de(plano);
+                });
+    }
+
+    @Override
+    @Transactional
+    public Optional<PlanoAlimentarNutriProResult> salvarModeloPlanoAlimentar(SalvarModeloPlanoAlimentarCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        return carregarPlanoAlimentarNutriProPort
+                .carregarPlanoAlimentar(empresaId, command.pacienteId(), command.planoId())
+                .map(plano -> clonarPlanoAlimentar(
+                        plano,
+                        StatusPlanoAlimentarNutriPro.RASCUNHO
+                ))
+                .map(plano -> {
+                    salvarPlanoAlimentarNutriProPort.salvarPlanoAlimentar(plano);
+                    return PlanoAlimentarNutriProResult.de(plano);
+                });
+    }
+
+    @Override
+    @Transactional
+    public Optional<PlanoAlimentarNutriProResult> arquivarPlanoAlimentar(ArquivarPlanoAlimentarCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        return experienciaPacienteNutriProPort
+                .arquivarPlanoAlimentar(empresaId, command.pacienteId(), command.planoId())
+                .map(PlanoAlimentarNutriProResult::de);
+    }
+
+    @Override
+    @Transactional
+    public Optional<PlanoAlimentarNutriProResult> reorganizarRefeicoesPlanoAlimentar(ReorganizarRefeicoesPlanoAlimentarCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+
+        if (command.refeicaoIds() == null || command.refeicaoIds().isEmpty()) {
+            throw new BusinessException("NUTRI_PRO_REFEICOES_ORDEM_INVALIDA", "Reordenacao de refeicoes requer lista nao vazia.");
+        }
+
+        Optional<PlanoAlimentarNutriPro> planoExistente = carregarPlanoAlimentarNutriProPort
+                .carregarPlanoAlimentar(empresaId, command.pacienteId(), command.planoId());
+        if (planoExistente.isEmpty()) {
+            return Optional.empty();
+        }
+
+        PlanoAlimentarNutriPro plano = planoExistente.get();
+        List<UUID> refeicoesDoPlano = plano.refeicoes().stream().map(RefeicaoPlanoAlimentarNutriPro::id).toList();
+
+        if (command.refeicaoIds().size() != refeicoesDoPlano.size()) {
+            throw new BusinessException("NUTRI_PRO_REFEICOES_ORDEM_INVALIDA", "Quantidade de refeicoes enviada nao confere com o plano.");
+        }
+
+        Set<UUID> refeicoesEsperadas = new HashSet<>(refeicoesDoPlano);
+        Set<UUID> refeicoesUnicas = new HashSet<>();
+
+        for (UUID refeicaoId : command.refeicaoIds()) {
+            if (refeicaoId == null || !refeicoesEsperadas.remove(refeicaoId) || !refeicoesUnicas.add(refeicaoId)) {
+                throw new BusinessException("NUTRI_PRO_REFEICOES_ORDEM_INVALIDA", "Lista de refeicoes invalida para reorganizacao.");
+            }
+        }
+
+        if (!refeicoesEsperadas.isEmpty()) {
+            throw new BusinessException("NUTRI_PRO_REFEICOES_ORDEM_INVALIDA", "Lista de refeicoes invalida para reorganizacao.");
+        }
+
+        experienciaPacienteNutriProPort.reorganizarRefeicoesPlanoAlimentar(empresaId, command.pacienteId(), command.planoId(), command.refeicaoIds());
+
+        return carregarPlanoAlimentarNutriProPort
+                .carregarPlanoAlimentar(empresaId, command.pacienteId(), command.planoId())
+                .map(PlanoAlimentarNutriProResult::de);
+    }
+
+    @Override
     public Optional<PlanoAlimentarNutriProResult> consultarPlanoPublicado(ConsultarPacienteCommand command) {
         validarPermissao();
         UUID empresaId = resolverEmpresaId(command.empresaId());
@@ -281,6 +417,104 @@ public class NutriProService implements
         UUID empresaId = resolverEmpresaId(command.empresaId());
         validarPacienteNutriPro(empresaId, command.pacienteId());
         return experienciaPacienteNutriProPort.consultarListaCompras(empresaId, command.pacienteId(), clock);
+    }
+
+    @Override
+    public List<SubstituicaoAlimentarResult> listarSubstituicoesAlimentares(ConsultarPacienteCommand command, UUID planoId) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        validarPlanoPaciente(empresaId, command.pacienteId(), planoId);
+        return experienciaPacienteNutriProPort.listarSubstituicoesAlimentares(empresaId, command.pacienteId(), planoId);
+    }
+
+    @Override
+    @Transactional
+    public SubstituicaoAlimentarResult criarSubstituicaoAlimentar(CriarSubstituicaoAlimentarCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        validarPlanoPaciente(empresaId, command.pacienteId(), command.planoId());
+        return experienciaPacienteNutriProPort.criarSubstituicaoAlimentar(
+                UUID.randomUUID(),
+                empresaId,
+                command.pacienteId(),
+                command.planoId(),
+                command.refeicaoId(),
+                validarTexto(command.alimentoOrigem(), "NUTRI_PRO_SUBSTITUICAO_ORIGEM_OBRIGATORIA", "Alimento de origem e obrigatorio."),
+                validarTexto(command.alimentoSubstituto(), "NUTRI_PRO_SUBSTITUICAO_DESTINO_OBRIGATORIA", "Alimento substituto e obrigatorio."),
+                textoOuNulo(command.grupo()),
+                textoOuNulo(command.objetivo()),
+                textoOuNulo(command.restricaoAlimentar()),
+                valorPositivo(command.quantidadeEquivalente(), "NUTRI_PRO_SUBSTITUICAO_QUANTIDADE_INVALIDA", "Quantidade equivalente deve ser positiva."),
+                validarTexto(command.unidadeMedida(), "NUTRI_PRO_SUBSTITUICAO_UNIDADE_OBRIGATORIA", "Unidade de medida e obrigatoria."),
+                textoOuNulo(command.observacoes())
+        );
+    }
+
+    @Override
+    public List<MaterialEducativoResult> listarMateriaisEducativos(ConsultarPacienteCommand command, UUID planoId) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        validarPlanoPaciente(empresaId, command.pacienteId(), planoId);
+        return experienciaPacienteNutriProPort.listarMateriaisEducativos(empresaId, command.pacienteId(), planoId);
+    }
+
+    @Override
+    @Transactional
+    public MaterialEducativoResult criarMaterialEducativo(CriarMaterialEducativoCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        validarPlanoPaciente(empresaId, command.pacienteId(), command.planoId());
+        return experienciaPacienteNutriProPort.criarMaterialEducativo(
+                UUID.randomUUID(),
+                empresaId,
+                command.pacienteId(),
+                command.planoId(),
+                validarTexto(command.tipo(), "NUTRI_PRO_MATERIAL_TIPO_OBRIGATORIO", "Tipo do material e obrigatorio.").toUpperCase(),
+                validarTexto(command.titulo(), "NUTRI_PRO_MATERIAL_TITULO_OBRIGATORIO", "Titulo do material e obrigatorio."),
+                textoOuNulo(command.objetivo()),
+                validarTexto(command.conteudo(), "NUTRI_PRO_MATERIAL_CONTEUDO_OBRIGATORIO", "Conteudo do material e obrigatorio."),
+                textoOuNulo(command.linkAnexo()),
+                textoOuNulo(command.observacoes())
+        );
+    }
+
+    @Override
+    public List<ExameAvancadoResult> listarExamesAvancados(ConsultarPacienteCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        return experienciaPacienteNutriProPort.listarExamesAvancados(empresaId, command.pacienteId());
+    }
+
+    @Override
+    @Transactional
+    public ExameAvancadoResult criarExameAvancado(CriarExameAvancadoCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        validarPacienteNutriPro(empresaId, command.pacienteId());
+        return experienciaPacienteNutriProPort.criarExameAvancado(
+                UUID.randomUUID(),
+                empresaId,
+                command.pacienteId(),
+                validarTexto(command.tipo(), "NUTRI_PRO_EXAME_TIPO_OBRIGATORIO", "Tipo do exame ou medida e obrigatorio.").toUpperCase(),
+                validarTexto(command.nome(), "NUTRI_PRO_EXAME_NOME_OBRIGATORIO", "Nome do exame ou medida e obrigatorio."),
+                valorNaoNegativo(command.valor(), "NUTRI_PRO_EXAME_VALOR_INVALIDO", "Valor do exame ou medida nao pode ser negativo."),
+                validarTexto(command.unidadeMedida(), "NUTRI_PRO_EXAME_UNIDADE_OBRIGATORIA", "Unidade de medida e obrigatoria."),
+                command.dataExame() == null ? LocalDate.now(clock) : command.dataExame(),
+                command.status() == null || command.status().isBlank() ? "REGISTRADO" : command.status().trim().toUpperCase(),
+                textoOuNulo(command.observacoes())
+        );
+    }
+
+    @Override
+    public RelatorioGerencialNutriProResult consultarRelatorioGerencial(ConsultarRelatorioGerencialCommand command) {
+        validarPermissao();
+        UUID empresaId = resolverEmpresaId(command.empresaId());
+        return experienciaPacienteNutriProPort.consultarRelatorioGerencial(empresaId, clock);
     }
 
     @Override
@@ -560,6 +794,80 @@ public class NutriProService implements
                 .toList();
     }
 
+    private PlanoAlimentarNutriPro clonarPlanoAlimentar(PlanoAlimentarNutriPro plano, StatusPlanoAlimentarNutriPro status) {
+        UUID novoPlanoId = UUID.randomUUID();
+        List<RefeicaoPlanoAlimentarNutriPro> refeicoes = plano.refeicoes().stream()
+                .map(refeicao -> clonarRefeicao(novoPlanoId, plano.empresaId(), refeicao))
+                .toList();
+        return new PlanoAlimentarNutriPro(
+                novoPlanoId,
+                plano.empresaId(),
+                plano.pacienteId(),
+                plano.objetivo(),
+                plano.descricao(),
+                status == null ? StatusPlanoAlimentarNutriPro.RASCUNHO : status,
+                refeicoes,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                Instant.now(clock),
+                Instant.now(clock)
+        );
+    }
+
+    private RefeicaoPlanoAlimentarNutriPro clonarRefeicao(
+            UUID novoPlanoId,
+            UUID empresaId,
+            RefeicaoPlanoAlimentarNutriPro refeicao
+    ) {
+        List<ItemPlanoAlimentarNutriPro> itens = refeicao.itens().stream()
+                .map(item -> clonarItem(novoPlanoId, item, empresaId))
+                .toList();
+        return new RefeicaoPlanoAlimentarNutriPro(
+                UUID.randomUUID(),
+                empresaId,
+                novoPlanoId,
+                refeicao.nome(),
+                refeicao.horario(),
+                refeicao.observacoes(),
+                refeicao.ordenacao(),
+                itens,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO
+        );
+    }
+
+    private ItemPlanoAlimentarNutriPro clonarItem(
+            UUID novoPlanoId,
+            ItemPlanoAlimentarNutriPro item,
+            UUID empresaId
+    ) {
+        return new ItemPlanoAlimentarNutriPro(
+                UUID.randomUUID(),
+                empresaId,
+                novoPlanoId,
+                item.tipoItem(),
+                item.nome(),
+                item.grupo(),
+                item.unidadeMedida(),
+                item.quantidadeBase(),
+                item.quantidade(),
+                item.energiaKcalBase(),
+                item.proteinasBase(),
+                item.carboidratosBase(),
+                item.lipidiosBase(),
+                item.energiaKcal(),
+                item.proteinas(),
+                item.carboidratos(),
+                item.lipidios(),
+                item.observacoes(),
+                item.ordenacao()
+        );
+    }
+
     private UUID resolverEmpresaId(UUID empresaIdSolicitada) {
         Optional<UUID> empresaRestrita = tenantAccessService.empresaRestrita();
         if (empresaRestrita.isPresent()) {
@@ -580,6 +888,12 @@ public class NutriProService implements
         }
     }
 
+    private void validarPlanoPaciente(UUID empresaId, UUID pacienteId, UUID planoId) {
+        if (planoId == null || carregarPlanoAlimentarNutriProPort.carregarPlanoAlimentar(empresaId, pacienteId, planoId).isEmpty()) {
+            throw new BusinessException("NUTRI_PRO_PLANO_NAO_ENCONTRADO", "Plano alimentar nao encontrado para o paciente.");
+        }
+    }
+
     private String validarTexto(String valor, String codigo, String mensagem) {
         if (valor == null || valor.isBlank()) {
             throw new BusinessException(codigo, mensagem);
@@ -592,6 +906,20 @@ public class NutriProService implements
             return null;
         }
         return valor.trim();
+    }
+
+    private BigDecimal valorPositivo(BigDecimal valor, String codigo, String mensagem) {
+        if (valor == null || valor.signum() <= 0) {
+            throw new BusinessException(codigo, mensagem);
+        }
+        return valor;
+    }
+
+    private BigDecimal valorNaoNegativo(BigDecimal valor, String codigo, String mensagem) {
+        if (valor == null || valor.signum() < 0) {
+            throw new BusinessException(codigo, mensagem);
+        }
+        return valor;
     }
 
     private void validarPermissao() {

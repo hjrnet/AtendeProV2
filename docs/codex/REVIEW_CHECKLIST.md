@@ -26,6 +26,12 @@
 - [ ] Docker/local validado.
 - [ ] README/runbook atualizado se necessário.
 
+## Observability
+- [ ] Eventos principais registrados quando a task/release for longa.
+- [ ] Falhas, bloqueios e causas registradas em `docs/codex/observability/failures.jsonl` quando aplicável.
+- [ ] Checklist automático da release gerado ou atualizado quando aplicável.
+- [ ] Relatório de observabilidade gerado ao final de blocos de autopilot.
+
 ## Git
 - [ ] Commit local criado se passou.
-- [ ] Push não realizado.
+- [ ] Push realizado ou justificativa registrada.

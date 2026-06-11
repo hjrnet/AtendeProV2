@@ -75,3 +75,5 @@ databaseChangeLog:
       file: db/changelog/changes/0037-create-nutri-experiencia-paciente.yaml
   - include:
       file: db/changelog/changes/0038-create-nutri-banco-alimentos.yaml
+  - include:
+      file: db/changelog/changes/0039-create-nutri-produtividade-clinica-r18.yaml

@@ -8,11 +8,15 @@ import java.util.Optional;
 import java.util.UUID;
 
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.EvolucaoPacienteResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.ExameAvancadoResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.LembreteAcompanhamentoResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.ListaComprasResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.MaterialEducativoResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.MensagemAcompanhamentoResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.MetaAcompanhamentoResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.RelatorioGerencialNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.RegistroDiarioResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.SubstituicaoAlimentarResult;
 import br.com.atendepro.modules.nutri.domain.model.PlanoAlimentarNutriPro;
 
 public interface ExperienciaPacienteNutriProPort {
@@ -22,6 +26,70 @@ public interface ExperienciaPacienteNutriProPort {
     Optional<PlanoAlimentarNutriPro> carregarPlanoPublicado(UUID empresaId, UUID pacienteId);
 
     Optional<ListaComprasResult> consultarListaCompras(UUID empresaId, UUID pacienteId, Clock clock);
+
+    default List<SubstituicaoAlimentarResult> listarSubstituicoesAlimentares(UUID empresaId, UUID pacienteId, UUID planoId) {
+        return List.of();
+    }
+
+    default SubstituicaoAlimentarResult criarSubstituicaoAlimentar(
+            UUID id,
+            UUID empresaId,
+            UUID pacienteId,
+            UUID planoId,
+            UUID refeicaoId,
+            String alimentoOrigem,
+            String alimentoSubstituto,
+            String grupo,
+            String objetivo,
+            String restricaoAlimentar,
+            java.math.BigDecimal quantidadeEquivalente,
+            String unidadeMedida,
+            String observacoes
+    ) {
+        throw new UnsupportedOperationException("Substituicoes alimentares nao implementadas neste adapter.");
+    }
+
+    default List<MaterialEducativoResult> listarMateriaisEducativos(UUID empresaId, UUID pacienteId, UUID planoId) {
+        return List.of();
+    }
+
+    default MaterialEducativoResult criarMaterialEducativo(
+            UUID id,
+            UUID empresaId,
+            UUID pacienteId,
+            UUID planoId,
+            String tipo,
+            String titulo,
+            String objetivo,
+            String conteudo,
+            String linkAnexo,
+            String observacoes
+    ) {
+        throw new UnsupportedOperationException("Materiais educativos nao implementados neste adapter.");
+    }
+
+    default List<ExameAvancadoResult> listarExamesAvancados(UUID empresaId, UUID pacienteId) {
+        return List.of();
+    }
+
+    default ExameAvancadoResult criarExameAvancado(
+            UUID id,
+            UUID empresaId,
+            UUID pacienteId,
+            String tipo,
+            String nome,
+            java.math.BigDecimal valor,
+            String unidadeMedida,
+            java.time.LocalDate dataExame,
+            String status,
+            String observacoes
+    ) {
+        throw new UnsupportedOperationException("Exames avancados nao implementados neste adapter.");
+    }
+
+    default RelatorioGerencialNutriProResult consultarRelatorioGerencial(UUID empresaId, Clock clock) {
+        return new RelatorioGerencialNutriProResult(empresaId, java.time.Instant.now(clock), List.of(), List.of());
+    }
 
     List<RegistroDiarioResult> listarDiarioAlimentar(UUID empresaId, UUID pacienteId);
 
@@ -82,4 +150,15 @@ public interface ExperienciaPacienteNutriProPort {
     void marcarMensagensLidas(UUID empresaId, UUID pacienteId, String leitor);
 
     List<EvolucaoPacienteResult> listarEvolucao(UUID empresaId, UUID pacienteId);
+
+    default Optional<PlanoAlimentarNutriPro> arquivarPlanoAlimentar(UUID empresaId, UUID pacienteId, UUID planoId) {
+        return Optional.empty();
+    }
+
+    default void reorganizarRefeicoesPlanoAlimentar(UUID empresaId, UUID pacienteId, UUID planoId, List<UUID> refeicaoIds) {
+    }
+
+    default Optional<PlanoAlimentarNutriPro> substituirPlanoAlimentar(UUID empresaId, UUID pacienteId, UUID planoId) {
+        return publicarPlanoAlimentar(empresaId, pacienteId, planoId);
+    }
 }

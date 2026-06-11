@@ -41,13 +41,19 @@ import br.com.atendepro.modules.nutri.domain.model.StatusPlanoAlimentarNutriPro;
 import br.com.atendepro.modules.nutri.domain.model.TipoItemPlanoAlimentarNutriPro;
 import br.com.atendepro.modules.nutri.application.result.DadosProntuarioNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.EvolucaoPacienteResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.ExameAvancadoResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.GrupoListaComprasResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.IndicadorGerencialNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.ItemListaComprasResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.LembreteAcompanhamentoResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.ListaComprasResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.MaterialEducativoResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.MensagemAcompanhamentoResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.MetaAcompanhamentoResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.PerfilCarteiraNutriProResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.RelatorioGerencialNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.RegistroDiarioResult;
+import br.com.atendepro.modules.nutri.application.result.ExperienciaPacienteNutriProResults.SubstituicaoAlimentarResult;
 import br.com.atendepro.modules.nutri.application.result.MetricasNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.PacienteProntuarioNutriProResult;
 import br.com.atendepro.modules.nutri.application.result.PacienteNutriResumoResult;
@@ -317,6 +323,38 @@ public class JdbcVisaoNutriProAdapter implements
     }
 
     @Override
+    public Optional<PlanoAlimentarNutriPro> arquivarPlanoAlimentar(UUID empresaId, UUID pacienteId, UUID planoId) {
+        Optional<PlanoAlimentarNutriPro> planoExistente = carregarPlanoAlimentar(empresaId, pacienteId, planoId);
+        if (planoExistente.isEmpty()) {
+            return Optional.empty();
+        }
+
+        jdbcTemplate.update("""
+                update nutri_planos_alimentares
+                set status = 'ARQUIVADO',
+                    atualizado_em = now()
+                where id = ?
+                  and empresa_id = ?
+                  and paciente_id = ?
+                """, planoId, empresaId, pacienteId);
+
+        return carregarPlanoAlimentar(empresaId, pacienteId, planoId);
+    }
+
+    @Override
+    public void reorganizarRefeicoesPlanoAlimentar(UUID empresaId, UUID pacienteId, UUID planoId, List<UUID> refeicaoIds) {
+        for (int i = 0; i < refeicaoIds.size(); i++) {
+            jdbcTemplate.update("""
+                    update nutri_plano_refeicoes
+                    set ordenacao = ?
+                    where id = ?
+                      and plano_id = ?
+                      and empresa_id = ?
+                    """, i + 1, refeicaoIds.get(i), planoId, empresaId);
+        }
+    }
+
+    @Override
     public Optional<ListaComprasResult> consultarListaCompras(UUID empresaId, UUID pacienteId, Clock clock) {
         Optional<PlanoAlimentarNutriPro> planoPublicado = carregarPlanoPublicado(empresaId, pacienteId);
         if (planoPublicado.isEmpty()) {
@@ -365,6 +403,173 @@ public class JdbcVisaoNutriProAdapter implements
                 grupos,
                 Instant.now(clock)
         ));
+    }
+
+    @Override
+    public List<SubstituicaoAlimentarResult> listarSubstituicoesAlimentares(UUID empresaId, UUID pacienteId, UUID planoId) {
+        return jdbcTemplate.query("""
+                select *
+                from nutri_substituicoes_alimentares
+                where empresa_id = ?
+                  and paciente_id = ?
+                  and plano_id = ?
+                  and ativo = true
+                order by criado_em desc
+                limit 100
+                """, this::mapearSubstituicaoAlimentar, empresaId, pacienteId, planoId);
+    }
+
+    @Override
+    public SubstituicaoAlimentarResult criarSubstituicaoAlimentar(
+            UUID id,
+            UUID empresaId,
+            UUID pacienteId,
+            UUID planoId,
+            UUID refeicaoId,
+            String alimentoOrigem,
+            String alimentoSubstituto,
+            String grupo,
+            String objetivo,
+            String restricaoAlimentar,
+            BigDecimal quantidadeEquivalente,
+            String unidadeMedida,
+            String observacoes
+    ) {
+        jdbcTemplate.update("""
+                insert into nutri_substituicoes_alimentares (
+                    id, empresa_id, paciente_id, plano_id, refeicao_id, alimento_origem, alimento_substituto,
+                    grupo, objetivo, restricao_alimentar, quantidade_equivalente, unidade_medida, observacoes,
+                    ativo, criado_em, atualizado_em
+                ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, true, now(), now())
+                """,
+                id, empresaId, pacienteId, planoId, refeicaoId, alimentoOrigem, alimentoSubstituto,
+                grupo, objetivo, restricaoAlimentar, quantidadeEquivalente, unidadeMedida, observacoes);
+        return carregarSubstituicaoAlimentar(empresaId, pacienteId, id).orElseThrow();
+    }
+
+    @Override
+    public List<MaterialEducativoResult> listarMateriaisEducativos(UUID empresaId, UUID pacienteId, UUID planoId) {
+        return jdbcTemplate.query("""
+                select *
+                from nutri_materiais_educativos
+                where empresa_id = ?
+                  and paciente_id = ?
+                  and plano_id = ?
+                  and ativo = true
+                order by criado_em desc
+                limit 100
+                """, this::mapearMaterialEducativo, empresaId, pacienteId, planoId);
+    }
+
+    @Override
+    public MaterialEducativoResult criarMaterialEducativo(
+            UUID id,
+            UUID empresaId,
+            UUID pacienteId,
+            UUID planoId,
+            String tipo,
+            String titulo,
+            String objetivo,
+            String conteudo,
+            String linkAnexo,
+            String observacoes
+    ) {
+        jdbcTemplate.update("""
+                insert into nutri_materiais_educativos (
+                    id, empresa_id, paciente_id, plano_id, tipo, titulo, objetivo, conteudo,
+                    link_anexo, observacoes, ativo, criado_em, atualizado_em
+                ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, true, now(), now())
+                """,
+                id, empresaId, pacienteId, planoId, tipo, titulo, objetivo, conteudo, linkAnexo, observacoes);
+        return carregarMaterialEducativo(empresaId, pacienteId, id).orElseThrow();
+    }
+
+    @Override
+    public List<ExameAvancadoResult> listarExamesAvancados(UUID empresaId, UUID pacienteId) {
+        return jdbcTemplate.query("""
+                select *
+                from nutri_exames_avancados
+                where empresa_id = ?
+                  and paciente_id = ?
+                order by data_exame desc, criado_em desc
+                limit 120
+                """, this::mapearExameAvancado, empresaId, pacienteId);
+    }
+
+    @Override
+    public ExameAvancadoResult criarExameAvancado(
+            UUID id,
+            UUID empresaId,
+            UUID pacienteId,
+            String tipo,
+            String nome,
+            BigDecimal valor,
+            String unidadeMedida,
+            LocalDate dataExame,
+            String status,
+            String observacoes
+    ) {
+        jdbcTemplate.update("""
+                insert into nutri_exames_avancados (
+                    id, empresa_id, paciente_id, tipo, nome, valor, unidade_medida, data_exame,
+                    status, observacoes, criado_em, atualizado_em
+                ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, now(), now())
+                """,
+                id, empresaId, pacienteId, tipo, nome, valor, unidadeMedida, dataExame, status, observacoes);
+        return carregarExameAvancado(empresaId, pacienteId, id).orElseThrow();
+    }
+
+    @Override
+    public RelatorioGerencialNutriProResult consultarRelatorioGerencial(UUID empresaId, Clock clock) {
+        long pacientesAtivos = contar("select count(*) from clientes_pacientes where empresa_id = ? and area = ? and ativo = true", empresaId, AREA_NUTRI);
+        long planosEmitidos = contar("select count(*) from nutri_planos_alimentares where empresa_id = ?", empresaId);
+        long planosAtivos = contar("select count(*) from nutri_planos_alimentares where empresa_id = ? and status = 'ATIVO'", empresaId);
+        long diarios30Dias = contar("""
+                select count(*)
+                from nutri_diario_alimentar
+                where empresa_id = ?
+                  and registrado_em >= now() - interval '30 days'
+                """, empresaId);
+        long diariosRevisados30Dias = contar("""
+                select count(*)
+                from nutri_diario_alimentar
+                where empresa_id = ?
+                  and status_revisao = 'REVISADO'
+                  and registrado_em >= now() - interval '30 days'
+                """, empresaId);
+        long retornos30Dias = contar("""
+                select count(*)
+                from agenda_compromissos agenda
+                join clientes_pacientes paciente on paciente.id = agenda.cliente_paciente_id
+                where agenda.empresa_id = ?
+                  and paciente.area = ?
+                  and agenda.status <> 'CANCELADO'
+                  and agenda.inicio::date between current_date and current_date + interval '30 days'
+                """, empresaId, AREA_NUTRI);
+
+        BigDecimal adesaoRevisao = diarios30Dias == 0
+                ? BigDecimal.ZERO
+                : BigDecimal.valueOf(diariosRevisados30Dias)
+                .multiply(BigDecimal.valueOf(100))
+                .divide(BigDecimal.valueOf(diarios30Dias), 2, java.math.RoundingMode.HALF_EVEN);
+
+        List<IndicadorGerencialNutriProResult> indicadores = List.of(
+                new IndicadorGerencialNutriProResult("Pacientes ativos", BigDecimal.valueOf(pacientesAtivos), "pacientes"),
+                new IndicadorGerencialNutriProResult("Planos emitidos", BigDecimal.valueOf(planosEmitidos), "planos"),
+                new IndicadorGerencialNutriProResult("Planos ativos", BigDecimal.valueOf(planosAtivos), "planos"),
+                new IndicadorGerencialNutriProResult("Registros de diario 30d", BigDecimal.valueOf(diarios30Dias), "registros"),
+                new IndicadorGerencialNutriProResult("Adesao revisada 30d", adesaoRevisao, "%"),
+                new IndicadorGerencialNutriProResult("Retornos proximos 30d", BigDecimal.valueOf(retornos30Dias), "retornos")
+        );
+
+        List<PerfilCarteiraNutriProResult> perfil = List.of(
+                new PerfilCarteiraNutriProResult("Com plano ativo", contarPacientesComPlanoAtivo(empresaId)),
+                new PerfilCarteiraNutriProResult("Com diario nos ultimos 30 dias", contarPacientesComDiarioRecente(empresaId)),
+                new PerfilCarteiraNutriProResult("Com retorno agendado", contarPacientesComRetornoFuturo(empresaId)),
+                new PerfilCarteiraNutriProResult("Sem plano ativo", Math.max(0, pacientesAtivos - contarPacientesComPlanoAtivo(empresaId)))
+        );
+
+        return new RelatorioGerencialNutriProResult(empresaId, Instant.now(clock), indicadores, perfil);
     }
 
     @Override
@@ -1010,6 +1215,102 @@ public class JdbcVisaoNutriProAdapter implements
         );
     }
 
+    private Optional<SubstituicaoAlimentarResult> carregarSubstituicaoAlimentar(UUID empresaId, UUID pacienteId, UUID id) {
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject("""
+                    select *
+                    from nutri_substituicoes_alimentares
+                    where id = ?
+                      and empresa_id = ?
+                      and paciente_id = ?
+                    """, this::mapearSubstituicaoAlimentar, id, empresaId, pacienteId));
+        } catch (EmptyResultDataAccessException exception) {
+            return Optional.empty();
+        }
+    }
+
+    private SubstituicaoAlimentarResult mapearSubstituicaoAlimentar(ResultSet rs, int rowNum) throws SQLException {
+        return new SubstituicaoAlimentarResult(
+                rs.getObject("id", UUID.class),
+                rs.getObject("empresa_id", UUID.class),
+                rs.getObject("paciente_id", UUID.class),
+                rs.getObject("plano_id", UUID.class),
+                rs.getObject("refeicao_id", UUID.class),
+                rs.getString("alimento_origem"),
+                rs.getString("alimento_substituto"),
+                rs.getString("grupo"),
+                rs.getString("objetivo"),
+                rs.getString("restricao_alimentar"),
+                bigDecimal(rs, "quantidade_equivalente"),
+                rs.getString("unidade_medida"),
+                rs.getString("observacoes"),
+                rs.getTimestamp("criado_em").toInstant(),
+                rs.getTimestamp("atualizado_em").toInstant()
+        );
+    }
+
+    private Optional<MaterialEducativoResult> carregarMaterialEducativo(UUID empresaId, UUID pacienteId, UUID id) {
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject("""
+                    select *
+                    from nutri_materiais_educativos
+                    where id = ?
+                      and empresa_id = ?
+                      and paciente_id = ?
+                    """, this::mapearMaterialEducativo, id, empresaId, pacienteId));
+        } catch (EmptyResultDataAccessException exception) {
+            return Optional.empty();
+        }
+    }
+
+    private MaterialEducativoResult mapearMaterialEducativo(ResultSet rs, int rowNum) throws SQLException {
+        return new MaterialEducativoResult(
+                rs.getObject("id", UUID.class),
+                rs.getObject("empresa_id", UUID.class),
+                rs.getObject("paciente_id", UUID.class),
+                rs.getObject("plano_id", UUID.class),
+                rs.getString("tipo"),
+                rs.getString("titulo"),
+                rs.getString("objetivo"),
+                rs.getString("conteudo"),
+                rs.getString("link_anexo"),
+                rs.getString("observacoes"),
+                rs.getTimestamp("criado_em").toInstant(),
+                rs.getTimestamp("atualizado_em").toInstant()
+        );
+    }
+
+    private Optional<ExameAvancadoResult> carregarExameAvancado(UUID empresaId, UUID pacienteId, UUID id) {
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject("""
+                    select *
+                    from nutri_exames_avancados
+                    where id = ?
+                      and empresa_id = ?
+                      and paciente_id = ?
+                    """, this::mapearExameAvancado, id, empresaId, pacienteId));
+        } catch (EmptyResultDataAccessException exception) {
+            return Optional.empty();
+        }
+    }
+
+    private ExameAvancadoResult mapearExameAvancado(ResultSet rs, int rowNum) throws SQLException {
+        return new ExameAvancadoResult(
+                rs.getObject("id", UUID.class),
+                rs.getObject("empresa_id", UUID.class),
+                rs.getObject("paciente_id", UUID.class),
+                rs.getString("tipo"),
+                rs.getString("nome"),
+                bigDecimal(rs, "valor"),
+                rs.getString("unidade_medida"),
+                rs.getObject("data_exame", LocalDate.class),
+                rs.getString("status"),
+                rs.getString("observacoes"),
+                rs.getTimestamp("criado_em").toInstant(),
+                rs.getTimestamp("atualizado_em").toInstant()
+        );
+    }
+
     private Optional<RegistroDiarioResult> carregarRegistroDiario(UUID empresaId, UUID pacienteId, UUID registroId) {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject("""
@@ -1149,6 +1450,43 @@ public class JdbcVisaoNutriProAdapter implements
             return null;
         }
         return Period.between(dataNascimento, hoje).getYears();
+    }
+
+    private long contarPacientesComPlanoAtivo(UUID empresaId) {
+        return contar("""
+                select count(distinct paciente.id)
+                from clientes_pacientes paciente
+                join nutri_planos_alimentares plano on plano.paciente_id = paciente.id
+                where paciente.empresa_id = ?
+                  and paciente.area = ?
+                  and paciente.ativo = true
+                  and plano.status = 'ATIVO'
+                """, empresaId, AREA_NUTRI);
+    }
+
+    private long contarPacientesComDiarioRecente(UUID empresaId) {
+        return contar("""
+                select count(distinct paciente.id)
+                from clientes_pacientes paciente
+                join nutri_diario_alimentar diario on diario.paciente_id = paciente.id
+                where paciente.empresa_id = ?
+                  and paciente.area = ?
+                  and paciente.ativo = true
+                  and diario.registrado_em >= now() - interval '30 days'
+                """, empresaId, AREA_NUTRI);
+    }
+
+    private long contarPacientesComRetornoFuturo(UUID empresaId) {
+        return contar("""
+                select count(distinct paciente.id)
+                from clientes_pacientes paciente
+                join agenda_compromissos agenda on agenda.cliente_paciente_id = paciente.id
+                where paciente.empresa_id = ?
+                  and paciente.area = ?
+                  and paciente.ativo = true
+                  and agenda.status <> 'CANCELADO'
+                  and agenda.inicio::date >= current_date
+                """, empresaId, AREA_NUTRI);
     }
 
     private long contar(String sql, Object... parametros) {
