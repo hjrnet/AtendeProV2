@@ -1,7 +1,7 @@
 project: AtendePro
 strategy: professional_complete
 current_release: A_DEFINIR
-last_completed_task: TASK-R26-004
+last_completed_task: TASK-R27-004
 next_task: A_DEFINIR
 releases:
   R0:
@@ -291,3 +291,11 @@ releases:
       TASK-R26-002: CONCLUIDA
       TASK-R26-003: CONCLUIDA
       TASK-R26-004: CONCLUIDA
+  R27:
+    name: "R27 — Observability e sincronizacao GitHub automatica"
+    status: CONCLUIDA
+    tasks:
+      TASK-R27-001: CONCLUIDA
+      TASK-R27-002: CONCLUIDA
+      TASK-R27-003: CONCLUIDA
+      TASK-R27-004: CONCLUIDA

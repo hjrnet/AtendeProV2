@@ -716,3 +716,13 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Ultima task concluida: TASK-R26-004.
 - Proxima release recomendada: R27 observability/sincronizacao GitHub automatica ou gateway real com decisao explicita.
 - Proxima task recomendada: A_DEFINIR.
+
+## Atualizacao R27 - 2026-06-11
+
+- Release R27 concluida.
+- Entrega: criado `scripts/github-release-finalize.ps1` para fechar issues e milestones de releases concluidas, com dry-run por padrao, `-Apply` para execucao real e `-EnsureIssues` para criar tasks ausentes.
+- GitHub sync: `scripts/github-project-sync.ps1` passou a considerar releases recentes por padrao e criar labels dinamicas por release.
+- Docs: rotina anti-divergencia documentada em `docs/github/GITHUB_PROJECTS.md` e `docs/codex/OBSERVABILITY.md`.
+- Ultima task concluida: TASK-R27-004.
+- Proxima release recomendada: R28 gateway real com decisao explicita ou Admin SaaS auditoria operacional.
+- Proxima task recomendada: A_DEFINIR.
