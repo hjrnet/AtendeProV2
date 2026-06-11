@@ -1,4 +1,4 @@
-# TASKS — AtendePro Profissional
+﻿# TASKS — AtendePro Profissional
 
 Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listadas aqui e com arquivo correspondente em `docs/codex/tasks/`.
 
@@ -254,8 +254,9 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 
 | Task | Nome | Descrição | Status |
 |---|---|---|---|
-| TASK-GROWTH-001 | Funil de leads por vertical | Captação, origem, etapa, conversão em cliente/paciente e vínculo com agenda. | PENDENTE |
-| TASK-GROWTH-002 | IA assistida para pós-venda | Sugestões de mensagem, risco de abandono, retorno recomendado e oportunidade de pacote. | PENDENTE |
-| TASK-GROWTH-003 | Indicadores de negócio por vertical | Faturamento previsto, ocupação, recorrência, margem, recompra e ticket médio. | PENDENTE |
-| TASK-GROWTH-004 | Apresentações demo por perfil | Roteiros e dados demo para Nutri, Beauty, gestor e investidor. | PENDENTE |
+| TASK-GROWTH-001 | Funil de leads por vertical | Captação, origem, etapa, conversão em cliente/paciente e vínculo com agenda. | CONCLUIDA |
+| TASK-GROWTH-002 | IA assistida para pós-venda | Sugestões de mensagem, risco de abandono, retorno recomendado e oportunidade de pacote. | CONCLUIDA |
+| TASK-GROWTH-003 | Indicadores de negócio por vertical | Faturamento previsto, ocupação, recorrência, margem, recompra e ticket médio. | CONCLUIDA |
+| TASK-GROWTH-004 | Apresentações demo por perfil | Roteiros e dados demo para Nutri, Beauty, gestor e investidor. | CONCLUIDA |
+
 
