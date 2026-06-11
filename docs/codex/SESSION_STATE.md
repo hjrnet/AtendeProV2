@@ -657,6 +657,14 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 
 - Release R20 concluida.
 - Entrega: Growth UI e comando comercial para Nutri/Beauty.
-- Ultima task concluida: TASK-R20-004.
+- Ultima task concluida: TASK-R21-004.
 - Proxima release recomendada: R21.
-- Proxima task recomendada: TASK-R21-001.
+- Proxima task recomendada: TASK-R22-001.
+
+## Atualizacao R21 - 2026-06-11
+
+- Release R21 concluida.
+- Entrega: estoque Beauty avancado, compras, validade e margem real.
+- Ultima task concluida: TASK-R21-004.
+- Proxima release recomendada: R22.
+- Proxima task recomendada: TASK-R22-001.

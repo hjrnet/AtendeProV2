@@ -13,6 +13,11 @@ public record ProdutoEstoque(
         String categoria,
         String lote,
         LocalDate validade,
+        String fornecedorNome,
+        String fornecedorDocumento,
+        String numeroPedidoCompra,
+        LocalDate dataCompra,
+        String statusCompra,
         String unidade,
         BigDecimal quantidadeAtual,
         BigDecimal custoUnitario,
@@ -53,10 +58,53 @@ public record ProdutoEstoque(
         nome = nome.trim();
         categoria = normalizarTextoOpcional(categoria);
         lote = normalizarTextoOpcional(lote);
+        fornecedorNome = normalizarTextoOpcional(fornecedorNome);
+        fornecedorDocumento = normalizarTextoOpcional(fornecedorDocumento);
+        numeroPedidoCompra = normalizarTextoOpcional(numeroPedidoCompra);
+        statusCompra = normalizarTextoOpcional(statusCompra);
         unidade = unidade.trim().toUpperCase();
         quantidadeAtual = quantidadeAtual.setScale(3, RoundingMode.HALF_EVEN);
         custoUnitario = custoUnitario.setScale(2, RoundingMode.HALF_EVEN);
         estoqueMinimo = estoqueMinimo.setScale(3, RoundingMode.HALF_EVEN);
+    }
+
+    public static ProdutoEstoque cadastrar(
+            UUID empresaId,
+            String nome,
+            String categoria,
+            String lote,
+            LocalDate validade,
+            String fornecedorNome,
+            String fornecedorDocumento,
+            String numeroPedidoCompra,
+            LocalDate dataCompra,
+            String statusCompra,
+            String unidade,
+            BigDecimal quantidadeAtual,
+            BigDecimal custoUnitario,
+            BigDecimal estoqueMinimo,
+            Instant agora
+    ) {
+        return new ProdutoEstoque(
+                UUID.randomUUID(),
+                empresaId,
+                nome,
+                categoria,
+                lote,
+                validade,
+                fornecedorNome,
+                fornecedorDocumento,
+                numeroPedidoCompra,
+                dataCompra,
+                statusCompra,
+                unidade,
+                quantidadeAtual,
+                custoUnitario,
+                estoqueMinimo,
+                true,
+                agora,
+                agora
+        );
     }
 
     public static ProdutoEstoque cadastrar(
@@ -71,19 +119,21 @@ public record ProdutoEstoque(
             BigDecimal estoqueMinimo,
             Instant agora
     ) {
-        return new ProdutoEstoque(
-                UUID.randomUUID(),
+        return cadastrar(
                 empresaId,
                 nome,
                 categoria,
                 lote,
                 validade,
+                null,
+                null,
+                null,
+                null,
+                null,
                 unidade,
                 quantidadeAtual,
                 custoUnitario,
                 estoqueMinimo,
-                true,
-                agora,
                 agora
         );
     }

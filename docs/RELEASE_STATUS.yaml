@@ -1,8 +1,8 @@
 project: AtendePro
 strategy: professional_complete
-current_release: R21
-last_completed_task: TASK-R20-004
-next_task: TASK-R21-001
+current_release: R22
+last_completed_task: TASK-R21-004
+next_task: TASK-R22-001
 releases:
   R0:
     name: "R0 — Fundação técnica profissional"
@@ -251,12 +251,12 @@ releases:
       TASK-R20-004: CONCLUIDA
   R21:
     name: "R21 — Beauty Pro estoque avançado, compras e margem real"
-    status: PENDENTE
+    status: CONCLUIDA
     tasks:
-      TASK-R21-001: PENDENTE
-      TASK-R21-002: PENDENTE
-      TASK-R21-003: PENDENTE
-      TASK-R21-004: PENDENTE
+      TASK-R21-001: CONCLUIDA
+      TASK-R21-002: CONCLUIDA
+      TASK-R21-003: CONCLUIDA
+      TASK-R21-004: CONCLUIDA
   R22:
     name: "R22 — Nutri Pro engajamento, evolução e retenção"
     status: PENDENTE
