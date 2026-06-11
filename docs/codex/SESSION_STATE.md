@@ -696,3 +696,13 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Ultima task concluida: TASK-R24-004.
 - Proxima release recomendada: definir R25/backlog executivo.
 - Proxima task recomendada: A_DEFINIR.
+
+## Atualizacao R25 - 2026-06-11
+
+- Release R25 concluida.
+- Entrega: mobile ganhou contrato seguro `/api/mobile/me` para usuario autenticado, empresa ativa, papel principal e clientes vinculados por email no tenant.
+- App Expo passou a validar perfil mobile apos login e a evitar fallback para o primeiro paciente/cliente do tenant quando o usuario exige vinculo de cliente.
+- Risco reduzido: paciente/cliente mobile nao deve mais herdar dados de outro cliente por selecao demonstrativa do primeiro registro da empresa.
+- Ultima task concluida: TASK-R25-004.
+- Proxima release recomendada: R26 Admin SaaS real com gateway/assinaturas ou reset demo backend controlado.
+- Proxima task recomendada: A_DEFINIR.

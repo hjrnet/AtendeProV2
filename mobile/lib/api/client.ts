@@ -43,6 +43,46 @@ export type LoginResponse = {
   usuario: UsuarioLoginApi;
 };
 
+export type PapelPrincipalMobile = "ADMIN_SAAS" | "PROFISSIONAL" | "CLIENTE" | "ESTUDANTE" | "USUARIO";
+
+export type EmpresaMobileApi = {
+  id: string;
+  nomeFantasia: string;
+  razaoSocial: string | null;
+  email: string | null;
+  telefone: string | null;
+  ativa: boolean;
+};
+
+export type ClienteVinculadoMobileApi = {
+  id: string;
+  empresaId: string;
+  nome: string;
+  tipo: TipoCliente;
+  area: AreaCliente;
+  documento: string | null;
+  email: string | null;
+  telefone: string | null;
+  dataNascimento: string | null;
+  observacoes: string | null;
+  ativo: boolean;
+  criadoEm: string;
+  atualizadoEm: string;
+};
+
+export type PerfilMobileApi = {
+  usuarioId: string;
+  empresaId: string;
+  nomeUsuario: string;
+  emailUsuario: string;
+  perfis: string[];
+  authorities: string[];
+  empresa: EmpresaMobileApi;
+  clientesVinculados: ClienteVinculadoMobileApi[];
+  exigeVinculoCliente: boolean;
+  papelPrincipal: PapelPrincipalMobile;
+};
+
 export type TipoStatusAgenda =
   | "AGENDADO"
   | "CONFIRMADO"
@@ -535,6 +575,10 @@ export const apiClientAutenticado = criarApiClient({
   getAccessToken: getTokenDaSessao
 });
 
+export async function consultarPerfilMobile() {
+  return apiClientAutenticado.get<PerfilMobileApi>("/mobile/me");
+}
+
 export async function listarClientesPortal(params: {
   empresaId: string | null;
   busca?: string;
@@ -596,6 +640,11 @@ export async function listarDocumentosPortal(params: {
 }
 
 export async function resolverPrimeiroPacienteNutri(empresaId: string | null) {
+  const vinculoMobile = await resolverClienteVinculadoMobile("NUTRI");
+  if (vinculoMobile.cliente || !vinculoMobile.podeUsarFallbackTenant) {
+    return vinculoMobile.cliente;
+  }
+
   const resposta = await listarClientesPortal({
     empresaId,
     area: "NUTRI",
@@ -607,6 +656,11 @@ export async function resolverPrimeiroPacienteNutri(empresaId: string | null) {
 }
 
 export async function resolverPrimeiroClienteBeauty(empresaId: string | null) {
+  const vinculoMobile = await resolverClienteVinculadoMobile("BEAUTY");
+  if (vinculoMobile.cliente || !vinculoMobile.podeUsarFallbackTenant) {
+    return vinculoMobile.cliente;
+  }
+
   const resposta = await listarClientesPortal({
     empresaId,
     area: "BEAUTY",
@@ -615,6 +669,40 @@ export async function resolverPrimeiroClienteBeauty(empresaId: string | null) {
     tamanho: 1
   });
   return resposta.itens[0] ?? null;
+}
+
+async function resolverClienteVinculadoMobile(area: AreaCliente) {
+  try {
+    const perfil = await consultarPerfilMobile();
+    const vinculo = perfil.clientesVinculados.find((cliente) => cliente.area === area && cliente.ativo);
+    return {
+      cliente: vinculo ? mapearClienteVinculadoMobile(vinculo) : null,
+      podeUsarFallbackTenant: !perfil.exigeVinculoCliente
+    };
+  } catch {
+    return {
+      cliente: null,
+      podeUsarFallbackTenant: true
+    };
+  }
+}
+
+function mapearClienteVinculadoMobile(cliente: ClienteVinculadoMobileApi): ClientePacienteApi {
+  return {
+    id: cliente.id,
+    empresaId: cliente.empresaId,
+    nome: cliente.nome,
+    tipo: cliente.tipo,
+    area: cliente.area,
+    documento: cliente.documento,
+    email: cliente.email,
+    telefone: cliente.telefone,
+    dataNascimento: cliente.dataNascimento,
+    observacoes: cliente.observacoes,
+    ativo: cliente.ativo,
+    criadoEm: cliente.criadoEm,
+    atualizadoEm: cliente.atualizadoEm
+  };
 }
 
 export async function consultarPlanoPublicadoNutri(params: { empresaId: string | null; pacienteId: string }) {

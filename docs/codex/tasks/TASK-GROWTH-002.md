@@ -1,4 +1,4 @@
-﻿# TASK-GROWTH-002 — IA assistida para pos-venda
+# TASK-GROWTH-002 — IA assistida para pos-venda
 
 - Release: R19 Growth, pos-venda e indicadores comerciais
 - Status: CONCLUIDA

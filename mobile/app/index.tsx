@@ -71,11 +71,11 @@ export default function TelaInicialMobile() {
           </Link>
         ))}
       </GridCards>
-      <Cartao titulo="Status da release" descricao="R23 consolida app mobile real para paciente e profissional.">
-        <EstadoVazio texto="Fluxos principais: login por perfil, agenda, documentos, Nutri, Beauty, pós-venda, mensagens e notificações agregadas por APIs reais." />
+      <Cartao titulo="Status da release" descricao="R25 consolida o perfil mobile seguro por usuario autenticado.">
+        <EstadoVazio texto="Fluxos principais: login por perfil, endpoint mobile/me, vinculo cliente seguro, agenda, documentos, Nutri, Beauty, pos-venda, mensagens e notificacoes agregadas por APIs reais." />
       </Cartao>
       <View style={estilos.chamada}>
-        <Text style={estilos.chamadaTexto}>R23: mobile deixa de ser shell demonstrativo e vira superfície real de operação para Nutri/Beauty.</Text>
+        <Text style={estilos.chamadaTexto}>R25: mobile deixa de resolver o primeiro cliente do tenant para operar com vinculo seguro do usuario.</Text>
       </View>
     </CapaPagina>
   );

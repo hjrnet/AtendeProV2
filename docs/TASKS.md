@@ -302,3 +302,11 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-R24-002 | Onboarding guiado de empresa | Wizard de configuração inicial por vertical, usuários, serviços, agenda e dados demo opcionais. | CONCLUIDA |
 | TASK-R24-003 | Métricas SaaS no Admin | MRR, churn, trials, conversão, planos ativos, vertical de maior tração e alertas operacionais. | CONCLUIDA |
 | TASK-R24-004 | Ambiente demo/reset por perfil | Gerar e resetar dados demo seguros para Nutri, Beauty, gestor, investidor e suporte. | CONCLUIDA |
+## R25 — Mobile seguro por usuario autenticado
+
+| Task | Nome | Descricao | Status |
+| --- | --- | --- | --- |
+| TASK-R25-001 | Contrato backend mobile/me | Endpoint dedicado para perfil mobile autenticado, empresa ativa e vinculos de cliente/paciente por tenant. | CONCLUIDA |
+| TASK-R25-002 | Mobile consumir perfil seguro | App Expo usa `/api/mobile/me` e evita fallback para primeiro paciente quando usuario exige vinculo de cliente. | CONCLUIDA |
+| TASK-R25-003 | Formalizar backlog e status R25 | Registrar R25 em tasks, roadmap, release status e session state. | CONCLUIDA |
+| TASK-R25-004 | Validacao, commit e merge R25 | Validar backend/mobile, smoke test, commit, push e merge para develop. | CONCLUIDA |
