@@ -17,7 +17,8 @@
       "supportsTablet": true
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-asset"
     ],
     "scheme": "atendepro",
     "web": {
