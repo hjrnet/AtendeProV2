@@ -1,7 +1,7 @@
 ﻿project: AtendePro
 strategy: professional_complete
 current_release: A_DEFINIR
-last_completed_task: TASK-R28-004
+last_completed_task: TASK-R31-001
 next_task: A_DEFINIR
 releases:
   R0:
@@ -313,3 +313,19 @@ releases:
       TASK-R28-002: CONCLUIDA
       TASK-R28-003: CONCLUIDA
       TASK-R28-004: CONCLUIDA
+  R29:
+    name: "R29 — Gateway real de assinaturas e pagamentos"
+    status: CONCLUIDA
+    tasks:
+      TASK-R29-001: CONCLUIDA
+      TASK-R29-002: CONCLUIDA
+  R30:
+    name: "R30 — Pagamentos sandbox com arquitetura hexagonal"
+    status: CONCLUIDA
+    tasks:
+      TASK-R30-001: CONCLUIDA
+  R31:
+    name: "R31 — Admin SaaS Web com pagamentos sandbox"
+    status: CONCLUIDA
+    tasks:
+      TASK-R31-001: CONCLUIDA

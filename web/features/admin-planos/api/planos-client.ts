@@ -123,6 +123,75 @@ export type ResetDemoAdminSaas = {
   atualizadoEm: string;
 };
 
+export type CheckoutPagamentoSandboxRequest = {
+  empresaId: string;
+  planoId: string;
+  emailResponsavel: string;
+  nomeResponsavel: string;
+  documentoResponsavel: string;
+  telefoneResponsavel?: string | null;
+  formaPagamentoPreferida?: string | null;
+};
+
+export type CheckoutPagamentoSandbox = {
+  checkoutId: string;
+  pagamentoAssinaturaId: string;
+  assinaturaId: string;
+  status: string;
+  urlPagamento: string;
+  ambiente: string;
+  provedor: string;
+};
+
+export type WebhookAsaasSandboxRequest = {
+  event: "PAYMENT_RECEIVED" | "PAYMENT_OVERDUE" | "PAYMENT_DELETED";
+  paymentId: string;
+  subscriptionId: string;
+  payload?: string | null;
+  token?: string | null;
+};
+
+export type WebhookPagamentoSandbox = {
+  eventoId: string;
+  tipo: string;
+  processado: boolean;
+  duplicado: boolean;
+  mensagem: string;
+};
+
+export type PagamentoSandboxResumo = {
+  pagamentoAssinaturaId: string;
+  empresaId: string;
+  planoId: string;
+  assinaturaInternaId: string | null;
+  provedor: string;
+  ambiente: string;
+  statusAssinatura: string;
+  clienteExternoId: string | null;
+  assinaturaExternaId: string | null;
+  checkoutExternoId: string | null;
+  cobrancaId: string | null;
+  cobrancaExternaId: string | null;
+  statusCobranca: string | null;
+  valor: number | null;
+  vencimento: string | null;
+  formaPagamento: string | null;
+  ultimoEventoId: string | null;
+  ultimoEventoTipo: string | null;
+  ultimoEventoProcessado: boolean;
+  ultimoEventoEm: string | null;
+  criadoEm: string;
+  atualizadoEm: string;
+};
+
+export type PagamentosSandboxPaginados = {
+  itens: PagamentoSandboxResumo[];
+  totalItens: number;
+  pagina: number;
+  tamanho: number;
+  totalPaginas: number;
+};
+
 const adminApi = criarApiClient({
   getAccessToken: () => carregarSessaoAutenticada()?.accessToken ?? null,
   onUnauthorized: () => limparSessaoAutenticada()
@@ -159,4 +228,26 @@ export function resetarDemoAdminSaas(request: ResetDemoAdminSaasRequest) {
 }
 export function consultarAuditoriaOperacionalAdminSaas() {
   return adminApi.get<AuditoriaOperacionalAdminSaas>("/api/admin-saas/auditoria/operacional");
+}
+
+export function prepararCheckoutPagamentoSandbox(request: CheckoutPagamentoSandboxRequest) {
+  return adminApi.post<CheckoutPagamentoSandbox>("/api/admin-saas/pagamentos/checkout/sandbox", request);
+}
+
+export function listarPagamentosSandbox(params: { pagina: number; tamanho: number; empresaId?: string; status?: string }) {
+  return adminApi.get<PagamentosSandboxPaginados>("/api/admin-saas/pagamentos/assinaturas", {
+    query: {
+      pagina: params.pagina,
+      tamanho: params.tamanho,
+      empresaId: params.empresaId || undefined,
+      status: params.status || undefined
+    }
+  });
+}
+
+export function registrarWebhookAsaasSandbox(request: WebhookAsaasSandboxRequest) {
+  const { token, ...body } = request;
+  return adminApi.post<WebhookPagamentoSandbox>("/api/admin-saas/pagamentos/webhooks/asaas", body, {
+    headers: token ? { "X-AtendePro-Webhook-Token": token } : undefined
+  });
 }

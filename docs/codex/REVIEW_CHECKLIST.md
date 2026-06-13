@@ -34,4 +34,4 @@
 
 ## Git
 - [ ] Commit local criado se passou.
-- [ ] Push realizado ou justificativa registrada.
+- [ ] Push não realizado e branch/commit local informados ao usuário.

@@ -339,3 +339,58 @@ Entregas:
 - Auditoria documental strict mantida como criterio de fechamento.
 
 Proxima etapa recomendada: R29 gateway real de assinaturas/pagamentos com provedor definido.
+
+## R29 — Gateway real de assinaturas e pagamentos
+
+Status: CONCLUIDA em 2026-06-13.
+
+Objetivo: preparar e iniciar a integracao real de assinaturas/pagamentos com provedor definido, preservando governanca, seguranca operacional, auditoria e modo sandbox antes de efeitos financeiros reais.
+
+Entregas planejadas:
+
+- Governanca R29 formalizada, com push manual e auditoria anti-divergencia ampliada.
+- Provedor de pagamento definido com contrato tecnico, variaveis de ambiente, webhooks e modo sandbox.
+- Implementacao futura deve manter gateway externo isolado por portas/adapters e nao acionar cobranca real sem configuracao explicita.
+- Contrato tecnico registrado em `docs/architecture/PAGAMENTOS_GATEWAY_R29.md`, com Asaas como provedor aprovado.
+
+Tasks:
+
+- TASK-R29-001: Formalizar governanca R29 e politica de push manual — CONCLUIDA.
+- TASK-R29-002: Definir provedor e contrato tecnico do gateway — CONCLUIDA.
+
+Proxima etapa recomendada: R30 implementacao segura do modulo de pagamentos em sandbox.
+
+## R30 — Pagamentos sandbox com arquitetura hexagonal
+
+Status: CONCLUIDA em 2026-06-13.
+
+Objetivo: implementar a primeira base tecnica do modulo de pagamentos em sandbox, usando o contrato definido na R29 e preservando isolamento por portas/adapters antes de qualquer cobranca real.
+
+Entregas planejadas:
+
+- Modulo backend `pagamento` em arquitetura hexagonal.
+- Contratos para checkout, assinatura, pagamento e webhook em sandbox.
+- Persistencia minima para assinaturas, pagamentos e eventos externos.
+- Adapter Asaas em sandbox, com integracao desabilitada por padrao e sem credenciais reais versionadas.
+- Auditoria operacional para eventos sensiveis de pagamento.
+
+Tasks:
+
+- TASK-R30-001: Criar modulo pagamento sandbox — CONCLUIDA.
+
+## R31 — Admin SaaS Web com pagamentos sandbox
+
+Status: CONCLUIDA em 2026-06-13.
+
+Objetivo: conectar o cockpit Admin SaaS ao modulo `pagamento` criado na R30, permitindo preparar checkout sandbox, simular webhook seguro e visualizar status operacional sem cobranca real.
+
+Entregas planejadas:
+
+- Consulta backend de pagamentos sandbox para o Admin SaaS.
+- API client web tipado para checkout, webhook e listagem de pagamentos.
+- Painel web no cockpit Admin SaaS com status, eventos e acoes sandbox.
+- Validacao backend/web/local sem producao e sem credenciais reais.
+
+Tasks:
+
+- TASK-R31-001: Integrar cockpit Admin SaaS ao pagamento sandbox — CONCLUIDA.

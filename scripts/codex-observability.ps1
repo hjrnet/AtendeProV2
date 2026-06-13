@@ -214,7 +214,7 @@ function New-ReleaseChecklist {
     $tasks = Get-ReleaseTasks -ReleaseName $ReleaseName
     $checklistPath = Join-Path $ReportsDir ("checklist-$ReleaseName.md")
     $content = @()
-    $content += "# Release Checklist — " + $ReleaseName
+    $content += "# Release Checklist - " + $ReleaseName
     $content += ""
     $content += "- GeneratedAt: " + (Get-Date).ToString("o")
     $content += "- Source: docs/RELEASE_STATUS.yaml"
@@ -228,7 +228,7 @@ function New-ReleaseChecklist {
     else {
         foreach ($item in $tasks) {
             $mark = if ($item.status -eq "CONCLUIDA") { "x" } else { " " }
-            $content += "- [" + $mark + "] " + $item.task + " — " + $item.status
+            $content += "- [" + $mark + "] " + $item.task + " - " + $item.status
         }
     }
 

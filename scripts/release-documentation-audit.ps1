@@ -7,6 +7,8 @@ $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $statusPath = Join-Path $repoRoot "docs/RELEASE_STATUS.yaml"
 $releaseDir = Join-Path $repoRoot "docs/releases"
+$roadmapPath = Join-Path $repoRoot "docs/ROADMAP_RELEASES.md"
+$sessionStatePath = Join-Path $repoRoot "docs/codex/SESSION_STATE.md"
 
 if (-not (Test-Path $statusPath)) {
     throw "Arquivo nao encontrado: docs/RELEASE_STATUS.yaml"
@@ -18,9 +20,17 @@ if (-not (Test-Path $releaseDir)) {
 
 $linhasStatus = Get-Content $statusPath
 $releasesStatus = @()
+$releaseStatusByName = @{}
+$currentRelease = ""
 foreach ($linha in $linhasStatus) {
     if ($linha -match '^\s{2}(R\d+):') {
-        $releasesStatus += $Matches[1]
+        $currentRelease = $Matches[1]
+        $releasesStatus += $currentRelease
+        continue
+    }
+
+    if ($currentRelease -and $linha -match '^\s+status:\s+([A-Z_]+)') {
+        $releaseStatusByName[$currentRelease] = $Matches[1]
     }
 }
 
@@ -41,8 +51,12 @@ foreach ($release in $releasesStatus) {
     }
 
     $conteudo = Get-Content $arquivoRelease -Raw
-    if ($conteudo -notmatch '(?m)^Status:\s*CONCLUIDA') {
+    $statusRelease = $releaseStatusByName[$release]
+    if ($statusRelease -eq "CONCLUIDA" -and $conteudo -notmatch '(?m)^Status:\s*CONCLUIDA') {
         $avisos.Add("$release tem arquivo, mas nao declara 'Status: CONCLUIDA'")
+    }
+    elseif ($statusRelease -ne "CONCLUIDA" -and $conteudo -notmatch '(?m)^Status:\s*\S+') {
+        $avisos.Add("$release tem arquivo, mas nao declara linha de status")
     }
 
     foreach ($secao in $secoesRecomendadas) {
@@ -58,6 +72,30 @@ $arquivosRelease = Get-ChildItem $releaseDir -File -Filter 'R*.md' |
 foreach ($arquivo in $arquivosRelease) {
     if ($arquivo -notin $releasesStatus) {
         $avisos.Add("docs/releases/$arquivo.md existe, mas nao esta listado em RELEASE_STATUS.yaml")
+    }
+}
+
+$recommendationSources = @()
+if (Test-Path $roadmapPath) {
+    $recommendationSources += [pscustomobject]@{
+        Name = "docs/ROADMAP_RELEASES.md"
+        Content = Get-Content $roadmapPath -Raw
+    }
+}
+if (Test-Path $sessionStatePath) {
+    $recommendationSources += [pscustomobject]@{
+        Name = "docs/codex/SESSION_STATE.md"
+        Content = Get-Content $sessionStatePath -Raw
+    }
+}
+
+foreach ($source in $recommendationSources) {
+    $matches = [regex]::Matches($source.Content, '(?i)Proxima\s+(?:release|etapa)\s+recomendada:\s*(R\d+)')
+    foreach ($match in $matches) {
+        $recommendedRelease = $match.Groups[1].Value.ToUpperInvariant()
+        if ($recommendedRelease -notin $releasesStatus) {
+            $erros.Add("$source.Name recomenda $recommendedRelease, mas $recommendedRelease nao esta listado em docs/RELEASE_STATUS.yaml")
+        }
     }
 }
 

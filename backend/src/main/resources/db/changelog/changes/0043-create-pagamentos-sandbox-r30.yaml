@@ -1,0 +1,210 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0043-create-pagamentos-sandbox-r30
+      author: codex
+      changes:
+        - createTable:
+            tableName: pagamento_assinaturas
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: empresa_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: plano_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: assinatura_interna_id
+                  type: uuid
+              - column:
+                  name: provedor
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ambiente
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cliente_externo_id
+                  type: varchar(120)
+              - column:
+                  name: assinatura_externa_id
+                  type: varchar(120)
+              - column:
+                  name: checkout_externo_id
+                  type: varchar(120)
+              - column:
+                  name: criado_em
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: pagamento_cobrancas
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: pagamento_assinatura_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cobranca_externa_id
+                  type: varchar(120)
+              - column:
+                  name: status
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: valor
+                  type: numeric(14,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: vencimento
+                  type: date
+              - column:
+                  name: forma_pagamento
+                  type: varchar(40)
+              - column:
+                  name: criado_em
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: pagamento_gateway_eventos
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: pagamento_assinatura_id
+                  type: uuid
+              - column:
+                  name: provedor
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ambiente
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tipo
+                  type: varchar(80)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: evento_externo_id
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: referencia_externa_id
+                  type: varchar(160)
+              - column:
+                  name: payload_sanitizado
+                  type: jsonb
+                  defaultValueComputed: "'{}'::jsonb"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: processado
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: pagamento_assinaturas
+            baseColumnNames: empresa_id
+            referencedTableName: empresas
+            referencedColumnNames: id
+            constraintName: fk_pagamento_assinaturas_empresas
+        - addForeignKeyConstraint:
+            baseTableName: pagamento_assinaturas
+            baseColumnNames: plano_id
+            referencedTableName: planos
+            referencedColumnNames: id
+            constraintName: fk_pagamento_assinaturas_planos
+        - addForeignKeyConstraint:
+            baseTableName: pagamento_assinaturas
+            baseColumnNames: assinatura_interna_id
+            referencedTableName: assinaturas
+            referencedColumnNames: id
+            constraintName: fk_pagamento_assinaturas_assinaturas
+        - addForeignKeyConstraint:
+            baseTableName: pagamento_cobrancas
+            baseColumnNames: pagamento_assinatura_id
+            referencedTableName: pagamento_assinaturas
+            referencedColumnNames: id
+            constraintName: fk_pagamento_cobrancas_assinaturas
+        - addForeignKeyConstraint:
+            baseTableName: pagamento_gateway_eventos
+            baseColumnNames: pagamento_assinatura_id
+            referencedTableName: pagamento_assinaturas
+            referencedColumnNames: id
+            constraintName: fk_pagamento_eventos_assinaturas
+        - createIndex:
+            tableName: pagamento_assinaturas
+            indexName: idx_pagamento_assinaturas_empresa_status
+            columns:
+              - column:
+                  name: empresa_id
+              - column:
+                  name: status
+        - createIndex:
+            tableName: pagamento_assinaturas
+            indexName: idx_pagamento_assinaturas_externa
+            columns:
+              - column:
+                  name: assinatura_externa_id
+        - createIndex:
+            tableName: pagamento_cobrancas
+            indexName: idx_pagamento_cobrancas_externa
+            columns:
+              - column:
+                  name: cobranca_externa_id
+        - addUniqueConstraint:
+            tableName: pagamento_gateway_eventos
+            columnNames: provedor, tipo, evento_externo_id
+            constraintName: uk_pagamento_gateway_evento_idempotencia

@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R20 — Growth UI e comando comercial.
+A_DEFINIR — R31 concluida.
 
 ## Última task concluída
-TASK-R14-004 — R14 concluída com governança, inventário de lacunas e mobile real inicial.
+TASK-R31-001 — Integrar cockpit Admin SaaS ao pagamento sandbox.
 
 ## Próxima task recomendada
-TASK-R20-001 — Tela Growth no web app.
+A_DEFINIR.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -736,3 +736,57 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Ultima task concluida: TASK-R28-004.
 - Proxima release recomendada: R29 gateway real de assinaturas/pagamentos com provedor definido.
 - Proxima task recomendada: TASK-R29-001.
+
+## Atualizacao R29 - 2026-06-13
+
+- Release R29 iniciada em modo governanca.
+- TASK-R29-001 concluida para corrigir lacunas de governanca antes de implementar gateway real.
+- Auditoria documental strict passou a validar releases recomendadas em `docs/ROADMAP_RELEASES.md` e `docs/codex/SESSION_STATE.md`, bloqueando recomendacoes que ainda nao estejam cadastradas em `docs/RELEASE_STATUS.yaml`.
+- Politica de push foi reconciliada: push automatico removido dos documentos centrais; push permanece manual do usuario.
+- R29 cadastrada oficialmente em `docs/RELEASE_STATUS.yaml`, `docs/TASKS.md`, `docs/ROADMAP_RELEASES.md`, `docs/releases/R29.md` e `docs/codex/tasks/TASK-R29-001.md`.
+- Ultima task concluida: TASK-R29-001.
+- Proxima task recomendada: TASK-R29-002.
+
+## Atualizacao R29 conclusao - 2026-06-13
+
+- Release R29 concluida em modo autopilot multiagente.
+- TASK-R29-002 definiu Asaas como provedor aprovado para a primeira integracao real de assinaturas/pagamentos.
+- Contrato tecnico criado em `docs/architecture/PAGAMENTOS_GATEWAY_R29.md`, cobrindo checkout, assinatura, pagamento, cancelamento, upgrade/downgrade, webhook, seguranca, auditoria e plano tecnico.
+- Variaveis de ambiente previstas foram registradas em `.env.example` e `docs/deploy/ENVIRONMENT.md`.
+- A integracao permanece desabilitada por padrao local e restrita a sandbox ate decisao humana explicita para producao.
+- Ultima task concluida: TASK-R29-002.
+- Proxima release recomendada: R30 implementacao segura do modulo de pagamentos em sandbox.
+- Proxima task recomendada: TASK-R30-001.
+
+## Atualizacao R30 planejamento - 2026-06-13
+
+- Release R30 cadastrada como pendente para implementar o modulo de pagamentos em sandbox.
+- TASK-R30-001 criada como proxima task tecnica, usando o contrato R29 sem cobranca real.
+- R30 nao foi iniciada nesta execucao; apenas registrada para eliminar divergencia entre recomendacao e status oficial.
+
+## Atualizacao R30 conclusao - 2026-06-13
+
+- Release R30 concluida em modo autopilot multiagente.
+- TASK-R30-001 criou o modulo backend `pagamento` em arquitetura hexagonal.
+- Checkout sandbox e webhook Asaas sandbox foram criados sem cobranca real e com producao bloqueada.
+- Persistencia de pagamento foi adicionada pela migration `0043-create-pagamentos-sandbox-r30.yaml`.
+- Testes unitarios de dominio e service foram adicionados.
+- Ultima task concluida: TASK-R30-001.
+- Proxima release recomendada: A_DEFINIR.
+- Proxima task recomendada: A_DEFINIR.
+
+## Atualizacao R31 inicio - 2026-06-13
+
+- Release R31 iniciada em modo autopilot multiagente.
+- Objetivo: integrar o cockpit Admin SaaS web ao modulo de pagamentos sandbox criado na R30.
+- Proxima task: TASK-R31-001.
+
+## Atualizacao R31 conclusao - 2026-06-13
+
+- Release R31 concluida em modo autopilot multiagente.
+- TASK-R31-001 integrou o cockpit Admin SaaS web ao modulo de pagamentos sandbox.
+- Backend ganhou consulta operacional `GET /api/admin-saas/pagamentos/assinaturas`.
+- Web ganhou API client tipado e aba `Pagamentos R31` para checkout, webhook e status sandbox.
+- Ultima task concluida: TASK-R31-001.
+- Proxima release recomendada: A_DEFINIR.
+- Proxima task recomendada: A_DEFINIR.

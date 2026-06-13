@@ -6,7 +6,7 @@ Regra operacional: toda release concluida deve ter um arquivo `Rxx.md` nesta pas
 
 Se uma release aparece nos documentos agregados, mas nao tem `docs/releases/Rxx.md`, isso deve ser tratado como divida de documentacao, nao como prova de que a release nao foi entregue.
 
-Status atual documentado: R0 ate R27.
+Status atual documentado: R0 ate R29.
 
 Leitura recomendada:
 
