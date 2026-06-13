@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R29 — Gateway real de assinaturas e pagamentos.
+R30 — pagamentos sandbox pendente.
 
 ## Última task concluída
-TASK-R29-001 — Formalizar governança R29, auditoria anti-divergência e política de push manual.
+TASK-R29-002 — Definir provedor e contrato técnico do gateway real de pagamentos.
 
 ## Próxima task recomendada
-TASK-R29-002 — Definir provedor e contrato técnico do gateway real de pagamentos.
+TASK-R30-001 — criar módulo pagamento sandbox.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -746,3 +746,20 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - R29 cadastrada oficialmente em `docs/RELEASE_STATUS.yaml`, `docs/TASKS.md`, `docs/ROADMAP_RELEASES.md`, `docs/releases/R29.md` e `docs/codex/tasks/TASK-R29-001.md`.
 - Ultima task concluida: TASK-R29-001.
 - Proxima task recomendada: TASK-R29-002.
+
+## Atualizacao R29 conclusao - 2026-06-13
+
+- Release R29 concluida em modo autopilot multiagente.
+- TASK-R29-002 definiu Asaas como provedor aprovado para a primeira integracao real de assinaturas/pagamentos.
+- Contrato tecnico criado em `docs/architecture/PAGAMENTOS_GATEWAY_R29.md`, cobrindo checkout, assinatura, pagamento, cancelamento, upgrade/downgrade, webhook, seguranca, auditoria e plano tecnico.
+- Variaveis de ambiente previstas foram registradas em `.env.example` e `docs/deploy/ENVIRONMENT.md`.
+- A integracao permanece desabilitada por padrao local e restrita a sandbox ate decisao humana explicita para producao.
+- Ultima task concluida: TASK-R29-002.
+- Proxima release recomendada: R30 implementacao segura do modulo de pagamentos em sandbox.
+- Proxima task recomendada: TASK-R30-001.
+
+## Atualizacao R30 planejamento - 2026-06-13
+
+- Release R30 cadastrada como pendente para implementar o modulo de pagamentos em sandbox.
+- TASK-R30-001 criada como proxima task tecnica, usando o contrato R29 sem cobranca real.
+- R30 nao foi iniciada nesta execucao; apenas registrada para eliminar divergencia entre recomendacao e status oficial.

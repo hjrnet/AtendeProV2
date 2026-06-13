@@ -342,4 +342,10 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | Task | Nome | Descricao | Status |
 | --- | --- | --- | --- |
 | TASK-R29-001 | Formalizar governanca R29 e politica de push manual | Cadastrar R29, corrigir auditoria anti-divergencia e reconciliar push manual nos documentos centrais. | CONCLUIDA |
-| TASK-R29-002 | Definir provedor e contrato tecnico do gateway | Escolher provedor, desenhar contrato backend/webhooks, variaveis de ambiente, modo sandbox e criterios de aceite antes de implementar cobranca real. | PENDENTE |
+| TASK-R29-002 | Definir provedor e contrato tecnico do gateway | Escolher provedor, desenhar contrato backend/webhooks, variaveis de ambiente, modo sandbox e criterios de aceite antes de implementar cobranca real. | CONCLUIDA |
+
+## R30 — Pagamentos sandbox com arquitetura hexagonal
+
+| Task | Nome | Descricao | Status |
+| --- | --- | --- | --- |
+| TASK-R30-001 | Criar modulo pagamento sandbox | Implementar base hexagonal de pagamentos em sandbox usando contrato R29, sem cobranca real. | PENDENTE |
