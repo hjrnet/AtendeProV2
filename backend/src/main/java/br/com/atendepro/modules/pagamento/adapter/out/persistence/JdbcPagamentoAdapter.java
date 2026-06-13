@@ -2,6 +2,7 @@ package br.com.atendepro.modules.pagamento.adapter.out.persistence;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,9 +16,11 @@ import br.com.atendepro.modules.pagamento.application.port.out.AtualizarPagament
 import br.com.atendepro.modules.pagamento.application.port.out.CarregarCobrancaPagamentoPorReferenciaExternaPort;
 import br.com.atendepro.modules.pagamento.application.port.out.CarregarEventoPagamentoGatewayPort;
 import br.com.atendepro.modules.pagamento.application.port.out.CarregarPagamentoAssinaturaPorAssinaturaExternaPort;
+import br.com.atendepro.modules.pagamento.application.port.out.ListarPagamentosSandboxPort;
 import br.com.atendepro.modules.pagamento.application.port.out.SalvarCobrancaPagamentoPort;
 import br.com.atendepro.modules.pagamento.application.port.out.SalvarEventoPagamentoGatewayPort;
 import br.com.atendepro.modules.pagamento.application.port.out.SalvarPagamentoAssinaturaPort;
+import br.com.atendepro.modules.pagamento.application.result.PagamentoSandboxResumoResult;
 import br.com.atendepro.modules.pagamento.domain.model.AmbientePagamento;
 import br.com.atendepro.modules.pagamento.domain.model.CobrancaPagamento;
 import br.com.atendepro.modules.pagamento.domain.model.EventoPagamentoGateway;
@@ -26,6 +29,8 @@ import br.com.atendepro.modules.pagamento.domain.model.ProvedorPagamento;
 import br.com.atendepro.modules.pagamento.domain.model.StatusCobrancaPagamento;
 import br.com.atendepro.modules.pagamento.domain.model.StatusPagamentoAssinatura;
 import br.com.atendepro.modules.pagamento.domain.model.TipoEventoPagamentoGateway;
+import br.com.atendepro.shared.application.pagination.Paginacao;
+import br.com.atendepro.shared.application.pagination.ResultadoPaginado;
 
 @Repository
 @Profile("!test")
@@ -37,7 +42,8 @@ public class JdbcPagamentoAdapter implements
         SalvarEventoPagamentoGatewayPort,
         CarregarEventoPagamentoGatewayPort,
         CarregarPagamentoAssinaturaPorAssinaturaExternaPort,
-        CarregarCobrancaPagamentoPorReferenciaExternaPort {
+        CarregarCobrancaPagamentoPorReferenciaExternaPort,
+        ListarPagamentosSandboxPort {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -235,5 +241,105 @@ public class JdbcPagamentoAdapter implements
         } catch (EmptyResultDataAccessException ignored) {
             return Optional.empty();
         }
+    }
+
+    @Override
+    public ResultadoPaginado<PagamentoSandboxResumoResult> listarPagamentosSandbox(
+            Paginacao paginacao,
+            UUID empresaId,
+            String status
+    ) {
+        var filtros = new ArrayList<String>();
+        var parametros = new ArrayList<>();
+        filtros.add("pa.ambiente = 'SANDBOX'");
+        if (empresaId != null) {
+            filtros.add("pa.empresa_id = ?");
+            parametros.add(empresaId);
+        }
+        if (status != null && !status.isBlank()) {
+            filtros.add("pa.status = ?");
+            parametros.add(status.trim().toUpperCase());
+        }
+        String where = "where " + String.join(" and ", filtros);
+        Long total = jdbcTemplate.queryForObject(
+                "select count(*) from pagamento_assinaturas pa " + where,
+                Long.class,
+                parametros.toArray()
+        );
+
+        parametros.add(paginacao.tamanho());
+        parametros.add(paginacao.offset());
+        var itens = jdbcTemplate.query(
+                """
+                select
+                    pa.id as pagamento_assinatura_id,
+                    pa.empresa_id,
+                    pa.plano_id,
+                    pa.assinatura_interna_id,
+                    pa.provedor,
+                    pa.ambiente,
+                    pa.status as status_assinatura,
+                    pa.cliente_externo_id,
+                    pa.assinatura_externa_id,
+                    pa.checkout_externo_id,
+                    pc.id as cobranca_id,
+                    pc.cobranca_externa_id,
+                    pc.status as status_cobranca,
+                    pc.valor,
+                    pc.vencimento,
+                    pc.forma_pagamento,
+                    pe.id as ultimo_evento_id,
+                    pe.tipo as ultimo_evento_tipo,
+                    pe.processado as ultimo_evento_processado,
+                    pe.criado_em as ultimo_evento_em,
+                    pa.criado_em,
+                    pa.atualizado_em
+                from pagamento_assinaturas pa
+                left join lateral (
+                    select id, cobranca_externa_id, status, valor, vencimento, forma_pagamento
+                    from pagamento_cobrancas
+                    where pagamento_assinatura_id = pa.id
+                    order by criado_em desc
+                    limit 1
+                ) pc on true
+                left join lateral (
+                    select id, tipo, processado, criado_em
+                    from pagamento_gateway_eventos
+                    where pagamento_assinatura_id = pa.id
+                    order by criado_em desc
+                    limit 1
+                ) pe on true
+                %s
+                order by pa.criado_em desc
+                limit ? offset ?
+                """.formatted(where),
+                (rs, rowNum) -> new PagamentoSandboxResumoResult(
+                        rs.getObject("pagamento_assinatura_id", UUID.class),
+                        rs.getObject("empresa_id", UUID.class),
+                        rs.getObject("plano_id", UUID.class),
+                        rs.getObject("assinatura_interna_id", UUID.class),
+                        rs.getString("provedor"),
+                        rs.getString("ambiente"),
+                        rs.getString("status_assinatura"),
+                        rs.getString("cliente_externo_id"),
+                        rs.getString("assinatura_externa_id"),
+                        rs.getString("checkout_externo_id"),
+                        rs.getObject("cobranca_id", UUID.class),
+                        rs.getString("cobranca_externa_id"),
+                        rs.getString("status_cobranca"),
+                        rs.getBigDecimal("valor"),
+                        rs.getDate("vencimento") == null ? null : rs.getDate("vencimento").toLocalDate(),
+                        rs.getString("forma_pagamento"),
+                        rs.getObject("ultimo_evento_id", UUID.class),
+                        rs.getString("ultimo_evento_tipo"),
+                        rs.getBoolean("ultimo_evento_processado"),
+                        rs.getTimestamp("ultimo_evento_em") == null ? null : rs.getTimestamp("ultimo_evento_em").toInstant(),
+                        rs.getTimestamp("criado_em").toInstant(),
+                        rs.getTimestamp("atualizado_em").toInstant()
+                ),
+                parametros.toArray()
+        );
+
+        return new ResultadoPaginado<>(itens, total == null ? 0 : total, paginacao.pagina(), paginacao.tamanho());
     }
 }

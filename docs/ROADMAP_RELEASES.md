@@ -377,3 +377,20 @@ Entregas planejadas:
 Tasks:
 
 - TASK-R30-001: Criar modulo pagamento sandbox — CONCLUIDA.
+
+## R31 — Admin SaaS Web com pagamentos sandbox
+
+Status: CONCLUIDA em 2026-06-13.
+
+Objetivo: conectar o cockpit Admin SaaS ao modulo `pagamento` criado na R30, permitindo preparar checkout sandbox, simular webhook seguro e visualizar status operacional sem cobranca real.
+
+Entregas planejadas:
+
+- Consulta backend de pagamentos sandbox para o Admin SaaS.
+- API client web tipado para checkout, webhook e listagem de pagamentos.
+- Painel web no cockpit Admin SaaS com status, eventos e acoes sandbox.
+- Validacao backend/web/local sem producao e sem credenciais reais.
+
+Tasks:
+
+- TASK-R31-001: Integrar cockpit Admin SaaS ao pagamento sandbox — CONCLUIDA.

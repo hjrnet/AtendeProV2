@@ -4,10 +4,10 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-A_DEFINIR — R30 concluida.
+A_DEFINIR — R31 concluida.
 
 ## Última task concluída
-TASK-R30-001 — Criar modulo pagamento sandbox.
+TASK-R31-001 — Integrar cockpit Admin SaaS ao pagamento sandbox.
 
 ## Próxima task recomendada
 A_DEFINIR.
@@ -772,5 +772,21 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Persistencia de pagamento foi adicionada pela migration `0043-create-pagamentos-sandbox-r30.yaml`.
 - Testes unitarios de dominio e service foram adicionados.
 - Ultima task concluida: TASK-R30-001.
+- Proxima release recomendada: A_DEFINIR.
+- Proxima task recomendada: A_DEFINIR.
+
+## Atualizacao R31 inicio - 2026-06-13
+
+- Release R31 iniciada em modo autopilot multiagente.
+- Objetivo: integrar o cockpit Admin SaaS web ao modulo de pagamentos sandbox criado na R30.
+- Proxima task: TASK-R31-001.
+
+## Atualizacao R31 conclusao - 2026-06-13
+
+- Release R31 concluida em modo autopilot multiagente.
+- TASK-R31-001 integrou o cockpit Admin SaaS web ao modulo de pagamentos sandbox.
+- Backend ganhou consulta operacional `GET /api/admin-saas/pagamentos/assinaturas`.
+- Web ganhou API client tipado e aba `Pagamentos R31` para checkout, webhook e status sandbox.
+- Ultima task concluida: TASK-R31-001.
 - Proxima release recomendada: A_DEFINIR.
 - Proxima task recomendada: A_DEFINIR.

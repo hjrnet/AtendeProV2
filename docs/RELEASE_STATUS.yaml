@@ -1,7 +1,7 @@
 ﻿project: AtendePro
 strategy: professional_complete
 current_release: A_DEFINIR
-last_completed_task: TASK-R30-001
+last_completed_task: TASK-R31-001
 next_task: A_DEFINIR
 releases:
   R0:
@@ -324,3 +324,8 @@ releases:
     status: CONCLUIDA
     tasks:
       TASK-R30-001: CONCLUIDA
+  R31:
+    name: "R31 — Admin SaaS Web com pagamentos sandbox"
+    status: CONCLUIDA
+    tasks:
+      TASK-R31-001: CONCLUIDA

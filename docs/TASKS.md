@@ -349,3 +349,9 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | Task | Nome | Descricao | Status |
 | --- | --- | --- | --- |
 | TASK-R30-001 | Criar modulo pagamento sandbox | Implementar base hexagonal de pagamentos em sandbox usando contrato R29, sem cobranca real. | CONCLUIDA |
+
+## R31 — Admin SaaS Web com pagamentos sandbox
+
+| Task | Nome | Descricao | Status |
+| --- | --- | --- | --- |
+| TASK-R31-001 | Integrar cockpit Admin SaaS ao pagamento sandbox | Expor consulta de pagamentos sandbox no backend, conectar API client web e permitir checkout/webhook sandbox no cockpit Admin SaaS. | CONCLUIDA |

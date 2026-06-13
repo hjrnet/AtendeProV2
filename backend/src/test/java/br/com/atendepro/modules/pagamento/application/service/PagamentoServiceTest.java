@@ -33,6 +33,7 @@ import br.com.atendepro.modules.pagamento.application.port.out.AtualizarPagament
 import br.com.atendepro.modules.pagamento.application.port.out.CarregarCobrancaPagamentoPorReferenciaExternaPort;
 import br.com.atendepro.modules.pagamento.application.port.out.CarregarEventoPagamentoGatewayPort;
 import br.com.atendepro.modules.pagamento.application.port.out.CarregarPagamentoAssinaturaPorAssinaturaExternaPort;
+import br.com.atendepro.modules.pagamento.application.port.out.ListarPagamentosSandboxPort;
 import br.com.atendepro.modules.pagamento.application.port.out.SalvarCobrancaPagamentoPort;
 import br.com.atendepro.modules.pagamento.application.port.out.SalvarEventoPagamentoGatewayPort;
 import br.com.atendepro.modules.pagamento.application.port.out.SalvarPagamentoAssinaturaPort;
@@ -46,6 +47,8 @@ import br.com.atendepro.modules.pagamento.domain.model.TipoEventoPagamentoGatewa
 import br.com.atendepro.modules.plano.application.port.out.CarregarPlanoPorIdPort;
 import br.com.atendepro.modules.plano.domain.model.ModuloPlano;
 import br.com.atendepro.modules.plano.domain.model.PlanoAssinatura;
+import br.com.atendepro.shared.application.pagination.Paginacao;
+import br.com.atendepro.shared.application.pagination.ResultadoPaginado;
 import br.com.atendepro.shared.domain.exception.BusinessException;
 
 class PagamentoServiceTest {
@@ -111,12 +114,29 @@ class PagamentoServiceTest {
         assertThat(pagamentoAdapter.cobrancas.get(cobranca.id()).status()).isEqualTo(StatusCobrancaPagamento.RECEBIDO);
     }
 
+    @Test
+    void deveListarPagamentosSandbox() {
+        definirSuperAdmin();
+        var service = criarService("sandbox", "segredo");
+        service.prepararCheckout(commandCheckout());
+
+        var result = service.listarPagamentosSandbox(Paginacao.primeiraPagina(20), EMPRESA_ID, null);
+
+        assertThat(result.totalItens()).isEqualTo(1);
+        assertThat(result.itens()).first().satisfies(item -> {
+            assertThat(item.empresaId()).isEqualTo(EMPRESA_ID);
+            assertThat(item.statusAssinatura()).isEqualTo(StatusPagamentoAssinatura.AGUARDANDO_PAGAMENTO.name());
+            assertThat(item.statusCobranca()).isEqualTo(StatusCobrancaPagamento.PENDENTE.name());
+        });
+    }
+
     private PagamentoService criarService(String ambiente, String webhookToken) {
         return new PagamentoService(
                 new PermissaoAcessoService(),
                 new FakeEmpresaPort(),
                 new FakePlanoPort(),
                 new FakeAssinaturaPort(),
+                pagamentoAdapter,
                 pagamentoAdapter,
                 pagamentoAdapter,
                 pagamentoAdapter,
@@ -223,7 +243,8 @@ class PagamentoServiceTest {
             SalvarEventoPagamentoGatewayPort,
             CarregarEventoPagamentoGatewayPort,
             CarregarPagamentoAssinaturaPorAssinaturaExternaPort,
-            CarregarCobrancaPagamentoPorReferenciaExternaPort {
+            CarregarCobrancaPagamentoPorReferenciaExternaPort,
+            ListarPagamentosSandboxPort {
 
         private final Map<UUID, PagamentoAssinatura> pagamentos = new LinkedHashMap<>();
         private final Map<UUID, CobrancaPagamento> cobrancas = new LinkedHashMap<>();
@@ -279,6 +300,49 @@ class PagamentoServiceTest {
 
         private String chave(ProvedorPagamento provedor, TipoEventoPagamentoGateway tipo, String eventoExternoId) {
             return provedor + ":" + tipo + ":" + eventoExternoId;
+        }
+
+        @Override
+        public ResultadoPaginado<br.com.atendepro.modules.pagamento.application.result.PagamentoSandboxResumoResult> listarPagamentosSandbox(
+                Paginacao paginacao,
+                UUID empresaId,
+                String status
+        ) {
+            var itens = pagamentos.values().stream()
+                    .filter(pagamento -> empresaId == null || pagamento.empresaId().equals(empresaId))
+                    .filter(pagamento -> status == null || status.isBlank() || pagamento.status().name().equals(status))
+                    .map(pagamento -> {
+                        var cobranca = cobrancas.values().stream()
+                                .filter(item -> item.pagamentoAssinaturaId().equals(pagamento.id()))
+                                .findFirst()
+                                .orElse(null);
+                        return new br.com.atendepro.modules.pagamento.application.result.PagamentoSandboxResumoResult(
+                                pagamento.id(),
+                                pagamento.empresaId(),
+                                pagamento.planoId(),
+                                pagamento.assinaturaInternaId(),
+                                pagamento.provedor().name(),
+                                pagamento.ambiente().name(),
+                                pagamento.status().name(),
+                                pagamento.clienteExternoId(),
+                                pagamento.assinaturaExternaId(),
+                                pagamento.checkoutExternoId(),
+                                cobranca == null ? null : cobranca.id(),
+                                cobranca == null ? null : cobranca.cobrancaExternaId(),
+                                cobranca == null ? null : cobranca.status().name(),
+                                cobranca == null ? null : cobranca.valor(),
+                                cobranca == null ? null : cobranca.vencimento(),
+                                cobranca == null ? null : cobranca.formaPagamento(),
+                                null,
+                                null,
+                                false,
+                                null,
+                                pagamento.criadoEm(),
+                                pagamento.atualizadoEm()
+                        );
+                    })
+                    .toList();
+            return new ResultadoPaginado<>(itens, itens.size(), paginacao.pagina(), paginacao.tamanho());
         }
     }
 }

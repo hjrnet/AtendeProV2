@@ -1,9 +1,10 @@
 ﻿"use client";
 
 import { useState } from "react";
-import { BookOpenText, Building2, CreditCard, LifeBuoy, PackageCheck, Route, ShieldCheck, TrendingUp } from "lucide-react";
+import { BookOpenText, Building2, CreditCard, LifeBuoy, PackageCheck, Route, ShieldCheck, TrendingUp, WalletCards } from "lucide-react";
 
 import { AdminSaasAuditoriaR28View } from "@/features/admin-planos/components/admin-saas-auditoria-r28-view";
+import { AdminSaasPagamentosR31View } from "@/features/admin-planos/components/admin-saas-pagamentos-r31-view";
 import { AdminSaasR24View } from "@/features/admin-planos/components/admin-saas-r24-view";
 import { AdminPlanosView } from "@/features/admin-planos/components/admin-planos-view";
 import type { SessaoAutenticada } from "@/features/auth/lib/auth-storage";
@@ -14,6 +15,7 @@ import { PainelAdminSuporte } from "@/features/suporte/components/painel-admin-s
 const secoesAdmin = [
   { id: "planos", label: "Planos", icon: PackageCheck, ativo: true },
   { id: "comercial", label: "Comercial R24", icon: CreditCard, ativo: true },
+  { id: "pagamentos", label: "Pagamentos R31", icon: WalletCards, ativo: true },
   { id: "empresas", label: "Onboarding", icon: Building2, ativo: true },
   { id: "suporte", label: "Suporte", icon: LifeBuoy, ativo: true },
   { id: "ajuda", label: "Ajuda", icon: BookOpenText, ativo: true },
@@ -22,7 +24,7 @@ const secoesAdmin = [
   { id: "auditoria", label: "Auditoria R28", icon: ShieldCheck, ativo: true }
 ];
 
-type SubsecaoAdmin = "planos" | "comercial" | "empresas" | "suporte" | "ajuda" | "roadmap" | "relatorios" | "auditoria";
+type SubsecaoAdmin = "planos" | "comercial" | "pagamentos" | "empresas" | "suporte" | "ajuda" | "roadmap" | "relatorios" | "auditoria";
 
 type SecaoAdminSaasProps = {
   empresaId: string;
@@ -75,6 +77,9 @@ function renderizarSubsecaoAdmin(subsecao: SubsecaoAdmin, empresaId: string, ses
   }
   if (subsecao === "auditoria") {
     return <AdminSaasAuditoriaR28View />;
+  }
+  if (subsecao === "pagamentos") {
+    return <AdminSaasPagamentosR31View empresaId={empresaId} />;
   }
   if (subsecao === "comercial" || subsecao === "empresas" || subsecao === "relatorios") {
     return <AdminSaasR24View />;

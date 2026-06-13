@@ -1,0 +1,16 @@
+package br.com.atendepro.modules.pagamento.application.port.in;
+
+import java.util.UUID;
+
+import br.com.atendepro.modules.pagamento.application.result.PagamentoSandboxResumoResult;
+import br.com.atendepro.shared.application.pagination.Paginacao;
+import br.com.atendepro.shared.application.pagination.ResultadoPaginado;
+
+public interface ListarPagamentosSandboxUseCase {
+
+    ResultadoPaginado<PagamentoSandboxResumoResult> listarPagamentosSandbox(
+            Paginacao paginacao,
+            UUID empresaId,
+            String status
+    );
+}

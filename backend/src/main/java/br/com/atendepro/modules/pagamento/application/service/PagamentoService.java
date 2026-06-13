@@ -20,6 +20,7 @@ import br.com.atendepro.modules.auth.domain.model.PermissaoAcesso;
 import br.com.atendepro.modules.pagamento.application.command.PrepararCheckoutPagamentoCommand;
 import br.com.atendepro.modules.pagamento.application.command.RegistrarWebhookAsaasCommand;
 import br.com.atendepro.modules.pagamento.application.port.in.PrepararCheckoutPagamentoUseCase;
+import br.com.atendepro.modules.pagamento.application.port.in.ListarPagamentosSandboxUseCase;
 import br.com.atendepro.modules.pagamento.application.port.in.RegistrarWebhookAsaasUseCase;
 import br.com.atendepro.modules.pagamento.application.port.out.AtualizarCobrancaPagamentoPort;
 import br.com.atendepro.modules.pagamento.application.port.out.AtualizarPagamentoAssinaturaPort;
@@ -30,6 +31,8 @@ import br.com.atendepro.modules.pagamento.application.port.out.SalvarCobrancaPag
 import br.com.atendepro.modules.pagamento.application.port.out.SalvarEventoPagamentoGatewayPort;
 import br.com.atendepro.modules.pagamento.application.port.out.SalvarPagamentoAssinaturaPort;
 import br.com.atendepro.modules.pagamento.application.result.CheckoutPagamentoResult;
+import br.com.atendepro.modules.pagamento.application.port.out.ListarPagamentosSandboxPort;
+import br.com.atendepro.modules.pagamento.application.result.PagamentoSandboxResumoResult;
 import br.com.atendepro.modules.pagamento.application.result.WebhookPagamentoResult;
 import br.com.atendepro.modules.pagamento.domain.model.AmbientePagamento;
 import br.com.atendepro.modules.pagamento.domain.model.CobrancaPagamento;
@@ -39,12 +42,14 @@ import br.com.atendepro.modules.pagamento.domain.model.ProvedorPagamento;
 import br.com.atendepro.modules.pagamento.domain.model.StatusCobrancaPagamento;
 import br.com.atendepro.modules.pagamento.domain.model.TipoEventoPagamentoGateway;
 import br.com.atendepro.modules.plano.application.port.out.CarregarPlanoPorIdPort;
+import br.com.atendepro.shared.application.pagination.Paginacao;
+import br.com.atendepro.shared.application.pagination.ResultadoPaginado;
 import br.com.atendepro.shared.domain.exception.BusinessException;
 
 @Service
 @Profile("!test")
 @EnableConfigurationProperties(PagamentosProperties.class)
-public class PagamentoService implements PrepararCheckoutPagamentoUseCase, RegistrarWebhookAsaasUseCase {
+public class PagamentoService implements PrepararCheckoutPagamentoUseCase, RegistrarWebhookAsaasUseCase, ListarPagamentosSandboxUseCase {
 
     private final PermissaoAcessoService permissaoAcessoService;
     private final CarregarEmpresaAdminSaasPort carregarEmpresaAdminSaasPort;
@@ -58,6 +63,7 @@ public class PagamentoService implements PrepararCheckoutPagamentoUseCase, Regis
     private final CarregarEventoPagamentoGatewayPort carregarEventoPagamentoGatewayPort;
     private final CarregarPagamentoAssinaturaPorAssinaturaExternaPort carregarPagamentoPorAssinaturaExternaPort;
     private final CarregarCobrancaPagamentoPorReferenciaExternaPort carregarCobrancaPorReferenciaExternaPort;
+    private final ListarPagamentosSandboxPort listarPagamentosSandboxPort;
     private final RegistrarEventoAuditoriaAdminSaasPort registrarEventoAuditoriaAdminSaasPort;
     private final PagamentosProperties properties;
     private final Clock clock;
@@ -75,6 +81,7 @@ public class PagamentoService implements PrepararCheckoutPagamentoUseCase, Regis
             CarregarEventoPagamentoGatewayPort carregarEventoPagamentoGatewayPort,
             CarregarPagamentoAssinaturaPorAssinaturaExternaPort carregarPagamentoPorAssinaturaExternaPort,
             CarregarCobrancaPagamentoPorReferenciaExternaPort carregarCobrancaPorReferenciaExternaPort,
+            ListarPagamentosSandboxPort listarPagamentosSandboxPort,
             RegistrarEventoAuditoriaAdminSaasPort registrarEventoAuditoriaAdminSaasPort,
             PagamentosProperties properties,
             Clock clock
@@ -91,9 +98,21 @@ public class PagamentoService implements PrepararCheckoutPagamentoUseCase, Regis
         this.carregarEventoPagamentoGatewayPort = carregarEventoPagamentoGatewayPort;
         this.carregarPagamentoPorAssinaturaExternaPort = carregarPagamentoPorAssinaturaExternaPort;
         this.carregarCobrancaPorReferenciaExternaPort = carregarCobrancaPorReferenciaExternaPort;
+        this.listarPagamentosSandboxPort = listarPagamentosSandboxPort;
         this.registrarEventoAuditoriaAdminSaasPort = registrarEventoAuditoriaAdminSaasPort;
         this.properties = properties;
         this.clock = clock;
+    }
+
+    @Override
+    public ResultadoPaginado<PagamentoSandboxResumoResult> listarPagamentosSandbox(
+            Paginacao paginacao,
+            UUID empresaId,
+            String status
+    ) {
+        validarAcessoAdminSaas();
+        validarAmbienteSeguro();
+        return listarPagamentosSandboxPort.listarPagamentosSandbox(paginacao, empresaId, status);
     }
 
     @Override

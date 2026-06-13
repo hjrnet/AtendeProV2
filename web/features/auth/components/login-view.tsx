@@ -22,7 +22,7 @@ import { loginSchema, type LoginFormData } from "@/features/auth/lib/login-schem
 
 const CREDENCIAIS_DEMO: LoginFormData = {
   email: "admin@atendepro.local",
-  senha: "AtendePro@2026"
+  senha: "AtendePro@123"
 };
 
 const itensPainel = [
