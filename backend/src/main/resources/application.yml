@@ -36,6 +36,13 @@ info:
     description: SaaS profissional multiempresa e multiárea
 
 app:
+  pagamentos:
+    configurada: ${PAGAMENTOS_CONFIGURADA:false}
+    provedor: ${PAGAMENTOS_PROVEDOR:asaas}
+    ambiente: ${PAGAMENTOS_AMBIENTE:local}
+    asaas-base-url: ${PAGAMENTOS_ASAAS_BASE_URL:https://sandbox.asaas.com/api/v3}
+    asaas-api-key: ${PAGAMENTOS_ASAAS_API_KEY:}
+    asaas-webhook-token: ${PAGAMENTOS_ASAAS_WEBHOOK_TOKEN:}
   hardening:
     enabled: true
     rate-limit:

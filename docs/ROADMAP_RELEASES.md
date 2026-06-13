@@ -362,7 +362,7 @@ Proxima etapa recomendada: R30 implementacao segura do modulo de pagamentos em s
 
 ## R30 — Pagamentos sandbox com arquitetura hexagonal
 
-Status: PENDENTE.
+Status: CONCLUIDA em 2026-06-13.
 
 Objetivo: implementar a primeira base tecnica do modulo de pagamentos em sandbox, usando o contrato definido na R29 e preservando isolamento por portas/adapters antes de qualquer cobranca real.
 
@@ -376,4 +376,4 @@ Entregas planejadas:
 
 Tasks:
 
-- TASK-R30-001: Criar modulo pagamento sandbox — PENDENTE.
+- TASK-R30-001: Criar modulo pagamento sandbox — CONCLUIDA.

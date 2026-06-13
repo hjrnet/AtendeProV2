@@ -348,4 +348,4 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 
 | Task | Nome | Descricao | Status |
 | --- | --- | --- | --- |
-| TASK-R30-001 | Criar modulo pagamento sandbox | Implementar base hexagonal de pagamentos em sandbox usando contrato R29, sem cobranca real. | PENDENTE |
+| TASK-R30-001 | Criar modulo pagamento sandbox | Implementar base hexagonal de pagamentos em sandbox usando contrato R29, sem cobranca real. | CONCLUIDA |

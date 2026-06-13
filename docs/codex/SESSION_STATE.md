@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R30 — pagamentos sandbox pendente.
+A_DEFINIR — R30 concluida.
 
 ## Última task concluída
-TASK-R29-002 — Definir provedor e contrato técnico do gateway real de pagamentos.
+TASK-R30-001 — Criar modulo pagamento sandbox.
 
 ## Próxima task recomendada
-TASK-R30-001 — criar módulo pagamento sandbox.
+A_DEFINIR.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -763,3 +763,14 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Release R30 cadastrada como pendente para implementar o modulo de pagamentos em sandbox.
 - TASK-R30-001 criada como proxima task tecnica, usando o contrato R29 sem cobranca real.
 - R30 nao foi iniciada nesta execucao; apenas registrada para eliminar divergencia entre recomendacao e status oficial.
+
+## Atualizacao R30 conclusao - 2026-06-13
+
+- Release R30 concluida em modo autopilot multiagente.
+- TASK-R30-001 criou o modulo backend `pagamento` em arquitetura hexagonal.
+- Checkout sandbox e webhook Asaas sandbox foram criados sem cobranca real e com producao bloqueada.
+- Persistencia de pagamento foi adicionada pela migration `0043-create-pagamentos-sandbox-r30.yaml`.
+- Testes unitarios de dominio e service foram adicionados.
+- Ultima task concluida: TASK-R30-001.
+- Proxima release recomendada: A_DEFINIR.
+- Proxima task recomendada: A_DEFINIR.
