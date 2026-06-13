@@ -120,3 +120,4 @@ Ao finalizar:
 - manter a milestone da release;
 - executar `github-release-finalize.ps1` depois do merge quando a release estiver concluida;
 - registrar falhas no observability quando houver bloqueio.
+- push, PR e merge devem ser feitos manualmente pelo usuário, salvo solicitação explícita em contrário.

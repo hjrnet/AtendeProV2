@@ -14,8 +14,8 @@ Produto completo → Roadmap → Releases → TASKs / AI Work Orders → Planeja
 
 ## Push
 
-Push automático está habilitado ao final de cada task concluída e revisada (incluindo testes obrigatórios e validação Docker/local quando aplicável).
-O push pode ser pausado em caso de bloqueio, conflito ou revisão adicional solicitada.
+Nunca faça push automaticamente. Push é sempre manual do usuário.
+Ao final de cada task, informe claramente que o push não foi realizado e indique a branch/commit local disponível para revisão.
 
 ## Commit local
 
@@ -27,14 +27,13 @@ Ao final de cada task, se tudo passar:
 4. escopo respeitado;
 5. não houve alteração indevida;
 
-então faça commit local automaticamente com Conventional Commits incluindo a task e faça push automático da branch atual.
+então faça commit local automaticamente com Conventional Commits incluindo a task. Não faça push.
 
 Exemplo:
 
 ```bash
 git add .
 git commit -m "feat(auth): implementar login com jwt e refresh token (TASK-0303)"
-git push
 ```
 
 ## Comandos curtos
@@ -84,7 +83,7 @@ Regras:
 - `até N tasks` limita a execução a N tasks.
 - `até concluir` executa até concluir a release ou encontrar erro/bloqueio.
 - `até falhar` executa até erro, bloqueio ou conclusão.
-- Cada task deve ser validada, revisada, registrada, commitada localmente e enviada com push automático antes da próxima.
+- Cada task deve ser validada, revisada, registrada e commitada localmente antes da próxima. Push permanece manual do usuário.
 
 ## Políticas de leitura para economizar tokens
 

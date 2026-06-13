@@ -336,3 +336,10 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | TASK-R28-002 | Endpoint de auditoria operacional | Expor resumo, checklist e eventos recentes em `/api/admin-saas/auditoria/operacional`. | CONCLUIDA |
 | TASK-R28-003 | Painel web Auditoria R28 | Adicionar aba Admin SaaS com indicadores, checklist e trilha de eventos. | CONCLUIDA |
 | TASK-R28-004 | Documentacao, validacao e sincronizacao R28 | Atualizar docs, validar auditoria documental e preparar sync GitHub. | CONCLUIDA |
+
+## R29 — Gateway real de assinaturas e pagamentos
+
+| Task | Nome | Descricao | Status |
+| --- | --- | --- | --- |
+| TASK-R29-001 | Formalizar governanca R29 e politica de push manual | Cadastrar R29, corrigir auditoria anti-divergencia e reconciliar push manual nos documentos centrais. | CONCLUIDA |
+| TASK-R29-002 | Definir provedor e contrato tecnico do gateway | Escolher provedor, desenhar contrato backend/webhooks, variaveis de ambiente, modo sandbox e criterios de aceite antes de implementar cobranca real. | PENDENTE |

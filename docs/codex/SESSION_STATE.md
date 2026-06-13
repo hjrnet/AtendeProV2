@@ -4,13 +4,13 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R20 — Growth UI e comando comercial.
+R29 — Gateway real de assinaturas e pagamentos.
 
 ## Última task concluída
-TASK-R14-004 — R14 concluída com governança, inventário de lacunas e mobile real inicial.
+TASK-R29-001 — Formalizar governança R29, auditoria anti-divergência e política de push manual.
 
 ## Próxima task recomendada
-TASK-R20-001 — Tela Growth no web app.
+TASK-R29-002 — Definir provedor e contrato técnico do gateway real de pagamentos.
 
 ## Modo recomendado
 multiagente para arquitetura e fundamentos.
@@ -736,3 +736,13 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Ultima task concluida: TASK-R28-004.
 - Proxima release recomendada: R29 gateway real de assinaturas/pagamentos com provedor definido.
 - Proxima task recomendada: TASK-R29-001.
+
+## Atualizacao R29 - 2026-06-13
+
+- Release R29 iniciada em modo governanca.
+- TASK-R29-001 concluida para corrigir lacunas de governanca antes de implementar gateway real.
+- Auditoria documental strict passou a validar releases recomendadas em `docs/ROADMAP_RELEASES.md` e `docs/codex/SESSION_STATE.md`, bloqueando recomendacoes que ainda nao estejam cadastradas em `docs/RELEASE_STATUS.yaml`.
+- Politica de push foi reconciliada: push automatico removido dos documentos centrais; push permanece manual do usuario.
+- R29 cadastrada oficialmente em `docs/RELEASE_STATUS.yaml`, `docs/TASKS.md`, `docs/ROADMAP_RELEASES.md`, `docs/releases/R29.md` e `docs/codex/tasks/TASK-R29-001.md`.
+- Ultima task concluida: TASK-R29-001.
+- Proxima task recomendada: TASK-R29-002.

@@ -339,3 +339,20 @@ Entregas:
 - Auditoria documental strict mantida como criterio de fechamento.
 
 Proxima etapa recomendada: R29 gateway real de assinaturas/pagamentos com provedor definido.
+
+## R29 — Gateway real de assinaturas e pagamentos
+
+Status: EM_ANDAMENTO.
+
+Objetivo: preparar e iniciar a integracao real de assinaturas/pagamentos com provedor definido, preservando governanca, seguranca operacional, auditoria e modo sandbox antes de efeitos financeiros reais.
+
+Entregas planejadas:
+
+- Governanca R29 formalizada, com push manual e auditoria anti-divergencia ampliada.
+- Provedor de pagamento definido com contrato tecnico, variaveis de ambiente, webhooks e modo sandbox.
+- Implementacao futura deve manter gateway externo isolado por portas/adapters e nao acionar cobranca real sem configuracao explicita.
+
+Tasks:
+
+- TASK-R29-001: Formalizar governanca R29 e politica de push manual — CONCLUIDA.
+- TASK-R29-002: Definir provedor e contrato tecnico do gateway — PENDENTE.
