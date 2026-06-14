@@ -412,3 +412,21 @@ Entregas planejadas:
 Tasks:
 
 - TASK-R32-001: Implementar observabilidade e reconciliação sandbox — CONCLUIDA.
+
+## R33 — Reconciliação em lote da observabilidade de pagamentos sandbox
+
+Status: CONCLUIDA em 2026-06-14.
+
+Objetivo: consolidar uma operação operacional de reconciliação em lote para divergências de pagamentos sandbox, reduzindo o esforço manual do time Admin SaaS e acelerando a higienização de dados no ambiente de testes.
+
+Entregas planejadas:
+
+- Disponibilizar endpoint de reconciliação em lote no backend com filtros de observabilidade (status de assinatura, evento, tipo de divergência e severidade).
+- Executar ação de reconciliação por webhook para divergências elegíveis em lote, com resumo de resultado e falhas.
+- Atualizar painel `Pagamentos R31` com botão de reconciliação em lote usando filtros atuais e retorno operacional.
+- Manter a segurança da R30 com produção bloqueada e operação em modo sandbox.
+- Registrar evidências de execução e atualizar governança.
+
+Tasks:
+
+- TASK-R33-001: Implementar reconciliação em lote na observabilidade de pagamentos sandbox — CONCLUIDA.

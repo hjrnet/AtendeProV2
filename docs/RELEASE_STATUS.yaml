@@ -1,7 +1,7 @@
 ﻿project: AtendePro
 strategy: professional_complete
-current_release: R32
-last_completed_task: TASK-R32-001
+current_release: R33
+last_completed_task: TASK-R33-001
 next_task: A_DEFINIR
 releases:
   R0:
@@ -334,3 +334,8 @@ releases:
     status: CONCLUIDA
     tasks:
       TASK-R32-001: CONCLUIDA
+  R33:
+    name: "R33 — Reconciliação em lote na observabilidade de pagamentos sandbox"
+    status: CONCLUIDA
+    tasks:
+      TASK-R33-001: CONCLUIDA

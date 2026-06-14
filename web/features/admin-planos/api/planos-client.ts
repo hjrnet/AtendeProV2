@@ -227,6 +227,35 @@ export type ObservabilidadePagamentosSandbox = {
   divergencias: ObservabilidadePagamentosSandboxDivergencia[];
 };
 
+export type ReconciliacaoDivergenciaPagamentosSandbox = {
+  pagamentoAssinaturaId: string;
+  tipoDivergencia: string;
+  tipoEvento: string | null;
+  processado: boolean;
+  duplicado: boolean;
+  ignorado: boolean;
+  motivo: string;
+  mensagem: string;
+};
+
+export type ReconciliacaoDivergenciasPagamentosSandboxResult = {
+  totalEncontradas: number;
+  totalProcessadas: number;
+  totalIgnoradas: number;
+  totalDuplicadas: number;
+  totalFalhas: number;
+  itens: ReconciliacaoDivergenciaPagamentosSandbox[];
+};
+
+export type ReconciliacaoPagamentosSandboxRequest = {
+  empresaId: string;
+  statusAssinatura?: string;
+  eventoTipo?: string;
+  tipoDivergencia?: string;
+  severidade?: string;
+  token?: string | null;
+};
+
 const adminApi = criarApiClient({
   getAccessToken: () => carregarSessaoAutenticada()?.accessToken ?? null,
   onUnauthorized: () => limparSessaoAutenticada()
@@ -303,4 +332,18 @@ export function consultarObservabilidadePagamentosSandbox(params: {
       severidade: params.severidade || undefined
     }
   });
+}
+
+export function reconciliarDivergenciasPagamentosSandbox(params: ReconciliacaoPagamentosSandboxRequest) {
+  const { empresaId, token, ...body } = params;
+  return adminApi.post<ReconciliacaoDivergenciasPagamentosSandboxResult>(
+    "/api/admin-saas/pagamentos/observabilidade/reconciliar",
+    {
+      empresaId,
+      ...body
+    },
+    {
+      headers: token ? { "X-AtendePro-Webhook-Token": token } : undefined
+    }
+  );
 }

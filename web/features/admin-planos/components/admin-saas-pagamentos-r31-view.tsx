@@ -17,10 +17,11 @@ import {
   consultarObservabilidadePagamentosSandbox,
   listarPagamentosSandbox,
   listarPlanos,
+  reconciliarDivergenciasPagamentosSandbox,
   prepararCheckoutPagamentoSandbox,
   registrarWebhookAsaasSandbox,
-  type ObservabilidadePagamentosSandbox,
   type ObservabilidadePagamentosSandboxDivergencia,
+  type ReconciliacaoDivergenciasPagamentosSandboxResult,
   type PagamentoSandboxResumo,
   type Plano,
   type WebhookAsaasSandboxRequest
@@ -174,6 +175,22 @@ export function AdminSaasPagamentosR31View({ empresaId }: AdminSaasPagamentosR31
     }
   });
 
+  const reconciliarLoteMutation = useMutation({
+    mutationFn: () => reconciliarDivergenciasPagamentosSandbox({
+      empresaId,
+      statusAssinatura: filtroStatusAssinatura || undefined,
+      eventoTipo: filtroEventoTipo || undefined,
+      tipoDivergencia: filtroTipoDivergencia || undefined,
+      severidade: filtroSeveridade || undefined,
+      token: webhookToken || undefined
+    }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["admin-pagamentos-sandbox", empresaId] });
+      await queryClient.invalidateQueries({ queryKey: ["admin-pagamentos-observabilidade-sandbox", empresaId] });
+      await queryClient.invalidateQueries({ queryKey: ["admin-saas-auditoria-r28"] });
+    }
+  });
+
   if (!empresaId) {
     return (
       <section className="rounded-xl border bg-card p-5 text-sm text-muted-foreground shadow-sm">
@@ -312,6 +329,22 @@ export function AdminSaasPagamentosR31View({ empresaId }: AdminSaasPagamentosR31
             <IndicadorPlano titulo="Webhooks duplicados" valor={indicadores?.totalWebhooksDuplicados ?? 0} />
           </div>
 
+          <div className="flex justify-end">
+            <button
+              type="button"
+              disabled={reconciliarLoteMutation.isPending}
+              onClick={() => reconciliarLoteMutation.mutate()}
+              className="inline-flex h-9 items-center gap-2 rounded-md border bg-background px-3 text-xs font-semibold text-card-foreground transition-colors hover:border-primary/50 disabled:opacity-60"
+            >
+              {reconciliarLoteMutation.isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <PlayCircle className="h-4 w-4" />}
+              Reconciliar divergencias em lote
+            </button>
+          </div>
+          <FeedbackOperacao
+            error={reconciliarLoteMutation.error}
+            success={reconciliarLoteMutation.data ? mensagemResumoReconciliacaoLote(reconciliarLoteMutation.data) : null}
+          />
+
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <FiltroCampo label="Status assinatura" value={filtroStatusAssinatura} onChange={setFiltroStatusAssinatura} options={opcoesStatusAssinatura} />
             <FiltroCampo label="Evento do webhook" value={filtroEventoTipo} onChange={setFiltroEventoTipo} options={opcoesEventoTipo} />
@@ -363,6 +396,10 @@ function CabecalhoR31({ icon: Icon, titulo, descricao }: { icon: typeof CreditCa
       </div>
     </div>
   );
+}
+
+function mensagemResumoReconciliacaoLote(resultado: ReconciliacaoDivergenciasPagamentosSandboxResult) {
+  return `Reconciliação em lote concluída: ${resultado.totalProcessadas} processadas, ${resultado.totalDuplicadas} duplicadas, ${resultado.totalIgnoradas} ignoradas, ${resultado.totalFalhas} falhas de ${resultado.totalEncontradas} divergencias.`;
 }
 
 function IndicadorPlano({ titulo, valor }: { titulo: string; valor: number }) {

@@ -4,10 +4,10 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R32 — Concluida.
+R33 — Concluida.
 
 ## Última task concluída
-TASK-R32-001 — Implementar observabilidade e reconciliação de pagamentos sandbox.
+TASK-R33-001 — Implementar reconciliação em lote na observabilidade de pagamentos sandbox.
 
 ## Próxima task recomendada
 A_DEFINIR.
@@ -805,5 +805,24 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Web adicionou painel de indicadores e divergências por severidade no componente de pagamentos.
 - Ação de reconciliação por webhook (`Reconhecer divergência`) foi integrada à camada de UI para acelerar saneamento do ambiente sandbox.
 - Ultima task concluida: TASK-R32-001.
+- Proxima release recomendada: A_DEFINIR.
+- Proxima task recomendada: A_DEFINIR.
+
+## Atualizacao R33 planejamento - 2026-06-14
+
+- Release R33 iniciada em modo planejamento.
+- Objetivo: reconciliação em lote de divergências de pagamentos sandbox a partir dos filtros da observabilidade.
+- TASK-R33-001 definida para viabilizar saneamento operacional em lote no Admin SaaS.
+- Proxima task: TASK-R33-001.
+
+## Atualizacao R33 conclusao - 2026-06-14
+
+- Release R33 concluída em modo autopilot multiagente.
+- TASK-R33-001 implementou endpoint e operação em lote de reconciliação de divergências na observabilidade de pagamentos sandbox (`POST /api/admin-saas/pagamentos/observabilidade/reconciliar`).
+- Reconciliação em lote foi integrada ao painel `Pagamentos R31` com filtros atuais e retorno operacional consolidado (processadas, duplicadas, ignoradas e falhas).
+- O fluxo reutiliza o tratamento de webhook/sanitização/idempotência já existente para preservar trilha de auditoria e comportamento seguro em sandbox.
+- Testes automatizados do backend foram atualizados em `PagamentoServiceTest` com cenário de reconciliação mista (processada/duplicada/ignorada).
+- Frontend validado com `corepack pnpm lint`, `corepack pnpm typecheck` e `corepack pnpm build`.
+- Ultima task concluida: TASK-R33-001.
 - Proxima release recomendada: A_DEFINIR.
 - Proxima task recomendada: A_DEFINIR.

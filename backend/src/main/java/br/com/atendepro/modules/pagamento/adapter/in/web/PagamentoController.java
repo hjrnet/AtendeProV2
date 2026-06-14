@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.atendepro.modules.pagamento.application.port.in.ObterObservabilidadePagamentosSandboxUseCase;
 import br.com.atendepro.modules.pagamento.application.port.in.ListarPagamentosSandboxUseCase;
 import br.com.atendepro.modules.pagamento.application.port.in.PrepararCheckoutPagamentoUseCase;
+import br.com.atendepro.modules.pagamento.application.port.in.ReconciliarDivergenciasPagamentosSandboxUseCase;
 import br.com.atendepro.modules.pagamento.application.port.in.RegistrarWebhookAsaasUseCase;
 import br.com.atendepro.shared.application.pagination.Paginacao;
 import jakarta.validation.Valid;
@@ -29,17 +30,20 @@ public class PagamentoController {
     private final RegistrarWebhookAsaasUseCase registrarWebhookAsaasUseCase;
     private final ListarPagamentosSandboxUseCase listarPagamentosSandboxUseCase;
     private final ObterObservabilidadePagamentosSandboxUseCase obterObservabilidadePagamentosSandboxUseCase;
+    private final ReconciliarDivergenciasPagamentosSandboxUseCase reconciliarDivergenciasPagamentosSandboxUseCase;
 
     public PagamentoController(
             PrepararCheckoutPagamentoUseCase prepararCheckoutPagamentoUseCase,
             RegistrarWebhookAsaasUseCase registrarWebhookAsaasUseCase,
             ListarPagamentosSandboxUseCase listarPagamentosSandboxUseCase,
-            ObterObservabilidadePagamentosSandboxUseCase obterObservabilidadePagamentosSandboxUseCase
+            ObterObservabilidadePagamentosSandboxUseCase obterObservabilidadePagamentosSandboxUseCase,
+            ReconciliarDivergenciasPagamentosSandboxUseCase reconciliarDivergenciasPagamentosSandboxUseCase
     ) {
         this.prepararCheckoutPagamentoUseCase = prepararCheckoutPagamentoUseCase;
         this.registrarWebhookAsaasUseCase = registrarWebhookAsaasUseCase;
         this.listarPagamentosSandboxUseCase = listarPagamentosSandboxUseCase;
         this.obterObservabilidadePagamentosSandboxUseCase = obterObservabilidadePagamentosSandboxUseCase;
+        this.reconciliarDivergenciasPagamentosSandboxUseCase = reconciliarDivergenciasPagamentosSandboxUseCase;
     }
 
     @GetMapping("/assinaturas")
@@ -91,6 +95,18 @@ public class PagamentoController {
     ) {
         return ResponseEntity.ok(WebhookPagamentoResponse.de(
                 registrarWebhookAsaasUseCase.registrarWebhook(request.paraCommand(token))
+        ));
+    }
+
+    @PostMapping("/observabilidade/reconciliar")
+    public ResponseEntity<ReconciliarDivergenciasPagamentosSandboxResponse> reconciliarDivergenciasPagamentosSandbox(
+            @RequestHeader(value = "X-AtendePro-Webhook-Token", required = false) String token,
+            @Valid @RequestBody ReconciliarDivergenciasPagamentosSandboxRequest request
+    ) {
+        return ResponseEntity.ok(ReconciliarDivergenciasPagamentosSandboxResponse.de(
+                reconciliarDivergenciasPagamentosSandboxUseCase.reconciliarDivergenciasPagamentosSandbox(
+                        request.paraCommand(token)
+                )
         ));
     }
 }

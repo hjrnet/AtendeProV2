@@ -4,7 +4,9 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -19,8 +21,10 @@ import br.com.atendepro.modules.auth.application.permission.PermissaoAcessoServi
 import br.com.atendepro.modules.auth.domain.model.PermissaoAcesso;
 import br.com.atendepro.modules.pagamento.application.command.PrepararCheckoutPagamentoCommand;
 import br.com.atendepro.modules.pagamento.application.command.RegistrarWebhookAsaasCommand;
+import br.com.atendepro.modules.pagamento.application.command.ReconciliarDivergenciasPagamentosSandboxCommand;
 import br.com.atendepro.modules.pagamento.application.port.in.PrepararCheckoutPagamentoUseCase;
 import br.com.atendepro.modules.pagamento.application.port.in.ListarPagamentosSandboxUseCase;
+import br.com.atendepro.modules.pagamento.application.port.in.ReconciliarDivergenciasPagamentosSandboxUseCase;
 import br.com.atendepro.modules.pagamento.application.port.in.RegistrarWebhookAsaasUseCase;
 import br.com.atendepro.modules.pagamento.application.port.out.AtualizarCobrancaPagamentoPort;
 import br.com.atendepro.modules.pagamento.application.port.out.AtualizarPagamentoAssinaturaPort;
@@ -34,6 +38,8 @@ import br.com.atendepro.modules.pagamento.application.port.out.SalvarPagamentoAs
 import br.com.atendepro.modules.pagamento.application.result.CheckoutPagamentoResult;
 import br.com.atendepro.modules.pagamento.application.port.out.ListarPagamentosSandboxPort;
 import br.com.atendepro.modules.pagamento.application.port.out.ObterObservabilidadePagamentosSandboxPort;
+import br.com.atendepro.modules.pagamento.application.result.ReconciliacaoDivergenciaPagamentosSandboxItemResult;
+import br.com.atendepro.modules.pagamento.application.result.ReconciliacaoDivergenciasPagamentosSandboxResult;
 import br.com.atendepro.modules.pagamento.application.result.PagamentoSandboxResumoResult;
 import br.com.atendepro.modules.pagamento.application.result.PagamentosSandboxObservabilidadeResult;
 import br.com.atendepro.modules.pagamento.application.result.WebhookPagamentoResult;
@@ -56,7 +62,8 @@ public class PagamentoService implements
         PrepararCheckoutPagamentoUseCase,
         RegistrarWebhookAsaasUseCase,
         ListarPagamentosSandboxUseCase,
-        ObterObservabilidadePagamentosSandboxUseCase {
+        ObterObservabilidadePagamentosSandboxUseCase,
+        ReconciliarDivergenciasPagamentosSandboxUseCase {
 
     private final PermissaoAcessoService permissaoAcessoService;
     private final CarregarEmpresaAdminSaasPort carregarEmpresaAdminSaasPort;
@@ -141,6 +148,111 @@ public class PagamentoService implements
                 eventoTipo,
                 tipoDivergencia,
                 severidade
+        );
+    }
+
+    @Override
+    public ReconciliacaoDivergenciasPagamentosSandboxResult reconciliarDivergenciasPagamentosSandbox(
+            ReconciliarDivergenciasPagamentosSandboxCommand command
+    ) {
+        validarAcessoAdminSaas();
+        validarAmbienteSeguro();
+
+        PagamentosSandboxObservabilidadeResult observabilidade = consultarObservabilidadePagamentosSandbox(
+                command.empresaId(),
+                command.statusAssinatura(),
+                command.eventoTipo(),
+                command.tipoDivergencia(),
+                command.severidade()
+        );
+
+        List<ReconciliacaoDivergenciaPagamentosSandboxItemResult> itens = new ArrayList<>();
+        int totalProcessadas = 0;
+        int totalIgnoradas = 0;
+        int totalDuplicadas = 0;
+        int totalFalhas = 0;
+
+        for (var divergencia : observabilidade.divergencias()) {
+            TipoEventoPagamentoGateway eventoReconciliacao = eventoReconciliacao(divergencia.tipoDivergencia());
+            if (eventoReconciliacao == null) {
+                totalIgnoradas++;
+                itens.add(new ReconciliacaoDivergenciaPagamentosSandboxItemResult(
+                        divergencia.pagamentoAssinaturaId(),
+                        divergencia.tipoDivergencia(),
+                        null,
+                        false,
+                        false,
+                        true,
+                        "IGNORADO",
+                        "Sem regra de reconciliacao para este tipo de divergencia."
+                ));
+                continue;
+            }
+
+            if (divergencia.assinaturaExternaId() == null || divergencia.cobrancaExternaId() == null) {
+                totalIgnoradas++;
+                itens.add(new ReconciliacaoDivergenciaPagamentosSandboxItemResult(
+                        divergencia.pagamentoAssinaturaId(),
+                        divergencia.tipoDivergencia(),
+                        eventoReconciliacao.name(),
+                        false,
+                        false,
+                        true,
+                        "IGNORADO",
+                        "Divergencia sem identificadores externos para o webhook."
+                ));
+                continue;
+            }
+
+            try {
+                WebhookPagamentoResult reconciliacao = registrarWebhook(new RegistrarWebhookAsaasCommand(
+                        command.token(),
+                        eventoReconciliacao.name(),
+                        divergencia.cobrancaExternaId(),
+                        divergencia.assinaturaExternaId(),
+                        "{\"source\":\"admin-saas-r33\",\"tipoDivergencia\":\"" + divergencia.tipoDivergencia() + "\"}"
+                ));
+
+                if (reconciliacao.duplicado()) {
+                    totalDuplicadas++;
+                } else if (reconciliacao.processado()) {
+                    totalProcessadas++;
+                } else {
+                    totalFalhas++;
+                }
+
+                itens.add(new ReconciliacaoDivergenciaPagamentosSandboxItemResult(
+                        divergencia.pagamentoAssinaturaId(),
+                        divergencia.tipoDivergencia(),
+                        eventoReconciliacao.name(),
+                        reconciliacao.processado(),
+                        reconciliacao.duplicado(),
+                        false,
+                        reconciliacao.processado() ? "PROCESSADO" : reconciliacao.duplicado() ? "DUPLICADO" : "FALHA",
+                        reconciliacao.mensagem()
+                ));
+            } catch (BusinessException exception) {
+                totalFalhas++;
+                itens.add(new ReconciliacaoDivergenciaPagamentosSandboxItemResult(
+                        divergencia.pagamentoAssinaturaId(),
+                        divergencia.tipoDivergencia(),
+                        eventoReconciliacao.name(),
+                        false,
+                        false,
+                        false,
+                        "FALHA",
+                        exception.getMessage()
+                ));
+            }
+        }
+
+        return new ReconciliacaoDivergenciasPagamentosSandboxResult(
+                observabilidade.divergencias().size(),
+                totalProcessadas,
+                totalIgnoradas,
+                totalDuplicadas,
+                totalFalhas,
+                itens
         );
     }
 
@@ -269,6 +381,15 @@ public class PagamentoService implements
             case PAYMENT_DELETED -> StatusCobrancaPagamento.CANCELADO;
             case PAYMENT_REFUNDED -> StatusCobrancaPagamento.ESTORNADO;
             default -> StatusCobrancaPagamento.PENDENTE;
+        };
+    }
+
+    private TipoEventoPagamentoGateway eventoReconciliacao(String tipoDivergencia) {
+        return switch (tipoDivergencia) {
+            case "COBRANCA_RECEBIDA_SEM_WEBHOOK", "ASSINATURA_ATIVA_SEM_CONFIRMACAO_PAGAMENTO" ->
+                    TipoEventoPagamentoGateway.PAYMENT_RECEIVED;
+            case "ASSINATURA_CANCELADA_COM_EVENTO_ATIVO" -> TipoEventoPagamentoGateway.PAYMENT_DELETED;
+            default -> null;
         };
     }
 

@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -27,6 +28,7 @@ import br.com.atendepro.modules.auth.domain.model.PerfilAcesso;
 import br.com.atendepro.modules.empresa.application.context.TenantContext;
 import br.com.atendepro.modules.empresa.application.context.TenantContextHolder;
 import br.com.atendepro.modules.pagamento.application.command.PrepararCheckoutPagamentoCommand;
+import br.com.atendepro.modules.pagamento.application.command.ReconciliarDivergenciasPagamentosSandboxCommand;
 import br.com.atendepro.modules.pagamento.application.command.RegistrarWebhookAsaasCommand;
 import br.com.atendepro.modules.pagamento.application.port.out.AtualizarCobrancaPagamentoPort;
 import br.com.atendepro.modules.pagamento.application.port.out.AtualizarPagamentoAssinaturaPort;
@@ -38,6 +40,7 @@ import br.com.atendepro.modules.pagamento.application.port.out.ObterObservabilid
 import br.com.atendepro.modules.pagamento.application.port.out.SalvarCobrancaPagamentoPort;
 import br.com.atendepro.modules.pagamento.application.port.out.SalvarEventoPagamentoGatewayPort;
 import br.com.atendepro.modules.pagamento.application.port.out.SalvarPagamentoAssinaturaPort;
+import br.com.atendepro.modules.pagamento.application.result.ReconciliacaoDivergenciasPagamentosSandboxResult;
 import br.com.atendepro.modules.pagamento.application.result.ObservabilidadePagamentosSandboxIndicadorResult;
 import br.com.atendepro.modules.pagamento.application.result.ObservabilidadePagamentosSandboxDivergenciaResult;
 import br.com.atendepro.modules.pagamento.domain.model.CobrancaPagamento;
@@ -145,7 +148,109 @@ class PagamentoServiceTest {
         assertThat(result.indicadores().totalCheckoutsPreparados()).isEqualTo(1);
     }
 
+    @Test
+    void deveExecutarReconciliacaoEmLoteDasDivergencias() {
+        definirSuperAdmin();
+        var preparador = criarService("sandbox", "segredo");
+        preparador.prepararCheckout(commandCheckout());
+        var pagamento = pagamentoAdapter.pagamentos.values().iterator().next();
+        var cobranca = pagamentoAdapter.cobrancas.values().iterator().next();
+        var divergencias = List.of(
+                new ObservabilidadePagamentosSandboxDivergenciaResult(
+                        pagamento.id(),
+                        EMPRESA_ID,
+                        PLANO_ID,
+                        ASSINATURA_ID,
+                        "COBRANCA_RECEBIDA_SEM_WEBHOOK",
+                        "ALTA",
+                        "Cobrança recebida sem webhook registrado.",
+                        pagamento.status().name(),
+                        pagamentoAdapter.cobrancas.get(cobranca.id()).status().name(),
+                        pagamento.assinaturaExternaId(),
+                        cobranca.cobrancaExternaId(),
+                        "CHECKOUT_PREPARADO",
+                        true,
+                        AGORA,
+                        AGORA
+                ),
+                new ObservabilidadePagamentosSandboxDivergenciaResult(
+                        pagamento.id(),
+                        EMPRESA_ID,
+                        PLANO_ID,
+                        ASSINATURA_ID,
+                        "COBRANCA_RECEBIDA_SEM_WEBHOOK",
+                        "ALTA",
+                        "Duplicata de webhook recebido sem processamento prévio.",
+                        pagamento.status().name(),
+                        pagamentoAdapter.cobrancas.get(cobranca.id()).status().name(),
+                        pagamento.assinaturaExternaId(),
+                        cobranca.cobrancaExternaId(),
+                        "CHECKOUT_PREPARADO",
+                        true,
+                        AGORA,
+                        AGORA
+                ),
+                new ObservabilidadePagamentosSandboxDivergenciaResult(
+                        pagamento.id(),
+                        EMPRESA_ID,
+                        PLANO_ID,
+                        ASSINATURA_ID,
+                        "ASSINATURA_SEM_COBRANCA",
+                        "MEDIA",
+                        "Assinatura sem cobranca para conciliar.",
+                        pagamento.status().name(),
+                        null,
+                        pagamento.assinaturaExternaId(),
+                        cobranca.cobrancaExternaId(),
+                        "CHECKOUT_PREPARADO",
+                        true,
+                        AGORA,
+                        AGORA
+                ),
+                new ObservabilidadePagamentosSandboxDivergenciaResult(
+                        pagamento.id(),
+                        EMPRESA_ID,
+                        PLANO_ID,
+                        ASSINATURA_ID,
+                        "ASSINATURA_CANCELADA_COM_EVENTO_ATIVO",
+                        "ALTA",
+                        "Sem identificador externo para validação.",
+                        pagamento.status().name(),
+                        pagamentoAdapter.cobrancas.get(cobranca.id()).status().name(),
+                        null,
+                        null,
+                        "CHECKOUT_PREPARADO",
+                        null,
+                        AGORA,
+                        AGORA
+                )
+        );
+        var service = criarService("sandbox", "segredo", new FakeObservabilidadePort(divergencias));
+
+        ReconciliacaoDivergenciasPagamentosSandboxResult result = service.reconciliarDivergenciasPagamentosSandbox(
+                new ReconciliarDivergenciasPagamentosSandboxCommand(
+                        "segredo",
+                        EMPRESA_ID,
+                        null,
+                        null,
+                        null,
+                        null
+                )
+        );
+
+        assertThat(result.totalEncontradas()).isEqualTo(4);
+        assertThat(result.totalProcessadas()).isEqualTo(1);
+        assertThat(result.totalDuplicadas()).isEqualTo(1);
+        assertThat(result.totalIgnoradas()).isEqualTo(2);
+        assertThat(result.totalFalhas()).isEqualTo(0);
+        assertThat(result.itens()).hasSize(4);
+    }
+
     private PagamentoService criarService(String ambiente, String webhookToken) {
+        return criarService(ambiente, webhookToken, observabilidadePort);
+    }
+
+    private PagamentoService criarService(String ambiente, String webhookToken, ObterObservabilidadePagamentosSandboxPort observabilidadePort) {
         return new PagamentoService(
                 new PermissaoAcessoService(),
                 new FakeEmpresaPort(),
@@ -363,6 +468,31 @@ class PagamentoServiceTest {
     }
 
     private static class FakeObservabilidadePort implements ObterObservabilidadePagamentosSandboxPort {
+        private final List<ObservabilidadePagamentosSandboxDivergenciaResult> divergencias;
+
+        private FakeObservabilidadePort() {
+            this(List.of(new ObservabilidadePagamentosSandboxDivergenciaResult(
+                    UUID.fromString("11111111-1111-4111-8111-111111111111"),
+                    EMPRESA_ID,
+                    PLANO_ID,
+                    ASSINATURA_ID,
+                    "ASSINATURA_SEM_COBRANCA",
+                    "ALTA",
+                    "Teste",
+                    "AGUARDANDO_PAGAMENTO",
+                    null,
+                    "assinatura-test",
+                    "cobranca-test",
+                    "CHECKOUT_PREPARADO",
+                    true,
+                    AGORA,
+                    AGORA
+            )));
+        }
+
+        private FakeObservabilidadePort(List<ObservabilidadePagamentosSandboxDivergenciaResult> divergencias) {
+            this.divergencias = divergencias;
+        }
 
         @Override
         public br.com.atendepro.modules.pagamento.application.result.PagamentosSandboxObservabilidadeResult consultarObservabilidadePagamentosSandbox(
@@ -374,23 +504,7 @@ class PagamentoServiceTest {
         ) {
             return new br.com.atendepro.modules.pagamento.application.result.PagamentosSandboxObservabilidadeResult(
                     new ObservabilidadePagamentosSandboxIndicadorResult(1L, 1L, 0L, 0L, 0L, 0L, 0L, 0L, 0L),
-                    java.util.List.of(new ObservabilidadePagamentosSandboxDivergenciaResult(
-                            UUID.fromString("11111111-1111-4111-8111-111111111111"),
-                            EMPRESA_ID,
-                            PLANO_ID,
-                            ASSINATURA_ID,
-                            "ASSINATURA_SEM_COBRANCA",
-                            "ALTA",
-                            "Teste",
-                            "AGUARDANDO_PAGAMENTO",
-                            null,
-                            "assinatura-test",
-                            "cobranca-test",
-                            "CHECKOUT_PREPARADO",
-                            true,
-                            AGORA,
-                            AGORA
-                    ))
+                    divergencias
             );
         }
     }

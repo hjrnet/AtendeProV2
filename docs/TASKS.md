@@ -361,3 +361,9 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | Task | Nome | Descricao | Status |
 | --- | --- | --- | --- |
 | TASK-R32-001 | Implementar observabilidade e reconciliação sandbox | Criar painéis de indicadores, listagem de divergências, reconhecimento seguro e contrato de consulta para reconciliação de pagamentos sandbox no Admin SaaS. | CONCLUIDA |
+
+## R33 — Reconciliação em lote da observabilidade de pagamentos sandbox
+
+| Task | Nome | Descrição | Status |
+| --- | --- | --- | --- |
+| TASK-R33-001 | Implementar reconciliação em lote de pagamentos sandbox | Implementar endpoint e operação em lote para reconciliação automática de divergências com filtros e resumo operacional no Admin SaaS (sem impacto financeiro real). | CONCLUIDA |
