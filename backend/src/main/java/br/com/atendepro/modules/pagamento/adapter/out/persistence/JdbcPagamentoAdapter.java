@@ -17,10 +17,14 @@ import br.com.atendepro.modules.pagamento.application.port.out.CarregarCobrancaP
 import br.com.atendepro.modules.pagamento.application.port.out.CarregarEventoPagamentoGatewayPort;
 import br.com.atendepro.modules.pagamento.application.port.out.CarregarPagamentoAssinaturaPorAssinaturaExternaPort;
 import br.com.atendepro.modules.pagamento.application.port.out.ListarPagamentosSandboxPort;
+import br.com.atendepro.modules.pagamento.application.port.out.ObterObservabilidadePagamentosSandboxPort;
 import br.com.atendepro.modules.pagamento.application.port.out.SalvarCobrancaPagamentoPort;
 import br.com.atendepro.modules.pagamento.application.port.out.SalvarEventoPagamentoGatewayPort;
 import br.com.atendepro.modules.pagamento.application.port.out.SalvarPagamentoAssinaturaPort;
+import br.com.atendepro.modules.pagamento.application.result.ObservabilidadePagamentosSandboxDivergenciaResult;
+import br.com.atendepro.modules.pagamento.application.result.ObservabilidadePagamentosSandboxIndicadorResult;
 import br.com.atendepro.modules.pagamento.application.result.PagamentoSandboxResumoResult;
+import br.com.atendepro.modules.pagamento.application.result.PagamentosSandboxObservabilidadeResult;
 import br.com.atendepro.modules.pagamento.domain.model.AmbientePagamento;
 import br.com.atendepro.modules.pagamento.domain.model.CobrancaPagamento;
 import br.com.atendepro.modules.pagamento.domain.model.EventoPagamentoGateway;
@@ -43,7 +47,8 @@ public class JdbcPagamentoAdapter implements
         CarregarEventoPagamentoGatewayPort,
         CarregarPagamentoAssinaturaPorAssinaturaExternaPort,
         CarregarCobrancaPagamentoPorReferenciaExternaPort,
-        ListarPagamentosSandboxPort {
+        ListarPagamentosSandboxPort,
+        ObterObservabilidadePagamentosSandboxPort {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -341,5 +346,286 @@ public class JdbcPagamentoAdapter implements
         );
 
         return new ResultadoPaginado<>(itens, total == null ? 0 : total, paginacao.pagina(), paginacao.tamanho());
+    }
+
+    @Override
+    public PagamentosSandboxObservabilidadeResult consultarObservabilidadePagamentosSandbox(
+            UUID empresaId,
+            String statusAssinatura,
+            String eventoTipo,
+            String tipoDivergencia,
+            String severidade
+    ) {
+        var filtros = new ArrayList<String>();
+        var parametros = new ArrayList<>();
+        filtros.add("pa.ambiente = 'SANDBOX'");
+        if (empresaId != null) {
+            filtros.add("pa.empresa_id = ?");
+            parametros.add(empresaId);
+        }
+        if (statusAssinatura != null && !statusAssinatura.isBlank()) {
+            filtros.add("pa.status = ?");
+            parametros.add(statusAssinatura.trim().toUpperCase());
+        }
+        String where = "where " + String.join(" and ", filtros);
+
+        ObservabilidadePagamentosSandboxIndicadorResult indicador = jdbcTemplate.queryForObject(
+                """
+                        with base as (
+                            select id
+                            from pagamento_assinaturas pa
+                            %s
+                        ),
+                        eventos as (
+                            select pagamento_assinatura_id, processado, tipo
+                            from pagamento_gateway_eventos e
+                            join base b on b.id = e.pagamento_assinatura_id
+                        ),
+                        cobrancas as (
+                            select pc.pagamento_assinatura_id, status
+                            from pagamento_cobrancas pc
+                            join base b on b.id = pc.pagamento_assinatura_id
+                        )
+                        select
+                            (select count(*) from base pa where pa.id is not null) as total_checkouts_preparados,
+                            (select count(*) from cobrancas c where c.status = 'PENDENTE') as total_cobrancas_pendentes,
+                            (select count(*) from cobrancas c where c.status = 'RECEBIDO') as total_cobrancas_recebidos,
+                            (select count(*) from cobrancas c where c.status = 'ATRASADO') as total_cobrancas_vencidas,
+                            (select count(*) from cobrancas c where c.status = 'CANCELADO') as total_cobrancas_canceladas,
+                            (select count(*) from eventos e where e.processado = true) as total_webhooks_processados,
+                            (select count(*) from eventos e where e.processado = false) as total_webhooks_nao_processados,
+                            (select count(*) from (
+                                select pagamento_assinatura_id, tipo, count(*)
+                                from eventos
+                                group by pagamento_assinatura_id, tipo
+                                having count(*) > 1
+                            ) as duplicados) as total_webhooks_duplicados
+
+                        """.formatted(where),
+                (rs, rowNum) -> new ObservabilidadePagamentosSandboxIndicadorResult(
+                        rs.getLong("total_checkouts_preparados"),
+                        rs.getLong("total_cobrancas_pendentes"),
+                        rs.getLong("total_cobrancas_recebidos"),
+                        rs.getLong("total_cobrancas_vencidas"),
+                        rs.getLong("total_cobrancas_canceladas"),
+                        rs.getLong("total_webhooks_processados"),
+                        rs.getLong("total_webhooks_nao_processados"),
+                        rs.getLong("total_webhooks_duplicados"),
+                        0L
+                ),
+                parametros.toArray()
+        );
+
+        if (indicador == null) {
+            indicador = new ObservabilidadePagamentosSandboxIndicadorResult(
+                    0L,
+                    0L,
+                    0L,
+                    0L,
+                    0L,
+                    0L,
+                    0L,
+                    0L,
+                    0L
+            );
+        }
+
+        var divergencias = jdbcTemplate.query(
+                """
+                        with base as (
+                            select
+                                pa.id as pagamento_assinatura_id,
+                                pa.empresa_id,
+                                pa.plano_id,
+                                pa.assinatura_interna_id,
+                                pa.status as status_assinatura,
+                                pa.assinatura_externa_id,
+                                pa.checkout_externo_id,
+                                pa.criado_em,
+                                pa.atualizado_em
+                            from pagamento_assinaturas pa
+                            %s
+                        ),
+                        cobrancas as (
+                            select
+                                pc.pagamento_assinatura_id,
+                                pc.cobranca_externa_id,
+                                pc.status as status_cobranca
+                            from pagamento_cobrancas pc
+                        ),
+                        ultimo_evento as (
+                            select
+                                e.pagamento_assinatura_id,
+                                e.id,
+                                e.tipo,
+                                e.processado,
+                                e.criado_em
+                            from pagamento_gateway_eventos e
+                            join lateral (
+                                select id
+                                from pagamento_gateway_eventos pe
+                                where pe.pagamento_assinatura_id = e.pagamento_assinatura_id
+                                order by pe.criado_em desc
+                                limit 1
+                            ) ue on true
+                            where e.id = ue.id
+                        ),
+                        divergencias_raw as (
+                            select
+                                b.pagamento_assinatura_id,
+                                b.empresa_id,
+                                b.plano_id,
+                                b.assinatura_interna_id,
+                                b.status_assinatura,
+                                null::text as status_cobranca,
+                                b.assinatura_externa_id,
+                                null::text as cobranca_externa_id,
+                                ue.tipo as evento_tipo,
+                                ue.processado as evento_processado,
+                                b.criado_em as criado_em,
+                                b.atualizado_em as atualizado_em,
+                                'ASSINATURA_SEM_COBRANCA' as tipo_divergencia,
+                                case
+                                    when b.status_assinatura = 'CANCELADA' then 'BAIXA'
+                                    else 'ALTA'
+                                end as severidade_divergencia,
+                                'Assinatura sem cobranca associada em sandbox.' as descricao
+                            from base b
+                            left join cobrancas c on c.pagamento_assinatura_id = b.pagamento_assinatura_id
+                            left join ultimo_evento ue on ue.pagamento_assinatura_id = b.pagamento_assinatura_id
+                            where c.pagamento_assinatura_id is null
+
+                            union all
+
+                            select
+                                b.pagamento_assinatura_id,
+                                b.empresa_id,
+                                b.plano_id,
+                                b.assinatura_interna_id,
+                                b.status_assinatura,
+                                c.status_cobranca,
+                                b.assinatura_externa_id,
+                                c.cobranca_externa_id,
+                                ue.tipo as evento_tipo,
+                                ue.processado as evento_processado,
+                                b.criado_em as criado_em,
+                                b.atualizado_em as atualizado_em,
+                                'ASSINATURA_ATIVA_SEM_CONFIRMACAO_PAGAMENTO' as tipo_divergencia,
+                                'ALTA' as severidade_divergencia,
+                                'Assinatura ativa sem confirmacao de pagamento recebida.' as descricao
+                            from base b
+                            join cobrancas c on c.pagamento_assinatura_id = b.pagamento_assinatura_id
+                            left join ultimo_evento ue on ue.pagamento_assinatura_id = b.pagamento_assinatura_id
+                            where b.status_assinatura = 'ATIVA'
+                              and c.status_cobranca <> 'RECEBIDO'
+
+                            union all
+
+                            select
+                                b.pagamento_assinatura_id,
+                                b.empresa_id,
+                                b.plano_id,
+                                b.assinatura_interna_id,
+                                b.status_assinatura,
+                                c.status_cobranca,
+                                b.assinatura_externa_id,
+                                c.cobranca_externa_id,
+                                ue.tipo as evento_tipo,
+                                ue.processado as evento_processado,
+                                b.criado_em as criado_em,
+                                b.atualizado_em as atualizado_em,
+                                'COBRANCA_RECEBIDA_SEM_WEBHOOK' as tipo_divergencia,
+                                'MEDIA' as severidade_divergencia,
+                                'Cobranca recebida sem evento PAYMENT_RECEIVED registrado para este pagamento.' as descricao
+                            from base b
+                            join cobrancas c on c.pagamento_assinatura_id = b.pagamento_assinatura_id
+                            left join ultimo_evento ue on ue.pagamento_assinatura_id = b.pagamento_assinatura_id
+                            where c.status_cobranca = 'RECEBIDO'
+                              and not exists (
+                                  select 1
+                                  from pagamento_gateway_eventos e
+                                  where e.pagamento_assinatura_id = b.pagamento_assinatura_id
+                                    and e.tipo = 'PAYMENT_RECEIVED'
+                              )
+
+                            union all
+
+                            select
+                                b.pagamento_assinatura_id,
+                                b.empresa_id,
+                                b.plano_id,
+                                b.assinatura_interna_id,
+                                b.status_assinatura,
+                                c.status_cobranca,
+                                b.assinatura_externa_id,
+                                c.cobranca_externa_id,
+                                ue.tipo as evento_tipo,
+                                ue.processado as evento_processado,
+                                b.criado_em as criado_em,
+                                b.atualizado_em as atualizado_em,
+                                'ASSINATURA_CANCELADA_COM_EVENTO_ATIVO' as tipo_divergencia,
+                                'ALTA' as severidade_divergencia,
+                                'Assinatura cancelada com pagamento em status diferente de recebido.' as descricao
+                            from base b
+                            join cobrancas c on c.pagamento_assinatura_id = b.pagamento_assinatura_id
+                            left join ultimo_evento ue on ue.pagamento_assinatura_id = b.pagamento_assinatura_id
+                            where b.status_assinatura = 'CANCELADA'
+                              and c.status_cobranca <> 'CANCELADO'
+                        )
+                        select * from divergencias_raw
+                        """.formatted(where),
+                (rs, rowNum) -> new ObservabilidadePagamentosSandboxDivergenciaResult(
+                        rs.getObject("pagamento_assinatura_id", UUID.class),
+                        rs.getObject("empresa_id", UUID.class),
+                        rs.getObject("plano_id", UUID.class),
+                        rs.getObject("assinatura_interna_id", UUID.class),
+                        rs.getString("tipo_divergencia"),
+                        rs.getString("severidade_divergencia"),
+                        rs.getString("descricao"),
+                        rs.getString("status_assinatura"),
+                        rs.getString("status_cobranca"),
+                        rs.getString("assinatura_externa_id"),
+                        rs.getString("cobranca_externa_id"),
+                        rs.getString("evento_tipo"),
+                        rs.getObject("evento_processado", Boolean.class),
+                        rs.getTimestamp("criado_em").toInstant(),
+                        rs.getTimestamp("atualizado_em").toInstant()
+                ),
+                parametros.toArray()
+        ).stream()
+                .filter(divergencia -> filtroDivergencia(divergencia.tipoDivergencia(), tipoDivergencia))
+                .filter(divergencia -> filtroDivergencia(divergencia.severidade(), severidade))
+                .filter(divergencia -> filtroDivergencia(divergencia.eventoTipo(), eventoTipo))
+                .toList();
+
+        var indicadorComDivergencias = new ObservabilidadePagamentosSandboxIndicadorResult(
+                indicador.totalCheckoutsPreparados(),
+                indicador.totalCobrancasPendentes(),
+                indicador.totalCobrancasRecebidas(),
+                indicador.totalCobrancasVencidas(),
+                indicador.totalCobrancasCanceladas(),
+                indicador.totalWebhooksProcessados(),
+                indicador.totalWebhooksNaoProcessados(),
+                indicador.totalWebhooksDuplicados(),
+                divergencias.size()
+        );
+
+        return new PagamentosSandboxObservabilidadeResult(indicadorComDivergencias, divergencias);
+    }
+
+    private String normalizarFiltro(String valor) {
+        if (valor == null) {
+            return null;
+        }
+        var normalizado = valor.trim().toUpperCase();
+        return normalizado.isBlank() ? null : normalizado;
+    }
+
+    private boolean filtroDivergencia(String valorDado, String valorFiltro) {
+        var filtro = normalizarFiltro(valorFiltro);
+        if (filtro == null) {
+            return true;
+        }
+        return filtro.equals(normalizarFiltro(valorDado));
     }
 }

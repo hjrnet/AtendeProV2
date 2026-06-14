@@ -4,10 +4,10 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-A_DEFINIR — R31 concluida.
+R32 — Concluida.
 
 ## Última task concluída
-TASK-R31-001 — Integrar cockpit Admin SaaS ao pagamento sandbox.
+TASK-R32-001 — Implementar observabilidade e reconciliação de pagamentos sandbox.
 
 ## Próxima task recomendada
 A_DEFINIR.
@@ -788,5 +788,22 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Backend ganhou consulta operacional `GET /api/admin-saas/pagamentos/assinaturas`.
 - Web ganhou API client tipado e aba `Pagamentos R31` para checkout, webhook e status sandbox.
 - Ultima task concluida: TASK-R31-001.
+- Proxima release recomendada: A_DEFINIR.
+- Proxima task recomendada: A_DEFINIR.
+
+## Atualizacao R32 planejamento - 2026-06-14
+
+- Release R32 iniciada em modo autopilot multiagente.
+- Objetivo: consolidar observabilidade de pagamentos sandbox, com indicadores, divergências e ação de reconciliação no Admin SaaS.
+- Proxima task: TASK-R32-001.
+
+## Atualizacao R32 conclusao - 2026-06-14
+
+- Release R32 concluída em modo autopilot multiagente.
+- TASK-R32-001 implementou observabilidade de pagamentos sandbox e fluxo de reconciliação assistida no painel Admin SaaS.
+- Backend adicionou consulta consolidada em `GET /api/admin-saas/pagamentos/observabilidade` com filtros por status de assinatura, evento, severidade e tipo de divergência.
+- Web adicionou painel de indicadores e divergências por severidade no componente de pagamentos.
+- Ação de reconciliação por webhook (`Reconhecer divergência`) foi integrada à camada de UI para acelerar saneamento do ambiente sandbox.
+- Ultima task concluida: TASK-R32-001.
 - Proxima release recomendada: A_DEFINIR.
 - Proxima task recomendada: A_DEFINIR.

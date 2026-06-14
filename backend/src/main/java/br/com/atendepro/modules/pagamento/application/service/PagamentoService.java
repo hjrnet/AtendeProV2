@@ -27,12 +27,15 @@ import br.com.atendepro.modules.pagamento.application.port.out.AtualizarPagament
 import br.com.atendepro.modules.pagamento.application.port.out.CarregarCobrancaPagamentoPorReferenciaExternaPort;
 import br.com.atendepro.modules.pagamento.application.port.out.CarregarEventoPagamentoGatewayPort;
 import br.com.atendepro.modules.pagamento.application.port.out.CarregarPagamentoAssinaturaPorAssinaturaExternaPort;
+import br.com.atendepro.modules.pagamento.application.port.in.ObterObservabilidadePagamentosSandboxUseCase;
 import br.com.atendepro.modules.pagamento.application.port.out.SalvarCobrancaPagamentoPort;
 import br.com.atendepro.modules.pagamento.application.port.out.SalvarEventoPagamentoGatewayPort;
 import br.com.atendepro.modules.pagamento.application.port.out.SalvarPagamentoAssinaturaPort;
 import br.com.atendepro.modules.pagamento.application.result.CheckoutPagamentoResult;
 import br.com.atendepro.modules.pagamento.application.port.out.ListarPagamentosSandboxPort;
+import br.com.atendepro.modules.pagamento.application.port.out.ObterObservabilidadePagamentosSandboxPort;
 import br.com.atendepro.modules.pagamento.application.result.PagamentoSandboxResumoResult;
+import br.com.atendepro.modules.pagamento.application.result.PagamentosSandboxObservabilidadeResult;
 import br.com.atendepro.modules.pagamento.application.result.WebhookPagamentoResult;
 import br.com.atendepro.modules.pagamento.domain.model.AmbientePagamento;
 import br.com.atendepro.modules.pagamento.domain.model.CobrancaPagamento;
@@ -49,7 +52,11 @@ import br.com.atendepro.shared.domain.exception.BusinessException;
 @Service
 @Profile("!test")
 @EnableConfigurationProperties(PagamentosProperties.class)
-public class PagamentoService implements PrepararCheckoutPagamentoUseCase, RegistrarWebhookAsaasUseCase, ListarPagamentosSandboxUseCase {
+public class PagamentoService implements
+        PrepararCheckoutPagamentoUseCase,
+        RegistrarWebhookAsaasUseCase,
+        ListarPagamentosSandboxUseCase,
+        ObterObservabilidadePagamentosSandboxUseCase {
 
     private final PermissaoAcessoService permissaoAcessoService;
     private final CarregarEmpresaAdminSaasPort carregarEmpresaAdminSaasPort;
@@ -64,6 +71,7 @@ public class PagamentoService implements PrepararCheckoutPagamentoUseCase, Regis
     private final CarregarPagamentoAssinaturaPorAssinaturaExternaPort carregarPagamentoPorAssinaturaExternaPort;
     private final CarregarCobrancaPagamentoPorReferenciaExternaPort carregarCobrancaPorReferenciaExternaPort;
     private final ListarPagamentosSandboxPort listarPagamentosSandboxPort;
+    private final ObterObservabilidadePagamentosSandboxPort obterObservabilidadePagamentosSandboxPort;
     private final RegistrarEventoAuditoriaAdminSaasPort registrarEventoAuditoriaAdminSaasPort;
     private final PagamentosProperties properties;
     private final Clock clock;
@@ -82,6 +90,7 @@ public class PagamentoService implements PrepararCheckoutPagamentoUseCase, Regis
             CarregarPagamentoAssinaturaPorAssinaturaExternaPort carregarPagamentoPorAssinaturaExternaPort,
             CarregarCobrancaPagamentoPorReferenciaExternaPort carregarCobrancaPorReferenciaExternaPort,
             ListarPagamentosSandboxPort listarPagamentosSandboxPort,
+            ObterObservabilidadePagamentosSandboxPort obterObservabilidadePagamentosSandboxPort,
             RegistrarEventoAuditoriaAdminSaasPort registrarEventoAuditoriaAdminSaasPort,
             PagamentosProperties properties,
             Clock clock
@@ -99,6 +108,7 @@ public class PagamentoService implements PrepararCheckoutPagamentoUseCase, Regis
         this.carregarPagamentoPorAssinaturaExternaPort = carregarPagamentoPorAssinaturaExternaPort;
         this.carregarCobrancaPorReferenciaExternaPort = carregarCobrancaPorReferenciaExternaPort;
         this.listarPagamentosSandboxPort = listarPagamentosSandboxPort;
+        this.obterObservabilidadePagamentosSandboxPort = obterObservabilidadePagamentosSandboxPort;
         this.registrarEventoAuditoriaAdminSaasPort = registrarEventoAuditoriaAdminSaasPort;
         this.properties = properties;
         this.clock = clock;
@@ -113,6 +123,25 @@ public class PagamentoService implements PrepararCheckoutPagamentoUseCase, Regis
         validarAcessoAdminSaas();
         validarAmbienteSeguro();
         return listarPagamentosSandboxPort.listarPagamentosSandbox(paginacao, empresaId, status);
+    }
+
+    @Override
+    public PagamentosSandboxObservabilidadeResult consultarObservabilidadePagamentosSandbox(
+            UUID empresaId,
+            String statusAssinatura,
+            String eventoTipo,
+            String tipoDivergencia,
+            String severidade
+    ) {
+        validarAcessoAdminSaas();
+        validarAmbienteSeguro();
+        return obterObservabilidadePagamentosSandboxPort.consultarObservabilidadePagamentosSandbox(
+                empresaId,
+                statusAssinatura,
+                eventoTipo,
+                tipoDivergencia,
+                severidade
+        );
     }
 
     @Override

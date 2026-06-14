@@ -355,3 +355,9 @@ Cada TASK é uma AI Work Order oficial. O agente só pode executar tasks listada
 | Task | Nome | Descricao | Status |
 | --- | --- | --- | --- |
 | TASK-R31-001 | Integrar cockpit Admin SaaS ao pagamento sandbox | Expor consulta de pagamentos sandbox no backend, conectar API client web e permitir checkout/webhook sandbox no cockpit Admin SaaS. | CONCLUIDA |
+
+## R32 — Observabilidade e reconciliação de pagamentos sandbox
+
+| Task | Nome | Descricao | Status |
+| --- | --- | --- | --- |
+| TASK-R32-001 | Implementar observabilidade e reconciliação sandbox | Criar painéis de indicadores, listagem de divergências, reconhecimento seguro e contrato de consulta para reconciliação de pagamentos sandbox no Admin SaaS. | CONCLUIDA |

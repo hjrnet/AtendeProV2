@@ -34,9 +34,12 @@ import br.com.atendepro.modules.pagamento.application.port.out.CarregarCobrancaP
 import br.com.atendepro.modules.pagamento.application.port.out.CarregarEventoPagamentoGatewayPort;
 import br.com.atendepro.modules.pagamento.application.port.out.CarregarPagamentoAssinaturaPorAssinaturaExternaPort;
 import br.com.atendepro.modules.pagamento.application.port.out.ListarPagamentosSandboxPort;
+import br.com.atendepro.modules.pagamento.application.port.out.ObterObservabilidadePagamentosSandboxPort;
 import br.com.atendepro.modules.pagamento.application.port.out.SalvarCobrancaPagamentoPort;
 import br.com.atendepro.modules.pagamento.application.port.out.SalvarEventoPagamentoGatewayPort;
 import br.com.atendepro.modules.pagamento.application.port.out.SalvarPagamentoAssinaturaPort;
+import br.com.atendepro.modules.pagamento.application.result.ObservabilidadePagamentosSandboxIndicadorResult;
+import br.com.atendepro.modules.pagamento.application.result.ObservabilidadePagamentosSandboxDivergenciaResult;
 import br.com.atendepro.modules.pagamento.domain.model.CobrancaPagamento;
 import br.com.atendepro.modules.pagamento.domain.model.EventoPagamentoGateway;
 import br.com.atendepro.modules.pagamento.domain.model.PagamentoAssinatura;
@@ -59,6 +62,7 @@ class PagamentoServiceTest {
     private static final Instant AGORA = Instant.parse("2026-06-13T10:00:00Z");
 
     private final FakePagamentoAdapter pagamentoAdapter = new FakePagamentoAdapter();
+    private final FakeObservabilidadePort observabilidadePort = new FakeObservabilidadePort();
     private final FakeAuditoriaPort auditoriaPort = new FakeAuditoriaPort();
 
     @AfterEach
@@ -130,6 +134,17 @@ class PagamentoServiceTest {
         });
     }
 
+    @Test
+    void deveConsultarObservabilidadePagamentos() {
+        definirSuperAdmin();
+        var service = criarService("sandbox", "segredo");
+        service.prepararCheckout(commandCheckout());
+
+        var result = service.consultarObservabilidadePagamentosSandbox(EMPRESA_ID, null, null, null, null);
+
+        assertThat(result.indicadores().totalCheckoutsPreparados()).isEqualTo(1);
+    }
+
     private PagamentoService criarService(String ambiente, String webhookToken) {
         return new PagamentoService(
                 new PermissaoAcessoService(),
@@ -146,6 +161,7 @@ class PagamentoServiceTest {
                 pagamentoAdapter,
                 pagamentoAdapter,
                 auditoriaPort,
+                observabilidadePort,
                 new PagamentosProperties(false, "asaas", ambiente, "https://sandbox.asaas.com/api/v3", "", webhookToken),
                 Clock.fixed(AGORA, ZoneOffset.UTC)
         );
@@ -343,6 +359,39 @@ class PagamentoServiceTest {
                     })
                     .toList();
             return new ResultadoPaginado<>(itens, itens.size(), paginacao.pagina(), paginacao.tamanho());
+        }
+    }
+
+    private static class FakeObservabilidadePort implements ObterObservabilidadePagamentosSandboxPort {
+
+        @Override
+        public br.com.atendepro.modules.pagamento.application.result.PagamentosSandboxObservabilidadeResult consultarObservabilidadePagamentosSandbox(
+                UUID empresaId,
+                String statusAssinatura,
+                String eventoTipo,
+                String tipoDivergencia,
+                String severidade
+        ) {
+            return new br.com.atendepro.modules.pagamento.application.result.PagamentosSandboxObservabilidadeResult(
+                    new ObservabilidadePagamentosSandboxIndicadorResult(1L, 1L, 0L, 0L, 0L, 0L, 0L, 0L, 0L),
+                    java.util.List.of(new ObservabilidadePagamentosSandboxDivergenciaResult(
+                            UUID.fromString("11111111-1111-4111-8111-111111111111"),
+                            EMPRESA_ID,
+                            PLANO_ID,
+                            ASSINATURA_ID,
+                            "ASSINATURA_SEM_COBRANCA",
+                            "ALTA",
+                            "Teste",
+                            "AGUARDANDO_PAGAMENTO",
+                            null,
+                            "assinatura-test",
+                            "cobranca-test",
+                            "CHECKOUT_PREPARADO",
+                            true,
+                            AGORA,
+                            AGORA
+                    ))
+            );
         }
     }
 }

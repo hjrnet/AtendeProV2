@@ -394,3 +394,21 @@ Entregas planejadas:
 Tasks:
 
 - TASK-R31-001: Integrar cockpit Admin SaaS ao pagamento sandbox — CONCLUIDA.
+
+## R32 — Observabilidade e reconciliação de pagamentos sandbox
+
+Status: CONCLUIDA em 2026-06-14.
+
+Objetivo: consolidar a camada operacional de observabilidade de pagamentos sandbox, com consulta de indicadores, divergências e fluxo de reconciliação guiada no Admin SaaS.
+
+Entregas planejadas:
+
+- Indicadores operacionais de checkouts, cobranças e webhooks de sandbox.
+- Listagem de divergências por severidade e tipo, com filtros acionáveis.
+- Ação de reconciliação no cockpit para normalizar fluxos de divergência no banco de testes.
+- Endpoint consolidado para consulta observacional no backend Admin SaaS.
+- Evidência de execução em documentação e status de release.
+
+Tasks:
+
+- TASK-R32-001: Implementar observabilidade e reconciliação sandbox — CONCLUIDA.

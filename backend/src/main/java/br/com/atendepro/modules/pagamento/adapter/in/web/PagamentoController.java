@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.atendepro.modules.pagamento.application.port.in.ObterObservabilidadePagamentosSandboxUseCase;
 import br.com.atendepro.modules.pagamento.application.port.in.ListarPagamentosSandboxUseCase;
 import br.com.atendepro.modules.pagamento.application.port.in.PrepararCheckoutPagamentoUseCase;
 import br.com.atendepro.modules.pagamento.application.port.in.RegistrarWebhookAsaasUseCase;
@@ -27,15 +28,18 @@ public class PagamentoController {
     private final PrepararCheckoutPagamentoUseCase prepararCheckoutPagamentoUseCase;
     private final RegistrarWebhookAsaasUseCase registrarWebhookAsaasUseCase;
     private final ListarPagamentosSandboxUseCase listarPagamentosSandboxUseCase;
+    private final ObterObservabilidadePagamentosSandboxUseCase obterObservabilidadePagamentosSandboxUseCase;
 
     public PagamentoController(
             PrepararCheckoutPagamentoUseCase prepararCheckoutPagamentoUseCase,
             RegistrarWebhookAsaasUseCase registrarWebhookAsaasUseCase,
-            ListarPagamentosSandboxUseCase listarPagamentosSandboxUseCase
+            ListarPagamentosSandboxUseCase listarPagamentosSandboxUseCase,
+            ObterObservabilidadePagamentosSandboxUseCase obterObservabilidadePagamentosSandboxUseCase
     ) {
         this.prepararCheckoutPagamentoUseCase = prepararCheckoutPagamentoUseCase;
         this.registrarWebhookAsaasUseCase = registrarWebhookAsaasUseCase;
         this.listarPagamentosSandboxUseCase = listarPagamentosSandboxUseCase;
+        this.obterObservabilidadePagamentosSandboxUseCase = obterObservabilidadePagamentosSandboxUseCase;
     }
 
     @GetMapping("/assinaturas")
@@ -47,6 +51,25 @@ public class PagamentoController {
     ) {
         return ResponseEntity.ok(PagamentosSandboxPaginadosResponse.de(
                 listarPagamentosSandboxUseCase.listarPagamentosSandbox(new Paginacao(pagina, tamanho), empresaId, status)
+        ));
+    }
+
+    @GetMapping("/observabilidade")
+    public ResponseEntity<PagamentosSandboxObservabilidadeResponse> consultarObservabilidadePagamentos(
+            @RequestParam(required = false) UUID empresaId,
+            @RequestParam(required = false) String statusAssinatura,
+            @RequestParam(required = false) String eventoTipo,
+            @RequestParam(required = false) String tipoDivergencia,
+            @RequestParam(required = false) String severidade
+    ) {
+        return ResponseEntity.ok(PagamentosSandboxObservabilidadeResponse.de(
+                obterObservabilidadePagamentosSandboxUseCase.consultarObservabilidadePagamentosSandbox(
+                empresaId,
+                statusAssinatura,
+                eventoTipo,
+                tipoDivergencia,
+                severidade
+                )
         ));
     }
 

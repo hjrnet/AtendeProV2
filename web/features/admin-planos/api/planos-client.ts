@@ -192,6 +192,41 @@ export type PagamentosSandboxPaginados = {
   totalPaginas: number;
 };
 
+export type ObservabilidadePagamentosSandboxIndicador = {
+  totalCheckoutsPreparados: number;
+  totalCobrancasPendentes: number;
+  totalCobrancasRecebidas: number;
+  totalCobrancasVencidas: number;
+  totalCobrancasCanceladas: number;
+  totalWebhooksProcessados: number;
+  totalWebhooksNaoProcessados: number;
+  totalWebhooksDuplicados: number;
+  totalDivergencias: number;
+};
+
+export type ObservabilidadePagamentosSandboxDivergencia = {
+  pagamentoAssinaturaId: string;
+  empresaId: string;
+  planoId: string | null;
+  assinaturaInternaId: string | null;
+  tipoDivergencia: string;
+  severidade: "BAIXA" | "MEDIA" | "ALTA";
+  descricao: string;
+  statusAssinatura: string;
+  statusCobranca: string | null;
+  assinaturaExternaId: string | null;
+  cobrancaExternaId: string | null;
+  eventoTipo: string | null;
+  eventoProcessado: boolean | null;
+  criadoEm: string;
+  atualizadoEm: string;
+};
+
+export type ObservabilidadePagamentosSandbox = {
+  indicadores: ObservabilidadePagamentosSandboxIndicador;
+  divergencias: ObservabilidadePagamentosSandboxDivergencia[];
+};
+
 const adminApi = criarApiClient({
   getAccessToken: () => carregarSessaoAutenticada()?.accessToken ?? null,
   onUnauthorized: () => limparSessaoAutenticada()
@@ -249,5 +284,23 @@ export function registrarWebhookAsaasSandbox(request: WebhookAsaasSandboxRequest
   const { token, ...body } = request;
   return adminApi.post<WebhookPagamentoSandbox>("/api/admin-saas/pagamentos/webhooks/asaas", body, {
     headers: token ? { "X-AtendePro-Webhook-Token": token } : undefined
+  });
+}
+
+export function consultarObservabilidadePagamentosSandbox(params: {
+  empresaId?: string;
+  statusAssinatura?: string;
+  eventoTipo?: string;
+  tipoDivergencia?: string;
+  severidade?: string;
+}) {
+  return adminApi.get<ObservabilidadePagamentosSandbox>("/api/admin-saas/pagamentos/observabilidade", {
+    query: {
+      empresaId: params.empresaId || undefined,
+      statusAssinatura: params.statusAssinatura || undefined,
+      eventoTipo: params.eventoTipo || undefined,
+      tipoDivergencia: params.tipoDivergencia || undefined,
+      severidade: params.severidade || undefined
+    }
   });
 }
