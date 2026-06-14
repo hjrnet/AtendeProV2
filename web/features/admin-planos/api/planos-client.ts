@@ -1,4 +1,4 @@
-﻿import { criarApiClient } from "@/lib/api";
+﻿import { criarApiClient, ApiError, type ApiErrorPayload } from "@/lib/api";
 import { carregarSessaoAutenticada, limparSessaoAutenticada } from "@/features/auth/lib/auth-storage";
 
 export type Plano = {
@@ -260,6 +260,7 @@ const adminApi = criarApiClient({
   getAccessToken: () => carregarSessaoAutenticada()?.accessToken ?? null,
   onUnauthorized: () => limparSessaoAutenticada()
 });
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
 export function listarPlanos(params: { pagina: number; tamanho: number; busca?: string }) {
   return adminApi.get<PlanosPaginados>("/api/admin-saas/planos", {
@@ -347,3 +348,57 @@ export function reconciliarDivergenciasPagamentosSandbox(params: ReconciliacaoPa
     }
   );
 }
+
+export async function exportarObservabilidadePagamentosSandboxCsv(params: {
+  empresaId?: string;
+  statusAssinatura?: string;
+  eventoTipo?: string;
+  tipoDivergencia?: string;
+  severidade?: string;
+}) {
+  const token = carregarSessaoAutenticada()?.accessToken;
+  const query = new URLSearchParams({
+    empresaId: params.empresaId || "",
+    statusAssinatura: params.statusAssinatura || "",
+    eventoTipo: params.eventoTipo || "",
+    tipoDivergencia: params.tipoDivergencia || "",
+    severidade: params.severidade || ""
+  });
+
+  [...query.entries()].forEach(([chave, valor]) => {
+    if (!valor) {
+      query.delete(chave);
+    }
+  });
+
+  const response = await fetch(new URL(`/api/admin-saas/pagamentos/observabilidade/exportar.csv?${query}`, API_BASE_URL), {
+    headers: {
+      Accept: "text/csv",
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    }
+  });
+
+  if (response.status === 401) {
+    limparSessaoAutenticada();
+  }
+
+  if (!response.ok) {
+    throw await criarErroArquivo(response);
+  }
+
+  return response.blob();
+}
+
+async function criarErroArquivo(response: Response) {
+  const contentType = response.headers.get("Content-Type") ?? "";
+    if (contentType.includes("application/json")) {
+    try {
+      const payload = (await response.json()) as ApiErrorPayload;
+      return new ApiError(response.status, payload.mensagem ?? "Nao foi possivel exportar o CSV.", payload);
+    } catch {
+      return new ApiError(response.status, "Nao foi possivel exportar o CSV.");
+    }
+  }
+  return new ApiError(response.status, "Nao foi possivel exportar o CSV.");
+}
+

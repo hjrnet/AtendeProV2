@@ -4,6 +4,9 @@ import java.net.URI;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.atendepro.modules.pagamento.application.port.in.ObterObservabilidadePagamentosSandboxUseCase;
+import br.com.atendepro.modules.pagamento.application.port.in.ExportarObservabilidadePagamentosSandboxUseCase;
 import br.com.atendepro.modules.pagamento.application.port.in.ListarPagamentosSandboxUseCase;
 import br.com.atendepro.modules.pagamento.application.port.in.PrepararCheckoutPagamentoUseCase;
 import br.com.atendepro.modules.pagamento.application.port.in.ReconciliarDivergenciasPagamentosSandboxUseCase;
@@ -30,6 +34,7 @@ public class PagamentoController {
     private final RegistrarWebhookAsaasUseCase registrarWebhookAsaasUseCase;
     private final ListarPagamentosSandboxUseCase listarPagamentosSandboxUseCase;
     private final ObterObservabilidadePagamentosSandboxUseCase obterObservabilidadePagamentosSandboxUseCase;
+    private final ExportarObservabilidadePagamentosSandboxUseCase exportarObservabilidadePagamentosSandboxUseCase;
     private final ReconciliarDivergenciasPagamentosSandboxUseCase reconciliarDivergenciasPagamentosSandboxUseCase;
 
     public PagamentoController(
@@ -37,12 +42,14 @@ public class PagamentoController {
             RegistrarWebhookAsaasUseCase registrarWebhookAsaasUseCase,
             ListarPagamentosSandboxUseCase listarPagamentosSandboxUseCase,
             ObterObservabilidadePagamentosSandboxUseCase obterObservabilidadePagamentosSandboxUseCase,
+            ExportarObservabilidadePagamentosSandboxUseCase exportarObservabilidadePagamentosSandboxUseCase,
             ReconciliarDivergenciasPagamentosSandboxUseCase reconciliarDivergenciasPagamentosSandboxUseCase
     ) {
         this.prepararCheckoutPagamentoUseCase = prepararCheckoutPagamentoUseCase;
         this.registrarWebhookAsaasUseCase = registrarWebhookAsaasUseCase;
         this.listarPagamentosSandboxUseCase = listarPagamentosSandboxUseCase;
         this.obterObservabilidadePagamentosSandboxUseCase = obterObservabilidadePagamentosSandboxUseCase;
+        this.exportarObservabilidadePagamentosSandboxUseCase = exportarObservabilidadePagamentosSandboxUseCase;
         this.reconciliarDivergenciasPagamentosSandboxUseCase = reconciliarDivergenciasPagamentosSandboxUseCase;
     }
 
@@ -75,6 +82,35 @@ public class PagamentoController {
                 severidade
                 )
         ));
+    }
+
+    @GetMapping(value = "/observabilidade/exportar.csv", produces = "text/csv")
+    public ResponseEntity<byte[]> exportarObservabilidadePagamentosCsv(
+            @RequestParam(required = false) UUID empresaId,
+            @RequestParam(required = false) String statusAssinatura,
+            @RequestParam(required = false) String eventoTipo,
+            @RequestParam(required = false) String tipoDivergencia,
+            @RequestParam(required = false) String severidade
+    ) {
+        byte[] conteudo = exportarObservabilidadePagamentosSandboxUseCase.exportarObservabilidadePagamentosSandboxCsv(
+                empresaId,
+                statusAssinatura,
+                eventoTipo,
+                tipoDivergencia,
+                severidade
+        );
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .contentLength(conteudo.length)
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.attachment()
+                                .filename("observabilidade_pagamentos_sandbox.csv")
+                                .build()
+                                .toString()
+                )
+                .body(conteudo);
     }
 
     @PostMapping("/checkout/sandbox")

@@ -1,7 +1,7 @@
 ﻿project: AtendePro
 strategy: professional_complete
-current_release: R33
-last_completed_task: TASK-R33-001
+current_release: R34
+last_completed_task: TASK-R34-001
 next_task: A_DEFINIR
 releases:
   R0:
@@ -339,3 +339,8 @@ releases:
     status: CONCLUIDA
     tasks:
       TASK-R33-001: CONCLUIDA
+  R34:
+    name: "R34 — Exportação de observabilidade e reconciliação sandbox"
+    status: CONCLUIDA
+    tasks:
+      TASK-R34-001: CONCLUIDA

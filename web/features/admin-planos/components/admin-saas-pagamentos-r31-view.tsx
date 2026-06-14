@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircle2,
   CreditCard,
+  Download,
   LoaderCircle,
   PlayCircle,
   RefreshCw,
@@ -19,6 +20,7 @@ import {
   listarPlanos,
   reconciliarDivergenciasPagamentosSandbox,
   prepararCheckoutPagamentoSandbox,
+  exportarObservabilidadePagamentosSandboxCsv,
   registrarWebhookAsaasSandbox,
   type ObservabilidadePagamentosSandboxDivergencia,
   type ReconciliacaoDivergenciasPagamentosSandboxResult,
@@ -191,6 +193,28 @@ export function AdminSaasPagamentosR31View({ empresaId }: AdminSaasPagamentosR31
     }
   });
 
+  const exportarObservabilidadeCsvMutation = useMutation({
+    mutationFn: async () => {
+      const blob = await exportarObservabilidadePagamentosSandboxCsv({
+        empresaId,
+        statusAssinatura: filtroStatusAssinatura || undefined,
+        eventoTipo: filtroEventoTipo || undefined,
+        tipoDivergencia: filtroTipoDivergencia || undefined,
+        severidade: filtroSeveridade || undefined
+      });
+      const dataArquivo = new Date().toISOString().slice(0, 10);
+      const nomeArquivo = `observabilidade-pagamentos-${dataArquivo}.csv`;
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = nomeArquivo;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    }
+  });
+
   if (!empresaId) {
     return (
       <section className="rounded-xl border bg-card p-5 text-sm text-muted-foreground shadow-sm">
@@ -332,6 +356,15 @@ export function AdminSaasPagamentosR31View({ empresaId }: AdminSaasPagamentosR31
           <div className="flex justify-end">
             <button
               type="button"
+              disabled={exportarObservabilidadeCsvMutation.isPending}
+              onClick={() => exportarObservabilidadeCsvMutation.mutate()}
+              className="inline-flex h-9 items-center gap-2 rounded-md border bg-background px-3 text-xs font-semibold text-card-foreground transition-colors hover:border-primary/50 disabled:opacity-60"
+            >
+              {exportarObservabilidadeCsvMutation.isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+              Exportar observabilidade CSV
+            </button>
+            <button
+              type="button"
               disabled={reconciliarLoteMutation.isPending}
               onClick={() => reconciliarLoteMutation.mutate()}
               className="inline-flex h-9 items-center gap-2 rounded-md border bg-background px-3 text-xs font-semibold text-card-foreground transition-colors hover:border-primary/50 disabled:opacity-60"
@@ -343,6 +376,10 @@ export function AdminSaasPagamentosR31View({ empresaId }: AdminSaasPagamentosR31
           <FeedbackOperacao
             error={reconciliarLoteMutation.error}
             success={reconciliarLoteMutation.data ? mensagemResumoReconciliacaoLote(reconciliarLoteMutation.data) : null}
+          />
+          <FeedbackOperacao
+            error={exportarObservabilidadeCsvMutation.error}
+            success={exportarObservabilidadeCsvMutation.isSuccess ? "Relatorio CSV da observabilidade exportado com sucesso." : null}
           />
 
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">

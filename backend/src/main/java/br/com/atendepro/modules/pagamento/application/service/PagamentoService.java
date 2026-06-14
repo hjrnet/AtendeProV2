@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.List;
@@ -26,6 +27,7 @@ import br.com.atendepro.modules.pagamento.application.port.in.PrepararCheckoutPa
 import br.com.atendepro.modules.pagamento.application.port.in.ListarPagamentosSandboxUseCase;
 import br.com.atendepro.modules.pagamento.application.port.in.ReconciliarDivergenciasPagamentosSandboxUseCase;
 import br.com.atendepro.modules.pagamento.application.port.in.RegistrarWebhookAsaasUseCase;
+import br.com.atendepro.modules.pagamento.application.port.in.ExportarObservabilidadePagamentosSandboxUseCase;
 import br.com.atendepro.modules.pagamento.application.port.out.AtualizarCobrancaPagamentoPort;
 import br.com.atendepro.modules.pagamento.application.port.out.AtualizarPagamentoAssinaturaPort;
 import br.com.atendepro.modules.pagamento.application.port.out.CarregarCobrancaPagamentoPorReferenciaExternaPort;
@@ -63,6 +65,7 @@ public class PagamentoService implements
         RegistrarWebhookAsaasUseCase,
         ListarPagamentosSandboxUseCase,
         ObterObservabilidadePagamentosSandboxUseCase,
+        ExportarObservabilidadePagamentosSandboxUseCase,
         ReconciliarDivergenciasPagamentosSandboxUseCase {
 
     private final PermissaoAcessoService permissaoAcessoService;
@@ -149,6 +152,59 @@ public class PagamentoService implements
                 tipoDivergencia,
                 severidade
         );
+    }
+
+    @Override
+    public byte[] exportarObservabilidadePagamentosSandboxCsv(
+            UUID empresaId,
+            String statusAssinatura,
+            String eventoTipo,
+            String tipoDivergencia,
+            String severidade
+    ) {
+        PagamentosSandboxObservabilidadeResult observabilidade = consultarObservabilidadePagamentosSandbox(
+                empresaId,
+                statusAssinatura,
+                eventoTipo,
+                tipoDivergencia,
+                severidade
+        );
+
+        var csv = new StringBuilder();
+        csv.append("metrica,valor\n");
+        csv.append("total_checkouts_preparados,").append(observabilidade.indicadores().totalCheckoutsPreparados()).append('\n');
+        csv.append("total_cobrancas_pendentes,").append(observabilidade.indicadores().totalCobrancasPendentes()).append('\n');
+        csv.append("total_cobrancas_recebidas,").append(observabilidade.indicadores().totalCobrancasRecebidas()).append('\n');
+        csv.append("total_cobrancas_vencidas,").append(observabilidade.indicadores().totalCobrancasVencidas()).append('\n');
+        csv.append("total_cobrancas_canceladas,").append(observabilidade.indicadores().totalCobrancasCanceladas()).append('\n');
+        csv.append("total_webhooks_processados,").append(observabilidade.indicadores().totalWebhooksProcessados()).append('\n');
+        csv.append("total_webhooks_nao_processados,").append(observabilidade.indicadores().totalWebhooksNaoProcessados()).append('\n');
+        csv.append("total_webhooks_duplicados,").append(observabilidade.indicadores().totalWebhooksDuplicados()).append('\n');
+        csv.append("total_divergencias,").append(observabilidade.indicadores().totalDivergencias()).append('\n');
+        csv.append('\n');
+
+        csv.append("pagamento_assinatura_id,empresa_id,plano_id,assinatura_interna_id,tipo_divergencia,severidade,descricao,");
+        csv.append("status_assinatura,status_cobranca,assinatura_externa_id,cobranca_externa_id,evento_tipo,evento_processado,criado_em,atualizado_em\n");
+
+        for (var divergencia : observabilidade.divergencias()) {
+            csv.append(escapeCsv(divergencia.pagamentoAssinaturaId().toString())).append(',');
+            csv.append(escapeCsv(divergencia.empresaId().toString())).append(',');
+            csv.append(escapeCsv(divergencia.planoId() == null ? "" : divergencia.planoId().toString())).append(',');
+            csv.append(escapeCsv(divergencia.assinaturaInternaId() == null ? "" : divergencia.assinaturaInternaId().toString())).append(',');
+            csv.append(escapeCsv(divergencia.tipoDivergencia())).append(',');
+            csv.append(escapeCsv(divergencia.severidade())).append(',');
+            csv.append(escapeCsv(divergencia.descricao())).append(',');
+            csv.append(escapeCsv(divergencia.statusAssinatura())).append(',');
+            csv.append(escapeCsv(divergencia.statusCobranca())).append(',');
+            csv.append(escapeCsv(divergencia.assinaturaExternaId() == null ? "" : divergencia.assinaturaExternaId())).append(',');
+            csv.append(escapeCsv(divergencia.cobrancaExternaId() == null ? "" : divergencia.cobrancaExternaId())).append(',');
+            csv.append(escapeCsv(divergencia.eventoTipo() == null ? "" : divergencia.eventoTipo())).append(',');
+            csv.append(escapeCsv(divergencia.eventoProcessado() == null ? "" : divergencia.eventoProcessado().toString())).append(',');
+            csv.append(escapeCsv(divergencia.criadoEm().toString())).append(',');
+            csv.append(escapeCsv(divergencia.atualizadoEm().toString())).append('\n');
+        }
+
+        return csv.toString().getBytes(StandardCharsets.UTF_8);
     }
 
     @Override
@@ -429,6 +485,14 @@ public class PagamentoService implements
 
     private String eventoExternoId(RegistrarWebhookAsaasCommand command) {
         return command.event() + ":" + command.paymentId();
+    }
+
+    private String escapeCsv(String valor) {
+        if (valor == null) {
+            return "";
+        }
+        String texto = valor.replace("\"", "\"\"");
+        return "\"" + texto + "\"";
     }
 
     private String sanitizarPayload(String payload) {

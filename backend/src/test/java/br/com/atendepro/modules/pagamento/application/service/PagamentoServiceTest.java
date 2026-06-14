@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -149,6 +150,29 @@ class PagamentoServiceTest {
     }
 
     @Test
+    void deveExportarObservabilidadePagamentosSandboxCsv() {
+        definirSuperAdmin();
+        var service = criarService("sandbox", "segredo");
+        service.prepararCheckout(commandCheckout());
+
+        byte[] conteudoCsv = service.exportarObservabilidadePagamentosSandboxCsv(
+                EMPRESA_ID,
+                null,
+                null,
+                null,
+                null
+        );
+
+        var conteudo = new String(conteudoCsv, StandardCharsets.UTF_8);
+
+        assertThat(conteudo).contains("metrica,valor");
+        assertThat(conteudo).contains("total_checkouts_preparados,1");
+        assertThat(conteudo).contains("total_divergencias,1");
+        assertThat(conteudo).contains("pagamento_assinatura_id,empresa_id,plano_id,assinatura_interna_id");
+        assertThat(conteudo).contains("ASSINATURA_SEM_COBRANCA");
+    }
+
+    @Test
     void deveExecutarReconciliacaoEmLoteDasDivergencias() {
         definirSuperAdmin();
         var preparador = criarService("sandbox", "segredo");
@@ -265,8 +289,8 @@ class PagamentoServiceTest {
                 pagamentoAdapter,
                 pagamentoAdapter,
                 pagamentoAdapter,
-                auditoriaPort,
                 observabilidadePort,
+                auditoriaPort,
                 new PagamentosProperties(false, "asaas", ambiente, "https://sandbox.asaas.com/api/v3", "", webhookToken),
                 Clock.fixed(AGORA, ZoneOffset.UTC)
         );
@@ -503,7 +527,17 @@ class PagamentoServiceTest {
                 String severidade
         ) {
             return new br.com.atendepro.modules.pagamento.application.result.PagamentosSandboxObservabilidadeResult(
-                    new ObservabilidadePagamentosSandboxIndicadorResult(1L, 1L, 0L, 0L, 0L, 0L, 0L, 0L, 0L),
+                    new ObservabilidadePagamentosSandboxIndicadorResult(
+                            1L,
+                            1L,
+                            0L,
+                            0L,
+                            0L,
+                            0L,
+                            0L,
+                            0L,
+                            divergencias.size()
+                    ),
                     divergencias
             );
         }

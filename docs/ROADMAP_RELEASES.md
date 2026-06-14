@@ -430,3 +430,20 @@ Entregas planejadas:
 Tasks:
 
 - TASK-R33-001: Implementar reconciliação em lote na observabilidade de pagamentos sandbox — CONCLUIDA.
+
+## R34 — Exportação da observabilidade de pagamentos sandbox
+
+Status: CONCLUIDA em 2026-06-14.
+
+Objetivo: disponibilizar no Admin SaaS uma saída operacional de observabilidade de pagamentos sandbox em CSV, permitindo baixar os indicadores e divergências com os mesmos filtros do painel de observação.
+
+Entregas planejadas:
+
+- Expor endpoint backend de exportação CSV em `GET /api/admin-saas/pagamentos/observabilidade/exportar.csv` respeitando filtros.
+- Exportar indicadores consolidados e divergências em estrutura plana para análise operacional.
+- Integrar botão de exportação no painel `Pagamentos R31` com acionamento pelos filtros atuais.
+- Validar testes/backend e documentação da release antes da conclusão.
+
+Tasks:
+
+- TASK-R34-001: Exportar observabilidade de pagamentos sandbox em CSV — CONCLUIDA.

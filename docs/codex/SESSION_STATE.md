@@ -4,10 +4,10 @@
 AtendePro — SaaS profissional completo.
 
 ## Release atual
-R33 — Concluida.
+R34 — Concluída.
 
 ## Última task concluída
-TASK-R33-001 — Implementar reconciliação em lote na observabilidade de pagamentos sandbox.
+TASK-R34-001 — Exportar observabilidade de pagamentos sandbox em CSV.
 
 ## Próxima task recomendada
 A_DEFINIR.
@@ -824,5 +824,28 @@ autopilot release para concluir tasks pendentes de uma release com limite contro
 - Testes automatizados do backend foram atualizados em `PagamentoServiceTest` com cenário de reconciliação mista (processada/duplicada/ignorada).
 - Frontend validado com `corepack pnpm lint`, `corepack pnpm typecheck` e `corepack pnpm build`.
 - Ultima task concluida: TASK-R33-001.
+- Proxima release recomendada: A_DEFINIR.
+- Proxima task recomendada: A_DEFINIR.
+
+## Atualizacao R34 planejamento - 2026-06-14
+
+- Release R34 iniciada em modo desenvolvimento.
+- Objetivo: adicionar exportação de observabilidade de pagamentos sandbox em CSV para o Admin SaaS, mantendo os mesmos filtros da consulta operativa.
+- TASK-R34-001 definida para incluir endpoint CSV no backend, ação de download no frontend e atualização da governança.
+- Proxima task: TASK-R34-001.
+
+## Atualizacao R34 conclusao - 2026-06-14
+
+- Release R34 concluída em modo autopilot multiagente.
+- TASK-R34-001 implementou a exportação de observabilidade de pagamentos sandbox em CSV (`GET /api/admin-saas/pagamentos/observabilidade/exportar.csv`), com filtros de `empresaId`, `statusAssinatura`, `eventoTipo`, `tipoDivergencia` e `severidade`.
+- O relatório CSV inclui indicadores consolidados e divergências filtradas, com nome `observabilidade-pagamentos-sandbox.csv` no cliente.
+- O painel `Pagamentos R31` recebeu botão de exportação com feedback de sucesso e download no navegador.
+- Evidências atualizadas em documentação oficial:
+  - `docs/RELEASE_STATUS.yaml`
+  - `docs/TASKS.md`
+  - `docs/ROADMAP_RELEASES.md`
+  - `docs/codex/tasks/TASK-R34-001.md`
+  - `docs/releases/R34.md`
+- Ultima task concluida: TASK-R34-001.
 - Proxima release recomendada: A_DEFINIR.
 - Proxima task recomendada: A_DEFINIR.
